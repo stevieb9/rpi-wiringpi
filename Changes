@@ -1,7 +1,7 @@
 Revision history for Perl extension RPi::WiringPi.
 
 0.01    2016-08-10
-        - initial release
+        - initial prototype release
         - added Pin.pm
         - added error checking
         - first round of tests

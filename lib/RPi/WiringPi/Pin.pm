@@ -6,7 +6,7 @@ use warnings;
 use Carp qw(croak);
 use parent 'RPi::WiringPi::Core';
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 sub new {
     my ($class, $pin) = @_;
@@ -76,6 +76,10 @@ RPi::WiringPi::Pin - GPIO wiringPi pin module
 This module creates objects that directly attach to Raspberry Pi GPIO pins.
 
 Using the object's methods, the GPIO pins can be controlled and monitored.
+
+Consider using the parent module L<RPi::WiringPi> to create pin objects, as
+when they are created from that module, there is error checking and pin
+registration performed, which is a bit safer.
 
 =head1 METHODS
 
