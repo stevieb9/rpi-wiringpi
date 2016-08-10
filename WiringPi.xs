@@ -1,26 +1,18 @@
-///////////////////////////////////////////////////////////////////////////////////////
-// File          wiring/Wiring.xs
-// Description:  XS module for MyPi::Wiring
-// Created       Fri Nov 23 12:13:43 2012
-// SVN Id        $Id:$
-// Copyright:    Copyright (c) 2012 Mark Dootson
-// Licence:      This work is free software; you can redistribute it and/or modify it 
-//               under the terms of the GNU General Public License as published by the 
-//               Free Software Foundation; either version 3 of the License, or any later 
-//               version.
-///////////////////////////////////////////////////////////////////////////////////////
+#include <stdlib.h>
+#include <stdint.h>
 
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
-#include "mylib/include/ppport.h"
+#include "ppport.h"
+
 #include <wiringPi.h>
 #include <wiringSerial.h>
 #include <wiringShift.h>
 #include <wiringPiSPI.h>
 #include <wiringPiI2C.h>
 
-MODULE = HiPi::Wiring  PACKAGE = HiPi::Wiring
+MODULE = RPi::WiringPi  PACKAGE = RPi::WiringPi
 
 int
 wiringPiSetup()
