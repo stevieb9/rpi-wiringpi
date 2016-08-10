@@ -43,7 +43,7 @@ sub pwm {
 sub num {
     return $_[0]->{pin};
 }
-sub {};
+sub _vim{1;};
 1;
 __END__
 

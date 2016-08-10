@@ -3,18 +3,25 @@ package RPi::WiringPi;
 use strict;
 use warnings;
 
+use parent 'RPi::WiringPi::Core';
+
+use Carp qw(carp croak);
 use RPi::WiringPi::Pin;
 
 our $VERSION = '0.01';
 
-
 sub new {
-    return bless {}, shift;
+    my ($self, %args) = @_;
+    $self = bless {%args}, $self;
+    if (! $ENV{NO_BOARD}){
+        $self->SUPER::setup();
+    }
+    return $self;
 }
 sub pin {
     my ($self, $pin_num) = @_;
     my $pin = RPi::WiringPi::Pin->new($pin_num);
-    $self->_register_pin($pin);
+    $self->register_pin($pin);
     return $pin;
 }
 sub registered_pins {
@@ -25,25 +32,135 @@ sub registered_pins {
     }
     return @pin_nums;
 }
-sub _register_pin {
+sub register_pin {
     my ($self, $pin) = @_;
+    my @current_pins = $self->registered_pins;
+    for (@current_pins){
+        if ($pin->num == $_->num){
+            my $num = $pin->num;
+            croak "pin $num is already in use\n";
+        }
+    }
     push @{ $self->{registered_pins} }, $pin;
 }
-
+sub unregister_pin {
+    my ($self, $pin) = @_;
+    my @pins;
+    for ($self->registered_pins){
+        if ($_->num != $pin->num){
+            push @pins, $_;
+        }
+        else {
+            # disable the pin before unregistering
+            $pin->write(0);
+            $pin->mode(0);
+        }
+    }
+    if (@pins == $self->registered_pins){
+        carp "pin ". $pin->num ." is not registered, and can't be unregistered\n";
+    }
+    @{ $self->{registered_pins} } = @pins;
+    return $self->registered_pins;
+}
+sub _vim{1;};
 1;
 __END__
 
 =head1 NAME
 
-RPi::WiringPi - Perl-ized quasi-wrapper for Raspberry Pi's wiringPi library functionality
+RPi::WiringPi - Perl interface to Raspberry Pi's board/GPIO pin functionality
 
 =head1 SYNOPSIS
 
-  use RPi::WiringPi;
+    use RPi::WiringPi;
+
+    use constant {
+        INPUT => 0,
+        OUTPUT => 1,
+        ON => 1,
+        OFF => 0,
+    };
+
+    my $pi = RPi::WiringPi->new;
+
+    my $gpio_pin_1 = $pi->pin(1);
+    my $gpio_pin_2 = $pi->pin(2);
+
+    $gpio_pin_1->mode(INPUT);
+    $gpio_pin_2->mode(OUTPUT)
+
+    my $is_hot = $gpio_pin_1->read;
+
+    if ($is_hot){
+        $gpio_pin_2->write(ON);
+    }
+
+    $pi->unregister_pin($gpio_pin_2);
 
 =head1 DESCRIPTION
 
-=head1 SEE ALSO
+This is the root module for the C<RPi::WiringPi> system. It interfaces to a
+Raspberry Pi board, its accessories and its GPIO pins via the 
+L<wiringPi|http://wiringpi.com> library through the Perl wrapper
+L<RPi::WiringPi::Core|https://metacpan.org/pod/RPi::WiringPi::Core>
+module.
+
+Although this module contains no XS code, the C<RPi::WiringPi::Core> module
+which other modules in this distribution relies on does.
+
+L<wiringPi|http://wiringpi.com> must be installed prior to installing/using
+this module.
+
+=head1 PUBLIC METHODS
+
+=head2 new()
+
+Returns a new C<RPi::WiringPi> object. 
+
+=head2 pin($pin_num)
+
+Returns a L<RPi::WiringPi::Pin> object, mapped to a specified GPIO pin.
+
+Parameters:
+
+    $pin_num
+
+Mandatory: The C<wiringPi> representation of the GPIO pin number.
+
+=head1 HELPER METHODS 
+
+These methods aren't normally needed by end-users. They're available for those
+who want to write their own libraries.
+
+=head2 registered_pins()
+
+Returns an array of L<RPi::WiringPi::Pin> objects that are currently
+registered, and deemed to be in use.
+
+=head2 register_pin($pin_obj)
+
+Registers a GPIO pin within the system for error checking, and proper resetting
+of the pins in use when required.
+
+Parameters:
+
+    $pin_obj
+
+Mandatory: An object instance of L<RPi::WiringPi::Pin> class.
+
+=head2 unregister_pin($pin_obj)
+
+Exactly the opposite of C<register_pin().
+
+=head1 ENVIRONMENT VARIABLES
+
+There are certain environment variables available to aid in testing on
+non-Raspberry Pi boards.
+
+=head2 NO_BOARD
+
+Set to true, will bypass the C<wiringPi> board checks. False will re-enable
+them.
 
 =head1 AUTHOR
 
@@ -51,7 +168,7 @@ Steve Bertrand, E<lt>steveb@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2016 by steve02
+Copyright (C) 2016 by Steve Bertrand
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.18.2 or,

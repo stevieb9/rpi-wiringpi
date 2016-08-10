@@ -6,6 +6,12 @@ use RPi::WiringPi;
 use Test::More;
 
 my $mod = 'RPi::WiringPi';
+
+if (! $ENV{PI_BOARD}){
+    warn "\n*** PI_BOARD is not set! ***\n";
+    $ENV{NO_BOARD} = 1;
+}
+
 my $pi = $mod->new;
 
 {# pin

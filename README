@@ -1,40 +1,118 @@
-RPi-WiringPi version 0.01
-=========================
+NAME
 
-The README is used to introduce the module and provide instructions on
-how to install the module, any machine dependencies it may have (for
-example C compilers and installed libraries) and any other information
-that should be provided before the module is installed.
+    RPi::WiringPi - Perl interface to Raspberry Pi's board/GPIO pin
+    functionality
 
-A README file is required for CPAN modules since CPAN extracts the
-README file from a module distribution so that people browsing the
-archive can use it get an idea of the modules uses. It is usually a
-good idea to provide version information here so that people can
-decide whether fixes for the module are worth downloading.
+SYNOPSIS
 
-INSTALLATION
+        use RPi::WiringPi;
+    
+        use constant {
+            INPUT => 0,
+            OUTPUT => 1,
+            ON => 1,
+            OFF => 0,
+        };
+    
+        my $pi = RPi::WiringPi->new;
+    
+        my $gpio_pin_1 = $pi->pin(1);
+        my $gpio_pin_2 = $pi->pin(2);
+    
+        $gpio_pin_1->mode(INPUT);
+        $gpio_pin_2->mode(OUTPUT)
+    
+        my $is_hot = $gpio_pin_1->read;
+    
+        if ($is_hot){
+            $gpio_pin_2->write(ON);
+        }
+    
+        $pi->unregister_pin($gpio_pin_2);
 
-To install this module type the following:
+DESCRIPTION
 
-   perl Makefile.PL
-   make
-   make test
-   make install
+    This is the root module for the RPi::WiringPi system. It interfaces to
+    a Raspberry Pi board, its accessories and its GPIO pins via the
+    wiringPi <http://wiringpi.com> library through the Perl wrapper
+    RPi::WiringPi::Core <https://metacpan.org/pod/RPi::WiringPi::Core>
+    module.
 
-DEPENDENCIES
+    Although this module contains no XS code, the RPi::WiringPi::Core
+    module which other modules in this distribution relies on does.
 
-This module requires these other modules and libraries:
+    wiringPi <http://wiringpi.com> must be installed prior to
+    installing/using this module.
 
-  blah blah blah
+PUBLIC METHODS
 
-COPYRIGHT AND LICENCE
+ new()
 
-Put the correct copyright and licence information here.
+    Returns a new RPi::WiringPi object.
 
-Copyright (C) 2016 by steve02
+ pin($pin_num)
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.18.2 or,
-at your option, any later version of Perl 5 you may have available.
+    Returns a RPi::WiringPi::Pin object, mapped to a specified GPIO pin.
 
+    Parameters:
+
+        $pin_num
+
+    Mandatory: The wiringPi representation of the GPIO pin number.
+
+HELPER METHODS
+
+    These methods aren't normally needed by end-users. They're available
+    for those who want to write their own libraries.
+
+ registered_pins()
+
+    Returns an array of RPi::WiringPi::Pin objects that are currently
+    registered, and deemed to be in use.
+
+ register_pin($pin_obj)
+
+    Registers a GPIO pin within the system for error checking, and proper
+    resetting of the pins in use when required.
+
+    Parameters:
+
+        $pin_obj
+
+    Mandatory: An object instance of RPi::WiringPi::Pin class.
+
+ unregister_pin($pin_obj)
+
+    Exactly the opposite of register_pin().
+
+ENVIRONMENT VARIABLES
+
+    There are certain environment variables available to aid in testing on
+    non-Raspberry Pi boards.
+
+ NO_BOARD
+
+    Set to true, will bypass the wiringPi board checks. False will
+    re-enable them.
+
+AUTHOR
+
+    Steve Bertrand, <steveb@cpan.org>
+
+COPYRIGHT AND LICENSE
+
+    Copyright (C) 2016 by Steve Bertrand
+
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself, either Perl version 5.18.2 or, at
+    your option, any later version of Perl 5 you may have available.
+
+POD ERRORS
+
+    Hey! The above document had some coding errors, which are explained
+    below:
+
+    Around line 85:
+
+      Unterminated C<...> sequence
 
