@@ -1,26 +1,33 @@
 package RPi::WiringPi;
 
-use 5.018002;
 use strict;
 use warnings;
 
-use parent 'RPi::WiringPi::Core';
-
-require Exporter;
-
-our @ISA = qw(Exporter);
-
-our %EXPORT_TAGS = ('all' => [qw()]);
-
-our @EXPORT_OK = (@{ $EXPORT_TAGS{'all'} });
+use RPi::WiringPi::Pin;
 
 our $VERSION = '0.01';
 
-#require XSLoader;
-#XSLoader::load('RPi::WiringPi', $VERSION);
 
 sub new {
     return bless {}, shift;
+}
+sub pin {
+    my ($self, $pin) = @_;
+    my $pin = RPi::WiringPi::Pin->new($pin);
+    $self->_register_pin($pin);
+    return $pin;
+}
+sub registered_pins {
+    my $self = shift;
+    my @pin_nums;
+    for (@{ $self->{registered_pins} }){
+        push @pin_nums, $_;
+    }
+    return @pin_nums;
+}
+sub _register_pin {
+    my ($self, $pin) = @_;
+    push @{ $self->{registered_pins} };
 }
 
 1;

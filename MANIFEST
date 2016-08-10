@@ -6,6 +6,7 @@ examples/One.pm
 lib/RPi/WiringPi.pm
 lib/RPi/WiringPi/Core.pm
 lib/RPi/WiringPi/Core.xs
+lib/RPi/WiringPi/Pin.pm
 Makefile.PL
 MANIFEST
 MANIFEST.SKIP
