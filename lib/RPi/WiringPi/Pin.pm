@@ -32,10 +32,18 @@ sub write {
     my ($self, $value) = @_;
     $self->write_pin($self->num, $value);
 }
+sub pull {
+    my ($self, $direction) = @_;
+    $self->pull_up_down($self->num, $direction);
+}
+sub pwm {
+    my ($self, $value) = @_;
+    $self->pwm_write($self->num, $value);
+}
 sub num {
     return $_[0]->{pin};
 }
-
+sub {};
 1;
 __END__
 
@@ -107,6 +115,26 @@ Parameters:
     $state
 
 Send in C<1> to turn the pin on, and C<0> to turn it off.
+
+=head2 pull($direction)
+
+Used to set the internal pull-up or pull-down resistor for a pin.
+
+Parameter:
+
+    $direction
+
+Mandatory: C<2> for UP, C<1> for DOWN and C<0> to turn off the resistor.
+
+=head2 pwm($value)
+
+Sets the level of the Pulse Width Modulation (PWM) of the pin.
+
+Parameter:
+
+    $value
+
+Mandatory: values range from 0-1024. C<0> for 0% (off) and C<1024> for 100% (fully on).
 
 =head2 num()
 

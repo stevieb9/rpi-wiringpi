@@ -12,8 +12,8 @@ sub new {
     return bless {}, shift;
 }
 sub pin {
-    my ($self, $pin) = @_;
-    my $pin = RPi::WiringPi::Pin->new($pin);
+    my ($self, $pin_num) = @_;
+    my $pin = RPi::WiringPi::Pin->new($pin_num);
     $self->_register_pin($pin);
     return $pin;
 }
@@ -27,7 +27,7 @@ sub registered_pins {
 }
 sub _register_pin {
     my ($self, $pin) = @_;
-    push @{ $self->{registered_pins} };
+    push @{ $self->{registered_pins} }, $pin;
 }
 
 1;

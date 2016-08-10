@@ -1,4 +1,3 @@
-use 5.018002;
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
@@ -14,4 +13,18 @@ WriteMakefile(
     DEFINE            => '',
     INC               => '-I.',
     OBJECT            => '$(O_FILES)', # link all the C files too
+    META_MERGE => {
+        'meta-spec' => { version => 2 },
+        resources   => {
+            bugtracker => {
+                web => 'https://github.com/stevieb9/p5-rpi-wiringpi/issues',
+            },
+            repository => {
+                type => 'git',
+                url => 'https://github.com/stevieb9/p5-rpi-wiringpi.git',
+                web => 'https://github.com/stevieb9/p5-rpi-wiringpi',
+            },
+        },
+    },
+
 );
