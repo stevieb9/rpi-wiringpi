@@ -1,8 +1,4 @@
 Changes
-Core.pm
-Core.xs
-examples/Main.pm
-examples/One.pm
 lib/RPi/WiringPi.pm
 lib/RPi/WiringPi/Pin.pm
 Makefile.PL
@@ -11,5 +7,3 @@ MANIFEST.SKIP
 ppport.h
 README
 typemap
-wire
-WiringPi.xs

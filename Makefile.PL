@@ -3,16 +3,12 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME              => 'RPi::WiringPi',
     VERSION_FROM      => 'lib/RPi/WiringPi.pm',
-    PREREQ_PM         => {
-        'RPi::WiringPi::Core'   => 0.01, 
-    },
     ($] >= 5.005 ?
       (ABSTRACT_FROM  => 'lib/RPi/WiringPi.pm',
        AUTHOR         => 'Steve Bertrand <steveb@cpan.org>') : ()),
-    LIBS              => ['-lwiringPi'],
+    LIBS              => [],
     DEFINE            => '',
     INC               => '-I.',
-    OBJECT            => '$(O_FILES)', # link all the C files too
     META_MERGE => {
         'meta-spec' => { version => 2 },
         resources   => {
@@ -26,5 +22,8 @@ WriteMakefile(
             },
         },
     },
-
+    PREREQ_PM         => {
+        'RPi::WiringPi::Core'   => 0.02, 
+    },
+    #OBJECT            => '$(O_FILES)', # link all the C files too
 );
