@@ -53,7 +53,7 @@ RPi::WiringPi::Pin - Access and manipulate Raspberry Pi GPIO pins
 
 =head1 SYNOPSIS
 
-    use RPi::WiringPi::Pin;
+    use RPi::WiringPi;
     
     use constant {
         INPUT => 0,
@@ -62,7 +62,10 @@ RPi::WiringPi::Pin - Access and manipulate Raspberry Pi GPIO pins
         OFF => 0,
     };
 
-    my $pin = RPi::WiringPi::Pin->new(5);
+    my $pi = RPi::WiringPi->new;
+
+    my $pin = $pi->pin(5);
+
     $pin->mode(OUTPUT);
     $pin->write(ON);
 
@@ -73,13 +76,10 @@ RPi::WiringPi::Pin - Access and manipulate Raspberry Pi GPIO pins
 
 =head1 DESCRIPTION
 
-This module creates objects that directly attach to Raspberry Pi GPIO pins.
+Through a L<RPi::WiringPi> object, creates objects that directly attach to
+Raspberry Pi GPIO pins.
 
-Using the object's methods, the GPIO pins can be controlled and monitored.
-
-Consider using the parent module L<RPi::WiringPi> to create pin objects, as
-when they are created from that module, there is error checking and pin
-registration performed, which is a bit safer.
+Using the pin object's methods, the GPIO pins can be controlled and monitored.
 
 =head1 METHODS
 
