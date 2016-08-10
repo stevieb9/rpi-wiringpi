@@ -49,7 +49,7 @@ __END__
 
 =head1 NAME
 
-RPi::WiringPi::Pin - GPIO wiringPi pin module
+RPi::WiringPi::Pin - Access and manipulate Raspberry Pi GPIO pins
 
 =head1 SYNOPSIS
 
