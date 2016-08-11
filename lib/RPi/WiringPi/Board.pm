@@ -6,7 +6,7 @@ use warnings;
 use parent 'RPi::WiringPi::Core';
 use RPi::WiringPi::Constant qw(:all);
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 sub new {
     return bless {}, shift;

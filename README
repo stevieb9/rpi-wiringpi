@@ -40,6 +40,9 @@ DESCRIPTION
     RPi::WiringPi::Core <https://metacpan.org/pod/RPi::WiringPi::Core>
     module.
 
+    There are a basic set of constants that can be imported. See
+    RPi::WiringPi::Constant.
+
     wiringPi <http://wiringpi.com> must be installed prior to
     installing/using this module.
 

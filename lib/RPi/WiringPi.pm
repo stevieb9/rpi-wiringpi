@@ -8,7 +8,7 @@ use parent 'RPi::WiringPi::Core';
 use RPi::WiringPi::Constant qw(:all);
 use RPi::WiringPi::Pin;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 my $fatal_exit = 1;
 
@@ -195,6 +195,9 @@ L<wiringPi|http://wiringpi.com> library through the Perl wrapper
 L<RPi::WiringPi::Core|https://metacpan.org/pod/RPi::WiringPi::Core>
 module.
 
+There are a basic set of constants that can be imported. See
+L<RPi::WiringPi::Constant>.
+
 L<wiringPi|http://wiringpi.com> must be installed prior to installing/using
 this module.
 
@@ -306,13 +309,13 @@ them.
 
 =over 4
 
-=item L<wiringPi|http://wiringpi.com> must be installed prior to installing/using
-this module.
+=item - L<wiringPi|http://wiringpi.com> must be installed prior to
+installing/using this module.
 
-=item By default, we use C<wiringPi>'s interpretation of GPIO pin mapping. See
-C<new> method to change this behaviour.
+=item - By default, we use C<wiringPi>'s interpretation of GPIO pin mapping.
+See C<new> method to change this behaviour.
 
-=item This module hijacks fatal errors with C<$SIG{__DIE__}>, as well as
+=item - This module hijacks fatal errors with C<$SIG{__DIE__}>, as well as
 C<$SIG{INT}>. This is so that in the case of a fatal error, the Raspberry Pi
 pins are never left in an inconsistent state. By default, we trap the C<die()>,
 reset all pins to their default (INPUT, LOW), then we C<exit()>. Look at the
