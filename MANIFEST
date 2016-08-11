@@ -1,6 +1,7 @@
 Changes
 lib/RPi/WiringPi.pm
 lib/RPi/WiringPi/Board.pm
+lib/RPi/WiringPi/LCD.pm
 lib/RPi/WiringPi/Pin.pm
 Makefile.PL
 MANIFEST

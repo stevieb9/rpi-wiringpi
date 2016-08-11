@@ -44,7 +44,7 @@ RPi::WiringPi::Board - Access and manipulate Raspberry Pi board attributes
 
     my $board_revision = $board->rev;
 
-    my $pin_num;
+    my $pin_num = 5;
     my $wpi_to_gpio = $board->wpi_to_gpio($pin_num);
     my $phys_to_gpio = $board->phys_to_gpio($pin_num);
 

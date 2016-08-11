@@ -136,13 +136,13 @@ ENVIRONMENT VARIABLES
 
 IMPORTANT NOTES
 
-    wiringPi <http://wiringpi.com> must be installed prior to
+    - wiringPi <http://wiringpi.com> must be installed prior to
     installing/using this module.
 
-    By default, we use wiringPi's interpretation of GPIO pin mapping. See
+    - By default, we use wiringPi's interpretation of GPIO pin mapping. See
     new method to change this behaviour.
 
-    This module hijacks fatal errors with $SIG{__DIE__}, as well as
+    - This module hijacks fatal errors with $SIG{__DIE__}, as well as
     $SIG{INT}. This is so that in the case of a fatal error, the Raspberry
     Pi pins are never left in an inconsistent state. By default, we trap
     the die(), reset all pins to their default (INPUT, LOW), then we
