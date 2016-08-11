@@ -62,6 +62,17 @@ sub unregister_pin {
     @{ $self->{registered_pins} } = @pins;
     return $self->registered_pins;
 }
+sub cleanup {
+    my $self = shift;
+    for ($self->registered_pins){
+        $self->unregister_pin($_);
+        if ($_->mode){
+            my $num = $_->num;
+            warn "\npin $num couldn't be disabled/unregistered!\n";
+        }
+    }
+}
+        
 sub _vim{1;};
 1;
 __END__
@@ -95,7 +106,7 @@ RPi::WiringPi - Perl interface to Raspberry Pi's board/GPIO pin functionality
         $gpio_pin_2->write(ON);
     }
 
-    $pi->unregister_pin($gpio_pin_2);
+    $pi->cleanup;
 
 =head1 DESCRIPTION
 
@@ -127,6 +138,11 @@ Parameters:
 
 Mandatory: The C<wiringPi> representation of the GPIO pin number.
 
+=head2 cleanup()
+
+Resets all registered pins back to default settings (off). It's important that
+this method be called in each application.
+
 =head1 HELPER METHODS 
 
 These methods aren't normally needed by end-users. They're available for those
@@ -150,7 +166,7 @@ Mandatory: An object instance of L<RPi::WiringPi::Pin> class.
 
 =head2 unregister_pin($pin_obj)
 
-Exactly the opposite of C<register_pin().
+Exactly the opposite of C<register_pin()>.
 
 =head1 ENVIRONMENT VARIABLES
 
