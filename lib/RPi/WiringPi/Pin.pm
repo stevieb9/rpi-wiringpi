@@ -60,20 +60,14 @@ RPi::WiringPi::Pin - Access and manipulate Raspberry Pi GPIO pins
 =head1 SYNOPSIS
 
     use RPi::WiringPi;
-    
-    use constant {
-        INPUT => 0,
-        OUTPUT => 1,
-        ON => 1,
-        OFF => 0,
-    };
+    use RPi::Constant qw(:all);
 
     my $pi = RPi::WiringPi->new;
 
     my $pin = $pi->pin(5);
 
     $pin->mode(OUTPUT);
-    $pin->write(ON);
+    $pin->write(HIGH);
 
     my $num = $pin->num;
     my $mode = $pin->mode;

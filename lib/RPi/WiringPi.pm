@@ -174,12 +174,12 @@ functionality
     my $gpio_pin_2 = $pi->pin(2);
 
     $gpio_pin_1->mode(INPUT);
-    $gpio_pin_2->mode(OUTPUT)
+    $gpio_pin_2->mode(OUTPUT);
 
-    my $is_hot = $gpio_pin_1->read;
+    my $pin1_on = $gpio_pin_1->read;
 
-    if ($is_hot){
-        $gpio_pin_2->write(ON);
+    if ($pin1_on){
+        $gpio_pin_2->write(HIGH);
     }
 
     $pi->cleanup;

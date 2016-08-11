@@ -1,31 +1,29 @@
 NAME
 
-    RPi::WiringPi - Perl interface to Raspberry Pi's board/GPIO pin
+    RPi::WiringPi - Perl interface to Raspberry Pi's board and GPIO pin
     functionality
 
 SYNOPSIS
 
         use RPi::WiringPi;
-    
-        use constant {
-            INPUT => 0,
-            OUTPUT => 1,
-            ON => 1,
-            OFF => 0,
-        };
+        use RPi::WiringPi::Constant qw(:all);
     
         my $pi = RPi::WiringPi->new;
+    
+        my $board = $pi->board;
+    
+        print "Raspberry Pi board revision: ". $board->rev ."\n";
     
         my $gpio_pin_1 = $pi->pin(1);
         my $gpio_pin_2 = $pi->pin(2);
     
         $gpio_pin_1->mode(INPUT);
-        $gpio_pin_2->mode(OUTPUT)
+        $gpio_pin_2->mode(OUTPUT);
     
-        my $is_hot = $gpio_pin_1->read;
+        my $pin1_on = $gpio_pin_1->read;
     
-        if ($is_hot){
-            $gpio_pin_2->write(ON);
+        if ($pin1_on){
+            $gpio_pin_2->write(HIGH);
         }
     
         $pi->cleanup;
@@ -48,7 +46,7 @@ DESCRIPTION
     By default, we use wiringPi's interpretation of GPIO pin mapping. See
     new method to change this behaviour.
 
-PUBLIC METHODS
+OPERATIONAL METHODS
 
  new(%args)
 
@@ -59,9 +57,12 @@ PUBLIC METHODS
     setup => $value
 
       Optional. This option specifies which GPIO pin mapping (numbering
-      scheme) to use. wiringPi for wiringPi's mapping, physical to use the
-      pin numbers labelled on the board itself, or gpio use the Broadcom
-      (BCM) pin numbers.
+      scheme) to use. wiringPi for wiringPi's mapping, physical or system
+      to use the pin numbers labelled on the board itself, or gpio use the
+      Broadcom (BCM) pin numbers.
+
+      See wiringPi setup reference <http://wiringpi.com/reference/setup>
+      for important details on the differences.
 
     fatal_exit => $bool
 
@@ -69,6 +70,11 @@ PUBLIC METHODS
       a call to die() is trapped, by default, we clean up, and then exit().
       Set fatal_exit to false (0) to perform the cleanup, and then continue
       running your script. This is for unit testing purposes only.
+
+ board()
+
+    Returns a RPi::WiringPi::Board object which has access to various
+    attributes of the Raspberry Pi physical board itself.
 
  pin($pin_num)
 
@@ -89,6 +95,11 @@ HELPER METHODS
 
     These methods aren't normally needed by end-users. They're available
     for those who want to write their own libraries.
+
+ pin_map()
+
+    Returns the current pin mapping in use. Returns "NULL" it has not yet
+    been set.
 
  registered_pins()
 

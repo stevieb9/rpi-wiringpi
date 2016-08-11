@@ -43,14 +43,16 @@ RPi::WiringPi::Board - Access and manipulate Raspberry Pi board attributes
     my $board = $pi->board;
 
     my $board_revision = $board->rev;
-    my $wpi_to_gpio = $board->wpi_to_gpio(5);
-    my $phys_to_gpio = $board->phys_to_gpio(5);
+
+    my $pin_num;
+    my $wpi_to_gpio = $board->wpi_to_gpio($pin_num);
+    my $phys_to_gpio = $board->phys_to_gpio($pin_num);
 
     print "rev: $board_revision\n" .
-          "wiringPi pin num translated to gpio pin num: $wpi_to_gpio\n" .
-          "physical pin num translated to gpio pin num: $phys_to_gpio";
+          "wiringPi pin $pin_num translated to gpio pin num: $wpi_to_gpio\n" .
+          "physical pin $pin_num translated to gpio pin num: $phys_to_gpio";
 
-    # change the Pulse Width Modulation (PWM) range from 0-1024
+    # change the Pulse Width Modulation (PWM) range maximum
 
     $board->pwm_range(512);
 
