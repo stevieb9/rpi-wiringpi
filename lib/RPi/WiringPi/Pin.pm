@@ -6,7 +6,7 @@ use warnings;
 use Carp qw(croak);
 use parent 'RPi::WiringPi::Core';
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 sub new {
     my ($class, $pin) = @_;
@@ -76,10 +76,11 @@ RPi::WiringPi::Pin - Access and manipulate Raspberry Pi GPIO pins
     $pin->mode(OUTPUT);
     $pin->write(ON);
 
-    my $pin_num = $pin->num;
-    my $pin_state = $pin->read;
+    my $num = $pin->num;
+    my $mode = $pin->mode;
+    my $state = $pin->read;
 
-    print "pin number $pin_num is in state $pin_state\n";
+    print "pin number $num is in mode $mode with state $state\n";
 
 =head1 DESCRIPTION
 

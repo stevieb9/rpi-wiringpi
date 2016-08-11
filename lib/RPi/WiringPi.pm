@@ -8,7 +8,7 @@ use parent 'RPi::WiringPi::Core';
 use Carp qw(carp croak);
 use RPi::WiringPi::Pin;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 sub new {
     my ($self, %args) = @_;
@@ -72,7 +72,6 @@ sub cleanup {
         }
     }
 }
-        
 sub _vim{1;};
 1;
 __END__

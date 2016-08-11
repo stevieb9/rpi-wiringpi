@@ -1,69 +1,82 @@
 NAME
+
     RPi::WiringPi - Perl interface to Raspberry Pi's board/GPIO pin
     functionality
 
 SYNOPSIS
-        use RPi::WiringPi;
 
+        use RPi::WiringPi;
+    
         use constant {
             INPUT => 0,
             OUTPUT => 1,
             ON => 1,
             OFF => 0,
         };
-
+    
         my $pi = RPi::WiringPi->new;
-
+    
         my $gpio_pin_1 = $pi->pin(1);
         my $gpio_pin_2 = $pi->pin(2);
-
+    
         $gpio_pin_1->mode(INPUT);
         $gpio_pin_2->mode(OUTPUT)
-
+    
         my $is_hot = $gpio_pin_1->read;
-
+    
         if ($is_hot){
             $gpio_pin_2->write(ON);
         }
-
+    
         $pi->cleanup;
 
 DESCRIPTION
-    This is the root module for the `RPi::WiringPi' system. It interfaces to
-    a Raspberry Pi board, its accessories and its GPIO pins via the wiringPi
-    library through the Perl wrapper RPi::WiringPi::Core module.
 
-    Although this module contains no XS code, the `RPi::WiringPi::Core'
+    This is the root module for the RPi::WiringPi system. It interfaces to
+    a Raspberry Pi board, its accessories and its GPIO pins via the
+    wiringPi <http://wiringpi.com> library through the Perl wrapper
+    RPi::WiringPi::Core <https://metacpan.org/pod/RPi::WiringPi::Core>
+    module.
+
+    Although this module contains no XS code, the RPi::WiringPi::Core
     module which other modules in this distribution relies on does.
 
-    wiringPi must be installed prior to installing/using this module.
+    wiringPi <http://wiringpi.com> must be installed prior to
+    installing/using this module.
 
 PUBLIC METHODS
-  new()
-    Returns a new `RPi::WiringPi' object.
 
-  pin($pin_num)
+ new()
+
+    Returns a new RPi::WiringPi object.
+
+ pin($pin_num)
+
     Returns a RPi::WiringPi::Pin object, mapped to a specified GPIO pin.
 
     Parameters:
 
         $pin_num
 
-    Mandatory: The `wiringPi' representation of the GPIO pin number.
+    Mandatory: The wiringPi representation of the GPIO pin number.
 
-  cleanup()
+ cleanup()
+
     Resets all registered pins back to default settings (off). It's
     important that this method be called in each application.
 
 HELPER METHODS
-    These methods aren't normally needed by end-users. They're available for
-    those who want to write their own libraries.
 
-  registered_pins()
+    These methods aren't normally needed by end-users. They're available
+    for those who want to write their own libraries.
+
+ registered_pins()
+
     Returns an array of RPi::WiringPi::Pin objects that are currently
     registered, and deemed to be in use.
 
-  register_pin($pin_obj)
+ register_pin($pin_obj)
+
     Registers a GPIO pin within the system for error checking, and proper
     resetting of the pins in use when required.
 
@@ -73,21 +86,26 @@ HELPER METHODS
 
     Mandatory: An object instance of RPi::WiringPi::Pin class.
 
-  unregister_pin($pin_obj)
-    Exactly the opposite of `register_pin()'.
+ unregister_pin($pin_obj)
+
+    Exactly the opposite of register_pin().
 
 ENVIRONMENT VARIABLES
+
     There are certain environment variables available to aid in testing on
     non-Raspberry Pi boards.
 
-  NO_BOARD
-    Set to true, will bypass the `wiringPi' board checks. False will
+ NO_BOARD
+
+    Set to true, will bypass the wiringPi board checks. False will
     re-enable them.
 
 AUTHOR
+
     Steve Bertrand, <steveb@cpan.org>
 
 COPYRIGHT AND LICENSE
+
     Copyright (C) 2016 by Steve Bertrand
 
     This library is free software; you can redistribute it and/or modify it
