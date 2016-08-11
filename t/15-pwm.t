@@ -16,19 +16,22 @@ my $pi = $mod->new;
 
 {# pwm
 
-    my $pin = $pi->pin(1);
-    
-    my $ok = eval { $pin->pwm(75); 1; };
-    ok ! $ok, "pwm() can't be set if mode() isn't PWM (2)";
+    ok 1, "ok";
 
-    $pin->mode(2);
-    is $pin->mode, 2, "pin mode set to PWM ok, and we can read it";
+    if (! $ENV{NO_BOARD}) {
+        my $pin = $pi->pin(1);
+        
+        my $ok = eval { $pin->pwm(75); 1; };
+        ok ! $ok, "pwm() can't be set if mode() isn't PWM (2)";
 
-    $ok = eval { $pin->pwm(200); 1; };
-    is $ok, 1, "after mode() set to PWM, pwm() ok";
+        $pin->mode(2);
+        is $pin->mode, 2, "pin mode set to PWM ok, and we can read it";
 
-    $pi->unregister_pin($pin);
+        $ok = eval { $pin->pwm(200); 1; };
+        is $ok, 1, "after mode() set to PWM, pwm() ok";
 
+        $pi->unregister_pin($pin);
+    }
 }
 
 done_testing();

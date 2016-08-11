@@ -6,6 +6,7 @@ use warnings;
 use parent 'RPi::WiringPi::Core';
 
 use Carp qw(carp croak);
+use RPi::WiringPi::Constant qw(:all);
 use RPi::WiringPi::Pin;
 
 our $VERSION = '0.03';
@@ -13,8 +14,17 @@ our $VERSION = '0.03';
 sub new {
     my ($self, %args) = @_;
     $self = bless {%args}, $self;
+
     if (! $ENV{NO_BOARD}){
-        $self->SUPER::setup();
+        if ($self->_setup =~ /^w/){
+            $self->SUPER::setup();
+        }
+        elsif ($self->_setup =~ /^g/){
+            $self->SUPER::setup_gpio();
+        }
+        elsif ($self->_setup =~ /^p/){
+            $self->SUPER::setup_phys();
+        }
     }
     return $self;
 }
@@ -72,6 +82,9 @@ sub cleanup {
         }
     }
 }
+sub _setup {
+    return $_[0]->{setup};
+}
 sub _vim{1;};
 1;
 __END__
@@ -109,23 +122,34 @@ RPi::WiringPi - Perl interface to Raspberry Pi's board/GPIO pin functionality
 
 =head1 DESCRIPTION
 
+WARNING: Until version 1.00 is released, the API and other functionality of
+this module may change, and things may break from time-to-time.
+
 This is the root module for the C<RPi::WiringPi> system. It interfaces to a
 Raspberry Pi board, its accessories and its GPIO pins via the 
 L<wiringPi|http://wiringpi.com> library through the Perl wrapper
 L<RPi::WiringPi::Core|https://metacpan.org/pod/RPi::WiringPi::Core>
 module.
 
-Although this module contains no XS code, the C<RPi::WiringPi::Core> module
-which other modules in this distribution relies on does.
-
 L<wiringPi|http://wiringpi.com> must be installed prior to installing/using
 this module.
 
+By default, we use C<wiringPi>'s interpretation of GPIO pin mapping. See
+C<new> method to change this behaviour.
+
 =head1 PUBLIC METHODS
 
-=head2 new()
+=head2 new(setup => $value)
 
 Returns a new C<RPi::WiringPi> object. 
+
+Parameters:
+
+    $value
+
+Optional. This option specifies which GPIO pin mapping (numbering scheme) to
+use. C<wiringPi> for wiringPi's mapping, C<physical> to use the pin numbers
+labelled on the board itself, or C<gpio> use the Broadcom (BCM) pin numbers.
 
 =head2 pin($pin_num)
 
@@ -135,7 +159,7 @@ Parameters:
 
     $pin_num
 
-Mandatory: The C<wiringPi> representation of the GPIO pin number.
+Mandatory: The pin number to attach to.
 
 =head2 cleanup()
 

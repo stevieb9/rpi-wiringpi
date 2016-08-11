@@ -21,15 +21,19 @@ my $pi = $mod->new;
 
     is $pin->read, 0, "pin status is LOW by default";
 
-    $pin->write(1);
-    
-    is $pin->read, 1, "pin status HIGH after write(1)";
 
-    $pin->write(0);
-    
-    is $pin->read, 0, "pin status back to LOW after write(0)";
-   
-    $pin->mode(0);
+    if (! $ENV{NO_BOARD}){
+
+        $pin->write(1);
+        
+        is $pin->read, 1, "pin status HIGH after write(1)";
+
+        $pin->write(0);
+        
+        is $pin->read, 0, "pin status back to LOW after write(0)";
+       
+        $pin->mode(0);
+    }
 }
 
 done_testing();

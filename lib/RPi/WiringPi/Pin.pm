@@ -102,7 +102,7 @@ Parameters:
 
 Mandatory. 
 
-The L<wiringPi|http://wiringpi.com> representation of a pin number.
+Mandatory: The pin number to attach to.
 
 =head2 mode($mode)
 
@@ -114,8 +114,8 @@ Parameters:
     $mode
 
 Optional: If not sent in, we'll simply return the current mode of the pin.
-Otherwise, send in: C<0> for INPUT, C<1> for OUTPUT, C<2> for PWM and C<3>
-for GPIO_CLK (clock) mode.
+Otherwise, send in: C<0> for INPUT, C<1> for OUTPUT, C<2> for PWM_OUT and C<3>
+for GPIO_CLOCK (clock) mode.
 
 =head2 read()
 
@@ -154,8 +154,7 @@ Mandatory: values range from 0-1024. C<0> for 0% (off) and C<1024> for 100% (ful
 
 =head2 num()
 
-Returns the L<wiringPi|http://wiringPi> numeric representation of the GPIO pin
-number attached to this pin object.
+Returns the pin number associated with the pin object.
 
 =head1 SEE ALSO
 
