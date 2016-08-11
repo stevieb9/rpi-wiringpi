@@ -26,6 +26,8 @@ BEGIN {
     $SIG{INT} = \&error;
 };
 
+# core
+
 sub new {
     my ($self, %args) = @_;
     $self = bless {%args}, $self;
@@ -57,12 +59,19 @@ sub pin {
     $self->register_pin($pin);
     return $pin;
 }
+sub board {
+    my $self = shift;
+    my $board = RPi::WiringPi::Board->new;
+    return $board;
+}
+
+# helper
 sub pin_map {
     my ($self, $map) = @_;
     if (defined $map){
         $self->{pin_map} = $map;
     }
-    return defined $self->{pin_map} 
+    return defined $self->{pin_map}
         ? $self->{pin_map}
         : 'NULL';
 }
@@ -105,7 +114,8 @@ sub unregister_pin {
         }
     }
     if (@pins == $self->registered_pins){
-        warn "pin ". $pin->num ." is not registered, and can't be unregistered\n";
+        warn "pin ". $pin->num ." is not registered, and can't be " .
+             "unregistered\n";
     }
     @{ $self->{registered_pins} } = @pins;
     return $self->registered_pins;
@@ -120,6 +130,9 @@ sub cleanup {
         }
     }
 }
+
+# private
+
 sub _fatal_exit {
     my $self = shift;
     $fatal_exit = $self->{fatal_exit} if defined $self->{fatal_exit};
@@ -143,20 +156,19 @@ __END__
 
 =head1 NAME
 
-RPi::WiringPi - Perl interface to Raspberry Pi's board/GPIO pin functionality
+RPi::WiringPi - Perl interface to Raspberry Pi's board and GPIO pin
+functionality
 
 =head1 SYNOPSIS
 
     use RPi::WiringPi;
-
-    use constant {
-        INPUT => 0,
-        OUTPUT => 1,
-        ON => 1,
-        OFF => 0,
-    };
+    use RPi::WiringPi::Constant qw(:all);
 
     my $pi = RPi::WiringPi->new;
+
+    my $board = $pi->board;
+
+    print "Raspberry Pi board revision: ". $board->rev ."\n";
 
     my $gpio_pin_1 = $pi->pin(1);
     my $gpio_pin_2 = $pi->pin(2);
@@ -221,6 +233,11 @@ C<fatal_exit> to false (C<0>) to perform the cleanup, and then continue running
 your script. This is for unit testing purposes only.
 
 =back
+
+=head2 board()
+
+Returns a L<RPi::WiringPi::Board> object which has access to various
+attributes of the Raspberry Pi physical board itself.
 
 =head2 pin($pin_num)
 

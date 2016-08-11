@@ -7,6 +7,8 @@ use Test::More;
 
 if (! @ARGV){
     warn "\n*** interactive test need arg ***\n\n";
+    ok 1, 'ok';
+    done_testing();
     exit;
 }
 

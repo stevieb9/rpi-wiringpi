@@ -8,6 +8,8 @@ Revision history for Perl extension RPi::WiringPi.
         - new method pin_map(), returns the current pin mapping
         - tests now work on non-Pi boards (if wiringPi lib is installed)
         - implemented 
+        - added Board.pm with methods rev(), wpi_to_gpio(), phys_to_gpio() and
+          pwm_range()
 
 0.02    2016-08-10
         - implemented getAlt() in Core, and in Pin, mode() with no params

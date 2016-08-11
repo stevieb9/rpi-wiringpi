@@ -1,5 +1,6 @@
 Changes
 lib/RPi/WiringPi.pm
+lib/RPi/WiringPi/Board.pm
 lib/RPi/WiringPi/Pin.pm
 Makefile.PL
 MANIFEST
@@ -11,4 +12,7 @@ t/05-pin.t
 t/10-wiring.t
 t/15-pwm.t
 t/20-cleanup.t
+t/25-sig_die.t
+t/30-sig_int.t
+t/35-pin_map.t
 typemap
