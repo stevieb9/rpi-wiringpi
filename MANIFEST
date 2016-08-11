@@ -6,4 +6,9 @@ MANIFEST
 MANIFEST.SKIP
 ppport.h
 README
+t/00-load.t
+t/05-pin.t
+t/10-wiring.t
+t/15-pwm.t
+t/20-cleanup.t
 typemap
