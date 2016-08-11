@@ -13,14 +13,17 @@ our $VERSION = '0.03';
 my $fatal_exit = 1;
 
 BEGIN {
-    $SIG{__DIE__} = sub { 
+    sub error {
         my $err = shift;
         print "\ndie() caught... ".  __PACKAGE__ ." is cleaning up\n",
         RPi::WiringPi::_shutdown();
         print "\ncleaned up, exiting...\n";
         print "\noriginal error: $err\n";
         exit if $fatal_exit;
-    };
+    }
+
+    $SIG{__DIE__} = \&error;
+    $SIG{INT} = \&error;
 };
 
 sub new {
