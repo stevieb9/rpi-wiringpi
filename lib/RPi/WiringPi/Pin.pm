@@ -3,7 +3,6 @@ package RPi::WiringPi::Pin;
 use strict;
 use warnings;
 
-use Carp qw(croak);
 use parent 'RPi::WiringPi::Core';
 
 our $VERSION = '0.03';
@@ -12,7 +11,7 @@ sub new {
     my ($class, $pin) = @_;
 
     if (! defined $pin || ($pin > 40 || $pin < 0)){
-        croak "pin number must be between 0 and 40\n";
+        die "pin number must be between 0 and 40\n";
     }
 
     my $self = bless {}, $class;
@@ -43,7 +42,7 @@ sub pwm {
     my ($self, $value) = @_;
     if ($self->mode != 2){
         my $num = $self->num;
-        croak "\npin $num isn't set to mode 2 (PWM). pwm() can't be set\n";
+        die "\npin $num isn't set to mode 2 (PWM). pwm() can't be set\n";
     }
     $self->pwm_write($self->num, $value);
 }

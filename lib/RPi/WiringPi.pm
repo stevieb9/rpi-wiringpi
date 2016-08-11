@@ -5,11 +5,23 @@ use warnings;
 
 use parent 'RPi::WiringPi::Core';
 
-use Carp qw(carp croak);
 use RPi::WiringPi::Constant qw(:all);
 use RPi::WiringPi::Pin;
 
 our $VERSION = '0.03';
+
+my $fatal_exit = 1;
+
+BEGIN {
+    $SIG{__DIE__} = sub { 
+        my $err = shift;
+        print "\ndie() caught... ".  __PACKAGE__ ." is cleaning up\n",
+        RPi::WiringPi::_shutdown();
+        print "\ncleaned up, exiting...\n";
+        print "\noriginal error: $err\n";
+        exit if $fatal_exit;
+    };
+};
 
 sub new {
     my ($self, %args) = @_;
@@ -26,6 +38,7 @@ sub new {
             $self->SUPER::setup_phys();
         }
     }
+    $self->_fatal_exit;
     return $self;
 }
 sub pin {
@@ -48,8 +61,14 @@ sub register_pin {
     for (@current_pins){
         if ($pin->num == $_->num){
             my $num = $pin->num;
-            croak "pin $num is already in use\n";
+            die "pin $num is already in use\n";
         }
+    }
+    if (! defined $ENV{RPI_PINS}){
+        $ENV{RPI_PINS} = $pin->num;
+    }
+    else {
+        $ENV{RPI_PINS} = $ENV{RPI_PINS} . $pin->num;
     }
     push @{ $self->{registered_pins} }, $pin;
 }
@@ -67,7 +86,7 @@ sub unregister_pin {
         }
     }
     if (@pins == $self->registered_pins){
-        carp "pin ". $pin->num ." is not registered, and can't be unregistered\n";
+        warn "pin ". $pin->num ." is not registered, and can't be unregistered\n";
     }
     @{ $self->{registered_pins} } = @pins;
     return $self->registered_pins;
@@ -82,8 +101,20 @@ sub cleanup {
         }
     }
 }
+sub _fatal_exit {
+    my $self = shift;
+    $fatal_exit = $self->{fatal_exit} if defined $self->{fatal_exit};
+}
 sub _setup {
     return $_[0]->{setup};
+}
+sub _shutdown {
+    # emergency die() handler cleanup
+    my @pins = split ',', $ENV{RPI_PINS};
+    for (@pins){
+        RPi::WiringPi::Core->write_pin($_, LOW);
+        RPi::WiringPi::Core->pin_mode($_, INPUT);
+    }
 }
 sub _vim{1;};
 1;
@@ -139,17 +170,24 @@ C<new> method to change this behaviour.
 
 =head1 PUBLIC METHODS
 
-=head2 new(setup => $value)
+=head2 new(%args)
 
 Returns a new C<RPi::WiringPi> object. 
 
 Parameters:
 
-    $value
+    setup => $value
 
 Optional. This option specifies which GPIO pin mapping (numbering scheme) to
 use. C<wiringPi> for wiringPi's mapping, C<physical> to use the pin numbers
 labelled on the board itself, or C<gpio> use the Broadcom (BCM) pin numbers.
+
+    fatal_exit => $bool
+
+Optional: We trap all C<die()> calls and clean up for safety reasons. If a
+call to C<die()> is trapped, by default, we clean up, and then C<exit()>. Set
+C<fatal_exit> to false (C<0>) to perform the cleanup, and then continue running
+your script. This is for unit testing purposes only.
 
 =head2 pin($pin_num)
 

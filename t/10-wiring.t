@@ -12,7 +12,7 @@ if (! $ENV{PI_BOARD}){
     $ENV{NO_BOARD} = 1;
 }
 
-my $pi = $mod->new;
+my $pi = $mod->new(fatal_exit => 0);
 
 {# register, unregister
 
