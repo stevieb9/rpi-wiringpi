@@ -64,6 +64,11 @@ sub board {
     my $board = RPi::WiringPi::Board->new;
     return $board;
 }
+sub lcd {
+    my $self = shift;
+    my $lcd = RPi::WiringPi::LCD->new;
+    return $lcd;
+}
 
 # helper
 sub pin_map {
@@ -237,11 +242,6 @@ your script. This is for unit testing purposes only.
 
 =back
 
-=head2 board()
-
-Returns a L<RPi::WiringPi::Board> object which has access to various
-attributes of the Raspberry Pi physical board itself.
-
 =head2 pin($pin_num)
 
 Returns a L<RPi::WiringPi::Pin> object, mapped to a specified GPIO pin.
@@ -255,6 +255,16 @@ Parameters:
 Mandatory: The pin number to attach to.
 
 =back
+
+=head2 board()
+
+Returns a L<RPi::WiringPi::Board> object which has access to various
+attributes of the Raspberry Pi physical board itself.
+
+=head2 lcd()
+
+Returns a L<RPi::WiringPi::LCD> object, which allows you to fully manipulate
+LCD displays connected to your Raspberry Pi.
 
 =head2 cleanup()
 

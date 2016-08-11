@@ -67,7 +67,19 @@ RPi::WiringPi::Pin - Access and manipulate Raspberry Pi GPIO pins
     my $pin = $pi->pin(5);
 
     $pin->mode(OUTPUT);
-    $pin->write(HIGH);
+    $pin->write(HIGH=head2 pin($pin_num)
+
+Returns a L<RPi::WiringPi::Pin> object, mapped to a specified GPIO pin.
+
+Parameters:
+
+=over 8
+
+=item    $pin_num
+
+Mandatory: The pin number to attach to.
+
+=back);
 
     my $num = $pin->num;
     my $mode = $pin->mode;

@@ -74,11 +74,6 @@ OPERATIONAL METHODS
       Set fatal_exit to false (0) to perform the cleanup, and then continue
       running your script. This is for unit testing purposes only.
 
- board()
-
-    Returns a RPi::WiringPi::Board object which has access to various
-    attributes of the Raspberry Pi physical board itself.
-
  pin($pin_num)
 
     Returns a RPi::WiringPi::Pin object, mapped to a specified GPIO pin.
@@ -88,6 +83,16 @@ OPERATIONAL METHODS
     $pin_num
 
       Mandatory: The pin number to attach to.
+
+ board()
+
+    Returns a RPi::WiringPi::Board object which has access to various
+    attributes of the Raspberry Pi physical board itself.
+
+ lcd()
+
+    Returns a RPi::WiringPi::LCD object, which allows you to fully
+    manipulate LCD displays connected to your Raspberry Pi.
 
  cleanup()
 
