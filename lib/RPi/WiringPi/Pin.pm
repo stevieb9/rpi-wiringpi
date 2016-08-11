@@ -149,7 +149,7 @@ Parameter:
 
     $value
 
-Mandatory: values range from 0-1024. C<0> for 0% (off) and C<1024> for 100% (fully on).
+Mandatory: values range from 0-1023. C<0> for 0% (off) and C<1023> for 100% (fully on).
 
 =head2 num()
 
