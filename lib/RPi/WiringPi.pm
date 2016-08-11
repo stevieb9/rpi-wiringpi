@@ -33,12 +33,15 @@ sub new {
     if (! $ENV{NO_BOARD}){
         if ($self->_setup =~ /^w/){
             $self->SUPER::setup();
+            $self->pin_map('wiringPi');
         }
         elsif ($self->_setup =~ /^g/){
             $self->SUPER::setup_gpio();
+            $self->pin_map('GPIO');
         }
         elsif ($self->_setup =~ /^p/){
             $self->SUPER::setup_phys();
+            $self->pin_map('BCM');
         }
     }
     $self->_fatal_exit;
@@ -49,6 +52,15 @@ sub pin {
     my $pin = RPi::WiringPi::Pin->new($pin_num);
     $self->register_pin($pin);
     return $pin;
+}
+sub pin_map {
+    my ($self, $map) = @_;
+    if (defined $map){
+        $self->{pin_map} = $map;
+    }
+    return defined $self->{pin_map} 
+        ? $self->{pin_map}
+        : 'NULL';
 }
 sub registered_pins {
     my $self = shift;
@@ -113,10 +125,12 @@ sub _setup {
 }
 sub _shutdown {
     # emergency die() handler cleanup
-    my @pins = split ',', $ENV{RPI_PINS};
-    for (@pins){
-        RPi::WiringPi::Core->write_pin($_, LOW);
-        RPi::WiringPi::Core->pin_mode($_, INPUT);
+    if (defined $ENV{RPI_PINS}){
+        my @pins = split ',', $ENV{RPI_PINS};
+        for (@pins){
+            RPi::WiringPi::Core->write_pin($_, LOW);
+            RPi::WiringPi::Core->pin_mode($_, INPUT);
+        }
     }
 }
 sub _vim{1;};
@@ -171,7 +185,7 @@ this module.
 By default, we use C<wiringPi>'s interpretation of GPIO pin mapping. See
 C<new> method to change this behaviour.
 
-=head1 PUBLIC METHODS
+=head1 OPERATIONAL METHODS
 
 =head2 new(%args)
 
@@ -223,6 +237,11 @@ this method be called in each application.
 
 These methods aren't normally needed by end-users. They're available for those
 who want to write their own libraries.
+
+=head2 pin_map()
+
+Returns the current pin mapping in use. Returns C<"NULL"> it has not yet been
+set.
 
 =head2 registered_pins()
 

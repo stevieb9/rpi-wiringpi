@@ -1,10 +1,12 @@
 Revision history for Perl extension RPi::WiringPi.
 
 0.03 UNRELEASED
-        - added Constants.pm, and tests (standalone module)
+        - wrote RPi::WiringPi::Constant as a standalone module
         - added $SIG{__DIE__} handler so we can clean up properly on die()
         - added 'fatal_exit' new() param for testing
         - we now catch $SIG{INT} as well, with a test
+        - new method pin_map(), returns the current pin mapping
+        - tests now work on non-Pi boards (if wiringPi lib is installed)
 
 0.02    2016-08-10
         - implemented getAlt() in Core, and in Pin, mode() with no params
