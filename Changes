@@ -1,5 +1,9 @@
 Revision history for Perl extension RPi::WiringPi.
 
+0.02    2016-08-10
+        - implemented getAlt() in Core, and in Pin, mode() with no params
+          now returns the current mode of the pin
+
 0.01    2016-08-10
         - initial prototype release
         - added Pin.pm

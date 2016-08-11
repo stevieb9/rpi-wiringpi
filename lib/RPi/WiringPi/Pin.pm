@@ -22,6 +22,9 @@ sub new {
 }
 sub mode {
     my ($self, $mode) = @_;
+    if (! defined $mode){
+        return $self->get_alt($self->num);
+    }
     $self->pin_mode($self->num, $mode);
 }
 sub read {
@@ -38,6 +41,10 @@ sub pull {
 }
 sub pwm {
     my ($self, $value) = @_;
+    if ($self->mode != 2){
+        my $num = $self->num;
+        croak "\npin $num isn't set to mode 2 (PWM). pwm() can't be set\n";
+    }
     $self->pwm_write($self->num, $value);
 }
 sub num {
@@ -98,13 +105,16 @@ The L<wiringPi|http://wiringpi.com> representation of a pin number.
 
 =head2 mode($mode)
 
-Puts the GPIO pin into either INPUT or OUTPUT mode.
+Puts the GPIO pin into either INPUT or OUTPUT mode. If C<$mode> is not sent in,
+we'll return the pin's current mode.
 
 Parameters:
 
     $mode
 
-Mandatory: C<0> to have the pin listen on INPUT, and C<1> for OUTPUT.
+Optional: If not sent in, we'll simply return the current mode of the pin.
+Otherwise, send in: C<0> for INPUT, C<1> for OUTPUT, C<2> for PWM and C<3>
+for GPIO_CLK (clock) mode.
 
 =head2 read()
 
@@ -132,7 +142,8 @@ Mandatory: C<2> for UP, C<1> for DOWN and C<0> to turn off the resistor.
 
 =head2 pwm($value)
 
-Sets the level of the Pulse Width Modulation (PWM) of the pin.
+Sets the level of the Pulse Width Modulation (PWM) of the pin. Dies if the
+pin's C<mode()> is not set to PWM (C<2>).
 
 Parameter:
 
