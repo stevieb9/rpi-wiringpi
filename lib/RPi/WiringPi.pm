@@ -39,9 +39,13 @@ sub new {
             $self->SUPER::setup_gpio();
             $self->pin_map('GPIO');
         }
+        elsif ($self->_setup =~ /^s/){
+            $self->SUPER::setup_sys();
+            $self->pin_map('BCM');
+        }
         elsif ($self->_setup =~ /^p/){
             $self->SUPER::setup_phys();
-            $self->pin_map('BCM');
+            $self->pin_map('PHYS GPIO');
         }
     }
     $self->_fatal_exit;
@@ -198,8 +202,12 @@ Parameters:
 =item   setup => $value
 
 Optional. This option specifies which GPIO pin mapping (numbering scheme) to
-use. C<wiringPi> for wiringPi's mapping, C<physical> to use the pin numbers
-labelled on the board itself, or C<gpio> use the Broadcom (BCM) pin numbers.
+use. C<wiringPi> for wiringPi's mapping, C<physical> or C<system> to use the pin
+numbers labelled on the board itself, or C<gpio> use the Broadcom (BCM) pin
+numbers.
+
+See L<wiringPi setup reference|http://wiringpi.com/reference/setup> for
+important details on the differences.
 
 =back
 

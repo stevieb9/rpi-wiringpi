@@ -7,6 +7,7 @@ Revision history for Perl extension RPi::WiringPi.
         - we now catch $SIG{INT} as well, with a test
         - new method pin_map(), returns the current pin mapping
         - tests now work on non-Pi boards (if wiringPi lib is installed)
+        - implemented 
 
 0.02    2016-08-10
         - implemented getAlt() in Core, and in Pin, mode() with no params
