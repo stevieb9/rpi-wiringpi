@@ -176,18 +176,26 @@ Returns a new C<RPi::WiringPi> object.
 
 Parameters:
 
-    setup => $value
+=over 8
+
+=item   setup => $value
 
 Optional. This option specifies which GPIO pin mapping (numbering scheme) to
 use. C<wiringPi> for wiringPi's mapping, C<physical> to use the pin numbers
 labelled on the board itself, or C<gpio> use the Broadcom (BCM) pin numbers.
 
-    fatal_exit => $bool
+=back
+
+=over 8 
+
+=item   fatal_exit => $bool
 
 Optional: We trap all C<die()> calls and clean up for safety reasons. If a
 call to C<die()> is trapped, by default, we clean up, and then C<exit()>. Set
 C<fatal_exit> to false (C<0>) to perform the cleanup, and then continue running
 your script. This is for unit testing purposes only.
+
+=back
 
 =head2 pin($pin_num)
 
@@ -195,9 +203,13 @@ Returns a L<RPi::WiringPi::Pin> object, mapped to a specified GPIO pin.
 
 Parameters:
 
-    $pin_num
+=over 8
+
+=item    $pin_num
 
 Mandatory: The pin number to attach to.
+
+=back
 
 =head2 cleanup()
 
@@ -221,9 +233,13 @@ of the pins in use when required.
 
 Parameters:
 
-    $pin_obj
+=over 8
+
+=item    $pin_obj
 
 Mandatory: An object instance of L<RPi::WiringPi::Pin> class.
+
+=back
 
 =head2 unregister_pin($pin_obj)
 
@@ -238,6 +254,24 @@ non-Raspberry Pi boards.
 
 Set to true, will bypass the C<wiringPi> board checks. False will re-enable
 them.
+
+=head1 IMPORTANT NOTES
+
+=over 4
+
+=item L<wiringPi|http://wiringpi.com> must be installed prior to installing/using
+this module.
+
+=item By default, we use C<wiringPi>'s interpretation of GPIO pin mapping. See
+C<new> method to change this behaviour.
+
+=item This module hijacks fatal errors with C<$SIG{__DIE__}>, as well as
+C<$SIG{INT}>. This is so that in the case of a fatal error, the Raspberry Pi
+pins are never left in an inconsistent state. By default, we trap the C<die()>,
+reset all pins to their default (INPUT, LOW), then we C<exit()>. Look at the
+C<fatal_exit> param in C<new()> to change the behaviour.
+
+=back
 
 =head1 AUTHOR
 
