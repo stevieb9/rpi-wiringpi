@@ -13,7 +13,22 @@ sub new {
 }
 sub init {
     my ($self, %params) = @_;
+
+    my @required_args = qw(
+        rows cols bits rs strb
+        d0 d1 d2 d3 d4 d5 d6 d7
+    );
+    
+    my @args;
+    for (@required_args){
+        if (! defined $params{$_}) {
+            die "\n'$_' is a required param for Core::lcd_init()\n";
+        }
+        push @args, $params{$_};
+    }
+
     my $fd = $self->lcd_init(%params);
+
     $self->_fd($fd);
 }
 sub home {
@@ -54,10 +69,6 @@ sub print_char {
 sub print {
     my ($self, $string) = @_;
     $self->lcd_puts($self->_fd, $string);
-}
-sub printf {
-    my ($self, $string) = @_;
-    $self->lcd_printf($self->_fd, $string);
 }
 sub _fd {
     my ($self, $fd) = @_;
@@ -203,17 +214,6 @@ Parameters:
     $string
 
 Mandatory: A string to display.
-
-=head2 printf($string)
-
-Displays a standard C<printf()> string to the LCD display, at the current
-cursor position.
-
-Parameters:
-
-    $string
-
-Mandatory: A string, optionally with C<printf()> formatting tags.
 
 =head1 AUTHOR
 

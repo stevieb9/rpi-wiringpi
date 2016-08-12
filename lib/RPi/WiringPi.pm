@@ -174,21 +174,40 @@ functionality
 
     my $pi = RPi::WiringPi->new;
 
+    # board
+
     my $board = $pi->board;
+    my $revision = $pi->rev;
+    print "Raspberry Pi board revision: $revision"\n";
 
-    print "Raspberry Pi board revision: ". $board->rev ."\n";
+    # pin
 
-    my $gpio_pin_1 = $pi->pin(1);
-    my $gpio_pin_2 = $pi->pin(2);
+    my $pin = $pi->pin(5);
+    $pin->mode(OUTPUT);
+    $pin->write(ON);
 
-    $gpio_pin_1->mode(INPUT);
-    $gpio_pin_2->mode(OUTPUT);
+    my $num = $pin->num;
+    my $mode = $pin->mode;
+    my $state = $pin->read;
 
-    my $pin1_on = $gpio_pin_1->read;
+    # LCD
 
-    if ($pin1_on){
-        $gpio_pin_2->write(HIGH);
-    }
+    my $lcd = $pi->lcd;
+
+    $lcd->init(...);
+
+    # first column, first row
+    
+    $lcd->position(0, 0); 
+    $lcd->print("Pi rev: $revision");
+
+    # first column, second row
+    
+    $lcd->position(0, 1);
+    $lcd->print("pin $num... mode: $mode, state: $state");
+
+    $lcd->clear;
+    $lcd->display(OFF);
 
     $pi->cleanup;
 
@@ -208,9 +227,6 @@ L<RPi::WiringPi::Constant>.
 
 L<wiringPi|http://wiringpi.com> must be installed prior to installing/using
 this module.
-
-By default, we use C<wiringPi>'s interpretation of GPIO pin mapping. See
-C<new> method to change this behaviour.
 
 =head1 OPERATIONAL METHODS
 
