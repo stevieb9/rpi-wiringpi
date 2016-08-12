@@ -6,10 +6,11 @@ use warnings;
 use parent 'RPi::WiringPi::Core';
 
 use RPi::WiringPi::Constant qw(:all);
+use RPi::WiringPi::Core;
 use RPi::WiringPi::LCD;
 use RPi::WiringPi::Pin;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 my $fatal_exit = 1;
 
@@ -34,22 +35,29 @@ sub new {
     $self = bless {%args}, $self;
 
     if (! $ENV{NO_BOARD}){
-        if (defined $self->{setup}){
+        if (! defined $self->{setup}) {
+            $self->SUPER::setup();
+            $self->gpio_scheme( 'WPI' );
+        }
+        else {
             if ($self->_setup =~ /^w/){
                 $self->SUPER::setup();
-                $self->pin_map('wiringPi');
+                $self->gpio_scheme('WPI');
             }
             elsif ($self->_setup =~ /^g/){
                 $self->SUPER::setup_gpio();
-                $self->pin_map('GPIO');
+                $self->gpio_scheme('BCM');
             }
             elsif ($self->_setup =~ /^s/){
                 $self->SUPER::setup_sys();
-                $self->pin_map('BCM');
+                $self->gpio_scheme('BCM');
             }
             elsif ($self->_setup =~ /^p/){
                 $self->SUPER::setup_phys();
-                $self->pin_map('PHYS GPIO');
+                $self->gpio_scheme('PHYS');
+            }
+            elsif ($self->_setup =~ /^n/){
+                $self->gpio_scheme('NULL');
             }
         }
     }
@@ -74,13 +82,43 @@ sub lcd {
 }
 
 # helper
-sub pin_map {
-    my ($self, $map) = @_;
-    if (defined $map){
-        $self->{pin_map} = $map;
+
+sub gpio_map {
+    my ($self, $scheme) = @_;
+
+    $scheme = $self->gpio_scheme if ! defined $scheme;
+
+    return {} if $scheme eq 'NULL';
+    if (defined $self->{gpio_map_cache}{$scheme}){
+        return $self->{gpio_map_cache}{$scheme};
     }
-    return defined $self->{pin_map}
-        ? $self->{pin_map}
+
+    return {} if $scheme eq 'NULL';
+
+    my %map;
+
+    for (0..63){
+        my $gpio;
+        if ($scheme eq 'WPI') {
+            $gpio = RPi::WiringPi::Core::phys_to_wpi($_);
+        }
+        elsif ($scheme eq 'BCM'){
+            $gpio = RPi::WiringPi::Core::phys_to_gpio($_);
+        }
+        elsif ($scheme eq 'PHYS'){
+            $gpio = $_;
+        }
+        $map{$_} = $gpio;
+    }
+    $self->{gpio_map_cache}{$scheme} = \%map;
+}
+sub gpio_scheme {
+    my ($self, $scheme) = @_;
+    if (defined $scheme){
+        $self->{gpio_scheme} = $scheme;
+    }
+    return defined $self->{gpio_scheme}
+        ? $self->{gpio_scheme}
         : 'NULL';
 }
 sub registered_pins {
@@ -150,14 +188,15 @@ sub _setup {
 }
 sub _shutdown {
     # emergency die() handler cleanup
-    if (defined $ENV{RPI_PINS}){
+    if (defined $ENV{RPI_PINS}) {
         my @pins = split ',', $ENV{RPI_PINS};
-        for (@pins){
-            RPi::WiringPi::Core->write_pin($_, LOW);
-            RPi::WiringPi::Core->pin_mode($_, INPUT);
+        for (@pins) {
+            RPi::WiringPi::Core->write_pin( $_, LOW );
+            RPi::WiringPi::Core->pin_mode( $_, INPUT );
         }
     }
 }
+
 sub _vim{1;};
 1;
 __END__
@@ -222,6 +261,17 @@ L<wiringPi|http://wiringpi.com> library through the Perl wrapper
 L<RPi::WiringPi::Core|https://metacpan.org/pod/RPi::WiringPi::Core>
 module.
 
+This module is essentially a 'manager' for the sub-modules (ie. components).
+You can use the component modules directly, but retrieving components through
+this module instead has many benefits. We maintain a registry of pins and other
+data. We also trap C<$SIG{__DIE__}> and C<$SIG{INT}>, so that in the event of a
+crash, we can reset the Pi back to default settings, so components are not left
+in an inconsistent state. Component modules do none of these things.
+
+This module also calls the setup initialization routines automatically, where
+in the component modules, you have to do this manually. You also need to clean
+up after yourself.
+
 There are a basic set of constants that can be imported. See
 L<RPi::WiringPi::Constant>.
 
@@ -243,7 +293,8 @@ Parameters:
 Optional. This option specifies which GPIO pin mapping (numbering scheme) to
 use. C<wiringPi> for wiringPi's mapping, C<physical> or C<system> to use the pin
 numbers labelled on the board itself, or C<gpio> use the Broadcom (BCM) pin
-numbers.
+numbers. You can also specify C<none> for testing purposes. This will bypass
+running the setup routines.
 
 See L<wiringPi setup reference|http://wiringpi.com/reference/setup> for
 important details on the differences.
@@ -295,10 +346,49 @@ this method be called in each application.
 These methods aren't normally needed by end-users. They're available for those
 who want to write their own libraries.
 
-=head2 pin_map()
+=head2 gpio_scheme()
 
 Returns the current pin mapping in use. Returns C<"NULL"> it has not yet been
-set.
+set, C<"WPI"> if using C<wiringPi> mapping, C<"BCM"> for standard GPIO map and
+C<"PHYS"> if using the physical pin map directly.
+
+=head2 gpio_map($scheme)
+
+Returns a hash reference in the following format:
+
+    $map => {
+        phys_pin_num => gpio_pin_num,
+        ...
+    };
+
+If no scheme is in place, return will be an empty hash reference.
+
+Parameters:
+
+=over 8
+
+=item    $scheme
+
+Optional: By default, we'll check if you've already run a setup routine, and
+if so, we'll use the scheme currently in use. If one is not in use and no
+C<$scheme> has been sent in, we'll use C<'NULL'>, otherwise if a scheme is sent
+in, the return will be:
+
+For C<'WPI'> scheme (wiringPi's numbering scheme):
+
+    $map = {
+        phys_pin_num => wiringPi_gpio_pin_num,
+        ....
+    };
+
+For C<'BCM'> scheme (Broadcom's numbering scheme (printed on the board)):
+
+    $map = {
+        phys_pin_num => Broadcom_gpio_pin_num,
+        ...
+    };
+
+=back
 
 =head2 registered_pins()
 

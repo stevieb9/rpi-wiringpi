@@ -1,135 +1,229 @@
 NAME
+
     RPi::WiringPi - Perl interface to Raspberry Pi's board and GPIO pin
     functionality
 
 SYNOPSIS
+
         use RPi::WiringPi;
         use RPi::WiringPi::Constant qw(:all);
-
+    
         my $pi = RPi::WiringPi->new;
-
+    
+        # board
+    
         my $board = $pi->board;
-
-        print "Raspberry Pi board revision: ". $board->rev ."\n";
-
-        my $gpio_pin_1 = $pi->pin(1);
-        my $gpio_pin_2 = $pi->pin(2);
-
-        $gpio_pin_1->mode(INPUT);
-        $gpio_pin_2->mode(OUTPUT);
-
-        my $pin1_on = $gpio_pin_1->read;
-
-        if ($pin1_on){
-            $gpio_pin_2->write(HIGH);
-        }
-
+        my $revision = $pi->rev;
+        print "Raspberry Pi board revision: $revision"\n";
+    
+        # pin
+    
+        my $pin = $pi->pin(5);
+        $pin->mode(OUTPUT);
+        $pin->write(ON);
+    
+        my $num = $pin->num;
+        my $mode = $pin->mode;
+        my $state = $pin->read;
+    
+        # LCD
+    
+        my $lcd = $pi->lcd;
+    
+        $lcd->init(...);
+    
+        # first column, first row
+        
+        $lcd->position(0, 0); 
+        $lcd->print("Pi rev: $revision");
+    
+        # first column, second row
+        
+        $lcd->position(0, 1);
+        $lcd->print("pin $num... mode: $mode, state: $state");
+    
+        $lcd->clear;
+        $lcd->display(OFF);
+    
         $pi->cleanup;
 
 DESCRIPTION
-    WARNING: Until version 1.00 is released, the API and other functionality
-    of this module may change, and things may break from time-to-time.
 
-    This is the root module for the `RPi::WiringPi' system. It interfaces to
-    a Raspberry Pi board, its accessories and its GPIO pins via the wiringPi
-    library through the Perl wrapper RPi::WiringPi::Core module.
+    WARNING: Until version 1.00 is released, the API and other
+    functionality of this module may change, and things may break from
+    time-to-time.
+
+    This is the root module for the RPi::WiringPi system. It interfaces to
+    a Raspberry Pi board, its accessories and its GPIO pins via the
+    wiringPi <http://wiringpi.com> library through the Perl wrapper
+    RPi::WiringPi::Core <https://metacpan.org/pod/RPi::WiringPi::Core>
+    module.
+
+    This module is essentially a 'manager' for the sub-modules (ie.
+    components). You can use the component modules directly, but retrieving
+    components through this module instead has many benefits. We maintain a
+    registry of pins and other data. We also trap $SIG{__DIE__} and
+    $SIG{INT}, so that in the event of a crash, we can reset the Pi back to
+    default settings, so components are not left in an inconsistent state.
+    Component modules do none of these things.
+
+    This module also calls the setup initialization routines automatically,
+    where in the component modules, you have to do this manually. You also
+    need to clean up after yourself.
 
     There are a basic set of constants that can be imported. See
     RPi::WiringPi::Constant.
 
-    wiringPi must be installed prior to installing/using this module.
-
-    By default, we use `wiringPi''s interpretation of GPIO pin mapping. See
-    `new' method to change this behaviour.
+    wiringPi <http://wiringpi.com> must be installed prior to
+    installing/using this module.
 
 OPERATIONAL METHODS
-  new(%args)
-    Returns a new `RPi::WiringPi' object.
+
+ new(%args)
+
+    Returns a new RPi::WiringPi object.
 
     Parameters:
 
     setup => $value
-            Optional. This option specifies which GPIO pin mapping
-            (numbering scheme) to use. `wiringPi' for wiringPi's mapping,
-            `physical' or `system' to use the pin numbers labelled on the
-            board itself, or `gpio' use the Broadcom (BCM) pin numbers.
 
-            See wiringPi setup reference for important details on the
-            differences.
+      Optional. This option specifies which GPIO pin mapping (numbering
+      scheme) to use. wiringPi for wiringPi's mapping, physical or system
+      to use the pin numbers labelled on the board itself, or gpio use the
+      Broadcom (BCM) pin numbers. You can also specify none for testing
+      purposes. This will bypass running the setup routines.
+
+      See wiringPi setup reference <http://wiringpi.com/reference/setup>
+      for important details on the differences.
 
     fatal_exit => $bool
-            Optional: We trap all `die()' calls and clean up for safety
-            reasons. If a call to `die()' is trapped, by default, we clean
-            up, and then `exit()'. Set `fatal_exit' to false (`0') to
-            perform the cleanup, and then continue running your script. This
-            is for unit testing purposes only.
 
-  pin($pin_num)
+      Optional: We trap all die() calls and clean up for safety reasons. If
+      a call to die() is trapped, by default, we clean up, and then exit().
+      Set fatal_exit to false (0) to perform the cleanup, and then continue
+      running your script. This is for unit testing purposes only.
+
+ pin($pin_num)
+
     Returns a RPi::WiringPi::Pin object, mapped to a specified GPIO pin.
 
     Parameters:
 
     $pin_num
-            Mandatory: The pin number to attach to.
 
-  board()
+      Mandatory: The pin number to attach to.
+
+ board()
+
     Returns a RPi::WiringPi::Board object which has access to various
     attributes of the Raspberry Pi physical board itself.
 
-  lcd()
+ lcd()
+
     Returns a RPi::WiringPi::LCD object, which allows you to fully
     manipulate LCD displays connected to your Raspberry Pi.
 
-  cleanup()
+ cleanup()
+
     Resets all registered pins back to default settings (off). It's
     important that this method be called in each application.
 
 HELPER METHODS
-    These methods aren't normally needed by end-users. They're available for
-    those who want to write their own libraries.
 
-  pin_map()
-    Returns the current pin mapping in use. Returns `"NULL"' it has not yet
-    been set.
+    These methods aren't normally needed by end-users. They're available
+    for those who want to write their own libraries.
 
-  registered_pins()
+ gpio_scheme()
+
+    Returns the current pin mapping in use. Returns "NULL" it has not yet
+    been set, "WPI" if using wiringPi mapping, "BCM" for standard GPIO map
+    and "PHYS" if using the physical pin map directly.
+
+ gpio_map($scheme)
+
+    Returns a hash reference in the following format:
+
+        $map => {
+            phys_pin_num => gpio_pin_num,
+            ...
+        };
+
+    If no scheme is in place, return will be an empty hash reference.
+
+    Parameters:
+
+    $scheme
+
+      Optional: By default, we'll check if you've already run a setup
+      routine, and if so, we'll use the scheme currently in use. If one is
+      not in use and no $scheme has been sent in, we'll use 'NULL',
+      otherwise if a scheme is sent in, the return will be:
+
+      For 'WPI' scheme (wiringPi's numbering scheme):
+
+          $map = {
+              phys_pin_num => wiringPi_gpio_pin_num,
+              ....
+          };
+
+      For 'BCM' scheme (Broadcom's numbering scheme (printed on the
+      board)):
+
+          $map = {
+              phys_pin_num => Broadcom_gpio_pin_num,
+              ...
+          };
+
+ registered_pins()
+
     Returns an array of RPi::WiringPi::Pin objects that are currently
     registered, and deemed to be in use.
 
-  register_pin($pin_obj)
+ register_pin($pin_obj)
+
     Registers a GPIO pin within the system for error checking, and proper
     resetting of the pins in use when required.
 
     Parameters:
 
     $pin_obj
-            Mandatory: An object instance of RPi::WiringPi::Pin class.
 
-  unregister_pin($pin_obj)
-    Exactly the opposite of `register_pin()'.
+      Mandatory: An object instance of RPi::WiringPi::Pin class.
+
+ unregister_pin($pin_obj)
+
+    Exactly the opposite of register_pin().
 
 ENVIRONMENT VARIABLES
+
     There are certain environment variables available to aid in testing on
     non-Raspberry Pi boards.
 
-  NO_BOARD
-    Set to true, will bypass the `wiringPi' board checks. False will
+ NO_BOARD
+
+    Set to true, will bypass the wiringPi board checks. False will
     re-enable them.
 
 IMPORTANT NOTES
-    - wiringPi must be installed prior to installing/using this module.
-    - By default, we use `wiringPi''s interpretation of GPIO pin mapping.
-    See `new' method to change this behaviour.
-    - This module hijacks fatal errors with `$SIG{__DIE__}', as well as
-    `$SIG{INT}'. This is so that in the case of a fatal error, the Raspberry
-    Pi pins are never left in an inconsistent state. By default, we trap the
-    `die()', reset all pins to their default (INPUT, LOW), then we `exit()'.
-    Look at the `fatal_exit' param in `new()' to change the behaviour.
+
+    - wiringPi <http://wiringpi.com> must be installed prior to
+    installing/using this module.
+
+    - By default, we use wiringPi's interpretation of GPIO pin mapping. See
+    new method to change this behaviour.
+
+    - This module hijacks fatal errors with $SIG{__DIE__}, as well as
+    $SIG{INT}. This is so that in the case of a fatal error, the Raspberry
+    Pi pins are never left in an inconsistent state. By default, we trap
+    the die(), reset all pins to their default (INPUT, LOW), then we
+    exit(). Look at the fatal_exit param in new() to change the behaviour.
 
 AUTHOR
+
     Steve Bertrand, <steveb@cpan.org>
 
 COPYRIGHT AND LICENSE
+
     Copyright (C) 2016 by Steve Bertrand
 
     This library is free software; you can redistribute it and/or modify it

@@ -27,7 +27,7 @@ sub init {
         push @args, $params{$_};
     }
 
-    my $fd = $self->lcd_init(%params);
+    my $fd = $self->lcd_init(@args);
 
     $self->_fd($fd);
 }

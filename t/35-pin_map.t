@@ -12,16 +12,21 @@ if (! $ENV{PI_BOARD}){
     $ENV{NO_BOARD} = 1;
 }
 
-my $pi = $mod->new;
+my $pi = $mod->new(setup => 'none');
 
-is $pi->pin_map, 'NULL', "pin_map() returns NULL if not set";
-is $pi->pin_map('BCM'), 'BCM', "pin_map() returns BCM if setup() is sys";
-is $pi->pin_map('GPIO'), 'GPIO', "pin_map() returns GPIO if setup() is gpio";
-is $pi->pin_map('PHYS_GPIO'), 'PHYS_GPIO', "pin_map() returns BCM if setup() is phys";
+is $pi->gpio_scheme, 'NULL', "gpio_scheme() returns NULL if not set";
+is $pi->gpio_scheme('BCM'), 'BCM', "gpio_scheme() returns BCM if setup() is sys";
+is $pi->gpio_scheme('GPIO'), 'GPIO', "gpio_scheme() returns GPIO if setup() is gpio";
+is $pi->gpio_scheme('PHYS_GPIO'), 'PHYS_GPIO', "gpio_scheme() returns BCM if setup() is phys";
 is (
-    $pi->pin_map('wiringPi'), 
+    $pi->gpio_scheme('wiringPi'),
     'wiringPi', 
-    "pin_map() returns 'wiringPi' if setup() is wiringPi"
+    "gpio_scheme() returns 'wiringPi' if setup() is wiringPi"
 );
 
+{
+    my $map = $pi->gpio_map('BCM');
+    print "$map->{40}\n";
+
+}
 done_testing();
