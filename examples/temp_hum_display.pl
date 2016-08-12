@@ -14,8 +14,8 @@ use constant {
     HUMIDITY_PIN => 26,
 };
 
-my $temp_high = 74.2;
-my $humidity_low = 20.0;
+my $temp_high = 74;
+my $humidity_low = 20;
 
 # get an environment object
 
@@ -48,7 +48,7 @@ while ($continue){
     # temp is too hot
 
     $lcd->position(0, 0); # first column, first row
-    
+
     if ($temp > $temp_high){
         if (! $env->status(TEMP_PIN)){
             $env->control(TEMP_PIN, ON);
