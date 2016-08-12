@@ -103,14 +103,9 @@ sub cleanup {
     }
 }
 
-# private
-
-sub _setup {
-    return $_[0]->{setup};
-}
-
 sub _vim{1;};
 1;
+
 __END__
 
 =head1 NAME
