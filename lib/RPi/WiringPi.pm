@@ -6,6 +6,7 @@ use warnings;
 use parent 'RPi::WiringPi::Core';
 
 use RPi::WiringPi::Constant qw(:all);
+use RPi::WiringPi::LCD;
 use RPi::WiringPi::Pin;
 
 our $VERSION = '0.04';
@@ -33,21 +34,23 @@ sub new {
     $self = bless {%args}, $self;
 
     if (! $ENV{NO_BOARD}){
-        if ($self->_setup =~ /^w/){
-            $self->SUPER::setup();
-            $self->pin_map('wiringPi');
-        }
-        elsif ($self->_setup =~ /^g/){
-            $self->SUPER::setup_gpio();
-            $self->pin_map('GPIO');
-        }
-        elsif ($self->_setup =~ /^s/){
-            $self->SUPER::setup_sys();
-            $self->pin_map('BCM');
-        }
-        elsif ($self->_setup =~ /^p/){
-            $self->SUPER::setup_phys();
-            $self->pin_map('PHYS GPIO');
+        if (defined $self->{setup}){
+            if ($self->_setup =~ /^w/){
+                $self->SUPER::setup();
+                $self->pin_map('wiringPi');
+            }
+            elsif ($self->_setup =~ /^g/){
+                $self->SUPER::setup_gpio();
+                $self->pin_map('GPIO');
+            }
+            elsif ($self->_setup =~ /^s/){
+                $self->SUPER::setup_sys();
+                $self->pin_map('BCM');
+            }
+            elsif ($self->_setup =~ /^p/){
+                $self->SUPER::setup_phys();
+                $self->pin_map('PHYS GPIO');
+            }
         }
     }
     $self->_fatal_exit;

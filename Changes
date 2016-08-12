@@ -1,8 +1,10 @@
 Revision history for Perl extension RPi::WiringPi.
 
-0.04 UNRELEASED
+0.04    2016-08-11
         - added LCD.pm module, for interfacing with LCD displays, along with
           a massive update to Core
+        - changed LED::init() to just pass along the args hash, and let Core
+          deal with any issues
 
 0.03    2016-08-11
         - wrote RPi::WiringPi::Constant as a standalone module

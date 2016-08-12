@@ -13,31 +13,14 @@ sub new {
 }
 sub init {
     my ($self, %params) = @_;
-
-    my @required_args = qw(
-        rows cols bits rs strb
-        d0 d1 d2 d3 d4 d5 d6 d7
-    );
-
-    for (@required_args){
-        if (! defined $params{$_}) {
-            die "\n'$_' is a required param for LED::init()\n";
-        }
-    }
-
-    my @values = map { $params{$_} } @required_args;
-
-    # get the LCD handle
-
-    my $fd = $self->lcd_init(@values);
-
+    my $fd = $self->lcd_init(%params);
     $self->_fd($fd);
 }
 sub home {
-    $self->lcd_home($self->_fd);
+    $_[0]->lcd_home($_[0]->_fd);
 }
 sub clear {
-    $self->lcd_clear($self->_fd);
+    $_[0]->lcd_clear($_[0]->_fd);
 }
 sub display {
     my ($self, $state) = @_;
