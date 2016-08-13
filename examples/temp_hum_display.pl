@@ -27,7 +27,7 @@ my $env = RPi::DHT11::EnvControl->new(
 
 # get a Pi & LCD object
 
-my $pi = RPi::WiringPi->new;
+my $pi = RPi::WiringPi->new(setup => 'none');
 my $lcd = $pi->lcd;
 
 # initialize the LCD
@@ -54,14 +54,14 @@ while ($continue){
             $env->control(TEMP_PIN, ON);
             print "turned on temp control device\n";
         }
-        $lcd->print("temp: $temp F  *");
+        $lcd->print("${temp} F           *");
     }
     else {
         if ($env->status(TEMP_PIN)){
             $env->control(TEMP_PIN, OFF);
             print "turned off temp control device\n";
         }
-        $lcd->print("temp: $temp F");
+        $lcd->print("${temp} F");
     }
 
     # humidity is too low
@@ -73,14 +73,14 @@ while ($continue){
             $env->control(HUMIDITY_PIN, ON);
             print "turned on humidifier\n";
         }
-        $lcd->print("humi: $humidity %     *");
+        $lcd->print("${humidity} %           *");
     }
     else {
         if ($env->status(HUMIDITY_PIN)){
             $env->control(HUMIDITY_PIN, OFF);
             print "turned off humidifier";
         }
-        $lcd->print("humi: $humidity %");
+        $lcd->print("${humidity} %");
     }
     sleep 300;
 }

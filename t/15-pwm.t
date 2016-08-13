@@ -20,7 +20,7 @@ my $pi = $mod->new;
 
     if (! $ENV{NO_BOARD}) {
         my $pin = $pi->pin(1);
-        
+        $pin->mode(2);        
         my $ok = eval { $pin->pwm(75); 1; };
         ok ! $ok, "pwm() can't be set if mode() isn't PWM (2)";
 
