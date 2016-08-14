@@ -79,6 +79,11 @@ sub lcd {
     my $lcd = RPi::WiringPi::LCD->new;
     return $lcd;
 }
+sub interrupt {
+    my $self = shift;
+    my $interrupt = RPi::WiringPi::Interrupt->new;
+    return $interrupt;
+}
 
 # private
 
