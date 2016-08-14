@@ -1,12 +1,14 @@
 Revision history for Perl extension RPi::WiringPi.
 
-0.05 UNRELEASED
+0.05    2016-08-13
         - renamed WiringPi::pin_map() to gpio_scheme()
         - added WiringPi::gpio_map()
         - new()'s setup param now accepts 'none', allowing us to pypass the
           wiringPi's initialization
         - new Util.pm, moved all utility methods from WiringPi to Util.
           WiringPi now only handles SIGs and component objects
+        - moved all param checking from Core into the respective modules here
+          to keep Core as close to the C code as possible
 
 0.04    2016-08-11
         - added LCD.pm module, for interfacing with LCD displays, along with

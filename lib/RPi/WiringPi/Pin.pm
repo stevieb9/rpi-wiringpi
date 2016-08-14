@@ -21,9 +21,15 @@ sub new {
 }
 sub mode {
     my ($self, $mode) = @_;
+
     if (! defined $mode){
         return $self->get_alt($self->num);
     }
+    if ($mode != 0 && $mode != 1 && $mode != 2 && $mode != 3){
+        die "Core::pin_mode() mode param must be either 0 (input), 1 " .
+            "(output), 2 (PWM output) or 3 (GPIO CLOCK output)\n";
+    }
+
     $self->pin_mode($self->num, $mode);
 }
 sub read {
@@ -32,10 +38,17 @@ sub read {
 }
 sub write {
     my ($self, $value) = @_;
+    if ($value != 0 && $value != 1){
+        die "Core::write_pin value must be 0 or 1\n";
+    }
     $self->write_pin($self->num, $value);
 }
 sub pull {
     my ($self, $direction) = @_;
+    # 0 == down, 1 == up, 2 == off
+    if ($direction != 0 && $direction != 1 && $direction != 2){
+        die "Core::pull_up_down requires either 0, 1 or 2 for direction";
+    }
     $self->pull_up_down($self->num, $direction);
 }
 sub pwm {
@@ -43,6 +56,9 @@ sub pwm {
     if ($self->mode != 2){
         my $num = $self->num;
         die "\npin $num isn't set to mode 2 (PWM). pwm() can't be set\n";
+    }
+    if ($value > 1023 || $value < 0){
+        die "Core::pwm_write value must be 0-1023";
     }
     $self->pwm_write($self->num, $value);
 }
