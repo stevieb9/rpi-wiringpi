@@ -68,7 +68,7 @@ sub register_pin {
         $ENV{RPI_PINS} = $pin->num;
     }
     else {
-        $ENV{RPI_PINS} = $ENV{RPI_PINS} . $pin->num;
+        $ENV{RPI_PINS} = "$ENV{RPI_PINS}," . $pin->num;
     }
     push @{ $self->{registered_pins} }, $pin;
 }
