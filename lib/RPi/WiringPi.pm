@@ -9,7 +9,7 @@ use RPi::WiringPi::Constant qw(:all);
 use RPi::WiringPi::LCD;
 use RPi::WiringPi::Pin;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 my $fatal_exit = 1;
 

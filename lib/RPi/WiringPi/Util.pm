@@ -7,7 +7,7 @@ use parent 'RPi::WiringPi::Core';
 
 use RPi::WiringPi::Constant qw(:all);
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 sub gpio_map {
     my ($self, $scheme) = @_;

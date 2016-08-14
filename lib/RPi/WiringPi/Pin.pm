@@ -1,11 +1,11 @@
-package RPi::WiringPi::Pin;
+5ackage RPi::WiringPi::Pin;
 
 use strict;
 use warnings;
 
 use parent 'RPi::WiringPi::Core';
 
-our $VERSION = '0.04';
+our $VERSION = '0.06';
 
 sub new {
     my ($class, $pin) = @_;
