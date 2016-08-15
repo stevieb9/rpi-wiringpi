@@ -251,9 +251,6 @@ LCD displays connected to your Raspberry Pi.
 
 =head2 interrupt($pin, $edge, $cref)
 
-WARNING: Interrupt code is highly experimental, it uses threads, and I'm not
-experienced in threads. Use at your own risk!
-
 Returns a L<RPi::WiringPi::Interrupt> object, which allows you to act when
 certain events occur (eg: a button press). This module is better used through
 the L<RPi::WiringPi::Pin> object.

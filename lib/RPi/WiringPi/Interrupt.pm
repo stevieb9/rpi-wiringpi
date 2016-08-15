@@ -89,11 +89,7 @@ RPi::WiringPi::Interrupt - Raspberry Pi GPIO pin interrupts
 
 =head1 DESCRIPTION
 
-WARNING: This code is highly experimental, it uses threads, and I'm not
-experienced in threads. Use at your own risk!
-
-Threaded GPIO pin edge detection interrupts. I'm not experienced enough in C to
-write them with that language yet, so use at your own risk.
+Threaded GPIO pin edge detection interrupts.
 
 =head1 METHODS
 
