@@ -1,4 +1,4 @@
-5ackage RPi::WiringPi::Pin;
+package RPi::WiringPi::Pin;
 
 use strict;
 use warnings;

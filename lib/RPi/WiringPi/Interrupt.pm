@@ -14,12 +14,12 @@ sub new {
     return bless {}, shift;
 }
 sub set {
-    my ($self, $pin, $int_num, $edge_type, $cref) = @_;
+    my ($self, $pin, $edge_type, $int_num, $cref) = @_;
     $callbacks{$int_num} = $cref;
-    RPi::WiringPi::Core::registerInterrupt($pin, $edge_type, $int_num);
+    RPi::WiringPi::Core::register_interrupt($pin, $edge_type, $int_num);
 }
 sub interrupt_one {
-    print "in interrupt2\n";
+    print "in interrupt1\n";
     $callbacks{1}->();
 }
 sub interrupt_two {

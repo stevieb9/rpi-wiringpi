@@ -8,6 +8,7 @@ use parent 'RPi::WiringPi::Util';
 use RPi::WiringPi::Constant qw(:all);
 use RPi::WiringPi::LCD;
 use RPi::WiringPi::Pin;
+use RPi::WiringPi::Interrupt;
 
 our $VERSION = '0.06';
 
