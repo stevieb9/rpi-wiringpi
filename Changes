@@ -1,5 +1,9 @@
 Revision history for Perl extension RPi::WiringPi.
 
+0.06 UNREL
+        - added Interrupt.pm, added associated methods in both WiringPi
+          and Pin
+
 0.05    2016-08-13
         - renamed WiringPi::pin_map() to gpio_scheme()
         - added WiringPi::gpio_map()

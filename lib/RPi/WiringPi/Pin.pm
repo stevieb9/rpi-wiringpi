@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use parent 'RPi::WiringPi::Core';
+use RPi::WiringPi::Interrupt;
 
 our $VERSION = '0.06';
 
@@ -64,6 +65,17 @@ sub pwm {
 }
 sub num {
     return $_[0]->{pin};
+}
+sub interrupt {
+    my ($self, $edge, $cref) = @_;
+
+    if (! defined $cref){
+        $self->{interrupt}{$edge}->unset($self->num, $edge);
+    }
+
+    my $int = RPi::WiringPi::Interrupt->new;
+    $int->set($self->num, $edge, $cref);
+    $self->{interrupt}{$edge} = $int;
 }
 sub _vim{1;};
 1;
@@ -161,6 +173,22 @@ Parameter:
     $direction
 
 Mandatory: C<2> for UP, C<1> for DOWN and C<0> to turn off the resistor.
+
+=head2 interrupt($edge, $cref)
+
+Listen for an interrupt on a pin, and do something if it is triggered.
+
+Parameters:
+
+    $edge
+
+Mandatory: C<rising> (goes HIGH), C<falling> (goes LOW), or C<both>.
+
+    $cref
+
+If not sent in, we'll disable and remove an existing interrupt for the
+specified edge. Otherwise, we'll set the interrupt, and when triggered, we'll
+execute the code in the subroutine code reference.
 
 =head2 pwm($value)
 

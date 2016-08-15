@@ -245,6 +245,12 @@ attributes of the Raspberry Pi physical board itself.
 Returns a L<RPi::WiringPi::LCD> object, which allows you to fully manipulate
 LCD displays connected to your Raspberry Pi.
 
+=head2 interrupt($pin, $edge, $cref)
+
+Returns a L<RPi::WiringPi::Interrupt> object, which allows you to act when
+certain events occur (eg: a button press). This module is better used through
+the L<RPi::WiringPi::Pin> object.
+
 =head1 IMPORTANT NOTES
 
 =over 4
