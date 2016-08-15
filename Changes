@@ -1,8 +1,11 @@
 Revision history for Perl extension RPi::WiringPi.
 
-0.06 UNREL
+0.06    2016-08-15
         - added Interrupt.pm, added associated methods in both WiringPi
           and Pin
+        - Core::setup_sys() now exports all pins automatically with sudo. This
+          setup method is now the default if none is specified in new(),
+          meaning that by default, we now use the BCM pin numbering scheme
 
 0.05    2016-08-13
         - renamed WiringPi::pin_map() to gpio_scheme()

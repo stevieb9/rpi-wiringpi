@@ -37,6 +37,8 @@ sub gpio_map {
         $map{$_} = $gpio;
     }
     $self->{gpio_map_cache}{$scheme} = \%map;
+
+    return \%map;
 }
 sub gpio_scheme {
     my ($self, $scheme) = @_;
@@ -54,6 +56,14 @@ sub registered_pins {
         push @pin_nums, $_;
     }
     return @pin_nums;
+}
+sub export_pin {
+    my ($self, $pin) = @_;
+    system "sudo", "gpio", "export", $pin;
+}
+sub unexport_pin {
+    my ($self, $pin) = @_;
+    system "sudo", "gpio", "unexport", $pin;
 }
 sub register_pin {
     my ($self, $pin) = @_;
@@ -167,6 +177,18 @@ For C<'BCM'> scheme (Broadcom's numbering scheme (printed on the board)):
     };
 
 =back
+
+=head2 export_pin($pin_num)
+
+Exports a pin. Not needed if using the C<setup()> initialization method.
+
+Pin number must be the C<BCM> pin number representation.
+
+=head2 unexport_pin($pin_num)
+
+Unexports a pin.
+
+Pin number must be the C<BCM> pin number representation.
 
 =head2 registered_pins()
 

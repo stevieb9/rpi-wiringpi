@@ -94,8 +94,10 @@ RPi::WiringPi::Pin - Access and manipulate Raspberry Pi GPIO pins
 
     my $pin = $pi->pin(5);
 
-    $pin->mode(OUTPUT);
-    $pin->write(HIGH=head2 pin($pin_num)
+    $pin->mode(INPUT);
+    $pin->write(LOW);
+
+    $pin->interrupt('rising', sub { print "pin went HIGH\n"; });
 
 Returns a L<RPi::WiringPi::Pin> object, mapped to a specified GPIO pin.
 
@@ -175,6 +177,9 @@ Parameter:
 Mandatory: C<2> for UP, C<1> for DOWN and C<0> to turn off the resistor.
 
 =head2 interrupt($edge, $cref)
+
+WARNING: Interrupt code is highly experimental, it uses threads, and I'm not
+experienced with threads. Use at your own risk!
 
 Listen for an interrupt on a pin, and do something if it is triggered.
 
