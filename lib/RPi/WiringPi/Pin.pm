@@ -4,8 +4,9 @@ use strict;
 use warnings;
 
 use parent 'RPi::WiringPi::Core';
+use RPi::WiringPi::Interrupt;
 
-our $VERSION = '0.04';
+our $VERSION = '0.06';
 
 sub new {
     my ($class, $pin) = @_;
@@ -65,6 +66,17 @@ sub pwm {
 sub num {
     return $_[0]->{pin};
 }
+sub interrupt {
+    my ($self, $edge, $cref) = @_;
+
+    if (! defined $cref){
+        $self->{interrupt}{$edge}->unset($self->num, $edge);
+    }
+
+    my $int = RPi::WiringPi::Interrupt->new;
+    $int->set($self->num, $edge, $cref);
+    $self->{interrupt}{$edge} = $int;
+}
 sub _vim{1;};
 1;
 __END__
@@ -82,8 +94,10 @@ RPi::WiringPi::Pin - Access and manipulate Raspberry Pi GPIO pins
 
     my $pin = $pi->pin(5);
 
-    $pin->mode(OUTPUT);
-    $pin->write(HIGH=head2 pin($pin_num)
+    $pin->mode(INPUT);
+    $pin->write(LOW);
+
+    $pin->interrupt('rising', sub { print "pin went HIGH\n"; });
 
 Returns a L<RPi::WiringPi::Pin> object, mapped to a specified GPIO pin.
 
@@ -161,6 +175,25 @@ Parameter:
     $direction
 
 Mandatory: C<2> for UP, C<1> for DOWN and C<0> to turn off the resistor.
+
+=head2 interrupt($edge, $cref)
+
+WARNING: Interrupt code is highly experimental, it uses threads, and I'm not
+experienced with threads. Use at your own risk!
+
+Listen for an interrupt on a pin, and do something if it is triggered.
+
+Parameters:
+
+    $edge
+
+Mandatory: C<rising> (goes HIGH), C<falling> (goes LOW), or C<both>.
+
+    $cref
+
+If not sent in, we'll disable and remove an existing interrupt for the
+specified edge. Otherwise, we'll set the interrupt, and when triggered, we'll
+execute the code in the subroutine code reference.
 
 =head2 pwm($value)
 

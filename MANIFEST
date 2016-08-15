@@ -2,6 +2,7 @@ Changes
 examples/lcd_working.py
 lib/RPi/WiringPi.pm
 lib/RPi/WiringPi/Board.pm
+lib/RPi/WiringPi/Interrupt.pm
 lib/RPi/WiringPi/LCD.pm
 lib/RPi/WiringPi/Pin.pm
 lib/RPi/WiringPi/Util.pm

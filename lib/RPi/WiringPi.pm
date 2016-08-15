@@ -8,8 +8,9 @@ use parent 'RPi::WiringPi::Util';
 use RPi::WiringPi::Constant qw(:all);
 use RPi::WiringPi::LCD;
 use RPi::WiringPi::Pin;
+use RPi::WiringPi::Interrupt;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 my $fatal_exit = 1;
 
@@ -35,11 +36,15 @@ sub new {
 
     if (! $ENV{NO_BOARD}){
         if (! defined $self->{setup}) {
-            $self->SUPER::setup();
-            $self->gpio_scheme( 'WPI' );
+            $self->SUPER::setup_sys();
+            $self->gpio_scheme( 'BCM' );
         }
         else {
-            if ($self->_setup =~ /^w/){
+            if ($self->_setup =~ /^s/){
+                $self->SUPER::setup_sys();
+                $self->gpio_scheme('BCM');
+            }
+            elsif ($self->_setup =~ /^w/){
                 $self->SUPER::setup();
                 $self->gpio_scheme('WPI');
             }
@@ -47,10 +52,7 @@ sub new {
                 $self->SUPER::setup_gpio();
                 $self->gpio_scheme('BCM');
             }
-            elsif ($self->_setup =~ /^s/){
-                $self->SUPER::setup_sys();
-                $self->gpio_scheme('BCM');
-            }
+
             elsif ($self->_setup =~ /^p/){
                 $self->SUPER::setup_phys();
                 $self->gpio_scheme('PHYS');
@@ -79,6 +81,11 @@ sub lcd {
     my $lcd = RPi::WiringPi::LCD->new;
     return $lcd;
 }
+sub interrupt {
+    my $self = shift;
+    my $interrupt = RPi::WiringPi::Interrupt->new;
+    return $interrupt;
+}
 
 # private
 
@@ -106,8 +113,8 @@ __END__
 
 =head1 NAME
 
-RPi::WiringPi - Perl interface to Raspberry Pi's board and GPIO pin
-functionality
+RPi::WiringPi - Perl interface to Raspberry Pi's board, GPIO and other various
+items
 
 =head1 SYNOPSIS
 
@@ -194,10 +201,13 @@ Parameters:
 =item   setup => $value
 
 Optional. This option specifies which GPIO pin mapping (numbering scheme) to
-use. C<wiringPi> for wiringPi's mapping, C<physical> or C<system> to use the pin
+use. C<wiringPi> for wiringPi's mapping, C<physical> to use the pin
 numbers labelled on the board itself, or C<gpio> use the Broadcom (BCM) pin
 numbers. You can also specify C<none> for testing purposes. This will bypass
 running the setup routines.
+
+C<system> will also use C<BCM> pin numbering, but in this setup mode, we don't
+require root privileges to run. This is the default.
 
 See L<wiringPi setup reference|http://wiringpi.com/reference/setup> for
 important details on the differences.
@@ -239,6 +249,15 @@ attributes of the Raspberry Pi physical board itself.
 Returns a L<RPi::WiringPi::LCD> object, which allows you to fully manipulate
 LCD displays connected to your Raspberry Pi.
 
+=head2 interrupt($pin, $edge, $cref)
+
+WARNING: Interrupt code is highly experimental, it uses threads, and I'm not
+experienced in threads. Use at your own risk!
+
+Returns a L<RPi::WiringPi::Interrupt> object, which allows you to act when
+certain events occur (eg: a button press). This module is better used through
+the L<RPi::WiringPi::Pin> object.
+
 =head1 IMPORTANT NOTES
 
 =over 4
@@ -246,7 +265,7 @@ LCD displays connected to your Raspberry Pi.
 =item - L<wiringPi|http://wiringpi.com> must be installed prior to
 installing/using this module.
 
-=item - By default, we use C<wiringPi>'s interpretation of GPIO pin mapping.
+=item - By default, we use C<BCM> interpretation of GPIO pin mapping.
 See C<new> method to change this behaviour.
 
 =item - This module hijacks fatal errors with C<$SIG{__DIE__}>, as well as
