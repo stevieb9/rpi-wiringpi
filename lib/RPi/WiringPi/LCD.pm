@@ -5,7 +5,7 @@ use warnings;
 
 our $VERSION = '0.06';
 
-use parent 'RPi::WiringPi::Core';
+use parent 'WiringPi::API';
 use RPi::WiringPi::Constant qw(:all);
 
 sub new {
@@ -94,7 +94,7 @@ this software and find something broken, please contact me.
 
 =head2 new()
 
-Returns a new C<RPi::WiringPi::Core> object.
+Returns a new C<WiringPi::API> object.
 
 =head2 init(%args)
 

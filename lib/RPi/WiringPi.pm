@@ -101,8 +101,8 @@ sub _shutdown {
     if (defined $ENV{RPI_PINS}) {
         my @pins = split ',', $ENV{RPI_PINS};
         for (@pins) {
-            RPi::WiringPi::Core->write_pin( $_, LOW );
-            RPi::WiringPi::Core->pin_mode( $_, INPUT );
+            WiringPi::API->write_pin( $_, LOW );
+            WiringPi::API->pin_mode( $_, INPUT );
         }
     }
 }
@@ -113,8 +113,8 @@ __END__
 
 =head1 NAME
 
-RPi::WiringPi - Perl interface to Raspberry Pi's board, GPIO and other various
-items
+RPi::WiringPi - Perl interface to Raspberry Pi's board, GPIO, LCDs and other
+various items
 
 =head1 SYNOPSIS
 
@@ -168,7 +168,7 @@ this module may change, and things may break from time-to-time.
 This is the root module for the C<RPi::WiringPi> system. It interfaces to a
 Raspberry Pi board, its accessories and its GPIO pins via the 
 L<wiringPi|http://wiringpi.com> library through the Perl wrapper
-L<RPi::WiringPi::Core|https://metacpan.org/pod/RPi::WiringPi::Core>
+L<WiringPi::API|https://metacpan.org/pod/WiringPi::API>
 module.
 
 This module is essentially a 'manager' for the sub-modules (ie. components).
@@ -189,6 +189,9 @@ L<wiringPi|http://wiringpi.com> must be installed prior to installing/using
 this module.
 
 =head1 OPERATIONAL METHODS
+
+See L<RPi::WiringPi::Util> for utility/helper methods that are imported into
+an C<RPi::WiringPi> object.
 
 =head2 new(%args)
 
@@ -249,7 +252,7 @@ attributes of the Raspberry Pi physical board itself.
 Returns a L<RPi::WiringPi::LCD> object, which allows you to fully manipulate
 LCD displays connected to your Raspberry Pi.
 
-=head2 interrupt($pin, $edge, $cref)
+=head2 interrupt($pin, $edge, $callback)
 
 Returns a L<RPi::WiringPi::Interrupt> object, which allows you to act when
 certain events occur (eg: a button press). This module is better used through

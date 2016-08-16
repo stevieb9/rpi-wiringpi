@@ -3,7 +3,7 @@ package RPi::WiringPi::Pin;
 use strict;
 use warnings;
 
-use parent 'RPi::WiringPi::Core';
+use parent 'WiringPi::API';
 use RPi::WiringPi::Interrupt;
 
 our $VERSION = '0.06';
@@ -87,29 +87,15 @@ RPi::WiringPi::Pin - Access and manipulate Raspberry Pi GPIO pins
 
 =head1 SYNOPSIS
 
-    use RPi::WiringPi;
+    use RPi::WiringPi::Pin;
     use RPi::Constant qw(:all);
 
-    my $pi = RPi::WiringPi->new;
-
-    my $pin = $pi->pin(5);
+    my $pin = RPi::WiringPi::Pin->new(5);
 
     $pin->mode(INPUT);
     $pin->write(LOW);
 
-    $pin->interrupt('rising', sub { print "pin went HIGH\n"; });
-
-Returns a L<RPi::WiringPi::Pin> object, mapped to a specified GPIO pin.
-
-Parameters:
-
-=over 8
-
-=item    $pin_num
-
-Mandatory: The pin number to attach to.
-
-=back);
+    $pin->interrupt(EDGE_RISING, 'pin5_interrupt_handler');
 
     my $num = $pin->num;
     my $mode = $pin->mode;
@@ -117,10 +103,13 @@ Mandatory: The pin number to attach to.
 
     print "pin number $num is in mode $mode with state $state\n";
 
+    sub pin5_interrupt_handler {
+        print "in interrupt handler\n";
+    }
+
 =head1 DESCRIPTION
 
-Through a L<RPi::WiringPi> object, creates objects that directly attach to
-Raspberry Pi GPIO pins.
+An object that represents a physical GPIO pin.
 
 Using the pin object's methods, the GPIO pins can be controlled and monitored.
 
@@ -204,7 +193,8 @@ Parameter:
 
     $value
 
-Mandatory: values range from 0-1023. C<0> for 0% (off) and C<1023> for 100% (fully on).
+Mandatory: values range from 0-1023. C<0> for 0% (off) and C<1023> for 100%
+(fully on).
 
 =head2 num()
 

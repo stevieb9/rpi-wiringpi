@@ -3,7 +3,7 @@ package RPi::WiringPi::Board;
 use strict;
 use warnings;
 
-use parent 'RPi::WiringPi::Core';
+use parent 'WiringPi::API';
 use RPi::WiringPi::Constant qw(:all);
 
 our $VERSION = '0.06';

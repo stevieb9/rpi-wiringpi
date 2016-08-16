@@ -3,12 +3,32 @@ package RPi::WiringPi::Util;
 use strict;
 use warnings;
 
-use parent 'RPi::WiringPi::Core';
+use parent 'WiringPi::API';
 
 use RPi::WiringPi::Constant qw(:all);
 
 our $VERSION = '0.06';
 
+sub pin_to_gpio {
+    my ($self, $pin, $scheme) = @_;
+
+    $scheme = defined $scheme
+        ? $scheme
+        : $self->gpio_scheme;
+
+    if ($scheme eq 'WPI'){
+        return WiringPi::API::wpi_to_gpio($pin);
+    }
+    elsif ($scheme eq 'PHYS'){
+        return WiringPi::API::phys_to_gpio($pin);
+    }
+    elsif ($scheme eq 'BCM'){
+        return $pin;
+    }
+    if ($scheme eq 'NULL'){
+        die "can't determine pin mapping\n";
+    }
+}
 sub gpio_map {
     my ($self, $scheme) = @_;
 
@@ -26,10 +46,10 @@ sub gpio_map {
     for (0..63){
         my $gpio;
         if ($scheme eq 'WPI') {
-            $gpio = RPi::WiringPi::Core::phys_to_wpi($_);
+            $gpio = WiringPi::API::phys_to_wpi($_);
         }
         elsif ($scheme eq 'BCM'){
-            $gpio = RPi::WiringPi::Core::phys_to_gpio($_);
+            $gpio = WiringPi::API::phys_to_gpio($_);
         }
         elsif ($scheme eq 'PHYS'){
             $gpio = $_;
@@ -177,6 +197,14 @@ For C<'BCM'> scheme (Broadcom's numbering scheme (printed on the board)):
     };
 
 =back
+
+=head2 pin_to_gpio($pin, $scheme)
+
+Converts the specified pin from the specified scheme (C<WPI>, C<PHYS>, C<BCM>)
+to the C<BCM> number format.
+
+If C<$scheme> is not sent in, we'll attempt to fetch the scheme currently in
+use and use that.
 
 =head2 export_pin($pin_num)
 

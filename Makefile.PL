@@ -23,8 +23,8 @@ WriteMakefile(
         },
     },
     PREREQ_PM         => {
-        'RPi::WiringPi::Core'       => 0.04,
-        'RPi::WiringPi::Constant'   => 0.01,
+        'WiringPi::API'       => 1.01,
+        'RPi::WiringPi::Constant'   => 0.02,
     },
     #OBJECT            => '$(O_FILES)', # link all the C files too
 );

@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use threads;
 
-use parent 'RPi::WiringPi::Core';
+use parent 'WiringPi::API';
 use parent 'RPi::WiringPi::Util';
 
 use Config;
@@ -12,8 +12,7 @@ use RPi::WiringPi::Constant qw(:all);
 
 our $VERSION = '0.06';
 
-my %callbacks;
-
+my $interrupts = {};
 
 sub new {
     $Config{useithreads}
@@ -21,51 +20,27 @@ sub new {
     return bless {}, shift;
 }
 sub set {
-    my ($self, $pin, $edge, $cref) = @_;
-    $self->{$pin}{$edge}{value} = $edge;
-    $self->{$pin}{$edge}{cref} = $cref;
-    $self->_thread($pin, $edge, $cref);
+    my ($self, $pin, $edge, $callback) = @_;
+    $interrupts->{$pin}{$edge}{value} = $edge;
+    $interrupts->{$pin}{$edge}{callback} = $callback;
+    $interrupts->set_interrupt($pin, $edge, $callback);
 }
 sub unset {
-    my ($self, $pin, $edge) = @_;
-    if ($edge eq 'all'){
-        for my $pin (keys %$self){
-            for my $edge (keys %{ $self->{$pin} }){
-                $self->unset($pin, $edge);
+    my ($self, $pin) = @_;
+    if ($pin eq 'all'){
+        for my $pin (keys %$interrupts){
+            for my $edge (keys %{ $interrupts->{$pin} }){
+                $interrupts->unset($pin);
             }
         }
     }
     else {
-        $self->{$pin}{$edge}{thread}->kill('SIGUSR1');
-    }
-}
-sub _thread {
-    my ($self, $pin, $edge, $cref);
-    $self->{$pin}{$edge}{thread} = threads->create(\&_handler, $pin, $edge, $cref);
-    #$self->{$pin}{$edge}{thread}->detach;
-    print "$pin, $edge handler thread created\n";
-}
-sub _handler {
-    my ($pin, $edge, $cref) = @_;
-
-    my $cmd = 'gpio ';
-
-    if ($self->gpio_scheme eq 'WPI'){
-        $pin = $self->wpi_to_gpio($pin);
-    }
-    if ($self->gpio_scheme eq 'PHYS'){
-        $cmd .= '-1 ';
-    }
-
-    $cmd .= "edge $pin $edge";
-
-    while (1){
-        my $ret = `$cmd`;
-        $cref->();
+        system "gpio", "edge", $pin, "none";
     }
 }
 sub DESTROY {
-    threads->exit();
+    my $self = shift;
+    $self->unset('all');
 }
 
 sub _vim{1;};
@@ -79,17 +54,29 @@ RPi::WiringPi::Interrupt - Raspberry Pi GPIO pin interrupts
 =head1 SYNOPSIS
 
     use RPi::WiringPi::Interrupt;
-    
+    use RPi::WiringPi::Constant qw(:all);
+
     my $int = RPi::WiringPi::Interrupt->new;
 
     my $pin = 6;
-    my $edge = 'rising';
 
-    $int->set($pin, $edge, sub { print "edge rising detected on pin $pin!\n"; });
+    $int->set($pin, EDGE_HIGH, 'interrupt_handler');
+
+    sub interrupt_handler {
+        print "in handler";
+        # turn a pin on, or do other things
+    }
+
+    $int->unset($pin);
 
 =head1 DESCRIPTION
 
-Threaded GPIO pin edge detection interrupts.
+This module allows you to set up, and un-set GPIO pin edge detection
+interrupts where you can supply the name of a Perl subroutine that you write
+that will act as the interrupt handler.
+
+The backend is written in C and is threaded, so it doesn't block the main
+program thread from running while waiting for the interrupt to occur.
 
 =head1 METHODS
 
@@ -97,10 +84,11 @@ Threaded GPIO pin edge detection interrupts.
 
 Returns a new C<RPi::WiringPi::Interrupt> object.
 
-=head2 set($pin, $edge, $cref)
+=head2 set($pin, $edge, $callback)
 
 Starts a new thread that waits for an interrupt on the specified pin, when the
-selected edge is triggered.
+selected edge is triggered. The name of the Perl subroutine in C<$callback>
+will be the code executed as the interrupt handler.
 
 Parameters:
 
@@ -111,14 +99,15 @@ appropriately regardless of which pin mapping you're currently using.
 
     $edge
 
-Mandatory: One of C<rising> (HIGH), C<falling> (LOW) or C<both>.
+Mandatory: One of C<1> (LOW), C<2> (HIGH) or C<3> for both HIGH and LOW.
 
-    $cref
+    $callback
 
-Mandatory: This is a subroutine reference that contains the code you want to
-execute when the edge change is detected on the pin.
+Mandatory: This is the name of a user-written Perl subroutine that contains
+the code you want to execute when the edge change is detected on the pin.
+(ie. the Interrupt Handler).
 
-=head2 unset($pin, $edge)
+=head2 unset($pin)
 
 Terminates an interrupt thread, and stops monitoring for more.
 
@@ -126,11 +115,12 @@ Parameters:
 
     $pin
 
-Mandatory: The pin number.
+Mandatory: The pin number. You can also send in C<'all'>, which will disable
+all currently implemented interrupts.
 
     $edge
 
-Mandatory: see C<set()> for details. Send in C<all> to stop all interrupts.
+Mandatory: see C<set()> for details.
 
 =head1 SEE ALSO
 

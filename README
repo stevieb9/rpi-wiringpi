@@ -1,7 +1,7 @@
 NAME
 
-    RPi::WiringPi - Perl interface to Raspberry Pi's board and GPIO pin
-    functionality
+    RPi::WiringPi - Perl interface to Raspberry Pi's board, GPIO and other
+    various items
 
 SYNOPSIS
 
@@ -56,8 +56,7 @@ DESCRIPTION
     This is the root module for the RPi::WiringPi system. It interfaces to
     a Raspberry Pi board, its accessories and its GPIO pins via the
     wiringPi <http://wiringpi.com> library through the Perl wrapper
-    RPi::WiringPi::Core <https://metacpan.org/pod/RPi::WiringPi::Core>
-    module.
+    WiringPi::API <https://metacpan.org/pod/WiringPi::API> module.
 
     This module is essentially a 'manager' for the sub-modules (ie.
     components). You can use the component modules directly, but retrieving
@@ -88,10 +87,13 @@ OPERATIONAL METHODS
     setup => $value
 
       Optional. This option specifies which GPIO pin mapping (numbering
-      scheme) to use. wiringPi for wiringPi's mapping, physical or system
-      to use the pin numbers labelled on the board itself, or gpio use the
-      Broadcom (BCM) pin numbers. You can also specify none for testing
-      purposes. This will bypass running the setup routines.
+      scheme) to use. wiringPi for wiringPi's mapping, physical to use the
+      pin numbers labelled on the board itself, or gpio use the Broadcom
+      (BCM) pin numbers. You can also specify none for testing purposes.
+      This will bypass running the setup routines.
+
+      system will also use BCM pin numbering, but in this setup mode, we
+      don't require root privileges to run. This is the default.
 
       See wiringPi setup reference <http://wiringpi.com/reference/setup>
       for important details on the differences.
@@ -137,8 +139,8 @@ IMPORTANT NOTES
     - wiringPi <http://wiringpi.com> must be installed prior to
     installing/using this module.
 
-    - By default, we use wiringPi's interpretation of GPIO pin mapping. See
-    new method to change this behaviour.
+    - By default, we use BCM interpretation of GPIO pin mapping. See new
+    method to change this behaviour.
 
     - This module hijacks fatal errors with $SIG{__DIE__}, as well as
     $SIG{INT}. This is so that in the case of a fatal error, the Raspberry
