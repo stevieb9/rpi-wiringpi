@@ -106,8 +106,7 @@ dimming an LED.
 
 Built in is the ability to have code you define executed (interrupt handler)
 when a pin's edge changes. The Interrupt Service Request is handled in a
-separate C thread than your application. You can have a different handler
-for HIGH and LOW on the same pin at the same time.
+separate C thread than your application.
 
 Interrupts are useful in many cases, but think of a button; you want an action
 to happen when someone presses a physical button on your prototype, but you
@@ -126,9 +125,9 @@ obviously want to be doing other things while waiting for that button press.
 
     # HIGH to LOW
 
-    $pin->interrupt_set(EDGE_LOW, 'handler');
+    $pin->interrupt_set(EDGE_FALLING, 'handler');
 
-    # HIGH and LOW (interrupt will be triggered on both changes)
+    # HIGH and LOW (handler will be called on both changes)
 
     $pin->interrupt_set(EDGE_BOTH, 'handler');
 
