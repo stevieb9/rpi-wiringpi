@@ -4,6 +4,8 @@ use strict;
 use warnings;
 
 use parent 'WiringPi::API';
+use parent 'RPi::WiringPi::Util';
+
 use RPi::WiringPi::Interrupt;
 
 our $VERSION = '0.99_05';
@@ -31,6 +33,9 @@ sub mode {
             "(output), 2 (PWM output) or 3 (GPIO CLOCK output)\n";
     }
 
+    if ($self->_sys_mode){
+        #system "sudo", "gpio"
+    }
     $self->pin_mode($self->num, $mode);
 }
 sub read {

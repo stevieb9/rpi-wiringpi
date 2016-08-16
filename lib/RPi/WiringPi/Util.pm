@@ -79,11 +79,11 @@ sub registered_pins {
 }
 sub export_pin {
     my ($self, $pin) = @_;
-    system "sudo", "gpio", "export", $pin;
+    system "sudo", "gpio", "export", $self->pin_to_gpio($pin);
 }
 sub unexport_pin {
     my ($self, $pin) = @_;
-    system "sudo", "gpio", "unexport", $pin;
+    system "sudo", "gpio", "unexport", $self->pin_to_gpio($pin);
 }
 sub register_pin {
     my ($self, $pin) = @_;
@@ -132,7 +132,14 @@ sub cleanup {
         }
     }
 }
-
+sub _sys_mode {
+    my ($self, $value) = @_;
+    if (! defined $value){
+        return $self->{sys_mode};
+    }
+    $self->{sys_mode} = $value;
+    return $self->{sys_mode};
+}
 sub _vim{1;};
 1;
 

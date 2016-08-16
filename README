@@ -83,7 +83,8 @@ OPERATIONAL METHODS
 
  new(%args)
 
-    Returns a new RPi::WiringPi object.
+    Returns a new RPi::WiringPi object. Calls setup() by default, setting
+    pin numbering scheme to WPI (wiringPi scheme).
 
     Parameters:
 
