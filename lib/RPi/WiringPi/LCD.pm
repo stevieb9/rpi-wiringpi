@@ -3,7 +3,7 @@ package RPi::WiringPi::LCD;
 use strict;
 use warnings;
 
-our $VERSION = '0.99_02';
+our $VERSION = '0.99_03';
 
 use parent 'WiringPi::API';
 use RPi::WiringPi::Constant qw(:all);

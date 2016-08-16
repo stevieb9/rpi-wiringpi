@@ -15,7 +15,8 @@ L<RPi::WiringPi::Constant> module.
 
     HIGH -          connected to 3.3v (positive)
     LOW  -          connected to 0v (ground)
-    PWM -           Pulse Width Modulation (potentiometer)
+    floating -      state where a pin is not stable at HIGH or LOW
+    PWM -           Pulse Width Modulation (potentiometer-like)
     INPUT -         pin is listening only
     OUTPUT -        pin is active in turning things on/off
     PWM_OUT -       pin is OUTPUT, but PWM capable
@@ -141,6 +142,10 @@ them separately as well.
 
     # set an EDGE_RISING interrupt on pin 27
 
+    # callback is the string name of your handler
+    # subroutine that'll be called when an interrupt
+    # has occurred
+
     $interrupt->set(27, EDGE_RISING, 'callback');
 
     # unset the interrupt
@@ -167,20 +172,24 @@ Before an LCD can be used, it must be initialized. This may look like a lot,
 but you only need to do it once. Essentially, you're configuring all pins up
 front.
 
+NOTE: When in 4-bit mode, although you're setting C<d0> through C<d3> pins
+up and leaving C<d4> through C<d7> as C<0>, the wiring must connect through 4
+to 7. Look at LCD pin 4-7 as LCD pin 0-3 when in 4-bit mode.
+
     my $lcd = $pi->lcd;
 
     my %lcd_args = (
-        rows => 2,  # number of display rows, 2 or 4
-        cols => 16, # number of display columns 16 or 20
-        bits => 4,  # data width in bits, 4 or 8
-        rs => 1,    # GPIO pin for the LCD RS pin
-        strb => 2,  # GPIO pin for the LCD strobe (E) pin
-        d0 => 3,    #
-        ...         # d0-d3 GPIO pinout numbers
-        d3 =>6,     #
-        d4 => 7,    # set d4-d7 to all 0 (zero) if in 4-bit mode
-        ...         # otherwise, set them to their respective
-        d7 => 11    # GPIO pins
+        rows  => 2,     # number of display rows, 2 or 4
+        cols  => 16,    # number of display columns 16 or 20
+        bits  => 4,     # data width in bits, 4 or 8
+        rs    => 1,     # GPIO pin for the LCD RS pin
+        strb  => 2,     # GPIO pin for the LCD strobe (E) pin
+        d0    => 3,     #
+        ...             # d0-d3 GPIO pinout numbers
+        d3    =>6,      #
+        d4    => 7,     # set d4-d7 to all 0 (zero) if in 4-bit mode
+        ...             # otherwise, set them to their respective
+        d7    => 11     # GPIO pins
     );
 
     $lcd->init(%lcd_args);
@@ -217,7 +226,7 @@ Now that we've initialized the LCD, we're ready to use it.
 
     $lcd->cursor_blink(ON); # or OFF
 
-=head2 LCD: Display output operations
+=head2 LCD: Output operations
 
 By default, output starts at col 0 and row 0 of the display. Use C<position()>
 to move it around before outputting.
