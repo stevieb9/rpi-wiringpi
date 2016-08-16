@@ -1,0 +1,243 @@
+=head1 NAME
+
+RPi::WiringPi::FAQ - FAQ and Tutorial for RPi::WiringPi
+
+=head1 DESCRIPTION
+
+This document will hopefully provide enough information in a sane way to get
+you well on your way with manipulating your Raspberry Pi with the
+L<RPi::WiringPi> and related distributions.
+
+In this document we use constants that are provided with the C<:all> tag in
+L<RPi::WiringPi::Constant> module.
+
+=head1 GLOSSARY
+
+    HIGH -          connected to 3.3v (positive)
+    LOW  -          connected to 0v (ground)
+    PWM -           Pulse Width Modulation (potentiometer)
+    INPUT -         pin is listening only
+    OUTPUT -        pin is active in turning things on/off
+    PWM_OUT -       pin is OUTPUT, but PWM capable
+    GPIO_CLOCK -    pin is used for timing
+    PUD  -          internal pull up/down resistor
+    PUD_UP -        PUD resistor pulled to HIGH
+    PUD_DOWN -      PUD resistor pulled to LOW
+    EDGE_FALLING -  a state when a pin goes from HIGH to LOW
+    EDGE_RISING  -  a state when a pin goes from LOW to HIGH
+    EDGE_BOTH    -  both of the above states
+
+=head1 HOWTO
+
+=head2 Pi: Create a Raspberry Pi object
+
+The first thing you need to do is call an appropriate setup method. We do
+that automatically. See L<new()|RPi::WiringPi/"new-args"> to see how to use
+non-default setup routines.
+
+    my $pi = RPi::WiringPi->new;
+
+=head2 Pin: Creating and using a GPIO pin object
+
+The L<RPi::WiringPi::Pin> class provides you with objects that directly map to
+the Raspberry Pi's onboard GPIO pins.
+
+    my $pin = $pi->pin(27);
+
+    # set the mode to output, presumably to power an external device
+
+    $pin->mode(OUTPUT);
+
+    # by default, pins are set to LOW (ie. 0 voltage). Turn it on...
+
+    $pin->write(HIGH);
+
+    # get the current status of a pin (HIGH or LOW)
+
+    $pin->read;
+
+    # get a pin's pin number
+
+    my $num = $pin->num;
+
+=head2 Pin: Setting a pin's internal pull up/down resistor
+
+All GPIO pins on the Raspberry Pi have built-in pull up/down resistors to
+prevent pins being in a "floating" state when not connected to either ground or
+power. This is very important in many situations, particularly when using
+interrupts.
+
+    # HIGH when not in use
+
+    $pin->pull(PUD_UP);
+
+    # LOW when not in use
+
+    $pin->pull(PUD_DOWN);
+
+=head2 Pin: Using Pulse Width Modulation (PWM)
+
+Pulse Width Modulation kind of acts like a potentiometer (or a variable
+switch... like a light dimmer). They are used to send pulses of electricity
+to a device across time. It is required for things like stepper motors, or
+dimming an LED.
+
+    # set the pin to PWM_OUT mode
+
+    $pin->mode(PWM_OUT);
+
+    # values are 0-1023 which represent 0% to 100% power
+
+    $pin->pwm(512); # pin output is ~50%
+
+    # make pin go from off to bright gradually...
+    # requires Time::HiRes qw(usleep);
+
+    my $pin = $pi->pin(27);
+    $pin->mode(PWM_OUT);
+
+    for (0..1023){
+        $pin->write($_);
+    }
+
+=head2 Pin: Using interrupts
+
+Built in is the ability to have code you define executed (interrupt handler)
+when a pin's edge changes. The Interrupt Service Request is handled in a
+separate C thread than your application. You can have a different handler
+for HIGH and LOW on the same pin at the same time.
+
+    sub handler {
+        print "in handler\n";
+        # do other stuff, perhaps turning on/off other pins
+    }
+
+    # set an interrupt handler for when the pin goes from
+    # LOW to HIGH. The second parameter is the string name
+    # of the previously written perl sub
+
+    $pin->interrupt_set(EDGE_RISING, 'handler');
+
+    # HIGH to LOW
+
+    $pin->interrupt_set(EDGE_LOW, 'handler');
+
+    # HIGH and LOW (interrupt will be triggered on both changes)
+
+    $pin->interrupt_set(EDGE_BOTH, 'handler');
+
+    # remove an interrupt
+
+    $pin->unset;
+
+=head2 Board: Get your Pi's board revision
+
+    my $board = $pi->board;
+    my $revision = $board->rev;
+
+=head2 LCD: Initialize
+
+Typical 16-pin, 2-4 row and 16-20 column LCD screens work here. You can use
+4-bit or 8-bit mode (4-bit requires 6 GPIO pins, 8-bit requires 10). If you
+need a higher rate of data transmission to the LCD, use 8-bit mode. Typically,
+4-bit has always worked well enough for me.
+
+Before an LCD can be used, it must be initialized. This may look like a lot,
+but you only need to do it once. Essentially, you're configuring all pins up
+front.
+
+    my $lcd = $pi->lcd;
+
+    my %lcd_args = (
+        rows => 2,  # number of display rows, 2 or 4
+        cols => 16, # number of display columns 16 or 20
+        bits => 4,  # data width in bits, 4 or 8
+        rs => 1,    # GPIO pin for the LCD RS pin
+        strb => 2,  # GPIO pin for the LCD strobe (E) pin
+        d0 => 3,    #
+        ...         # d0-d3 GPIO pinout numbers
+        d3 =>6,     #
+        d4 => 7,    # set d4-d7 to all 0 (zero) if in 4-bit mode
+        ...         # otherwise, set them to their respective
+        d7 => 11    # GPIO pins
+    );
+
+    $lcd->init(%lcd_args);
+
+=head2 LCD: Display operations
+
+Now that we've initialized the LCD, we're ready to use it.
+
+    # turn the display on/off
+
+    $lcd->display(ON);  # or OFF
+
+    # put the cursor at col 0, row 0
+
+    $lcd->home;
+
+    # clear the display and move cursor to home
+
+    $lcd->clear;
+
+=head2 LCD: Cursor operations
+
+    # move the cursor to a position
+
+    $lcd->position(0, 0);   # col 0, row 0 (top row)
+    $lcd->position(0, 1);   # col 0, row 1 (bottom row on 2 row LCD)
+    $lcd->positon(5, 1);    # col 6, row 1
+
+    # turn on/off cursor
+
+    $lcd->cursor(OFF);  # or ON
+
+    # make the cursor blink
+
+    $lcd->cursor_blink(ON); # or OFF
+
+=head2 LCD: Display output operations
+
+By default, output starts at col 0 and row 0 of the display. Use C<position()>
+to move it around before outputting.
+
+    # print out a string
+
+    $lcd->print("My name is stevieb");
+
+=head2 LCD: Putting it all together
+
+Here's a trivial script that outputs information to specific LCD positions
+(we'll start right after an LCD C<init()>).
+
+    my $perl_ver = '5.24.0';
+    my $name = 'stevieb';
+
+    $lcd->home;
+
+    $lcd->print("${name}'s RPi, on");
+    $lcd->position(0, 1);
+    $lcd->print("Perl $perl_ver...");
+
+=head2 Util: Overview
+
+The included L<RPi::WiringPi::Util> module contains a few helper-type methods
+for internal and external use. Most of these you won't need, but others are
+very helpful when writing your own scripts that go beyond trivial.
+
+You can transform pin numbers from one scheme to another, get full pin number
+maps/translation hashes, manually export and unexport GPIO pins etc.
+
+It's worth having a look at...
+
+=head1 AUTHOR
+
+Steve Bertrand, E<lt>steveb@cpan.orgE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2016 by Steve Bertrand
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.18.2 or,
+at your option, any later version of Perl 5 you may have available.
