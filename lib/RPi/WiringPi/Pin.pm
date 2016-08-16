@@ -172,7 +172,7 @@ Parameter:
 
 Mandatory: C<2> for UP, C<1> for DOWN and C<0> to turn off the resistor.
 
-=head2 interrupt_set($edge, $cref)
+=head2 interrupt_set($edge, $callback)
 
 Listen for an interrupt on a pin, and do something if it is triggered.
 
@@ -180,13 +180,13 @@ Parameters:
 
     $edge
 
-Mandatory: C<rising> (goes HIGH), C<falling> (goes LOW), or C<both>.
+Mandatory: C<1> (falling), C<2> (rising), or C<3> for both.
 
-    $cref
+    $callback
 
-If not sent in, we'll disable and remove an existing interrupt for the
-specified edge. Otherwise, we'll set the interrupt, and when triggered, we'll
-execute the code in the subroutine code reference.
+The string name of a Perl subroutine that you've already written within your
+code. This is the interrupt handler. When an interrupt is triggered, the code
+in this subroutine will run.
 
 =head2 interrupt_unset()
 
