@@ -130,6 +130,27 @@ for HIGH and LOW on the same pin at the same time.
 
     $pin->unset;
 
+=head2 Interrupt: Overview
+
+Although we've already used interrupts from within a pin object, you can use
+them separately as well.
+
+=head2 Interrupt: Setting and unsetting
+
+    my $interrupt = $pi->interrupt;
+
+    # set an EDGE_RISING interrupt on pin 27
+
+    $interrupt->set(27, EDGE_RISING, 'callback');
+
+    # unset the interrupt
+
+    $interrupt->unset(27);
+
+    sub callback {
+        ...
+    }
+
 =head2 Board: Get your Pi's board revision
 
     my $board = $pi->board;
