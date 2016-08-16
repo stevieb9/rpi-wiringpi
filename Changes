@@ -1,6 +1,9 @@
 Revision history for Perl extension RPi::WiringPi.
 
-0.06    2016-08-15
+
+0.99_01 2016-08-16
+        - feature freeze. All work until 1.00 will be spent writing tests for
+          everything and ensuring documentation is accurate
         - added Interrupt.pm, added associated methods in both WiringPi
           and Pin
         - Core::setup_sys() now exports all pins automatically with sudo. This
@@ -9,6 +12,9 @@ Revision history for Perl extension RPi::WiringPi.
         - renamed RPi::WiringPi::Core to WiringPi::API
         - cleaned up code in Interrupt to deal with the much improved way we
           now handle interrupts
+        - added pin_to_gpio() to Util, returns the BCM representation of a pin
+          number no matter what scheme is in use
+        - added interrupt_set() and interrupt_unset() to Pin
 
 0.05    2016-08-13
         - renamed WiringPi::pin_map() to gpio_scheme()

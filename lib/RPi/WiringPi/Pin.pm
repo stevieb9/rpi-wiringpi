@@ -66,16 +66,18 @@ sub pwm {
 sub num {
     return $_[0]->{pin};
 }
-sub interrupt {
-    my ($self, $edge, $cref) = @_;
-
-    if (! defined $cref){
-        $self->{interrupt}{$edge}->unset($self->num, $edge);
-    }
-
+sub interrupt_set {
+    my ($self, $edge, $callback) = @_;
     my $int = RPi::WiringPi::Interrupt->new;
-    $int->set($self->num, $edge, $cref);
-    $self->{interrupt}{$edge} = $int;
+    $int->set($self->num, $edge, $callback);
+    $self->{interrupt} = $int;
+}
+sub interrupt_unset {
+    my $self = shift;
+    if (! defined $self->{interrupt}){
+        die "pin " . $self->num ." doesn't have an interrupt to unset\n";
+    }
+    $self->{interrupt}->unset($self->num);
 }
 sub _vim{1;};
 1;
@@ -92,10 +94,12 @@ RPi::WiringPi::Pin - Access and manipulate Raspberry Pi GPIO pins
 
     my $pin = RPi::WiringPi::Pin->new(5);
 
+    $pin->setup;
+
     $pin->mode(INPUT);
     $pin->write(LOW);
 
-    $pin->interrupt(EDGE_RISING, 'pin5_interrupt_handler');
+    $pin->set_interrupt(EDGE_RISING, 'pin5_interrupt_handler');
 
     my $num = $pin->num;
     my $mode = $pin->mode;
@@ -112,6 +116,9 @@ RPi::WiringPi::Pin - Access and manipulate Raspberry Pi GPIO pins
 An object that represents a physical GPIO pin.
 
 Using the pin object's methods, the GPIO pins can be controlled and monitored.
+
+Using this module outside of the base L<RPi::WiringPi> object requires you
+to run one of the L<WiringPi::API>'s C<setup*> methods.
 
 =head1 METHODS
 
@@ -165,10 +172,7 @@ Parameter:
 
 Mandatory: C<2> for UP, C<1> for DOWN and C<0> to turn off the resistor.
 
-=head2 interrupt($edge, $cref)
-
-WARNING: Interrupt code is highly experimental, it uses threads, and I'm not
-experienced with threads. Use at your own risk!
+=head2 interrupt_set($edge, $cref)
 
 Listen for an interrupt on a pin, and do something if it is triggered.
 
@@ -183,6 +187,10 @@ Mandatory: C<rising> (goes HIGH), C<falling> (goes LOW), or C<both>.
 If not sent in, we'll disable and remove an existing interrupt for the
 specified edge. Otherwise, we'll set the interrupt, and when triggered, we'll
 execute the code in the subroutine code reference.
+
+=head2 interrupt_unset()
+
+Removes an interrupt from the pin, if set.
 
 =head2 pwm($value)
 

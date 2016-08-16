@@ -10,7 +10,7 @@ use RPi::WiringPi::LCD;
 use RPi::WiringPi::Pin;
 use RPi::WiringPi::Interrupt;
 
-our $VERSION = '0.06';
+our $VERSION = '0.99_01';
 
 my $fatal_exit = 1;
 

@@ -1,7 +1,7 @@
 NAME
 
-    RPi::WiringPi - Perl interface to Raspberry Pi's board, GPIO and other
-    various items
+    RPi::WiringPi - Perl interface to Raspberry Pi's board, GPIO, LCDs and
+    other various items
 
 SYNOPSIS
 
@@ -78,6 +78,9 @@ DESCRIPTION
 
 OPERATIONAL METHODS
 
+    See RPi::WiringPi::Util for utility/helper methods that are imported
+    into an RPi::WiringPi object.
+
  new(%args)
 
     Returns a new RPi::WiringPi object.
@@ -125,10 +128,7 @@ OPERATIONAL METHODS
     Returns a RPi::WiringPi::LCD object, which allows you to fully
     manipulate LCD displays connected to your Raspberry Pi.
 
- interrupt($pin, $edge, $cref)
-
-    WARNING: Interrupt code is highly experimental, it uses threads, and
-    I'm not experienced in threads. Use at your own risk!
+ interrupt($pin, $edge, $callback)
 
     Returns a RPi::WiringPi::Interrupt object, which allows you to act when
     certain events occur (eg: a button press). This module is better used

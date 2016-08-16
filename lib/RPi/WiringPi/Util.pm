@@ -206,6 +206,13 @@ to the C<BCM> number format.
 If C<$scheme> is not sent in, we'll attempt to fetch the scheme currently in
 use and use that.
 
+Example:
+
+    my $num = pin_to_gpio(6, 'WPI');
+
+That will understand the pin number 6 to be the wiringPi representation, and
+will return the C<BCM> representation.
+
 =head2 export_pin($pin_num)
 
 Exports a pin. Not needed if using the C<setup()> initialization method.

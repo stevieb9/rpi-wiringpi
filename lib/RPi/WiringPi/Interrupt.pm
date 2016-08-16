@@ -21,21 +21,26 @@ sub new {
 }
 sub set {
     my ($self, $pin, $edge, $callback) = @_;
-    $interrupts->{$pin}{$edge}{value} = $edge;
-    $interrupts->{$pin}{$edge}{callback} = $callback;
-    $interrupts->set_interrupt($pin, $edge, $callback);
+
+    my $gpio = $self->pin_to_gpio($pin);
+
+    $interrupts->{$gpio}{$edge}{value} = $edge;
+    $interrupts->{$gpio}{$edge}{callback} = $callback;
+    $interrupts->set_interrupt($gpio, $edge, $callback);
 }
 sub unset {
     my ($self, $pin) = @_;
     if ($pin eq 'all'){
         for my $pin (keys %$interrupts){
-            for my $edge (keys %{ $interrupts->{$pin} }){
-                $interrupts->unset($pin);
+            my $gpio = $self->pin_to_gpio($pin);
+            for (keys %{ $interrupts->{$gpio} }){
+                $interrupts->unset($gpio);
             }
         }
     }
     else {
-        system "gpio", "edge", $pin, "none";
+        my $gpio = $self->pin_to_gpio($pin);
+        system "gpio", "edge", $gpio, "none";
     }
 }
 sub DESTROY {
