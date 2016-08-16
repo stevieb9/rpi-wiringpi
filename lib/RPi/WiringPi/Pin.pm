@@ -6,7 +6,7 @@ use warnings;
 use parent 'WiringPi::API';
 use RPi::WiringPi::Interrupt;
 
-our $VERSION = '0.99_03';
+our $VERSION = '0.99_05';
 
 sub new {
     my ($class, $pin) = @_;

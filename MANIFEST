@@ -1,5 +1,11 @@
 Changes
+examples/get_alt.pl
+examples/lcd.pl
 examples/lcd_working.py
+examples/on_off.pl
+examples/pwm.pl
+examples/temp_hum_display.pl
+FAQ-Tutorial.pod
 lib/RPi/WiringPi.pm
 lib/RPi/WiringPi/Board.pm
 lib/RPi/WiringPi/Interrupt.pm
@@ -12,6 +18,7 @@ MANIFEST.SKIP
 ppport.h
 README
 t/00-load.t
+t/03-setup.t
 t/05-pin.t
 t/10-wiring.t
 t/15-pwm.t
@@ -19,4 +26,5 @@ t/20-cleanup.t
 t/25-sig_die.t
 t/30-sig_int.t
 t/35-pin_map.t
+t/40-interrupt_and_pud.t
 typemap

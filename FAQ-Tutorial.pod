@@ -99,6 +99,7 @@ dimming an LED.
 
     for (0..1023){
         $pin->write($_);
+        usleep 50000;
     }
 
 =head2 Pin: Using interrupts
@@ -107,6 +108,10 @@ Built in is the ability to have code you define executed (interrupt handler)
 when a pin's edge changes. The Interrupt Service Request is handled in a
 separate C thread than your application. You can have a different handler
 for HIGH and LOW on the same pin at the same time.
+
+Interrupts are useful in many cases, but think of a button; you want an action
+to happen when someone presses a physical button on your prototype, but you
+obviously want to be doing other things while waiting for that button press.
 
     sub handler {
         print "in handler\n";
@@ -129,7 +134,7 @@ for HIGH and LOW on the same pin at the same time.
 
     # remove an interrupt
 
-    $pin->unset;
+    $pin->interrupt_unset;
 
 =head2 Interrupt: Overview
 
@@ -216,7 +221,7 @@ Now that we've initialized the LCD, we're ready to use it.
 
     $lcd->position(0, 0);   # col 0, row 0 (top row)
     $lcd->position(0, 1);   # col 0, row 1 (bottom row on 2 row LCD)
-    $lcd->positon(5, 1);    # col 6, row 1
+    $lcd->positon(5, 1);    # col 5 (6th slot), row 1
 
     # turn on/off cursor
 
