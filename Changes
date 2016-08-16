@@ -1,5 +1,7 @@
 Revision history for Perl extension RPi::WiringPi.
 
+0.99_02 UNRELEASED
+        -
 
 0.99_01 2016-08-16
         - feature freeze. All work until 1.00 will be spent writing tests for
