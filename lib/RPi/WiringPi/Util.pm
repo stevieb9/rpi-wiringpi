@@ -79,7 +79,7 @@ sub registered_pins {
 }
 sub export_pin {
     my ($self, $pin) = @_;
-    system "sudo", "gpio", "export", $self->pin_to_gpio($pin);
+    system "sudo", "gpio", "export", $self->pin_to_gpio($pin) ."in";
 }
 sub unexport_pin {
     my ($self, $pin) = @_;

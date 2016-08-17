@@ -34,9 +34,25 @@ sub mode {
     }
 
     if ($self->_sys_mode){
-        #system "sudo", "gpio"
+        $mode = $mode == 0 ? 'in' : 'out';
+
+        my $num = $self->num;
+        my $scheme = $self->gpio_scheme;
+
+        my $cmd = "sudo gpio";
+
+        if ($scheme eq 'BCM'){
+            $cmd .= " -g $num $mode";
+        }
+        elsif ($scheme eq 'PHYS'){
+            $cmd .= " -l $num $mode";
+        }
+
+        `$cmd`;
     }
-    $self->pin_mode($self->num, $mode);
+    else {
+        $self->pin_mode($self->num, $mode);
+    }
 }
 sub read {
     my $state = $_[0]->read_pin($_[0]->num);
@@ -51,9 +67,37 @@ sub write {
 }
 sub pull {
     my ($self, $direction) = @_;
+
     # 0 == down, 1 == up, 2 == off
+
     if ($direction != 0 && $direction != 1 && $direction != 2){
         die "Core::pull_up_down requires either 0, 1 or 2 for direction";
+    }
+
+    if ($self->_sys_mode){
+        if ($direction == 0){
+            $direction = 'down';
+        }
+        elsif ($direction == 1){
+            $direction = 'up';
+        }
+        else {
+            $direction = 'tri';
+        }
+
+        my $num = $self->num;
+        my $scheme = $self->gpio_scheme;
+
+        my $cmd = "sudo gpio";
+
+        if ($scheme eq 'BCM'){
+            $cmd .= " -g $num $direction";
+        }
+        elsif ($scheme eq 'PHYS'){
+            $cmd .= " -l $num $direction";
+        }
+
+        `$cmd`;
     }
     $self->pull_up_down($self->num, $direction);
 }
