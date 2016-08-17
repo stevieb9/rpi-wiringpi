@@ -80,7 +80,7 @@ sub new {
 sub pin {
     my ($self, $pin_num) = @_;
     my $pin = RPi::WiringPi::Pin->new($pin_num);
-    $self->register_pin($pin);
+    #$self->register_pin($pin);
     return $pin;
 }
 sub board {
