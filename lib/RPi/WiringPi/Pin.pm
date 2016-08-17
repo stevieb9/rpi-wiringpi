@@ -35,13 +35,16 @@ sub mode {
     }
 
     # shell out to 'gpio' if in SYS mode
-    print "scheme: " $self->pin_scheme ."\n";
+    print "scheme: ". $self->pin_scheme ."\n";
 
     if ($self->pin_scheme == RPI_MODE_GPIO_SYS){
-        $mode = $mode == 0 ? 'in' : 'out';
+        #FIXME: this is where we can set PWM on the pin
+        # in sys mode
+
+        $mode = 0 ? 'in' : 'out';
+
         my $num = $self->num;
-        print "***$num";
-        `sudo gpio -g $num $mode`;
+        `sudo gpio -g mode $num $mode`;
     }
     else {
         $self->pin_mode($self->num, $mode);
@@ -56,7 +59,13 @@ sub write {
     if ($value != 0 && $value != 1){
         die "Core::write_pin value must be 0 or 1\n";
     }
-    $self->write_pin($self->num, $value);
+    if ($self->pin_scheme == RPI_MODE_GPIO_SYS){
+        my $num = $self->num;
+        `sudo gpio -g write $num $value`;
+    }
+    else {
+        $self->write_pin($self->num, $value);
+    }
 }
 sub pull {
     my ($self, $direction) = @_;

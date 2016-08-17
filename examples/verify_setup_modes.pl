@@ -5,6 +5,13 @@ use strict;
 use RPi::WiringPi;
 use RPi::WiringPi::Constant qw(:all);
 
+if (! @ARGV){
+    print "need arg\n";
+    exit;
+}
+
+my $which = $ARGV[0];
+
 # connect LED to physical pin 40
 # led should blink three times
 
@@ -12,7 +19,8 @@ use RPi::WiringPi::Constant qw(:all);
 
 my $mod = 'RPi::WiringPi';
 
-{ # WPI - setup()
+if ($which == 1){ 
+    # WPI - setup()
     my $pi = $mod->new;
     my $p = $pi->pin(29);
 
@@ -24,7 +32,8 @@ my $mod = 'RPi::WiringPi';
     $p->mode(INPUT);
 }
 
-{ # GPIO - setup_gpio()
+if ($which == 2){
+    # GPIO - setup_gpio()
     my $pi = $mod->new(setup => 'gpio');
     my $p = $pi->pin(21);
 
@@ -36,12 +45,13 @@ my $mod = 'RPi::WiringPi';
     $p->mode(INPUT);
 }
 
-{ # PHYS - setup_phys()
+if ($which == 3){ 
+    # PHYS - setup_phys()
     my $pi = $mod->new(setup => 'phys');
     my $p = $pi->pin(40);
 
     $p->mode(OUTPUT);
-    print "SYS: HIGH\n";
+    print "PHYS: HIGH\n";
     $p->write(HIGH);
     sleep 1;
     $p->write(LOW);

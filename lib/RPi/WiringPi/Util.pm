@@ -61,11 +61,13 @@ sub pin_map {
 }
 sub pin_scheme {
     my ($self, $scheme) = @_;
+    
     if (defined $scheme){
-        $self->{pin_scheme} = $scheme;
+        $ENV{RPI_PIN_MODE} = $scheme;
     }
-    return defined $self->{pin_scheme}
-        ? $self->{pin_scheme}
+    
+    return defined $ENV{RPI_PIN_MODE}
+        ? $ENV{RPI_PIN_MODE}
         : RPI_MODE_UNINIT;
 }
 sub export_pin {

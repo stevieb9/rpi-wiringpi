@@ -51,6 +51,8 @@ sub new {
                 if ($self->_setup =~ /^s/) {
                     $self->SUPER::setup_sys();
                     $self->pin_scheme(RPI_MODE_GPIO_SYS);
+                    print "*** in sys, scheme: ". $self->pin_scheme ."\n";
+                    print "*** const: " . RPI_MODE_GPIO_SYS ."\n";
                 }
                 elsif ($self->_setup =~ /^w/) {
                     $self->SUPER::setup();
