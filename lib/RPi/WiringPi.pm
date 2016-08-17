@@ -40,52 +40,39 @@ sub new {
             # this checks if another application has already run
             # a setup routine
 
-            $self->gpio_scheme($scheme);
-
-            if ($scheme eq 'SYS'){
-                $self->_sys_mode(1);
-            }
-            else {
-                $self->_sys_mode(0);
-            }
+            $self->pin_scheme($scheme);
         }
         else {
             if (!defined $self->{setup}) {
                 $self->SUPER::setup();
-                $self->gpio_scheme( 'WPI' );
-                $self->_sys_mode( 0 );
+                $self->pin_scheme(RPI_MODE_WPI);
             }
             else {
                 if ($self->_setup =~ /^s/) {
                     $self->SUPER::setup_sys();
-                    $self->gpio_scheme( 'BCM' );
-                    $self->_sys_mode( 1 );
+                    $self->pin_scheme(RPI_MODE_GPIO_SYS);
                 }
                 elsif ($self->_setup =~ /^w/) {
                     $self->SUPER::setup();
-                    $self->gpio_scheme( 'WPI' );
-                    $self->_sys_mode( 0 );
+                    $self->pin_scheme(RPI_MODE_WPI);
                 }
                 elsif ($self->_setup =~ /^g/) {
                     $self->SUPER::setup_gpio();
-                    $self->gpio_scheme( 'BCM' );
-                    $self->_sys_mode( 0 );
+                    $self->pin_scheme(RPI_MODE_GPIO);
                 }
                 elsif ($self->_setup =~ /^p/) {
                     $self->SUPER::setup_phys();
-                    $self->gpio_scheme( 'PHYS' );
-                    $self->_sys_mode( 0 );
+                    $self->pin_scheme(RPI_MODE_PHYS);
                 }
                 elsif ($self->_setup =~ /^n/) {
-                    $self->gpio_scheme( 'NULL' );
-                    $self->_sys_mode( 0 );
+                    $self->pin_scheme(RPI_MODE_UNINIT);
                 }
             }
         }
         # set the env var so we can catch multiple
         # setup calls properly
 
-        $ENV{RPI_SCHEME} = $self->gpio_scheme;
+        $ENV{RPI_SCHEME} = $self->pin_scheme;
     }
     $self->_fatal_exit;
     return $self;

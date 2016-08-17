@@ -60,14 +60,14 @@ sub gpio_map {
 
     return \%map;
 }
-sub gpio_scheme {
+sub pin_scheme {
     my ($self, $scheme) = @_;
     if (defined $scheme){
-        $self->{gpio_scheme} = $scheme;
+        $self->{pin_scheme} = $scheme;
     }
-    return defined $self->{gpio_scheme}
-        ? $self->{gpio_scheme}
-        : 'NULL';
+    return defined $self->{pin_scheme}
+        ? $self->{pin_scheme}
+        : RPI_MODE_UNINIT;
 }
 sub registered_pins {
     my $self = shift;
@@ -134,14 +134,6 @@ sub cleanup {
             warn "\npin $num couldn't be disabled/unregistered!\n";
         }
     }
-}
-sub _sys_mode {
-    my ($self, $value) = @_;
-    if (! defined $value){
-        return $self->{sys_mode};
-    }
-    $self->{sys_mode} = $value;
-    return $self->{sys_mode};
 }
 sub _vim{1;};
 1;
