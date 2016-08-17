@@ -35,37 +35,57 @@ sub new {
     $self = bless {%args}, $self;
 
     if (! $ENV{NO_BOARD}){
-        if (! defined $self->{setup}) {
-            $self->SUPER::setup();
-            $self->gpio_scheme( 'WPI' );
-            $self->_sys_mode(0);
-        }
-        else {
-            if ($self->_setup =~ /^s/){
-                $self->SUPER::setup_sys();
-                $self->gpio_scheme('BCM');
+
+        if (my $scheme = $ENV{RPI_SCHEME}){
+            # this checks if another application has already run
+            # a setup routine
+
+            $self->gpio_scheme($scheme);
+
+            if ($scheme eq 'SYS'){
                 $self->_sys_mode(1);
             }
-            elsif ($self->_setup =~ /^w/){
-                $self->SUPER::setup();
-                $self->gpio_scheme('WPI');
-                $self->_sys_mode(0);
-            }
-            elsif ($self->_setup =~ /^g/){
-                $self->SUPER::setup_gpio();
-                $self->gpio_scheme('BCM');
-                $self->_sys_mode(0);
-            }
-            elsif ($self->_setup =~ /^p/){
-                $self->SUPER::setup_phys();
-                $self->gpio_scheme('PHYS');
-                $self->_sys_mode(0);
-            }
-            elsif ($self->_setup =~ /^n/){
-                $self->gpio_scheme('NULL');
+            else {
                 $self->_sys_mode(0);
             }
         }
+        else {
+            if (!defined $self->{setup}) {
+                $self->SUPER::setup();
+                $self->gpio_scheme( 'WPI' );
+                $self->_sys_mode( 0 );
+            }
+            else {
+                if ($self->_setup =~ /^s/) {
+                    $self->SUPER::setup_sys();
+                    $self->gpio_scheme( 'BCM' );
+                    $self->_sys_mode( 1 );
+                }
+                elsif ($self->_setup =~ /^w/) {
+                    $self->SUPER::setup();
+                    $self->gpio_scheme( 'WPI' );
+                    $self->_sys_mode( 0 );
+                }
+                elsif ($self->_setup =~ /^g/) {
+                    $self->SUPER::setup_gpio();
+                    $self->gpio_scheme( 'BCM' );
+                    $self->_sys_mode( 0 );
+                }
+                elsif ($self->_setup =~ /^p/) {
+                    $self->SUPER::setup_phys();
+                    $self->gpio_scheme( 'PHYS' );
+                    $self->_sys_mode( 0 );
+                }
+                elsif ($self->_setup =~ /^n/) {
+                    $self->gpio_scheme( 'NULL' );
+                    $self->_sys_mode( 0 );
+                }
+            }
+        }
+        # set the env var so we can catch multiple
+        # setup calls properly
+
+        $ENV{RPI_SCHEME} = $self->gpio_scheme;
     }
     $self->_fatal_exit;
     return $self;

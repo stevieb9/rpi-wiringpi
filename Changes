@@ -7,6 +7,9 @@ Revision history for Perl extension RPi::WiringPi.
           a lot of wrapping needs to be done (such as in pin_mode() and pwm())
           to make things work properly
         - fixed calls to _sys_mode() in new(). Didn't have the _ prefix
+        - we now check if something else has called a setup() routine
+        - new env var, RPI_SCHEME, set when a setup routine is called so that
+          if it's called twice, we'll know and be able to carry on
 
 0.99_04 2016-08-16
         - added Tutorial/FAQ
