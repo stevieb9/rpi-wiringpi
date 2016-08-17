@@ -200,9 +200,10 @@ L<RPi::WiringPi::Constant>.
 L<wiringPi|http://wiringpi.com> must be installed prior to installing/using
 this module.
 
-Also, it's handy to have access to a pin mapping conversion chart. There's an
+It's handy to have access to a pin mapping conversion chart. There's an
 excellent pin scheme map for reference at
-L<pinout.xyz|https://pinout.xyz/pinout/wiringpi>.
+L<pinout.xyz|https://pinout.xyz/pinout/wiringpi>. You can also run
+C<gpio readall> at the command line to get a pin chart.
 
 =head1 OPERATIONAL METHODS
 

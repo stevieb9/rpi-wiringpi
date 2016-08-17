@@ -76,6 +76,11 @@ DESCRIPTION
     wiringPi <http://wiringpi.com> must be installed prior to
     installing/using this module.
 
+    It's handy to have access to a pin mapping conversion chart. There's an
+    excellent pin scheme map for reference at pinout.xyz
+    <https://pinout.xyz/pinout/wiringpi>. You can also run gpio readall at
+    the command line to get a pin chart.
+
 OPERATIONAL METHODS
 
     See RPi::WiringPi::Util for utility/helper methods that are imported
@@ -97,10 +102,13 @@ OPERATIONAL METHODS
       This will bypass running the setup routines.
 
       system will also use BCM pin numbering, but in this setup mode, we
-      don't require root privileges to run. This is the default.
+      don't require root privileges to run.
 
       See wiringPi setup reference <http://wiringpi.com/reference/setup>
       for important details on the differences.
+
+      There's an excellent pin scheme map for reference at pinout.xyz
+      <https://pinout.xyz/pinout/wiringpi>.
 
     fatal_exit => $bool
 
