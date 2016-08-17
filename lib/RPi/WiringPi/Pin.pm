@@ -35,6 +35,7 @@ sub mode {
     }
 
     # shell out to 'gpio' if in SYS mode
+    print "scheme: " $self->pin_scheme ."\n";
 
     if ($self->pin_scheme == RPI_MODE_GPIO_SYS){
         $mode = $mode == 0 ? 'in' : 'out';
