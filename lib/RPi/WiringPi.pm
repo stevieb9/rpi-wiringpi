@@ -200,6 +200,10 @@ L<RPi::WiringPi::Constant>.
 L<wiringPi|http://wiringpi.com> must be installed prior to installing/using
 this module.
 
+Also, it's handy to have access to a pin mapping conversion chart. There's an
+excellent pin scheme map for reference at
+L<pinout.xyz|https://pinout.xyz/pinout/wiringpi>.
+
 =head1 OPERATIONAL METHODS
 
 See L<RPi::WiringPi::Util> for utility/helper methods that are imported into
@@ -223,10 +227,13 @@ numbers. You can also specify C<none> for testing purposes. This will bypass
 running the setup routines.
 
 C<system> will also use C<BCM> pin numbering, but in this setup mode, we don't
-require root privileges to run. This is the default.
+require root privileges to run.
 
 See L<wiringPi setup reference|http://wiringpi.com/reference/setup> for
 important details on the differences.
+
+There's an excellent pin scheme map for reference at
+L<pinout.xyz|https://pinout.xyz/pinout/wiringpi>.
 
 =back
 

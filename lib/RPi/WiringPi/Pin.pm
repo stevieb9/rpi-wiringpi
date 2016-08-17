@@ -33,22 +33,12 @@ sub mode {
             "(output), 2 (PWM output) or 3 (GPIO CLOCK output)\n";
     }
 
-    if ($self->_sys_mode){
+    # shell out to 'gpio' if in SYS mode
+
+    if ($self->pin_scheme == RPI_MODE_GPIO_SYS){
         $mode = $mode == 0 ? 'in' : 'out';
-
         my $num = $self->num;
-        my $scheme = $self->gpio_scheme;
-
-        my $cmd = "sudo gpio";
-
-        if ($scheme eq 'BCM'){
-            $cmd .= " -g $num $mode";
-        }
-        elsif ($scheme eq 'PHYS'){
-            $cmd .= " -l $num $mode";
-        }
-
-        `$cmd`;
+        `sudo gpio -g $num $mode`;
     }
     else {
         $self->pin_mode($self->num, $mode);
@@ -74,7 +64,10 @@ sub pull {
         die "Core::pull_up_down requires either 0, 1 or 2 for direction";
     }
 
-    if ($self->_sys_mode){
+    # shell out to 'gpio' if in SYS mode
+
+    if ($self->pin_scheme == RPI_MODE_GPIO_SYS){
+
         if ($direction == 0){
             $direction = 'down';
         }
@@ -86,20 +79,12 @@ sub pull {
         }
 
         my $num = $self->num;
-        my $scheme = $self->gpio_scheme;
 
-        my $cmd = "sudo gpio";
-
-        if ($scheme eq 'BCM'){
-            $cmd .= " -g $num $direction";
-        }
-        elsif ($scheme eq 'PHYS'){
-            $cmd .= " -l $num $direction";
-        }
-
-        `$cmd`;
+        `sudo gpio -g $num $direction`;
     }
-    $self->pull_up_down($self->num, $direction);
+    else {
+        $self->pull_up_down($self->num, $direction);
+    }
 }
 sub pwm {
     my ($self, $value) = @_;

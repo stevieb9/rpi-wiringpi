@@ -10,6 +10,10 @@ Revision history for Perl extension RPi::WiringPi.
         - we now check if something else has called a setup() routine
         - new env var, RPI_SCHEME, set when a setup routine is called so that
           if it's called twice, we'll know and be able to carry on
+        - added new RPI_MODE_* constants that contain pin modes. This replaces
+          _sys_mode() (removed) and cleans up other logic
+        - renamed gpio_map() and gpio_scheme() to pin_map() and pin_scheme()
+          respectively
 
 0.99_04 2016-08-16
         - added Tutorial/FAQ
