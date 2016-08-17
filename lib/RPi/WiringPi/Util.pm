@@ -14,29 +14,29 @@ sub pin_to_gpio {
 
     $scheme = defined $scheme
         ? $scheme
-        : $self->gpio_scheme;
+        : $self->pin_scheme;
 
-    if ($scheme eq 'WPI'){
+    if ($scheme == RPI_MODE_WPI){
         return $self->wpi_to_gpio($pin);
     }
-    elsif ($scheme eq 'PHYS'){
+    elsif ($scheme == RPI_MODE_PHYS){
         return $self->phys_to_gpio($pin);
     }
-    elsif ($scheme eq 'BCM'){
+    elsif (($scheme == RPI_MODE_GPIO) || ($scheme == RPI_MODE_GPIO_SYS)){
         return $pin;
     }
-    if ($scheme eq 'NULL'){
-        die "can't determine pin mapping\n";
+    if ($scheme == RPI_MODE_UNINIT){
+        die "setup not run; pin mapping scheme not initialized\n";
     }
 }
-sub gpio_map {
+sub pin_map {
     my ($self, $scheme) = @_;
 
-    $scheme = $self->gpio_scheme if ! defined $scheme;
+    $scheme = $self->pin_scheme if ! defined $scheme;
 
     return {} if $scheme eq 'NULL';
-    if (defined $self->{gpio_map_cache}{$scheme}){
-        return $self->{gpio_map_cache}{$scheme};
+    if (defined $self->{pin_map_cache}{$scheme}){
+        return $self->{pin_map_cache}{$scheme};
     }
 
     return {} if $scheme eq 'NULL';
@@ -44,19 +44,19 @@ sub gpio_map {
     my %map;
 
     for (0..63){
-        my $gpio;
-        if ($scheme eq 'WPI') {
-            $gpio = $self->phys_to_wpi($_);
+        my $pin;
+        if ($scheme == RPI_MODE_WPI) {
+            $pin = $self->phys_to_wpi($_);
         }
-        elsif ($scheme eq 'BCM'){
-            $gpio = $self->phys_to_gpio($_);
+        elsif (($scheme == RPI_MODE_GPIO) || ($scheme == RPI_MODE_GPIO_PHYS)){
+            $pin = $self->phys_to_gpio($_);
         }
-        elsif ($scheme eq 'PHYS'){
-            $gpio = $_;
+        elsif ($scheme == RPI_MODE_PHYS){
+            $pin = $_;
         }
-        $map{$_} = $gpio;
+        $map{$_} = $pin;
     }
-    $self->{gpio_map_cache}{$scheme} = \%map;
+    $self->{pin_map_cache}{$scheme} = \%map;
 
     return \%map;
 }
@@ -156,13 +156,13 @@ used independently.
 
 =head1 METHODS
 
-=head2 gpio_scheme()
+=head2 pin_scheme()
 
 Returns the current pin mapping in use. Returns C<"NULL"> it has not yet been
 set, C<"WPI"> if using C<wiringPi> mapping, C<"BCM"> for standard GPIO map and
 C<"PHYS"> if using the physical pin map directly.
 
-=head2 gpio_map($scheme)
+=head2 pin_map($scheme)
 
 Returns a hash reference in the following format:
 
