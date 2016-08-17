@@ -34,12 +34,11 @@ sub pin_map {
 
     $scheme = $self->pin_scheme if ! defined $scheme;
 
-    return {} if $scheme eq 'NULL';
+    return {} if $scheme eq RPI_MODE_UNINIT;
+
     if (defined $self->{pin_map_cache}{$scheme}){
         return $self->{pin_map_cache}{$scheme};
     }
-
-    return {} if $scheme eq 'NULL';
 
     my %map;
 
@@ -48,7 +47,7 @@ sub pin_map {
         if ($scheme == RPI_MODE_WPI) {
             $pin = $self->phys_to_wpi($_);
         }
-        elsif (($scheme == RPI_MODE_GPIO) || ($scheme == RPI_MODE_GPIO_PHYS)){
+        elsif (($scheme == RPI_MODE_GPIO) || ($scheme == RPI_MODE_GPIO_SYS)){
             $pin = $self->phys_to_gpio($_);
         }
         elsif ($scheme == RPI_MODE_PHYS){
@@ -69,14 +68,6 @@ sub pin_scheme {
         ? $self->{pin_scheme}
         : RPI_MODE_UNINIT;
 }
-sub registered_pins {
-    my $self = shift;
-    my @pin_nums;
-    for (@{ $self->{registered_pins} }){
-        push @pin_nums, $_;
-    }
-    return @pin_nums;
-}
 sub export_pin {
     my ($self, $pin) = @_;
     system "sudo", "gpio", "export", $self->pin_to_gpio($pin) ."in";
@@ -86,54 +77,18 @@ sub unexport_pin {
     system "sudo", "gpio", "unexport", $self->pin_to_gpio($pin);
 }
 sub register_pin {
-    my ($self, $pin) = @_;
-    my $num = $pin->num;
-    my @current_pins = $self->registered_pins;
-    for (@current_pins){
-        if ($num == $_){
-            die "pin $num is already in use\n";
-        }
-    }
-    if (! defined $ENV{RPI_PINS}){
-        $ENV{RPI_PINS} = $num;
-    }
-    else {
-        $ENV{RPI_PINS} = "$ENV{RPI_PINS}," . $num;
-    }
-    push @{ $self->{registered_pins} }, $self->pin_to_gpio($num);
+    my ($self, $pin);
+    my $gpio_num = $self->pin_to_gpio($pin->num);
+    $self->{registered_pins}{$gpio_num} = $pin;
+
+    $ENV{RPI_PINS} = ! defined $ENV{RPI_PINS}
+        ? $gpio_num
+        : "$ENV{RPI_PINS},$gpio_num";
 }
 sub unregister_pin {
-    my ($self, $pin) = @_;
-
-    $num = $self->pin_to_gpio($pin->num);
-    my @pins;
-
-    for ($self->registered_pins){
-        if ($num != $_){
-            push @pins, $_;
-        }
-        else {
-            # disable the pin before unregistering
-            $pin->write(0);
-            $pin->mode(0);
-        }
-    }
-    if (@pins == $self->registered_pins){
-        warn "pin ". $pin->num ." is not registered, and can't be " .
-             "unregistered\n";
-    }
-    @{ $self->{registered_pins} } = @pins;
-    return $self->registered_pins;
 }
-sub cleanup {
-    my $self = shift;
-    for ($self->registered_pins){
-        $self->unregister_pin($_);
-        if ($_->mode){
-            my $num = $_->num;
-            warn "\npin $num couldn't be disabled/unregistered!\n";
-        }
-    }
+sub cleanup{
+    # empty
 }
 sub _vim{1;};
 1;
@@ -158,20 +113,30 @@ used independently.
 
 =head2 pin_scheme()
 
-Returns the current pin mapping in use. Returns C<"NULL"> it has not yet been
-set, C<"WPI"> if using C<wiringPi> mapping, C<"BCM"> for standard GPIO map and
-C<"PHYS"> if using the physical pin map directly.
+Returns the current pin mapping in use. Returns C<0> for C<wiringPi> scheme,
+C<1> for GPIO, C<2> for System GPIO, C<3> for physical board and C<-1> if a
+scheme has not yet been configured (ie. one of the C<setup*()> methods has
+not yet been called.
+
+If using L<RPi::WiringPi::Constant>, these map out to:
+
+    0  => RPI_MODE_WPI
+    1  => RPI_MODE_GPIO
+    2  => RPI_MODE_GPIO_SYS
+    3  => RPI_MODE_PHYS
+    -1 => RPI_MODE_UNINIT
 
 =head2 pin_map($scheme)
 
 Returns a hash reference in the following format:
 
     $map => {
-        phys_pin_num => gpio_pin_num,
+        phys_pin_num => pin_num,
         ...
     };
 
-If no scheme is in place, return will be an empty hash reference.
+If no scheme is in place or one isn't sent in, return will be an empty hash
+reference.
 
 Parameters:
 
@@ -181,20 +146,20 @@ Parameters:
 
 Optional: By default, we'll check if you've already run a setup routine, and
 if so, we'll use the scheme currently in use. If one is not in use and no
-C<$scheme> has been sent in, we'll use C<'NULL'>, otherwise if a scheme is sent
-in, the return will be:
+C<$scheme> has been sent in, we'll return an empty hash reference, otherwise
+if a scheme is sent in, the return will be:
 
-For C<'WPI'> scheme (wiringPi's numbering scheme):
+For C<'wiringPi'> scheme:
 
     $map = {
-        phys_pin_num => wiringPi_gpio_pin_num,
+        phys_pin_num => wiringPi_pin_num,
         ....
     };
 
-For C<'BCM'> scheme (Broadcom's numbering scheme (printed on the board)):
+For C<'GPIO'> scheme:
 
     $map = {
-        phys_pin_num => Broadcom_gpio_pin_num,
+        phys_pin_num => gpio_pin_num,
         ...
     };
 
@@ -202,30 +167,52 @@ For C<'BCM'> scheme (Broadcom's numbering scheme (printed on the board)):
 
 =head2 pin_to_gpio($pin, $scheme)
 
-Converts the specified pin from the specified scheme (C<WPI>, C<PHYS>, C<BCM>)
-to the C<BCM> number format.
+Converts the specified pin from the specified scheme (C<RPI_MODE_WPI>
+(wiringPi), or <RPI_MODE_PHYS> (physical board numbering scheme) to the GPIO
+number format.
 
 If C<$scheme> is not sent in, we'll attempt to fetch the scheme currently in
 use and use that.
 
 Example:
 
-    my $num = pin_to_gpio(6, 'WPI');
+    my $num = pin_to_gpio(6, RPI_MODE_WPI);
 
 That will understand the pin number 6 to be the wiringPi representation, and
-will return the C<BCM> representation.
+will return the GPIO representation.
+
+=head2 wpi_to_gpio($pin_num)
+
+Converts a pin number from C<wiringPi> notation to GPIO notation.
+
+Parameters:
+
+    $pin_num
+
+Mandatory: The C<wiringPi> representation of a pin number.
+
+=head2 phys_to_gpio($pin_num)
+
+Converts a pin number as physically documented on the Raspberry Pi board
+itself to GPIO notation, and returns it.
+
+Parameters:
+
+    $pin_num
+
+Mandatory: The pin number printed on the physical Pi board.
 
 =head2 export_pin($pin_num)
 
-Exports a pin. Not needed if using the C<setup()> initialization method.
+Exports a pin. Only needed if using the C<setup_sys()> initialization method.
 
-Pin number must be the C<BCM> pin number representation.
+Pin number must be the C<GPIO> pin number representation.
 
 =head2 unexport_pin($pin_num)
 
 Unexports a pin.
 
-Pin number must be the C<BCM> pin number representation.
+Pin number must be the C<GPIO> pin number representation.
 
 =head2 registered_pins()
 

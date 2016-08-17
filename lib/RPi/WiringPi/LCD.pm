@@ -51,7 +51,7 @@ sub cursor_blink {
 }
 sub send_cmd {
     my ($self, $cmd) = @_;
-    warn "\nlcdSendCommand() wiringPi function isn't documented!\n";
+    warn "\nlcdSendCommand() wiringPi function isn't documented\n";
     $self->lcd_send_cmd($self->_fd, $cmd);
 }
 sub position {
@@ -118,13 +118,16 @@ Parameters:
 Mandatory: All entries must have a value. If you're only using four (4) bit
 width, C<d4> through C<d7> must be set to C<0>.
 
+NOTE: In 4-bit mode, connect to pins C<d4> - C<d7> on the LCD. These pins act
+as C<d0> - C<d3> when not in 8-bit mode.
+
 =head2 home()
 
 Moves the LCD cursor to the home position (top row, leftmost column).
 
 =head2 clear()
 
-Clears the LCD display of all data.
+Clears the LCD display of all data, and return the cursor to the home position.
 
 =head2 display($state)
 

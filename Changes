@@ -14,6 +14,9 @@ Revision history for Perl extension RPi::WiringPi.
           _sys_mode() (removed) and cleans up other logic
         - renamed gpio_map() and gpio_scheme() to pin_map() and pin_scheme()
           respectively
+        - added CLI binary "pinmap", prints out pin mappings
+        - fixed return issue in pin_map()
+
 
 0.99_04 2016-08-16
         - added Tutorial/FAQ

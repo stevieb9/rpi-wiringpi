@@ -18,7 +18,7 @@ BEGIN {
     sub error {
         my $err = shift;
         print "\ndie() caught... ".  __PACKAGE__ ." is cleaning up\n",
-        RPi::WiringPi::_shutdown();
+        _shutdown();
         print "\ncleaned up, exiting...\n";
         print "\noriginal error: $err\n";
         exit if $fatal_exit;
@@ -43,7 +43,7 @@ sub new {
             $self->pin_scheme($scheme);
         }
         else {
-            if (!defined $self->{setup}) {
+            if (! defined $self->{setup}) {
                 $self->SUPER::setup();
                 $self->pin_scheme(RPI_MODE_WPI);
             }
@@ -64,7 +64,7 @@ sub new {
                     $self->SUPER::setup_phys();
                     $self->pin_scheme(RPI_MODE_PHYS);
                 }
-                elsif ($self->_setup =~ /^n/) {
+                else {
                     $self->pin_scheme(RPI_MODE_UNINIT);
                 }
             }
@@ -113,8 +113,8 @@ sub _shutdown {
     if (defined $ENV{RPI_PINS}) {
         my @pins = split ',', $ENV{RPI_PINS};
         for (@pins) {
-            # WiringPi::API->write_pin( $_, LOW );
-            # WiringPi::API->pin_mode( $_, INPUT );
+            #FIXME: WiringPi::API->write_pin( $_, LOW );
+            #FIXME: WiringPi::API->pin_mode( $_, INPUT );
         }
     }
 }

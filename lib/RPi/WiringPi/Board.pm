@@ -14,14 +14,6 @@ sub new {
 sub rev {
     return $_[0]->board_rev;
 }
-sub wpi_to_gpio {
-    my ($self, $pin_num) = @_;
-    return $self->wpi_to_gpio($pin_num);
-}
-sub phys_to_gpio {
-    my ($self, $pin_num) = @_;
-    return $self->phys_to_gpio($pin_num);
-}
 sub pwm_range {
     my ($self, $range) = @_;
     $self->pwm_set_range($range);
@@ -71,27 +63,19 @@ Returns a new C<RPi::WiringPi::Board> object.
 
 Returns the revision of the Pi board.
 
-=head2 wpi_to_gpio($pin_num)
+=head2 pwm_range($range)
 
-Converts a pin number from C<wiringPi> notation to Broadcom (BCM) notation,
-and returns the BCM representation.
-
-Parameters:
-
-    $pin_num
-
-Mandatory: The C<wiringPi> representation of a pin number.
-
-=head2 phys_to_gpio($pin_num)
-
-Converts a pin number as physically documented on the Raspberry Pi board
-itself to Broadcom (BCM) notation, and returns it.
+Changes the range of Pulse Width Modulation (PWM). The default is C<0> through
+C<1024>.
 
 Parameters:
 
-    $pin_num
+    $range
 
-Mandatory: The pin number printed on the physical Pi board.
+Mandatory: An integer specifying the high-end of the range. The range always
+starts at C<0>. Eg: if C<$range> is C<359>, if you incremented PWM by C<1>
+every second, you'd rotate a step motor one complete rotation in exactly one
+minute.
 
 =head1 SEE ALSO
 

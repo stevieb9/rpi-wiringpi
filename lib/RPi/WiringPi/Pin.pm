@@ -6,6 +6,7 @@ use warnings;
 use parent 'WiringPi::API';
 use parent 'RPi::WiringPi::Util';
 
+use RPi::WiringPi::Constant qw(:all);
 use RPi::WiringPi::Interrupt;
 
 our $VERSION = '0.99_05';
