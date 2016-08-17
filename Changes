@@ -6,6 +6,7 @@ Revision history for Perl extension RPi::WiringPi.
         - changed back to the default setup() call instead of setup_sys(), as
           a lot of wrapping needs to be done (such as in pin_mode() and pwm())
           to make things work properly
+        - fixed calls to _sys_mode() in new(). Didn't have the _ prefix
 
 0.99_04 2016-08-16
         - added Tutorial/FAQ

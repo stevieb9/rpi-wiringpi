@@ -2,7 +2,6 @@ package RPi::WiringPi::Interrupt;
 
 use strict;
 use warnings;
-use threads;
 
 use parent 'WiringPi::API';
 use parent 'RPi::WiringPi::Util';
@@ -15,18 +14,15 @@ our $VERSION = '0.99_05';
 my $interrupts = {};
 
 sub new {
-    $Config{useithreads}
-      or die "Perl is not compiled with threads, Interrupts not available\n";
     return bless {}, shift;
 }
 sub set {
     my ($self, $pin, $edge, $callback) = @_;
 
     my $gpio = $self->pin_to_gpio($pin);
-
     $interrupts->{$gpio}{$edge}{value} = $edge;
     $interrupts->{$gpio}{$edge}{callback} = $callback;
-    $interrupts->set_interrupt($gpio, $edge, $callback);
+    $self->set_interrupt($gpio, $edge, $callback);
 }
 sub unset {
     my ($self, $pin) = @_;

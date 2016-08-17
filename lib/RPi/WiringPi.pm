@@ -38,33 +38,32 @@ sub new {
         if (! defined $self->{setup}) {
             $self->SUPER::setup();
             $self->gpio_scheme( 'WPI' );
-            $self->sys_mode(0);
+            $self->_sys_mode(0);
         }
         else {
             if ($self->_setup =~ /^s/){
                 $self->SUPER::setup_sys();
                 $self->gpio_scheme('BCM');
-                $self->sys_mode(1);
+                $self->_sys_mode(1);
             }
             elsif ($self->_setup =~ /^w/){
                 $self->SUPER::setup();
                 $self->gpio_scheme('WPI');
-                $self->sys_mode(0);
+                $self->_sys_mode(0);
             }
             elsif ($self->_setup =~ /^g/){
                 $self->SUPER::setup_gpio();
                 $self->gpio_scheme('BCM');
-                $self->sys_mode(0);
+                $self->_sys_mode(0);
             }
-
             elsif ($self->_setup =~ /^p/){
                 $self->SUPER::setup_phys();
                 $self->gpio_scheme('PHYS');
-                $self->sys_mode(0);
+                $self->_sys_mode(0);
             }
             elsif ($self->_setup =~ /^n/){
                 $self->gpio_scheme('NULL');
-                $self->sys_mode(0);
+                $self->_sys_mode(0);
             }
         }
     }
