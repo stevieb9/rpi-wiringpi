@@ -35,7 +35,6 @@ sub mode {
     }
 
     # shell out to 'gpio' if in SYS mode
-    print "scheme: ". $self->pin_scheme ."\n";
 
     if ($self->pin_scheme == RPI_MODE_GPIO_SYS){
         #FIXME: this is where we can set PWM on the pin
