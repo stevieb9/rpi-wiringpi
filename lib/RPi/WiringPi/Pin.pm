@@ -39,6 +39,7 @@ sub mode {
     if ($self->pin_scheme == RPI_MODE_GPIO_SYS){
         $mode = $mode == 0 ? 'in' : 'out';
         my $num = $self->num;
+        print "***$num";
         `sudo gpio -g $num $mode`;
     }
     else {
