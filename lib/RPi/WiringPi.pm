@@ -126,8 +126,8 @@ sub _shutdown {
     if (defined $ENV{RPI_PINS}) {
         my @pins = split ',', $ENV{RPI_PINS};
         for (@pins) {
-            WiringPi::API->write_pin( $_, LOW );
-            WiringPi::API->pin_mode( $_, INPUT );
+            # WiringPi::API->write_pin( $_, LOW );
+            # WiringPi::API->pin_mode( $_, INPUT );
         }
     }
 }

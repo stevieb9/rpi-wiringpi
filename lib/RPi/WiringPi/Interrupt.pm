@@ -19,19 +19,22 @@ sub new {
 sub set {
     my ($self, $pin, $edge, $callback) = @_;
 
-    my $gpio = $self->pin_to_gpio($pin);
-    $interrupts->{$gpio}{$edge}{value} = $edge;
-    $interrupts->{$gpio}{$edge}{callback} = $callback;
-    $self->set_interrupt($gpio, $edge, $callback);
+    # unset the interrupt if we're changing
+    # it
+
+    if (defined $interrupts->{$pin}{edge}){
+        $self->unset($pin);
+    }
+
+    $interrupts->{$pin}{edge} = $edge;
+
+    $self->set_interrupt($pin, $edge, $callback);
 }
 sub unset {
     my ($self, $pin) = @_;
     if ($pin eq 'all'){
-        for my $pin (keys %$interrupts){
-            my $gpio = $self->pin_to_gpio($pin);
-            for (keys %{ $interrupts->{$gpio} }){
-                $interrupts->unset($gpio);
-            }
+        for (keys %$interrupts){
+            $self->unset($_);
         }
     }
     else {

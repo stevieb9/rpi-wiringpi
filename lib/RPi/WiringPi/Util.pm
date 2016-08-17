@@ -17,10 +17,10 @@ sub pin_to_gpio {
         : $self->gpio_scheme;
 
     if ($scheme eq 'WPI'){
-        return WiringPi::API::wpi_to_gpio($pin);
+        return $self->wpi_to_gpio($pin);
     }
     elsif ($scheme eq 'PHYS'){
-        return WiringPi::API::phys_to_gpio($pin);
+        return $self->phys_to_gpio($pin);
     }
     elsif ($scheme eq 'BCM'){
         return $pin;
@@ -46,10 +46,10 @@ sub gpio_map {
     for (0..63){
         my $gpio;
         if ($scheme eq 'WPI') {
-            $gpio = WiringPi::API::phys_to_wpi($_);
+            $gpio = $self->phys_to_wpi($_);
         }
         elsif ($scheme eq 'BCM'){
-            $gpio = WiringPi::API::phys_to_gpio($_);
+            $gpio = $self->phys_to_gpio($_);
         }
         elsif ($scheme eq 'PHYS'){
             $gpio = $_;
@@ -87,26 +87,29 @@ sub unexport_pin {
 }
 sub register_pin {
     my ($self, $pin) = @_;
+    my $num = $pin->num;
     my @current_pins = $self->registered_pins;
     for (@current_pins){
-        if ($pin->num == $_->num){
-            my $num = $pin->num;
+        if ($num == $_){
             die "pin $num is already in use\n";
         }
     }
     if (! defined $ENV{RPI_PINS}){
-        $ENV{RPI_PINS} = $pin->num;
+        $ENV{RPI_PINS} = $num;
     }
     else {
-        $ENV{RPI_PINS} = "$ENV{RPI_PINS}," . $pin->num;
+        $ENV{RPI_PINS} = "$ENV{RPI_PINS}," . $num;
     }
-    push @{ $self->{registered_pins} }, $pin;
+    push @{ $self->{registered_pins} }, $self->pin_to_gpio($num);
 }
 sub unregister_pin {
     my ($self, $pin) = @_;
+
+    $num = $self->pin_to_gpio($pin->num);
     my @pins;
+
     for ($self->registered_pins){
-        if ($_->num != $pin->num){
+        if ($num != $_){
             push @pins, $_;
         }
         else {
