@@ -24,6 +24,9 @@ Revision history for Perl extension RPi::WiringPi.
         - rewrote register_pin() and unregister_pin(). They both translate the
           pin number to GPIO no matter the scheme, then unexport() it
         - added manual tests for all four modes in test/*
+        - slight edits in FAQ/Tutorial
+        - bumped req RPi::WiringPi::Constant to 0.02
+        - bumped req WiringPi::API to 1.03
 
 0.99_04 2016-08-16
         - added Tutorial/FAQ

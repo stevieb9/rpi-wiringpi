@@ -11,7 +11,7 @@ L<RPi::WiringPi> and related distributions.
 In this document we use constants that are provided with the C<:all> tag in
 L<RPi::WiringPi::Constant> module.
 
-=head1 GLOSSARY
+=head1 GLOSSARY OF TERMS
 
     HIGH -          connected to 3.3v (positive)
     LOW  -          connected to 0v (ground)
@@ -34,14 +34,15 @@ L<RPi::WiringPi::Constant> module.
 
 The first thing you need to do is call an appropriate setup method. We do
 that automatically. See L<new()|RPi::WiringPi/"new-args"> to see how to use
-non-default setup routines.
+non-default setup routines. By default, we use the GPIO pin numbering scheme.
 
     my $pi = RPi::WiringPi->new;
 
 =head2 Pin: Creating and using a GPIO pin object
 
 The L<RPi::WiringPi::Pin> class provides you with objects that directly map to
-the Raspberry Pi's onboard GPIO pins.
+the Raspberry Pi's onboard GPIO pins. You generate a pin object through the
+main C<$pi> object we created above.
 
     my $pin = $pi->pin(27);
 
@@ -55,7 +56,7 @@ the Raspberry Pi's onboard GPIO pins.
 
     # get the current status of a pin (HIGH or LOW)
 
-    $pin->read;
+    my $state = $pin->read;
 
     # get a pin's pin number
 
@@ -81,9 +82,10 @@ interrupts.
 Pulse Width Modulation kind of acts like a potentiometer (or a variable
 switch... like a light dimmer). They are used to send pulses of electricity
 to a device across time. It is required for things like stepper motors, or
-dimming an LED.
+dimming an LED. Note that only physical pin C<12> on the Raspberry Pi has
+hardware-based PWM.
 
-    # set the pin to PWM_OUT mode
+    # set the pin to PWM_OUT mode. Must be physical pin 12
 
     $pin->mode(PWM_OUT);
 
@@ -104,22 +106,18 @@ dimming an LED.
 
 =head2 Pin: Using interrupts
 
-Built in is the ability to have code you define executed (interrupt handler)
-when a pin's edge changes. The Interrupt Service Request is handled in a
-separate C thread than your application.
+Built in is the ability to have Perl code you define executed when a pin's edge
+changes (a pin goes from LOW to HIGH or vice-versa). This code acts as an
+interrupt handler. The Interrupt Service Request that listens for the change
+runs in a separate C thread than your application.
 
 Interrupts are useful in many cases, but think of a button; you want an action
 to happen when someone presses a physical button on your prototype, but you
 obviously want to be doing other things while waiting for that button press.
 
-    sub handler {
-        print "in handler\n";
-        # do other stuff, perhaps turning on/off other pins
-    }
-
     # set an interrupt handler for when the pin goes from
     # LOW to HIGH. The second parameter is the string name
-    # of the previously written perl sub
+    # of the Perl subroutine at the bottom of this example
 
     $pin->interrupt_set(EDGE_RISING, 'handler');
 
@@ -134,6 +132,11 @@ obviously want to be doing other things while waiting for that button press.
     # remove an interrupt
 
     $pin->interrupt_unset;
+
+    sub handler {
+        print "in handler\n";
+        # do other stuff, perhaps turning on/off other pins
+    }
 
 =head2 Interrupt: Overview
 
@@ -170,15 +173,15 @@ them separately as well.
 Typical 16-pin, 2-4 row and 16-20 column LCD screens work here. You can use
 4-bit or 8-bit mode (4-bit requires 6 GPIO pins, 8-bit requires 10). If you
 need a higher rate of data transmission to the LCD, use 8-bit mode. Typically,
-4-bit has always worked well enough for me.
+4-bit has always worked perfectly for me.
 
 Before an LCD can be used, it must be initialized. This may look like a lot,
 but you only need to do it once. Essentially, you're configuring all pins up
 front.
 
 NOTE: When in 4-bit mode, although you're setting C<d0> through C<d3> pins
-up and leaving C<d4> through C<d7> as C<0>, the wiring must connect through 4
-to 7. Look at LCD pin 4-7 as LCD pin 0-3 when in 4-bit mode.
+up and leaving C<d4> through C<d7> as C<0>, the wiring must connect to LCD pins
+C<d4> through C<d7>. Look at LCD pin 4-7 as LCD pin 0-3 when in 4-bit mode.
 
     my $lcd = $pi->lcd;
 
@@ -202,7 +205,7 @@ to 7. Look at LCD pin 4-7 as LCD pin 0-3 when in 4-bit mode.
 
 Now that we've initialized the LCD, we're ready to use it.
 
-    # turn the display on/off
+    # turn the display on/off. It's on by default
 
     $lcd->display(ON);  # or OFF
 
@@ -218,15 +221,15 @@ Now that we've initialized the LCD, we're ready to use it.
 
     # move the cursor to a position
 
-    $lcd->position(0, 0);   # col 0, row 0 (top row)
-    $lcd->position(0, 1);   # col 0, row 1 (bottom row on 2 row LCD)
+    $lcd->position(0, 0);   # col 0 (first slot), row 0 (top row)
+    $lcd->position(0, 1);   # col 0 (first slot), row 1 (bottom row on 2 row LCD)
     $lcd->positon(5, 1);    # col 5 (6th slot), row 1
 
-    # turn on/off cursor
+    # turn on/off cursor (on by default)
 
     $lcd->cursor(OFF);  # or ON
 
-    # make the cursor blink
+    # make the cursor blink (off by default)
 
     $lcd->cursor_blink(ON); # or OFF
 

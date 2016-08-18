@@ -3,7 +3,7 @@ package RPi::WiringPi::LCD;
 use strict;
 use warnings;
 
-our $VERSION = '0.99_05';
+our $VERSION = '0.99_06';
 
 use parent 'WiringPi::API';
 use RPi::WiringPi::Constant qw(:all);
@@ -81,7 +81,8 @@ __END__
 
 =head1 NAME
 
-RPi::WiringPi::LCD - Perl interface to Raspberry Pi LCD displays via the GPIO pins
+RPi::WiringPi::LCD - Perl interface to Raspberry Pi LCD displays via the GPIO
+pins
 
 =head1 DESCRIPTION
 

@@ -10,7 +10,7 @@ use RPi::WiringPi::LCD;
 use RPi::WiringPi::Pin;
 use RPi::WiringPi::Interrupt;
 
-our $VERSION = '0.99_05';
+our $VERSION = '0.99_06';
 
 my $fatal_exit = 1;
 
@@ -201,11 +201,7 @@ You can use the component modules directly, but retrieving components through
 this module instead has many benefits. We maintain a registry of pins and other
 data. We also trap C<$SIG{__DIE__}> and C<$SIG{INT}>, so that in the event of a
 crash, we can reset the Pi back to default settings, so components are not left
-in an inconsistent state. Component modules do none of these things.
-
-This module also calls the setup initialization routines automatically, where
-in the component modules, you have to do this manually. You also need to clean
-up after yourself.
+in an inconsistent state. Component moduls do none of these things.
 
 There are a basic set of constants that can be imported. See
 L<RPi::WiringPi::Constant>.

@@ -1,4 +1,6 @@
+bin/pinmap
 Changes
+examples/button.pl
 examples/get_alt.pl
 examples/lcd.pl
 examples/lcd_working.py
