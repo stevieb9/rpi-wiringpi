@@ -21,6 +21,10 @@ sub new {
     my $self = bless {}, $class;
 
     $self->{pin} = $pin;
+
+    if ($self->pin_scheme == RPI_MODE_GPIO_SYS){
+        $self->export_pin($pin->num);
+    }
     return $self;
 }
 sub mode {
@@ -30,17 +34,17 @@ sub mode {
         return $self->get_alt($self->num);
     }
     if ($mode != 0 && $mode != 1 && $mode != 2 && $mode != 3){
-        die "Core::pin_mode() mode param must be either 0 (input), 1 " .
+        die "mode() mode param must be either 0 (input), 1 " .
             "(output), 2 (PWM output) or 3 (GPIO CLOCK output)\n";
     }
 
     # shell out to 'gpio' if in SYS mode
 
     if ($self->pin_scheme == RPI_MODE_GPIO_SYS){
-        #FIXME: this is where we can set PWM on the pin
-        # in sys mode
-
-        $mode = 0 ? 'in' : 'out';
+        $mode = 'in'    if $mode == INPUT;
+        $mode = 'out'   if $mode == OUTPUT;
+        $mode = 'pwm'   if $mode == PWM_OUT;
+        $mode = 'clock' if $mode == GPIO_CLOCK;
 
         my $num = $self->num;
         `sudo gpio -g mode $num $mode`;
@@ -79,21 +83,23 @@ sub pull {
 
     if ($self->pin_scheme == RPI_MODE_GPIO_SYS){
 
-        if ($direction == 0){
+        if ($direction == PUD_DOWN){
             $direction = 'down';
         }
-        elsif ($direction == 1){
+        elsif ($direction == PUD_UP){
             $direction = 'up';
         }
         else {
+            # PUD_OFF
             $direction = 'tri';
         }
 
         my $num = $self->num;
-
+        $self->mode(INPUT);
         `sudo gpio -g $num $direction`;
     }
     else {
+        $self->mode(INPUT);
         $self->pull_up_down($self->num, $direction);
     }
 }
@@ -182,8 +188,8 @@ Mandatory: The pin number to attach to.
 
 =head2 mode($mode)
 
-Puts the GPIO pin into either INPUT or OUTPUT mode. If C<$mode> is not sent in,
-we'll return the pin's current mode.
+Puts the GPIO pin into either INPUT, OUTPUT, PWM_OUT or GPIO_CLOCK mode. If
+C<$mode> is not sent in, we'll return the pin's current mode.
 
 Parameters:
 
@@ -209,7 +215,8 @@ Send in C<1> to turn the pin on, and C<0> to turn it off.
 
 =head2 pull($direction)
 
-Used to set the internal pull-up or pull-down resistor for a pin.
+Used to set the internal pull-up or pull-down resistor for a pin. Calling this
+method on a pin will automatically set the pin to C<INPUT> mode.
 
 Parameter:
 
@@ -240,7 +247,9 @@ Removes an interrupt from the pin, if set.
 =head2 pwm($value)
 
 Sets the level of the Pulse Width Modulation (PWM) of the pin. Dies if the
-pin's C<mode()> is not set to PWM (C<2>).
+pin's C<mode()> is not set to PWM (C<2>). Note that only physical pin 12
+(wiringPi pin 1, GPIO pin 18) is PWM hardware capable. See C<soft_pwm()> to
+use a software-based PWM implementation on all other pins.
 
 Parameter:
 

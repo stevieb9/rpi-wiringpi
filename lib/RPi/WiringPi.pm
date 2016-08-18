@@ -43,8 +43,10 @@ sub new {
             $self->pin_scheme($scheme);
         }
         else {
+            # we default to sys mode
+
             if (! defined $self->{setup}) {
-                $self->SUPER::setup();
+                $self->SUPER::setup_sys();
                 $self->pin_scheme(RPI_MODE_WPI);
             }
             else {
@@ -80,7 +82,7 @@ sub new {
 sub pin {
     my ($self, $pin_num) = @_;
     my $pin = RPi::WiringPi::Pin->new($pin_num);
-    #$self->register_pin($pin);
+    $self->register_pin($pin);
     return $pin;
 }
 sub board {
@@ -177,6 +179,17 @@ various items
 WARNING: Until version 1.00 is released, the API and other functionality of
 this module may change, and things may break from time-to-time.
 
+IMPORTANT (C<root> vs C<sudo>):
+
+Using this software requires root privileges. There are two separate modes you
+can select from... one where you must run your scripts as C<root>, the other
+where you can use a non-root user. For the latter, we do make a few calls with
+C<sudo>, so when in this mode, your user account must have password-less
+C<sudo> access to at minimum the C<gpio> command line utility. The default user
+account (C<pi>) on Raspbian OS has this right by default. We default to the
+non-root configuration. See the details in the C<new> method below for further
+details.
+
 This is the root module for the C<RPi::WiringPi> system. It interfaces to a
 Raspberry Pi board, its accessories and its GPIO pins via the 
 L<wiringPi|http://wiringpi.com> library through the Perl wrapper
@@ -221,14 +234,28 @@ Parameters:
 
 =item   setup => $value
 
-Optional. This option specifies which GPIO pin mapping (numbering scheme) to
-use. C<wiringPi> for wiringPi's mapping, C<physical> to use the pin
-numbers labelled on the board itself, or C<gpio> use the Broadcom (BCM) pin
-numbers. You can also specify C<none> for testing purposes. This will bypass
-running the setup routines.
+Optional. This option specifies which pin mapping (numbering scheme) to use.
 
-C<system> will also use C<BCM> pin numbering, but in this setup mode, we don't
-require root privileges to run.
+    wiringPi:   wiringPi's numbering
+    physical:   physical pin numbering
+    gpio:       GPIO numbering
+    system:     GPIO numbering (root not required in this mode)
+
+You can also specify C<none> for testing purposes. This will bypass running
+the setup routines.
+
+!!! C<system> mode uses C<sudo> !!!
+
+C<system> mode is the only mode where you do not need to run your application
+as the C<root> user. To this end, in C<wiringPi> when using C<system> mode,
+you have to export and manually manipulate the pins with the C<gpio>
+application prior to using them. I have wrapped around this limitation by
+making these calls with C<sudo> for you, so that you don't have to do anything
+different no matter the mode you're using.
+
+When using C<system> mode, the user running your application should be able
+to at minimum call the <c>gpio</c> application without supplying a password.
+The default Raspberry Pi user C<pi> can do this by default.
 
 See L<wiringPi setup reference|http://wiringpi.com/reference/setup> for
 important details on the differences.

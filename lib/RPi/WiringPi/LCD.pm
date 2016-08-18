@@ -51,7 +51,6 @@ sub cursor_blink {
 }
 sub send_cmd {
     my ($self, $cmd) = @_;
-    warn "\nlcdSendCommand() wiringPi function isn't documented\n";
     $self->lcd_send_cmd($self->_fd, $cmd);
 }
 sub position {

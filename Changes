@@ -16,7 +16,14 @@ Revision history for Perl extension RPi::WiringPi.
           respectively
         - added CLI binary "pinmap", prints out pin mappings
         - fixed return issue in pin_map()
-
+        - Pin: pwm() and pull() have been updated to work in setup_sys() mode
+        - Pin: pull() now automatically sets the pin into INPUT mode()
+        - we now default to SYS mode (ie. non-root) (documentation enhanced)
+        - when creating a new pin object in SYS mode, we now export() the pin
+          in new()
+        - rewrote register_pin() and unregister_pin(). They both translate the
+          pin number to GPIO no matter the scheme, then unexport() it
+        - added manual tests for all four modes in test/*
 
 0.99_04 2016-08-16
         - added Tutorial/FAQ

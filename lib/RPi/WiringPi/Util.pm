@@ -88,6 +88,13 @@ sub register_pin {
         : "$ENV{RPI_PINS},$gpio_num";
 }
 sub unregister_pin {
+    my ($self, $pin) = @_;
+    #FIXME: see if unexport resets a pin
+    $self->unexport_pin($pin->num);
+    my @pins = split /,/, $ENV{RPI_PINS};
+    @pins = grep {$num_pin != $_} @pins;
+    $ENV{RPI_PINS} = join ',', @pins;
+    delete $self->{registered_pins}{$pin->num};
 }
 sub cleanup{
     # empty
@@ -223,8 +230,8 @@ registered, and deemed to be in use.
 
 =head2 register_pin($pin_obj)
 
-Registers a GPIO pin within the system for error checking, and proper resetting
-of the pins in use when required.
+Registers a pin within the system for error checking, and proper resetting of
+the pins in use when required.
 
 Parameters:
 
@@ -238,7 +245,9 @@ Mandatory: An object instance of L<RPi::WiringPi::Pin> class.
 
 =head2 unregister_pin($pin_obj)
 
-Exactly the opposite of C<register_pin()>.
+Pretty much the opposite  of C<register_pin()>, however we do not destroy the
+pin object, we simply reset it to C<INPUT> mode, C<LOW> state and disable any
+pull up/down resistors that may have been set.
 
 =head1 ENVIRONMENT VARIABLES
 
