@@ -29,11 +29,10 @@ if ($which == 1){
     my $p = $pi->pin(21);
 
     $p->mode(OUTPUT);
-    print "GPIO_SYS: HIGH\n";
     $p->write(HIGH);
 
-    my $ok = <STDIN>;
+    print "hit ENTER...\n";
+    <STDIN>;
     $p->write(LOW);
-    print "GPIO_SYS: LOW\n";
     $p->mode(INPUT);
 }

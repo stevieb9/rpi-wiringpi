@@ -8,8 +8,8 @@ use Time::HiRes qw(usleep);
 
 if (! @ARGV){
     print "\nneed test number as arg: 1-WPI, 2-GPIO, 3-PHYS, 4-SYS\n";
-    print "\nthis test tests interrupts. " .
-    #FIXME: need setup info to print
+    print "\nthis test tests interrupts. No circuitry is required. Each test " .
+          "should output 'in handler!'";
     exit;
 }
 
@@ -105,5 +105,5 @@ if ($which == 4){
 }
 
 sub handler {
-    print "in handler\n";
+    print "in handler!\n";
 }
