@@ -4,6 +4,7 @@ use strict;
 
 use RPi::WiringPi;
 use RPi::WiringPi::Constant qw(:all);
+use Time::HiRes qw(usleep);
 
 if (! @ARGV){
     print "need arg\n";
@@ -23,15 +24,13 @@ if ($which == 1){
     # WPI - setup()
     my $pi = $mod->new;
     my $p = $pi->pin(29);
+    
+    $p->mode(PWM_OUT);
 
-    $p->mode(OUTPUT);
-    print "WPI: HIGH\n";
-    $p->write(HIGH);
-
-    opendir my $dh, '/sys/class/gpio';
-    my @dirs = readdir $dh;
-    print "$_\n" for @dirs;
-    my $ok = <STDIN>;
+    for (0..1023){
+        $p->pwm($_);
+        usleep 50000;
+    }
     $p->write(LOW);
     $p->mode(INPUT);
 }
@@ -44,7 +43,7 @@ if ($which == 2){
     $p->mode(OUTPUT);
     print "GPIO: HIGH\n";
     $p->write(HIGH);
-    my $ok = <STDIN>;
+    sleep 1;
     $p->write(LOW);
     $p->mode(INPUT);
 }
@@ -57,7 +56,7 @@ if ($which == 3){
     $p->mode(OUTPUT);
     print "PHYS: HIGH\n";
     $p->write(HIGH);
-    my $ok = <STDIN>;
+    sleep 1;
     $p->write(LOW);
     $p->mode(INPUT);
 }

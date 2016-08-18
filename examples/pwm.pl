@@ -19,7 +19,7 @@ my $sleep = $ARGV[0] || 5000;
 
 my $pi = RPi::WiringPi->new;
 
-my $pin = $pi->pin(1);
+my $pin = $pi->pin(29);
 
 $pin->mode(PWM);
 
