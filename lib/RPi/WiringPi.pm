@@ -212,7 +212,8 @@ this module.
 It's handy to have access to a pin mapping conversion chart. There's an
 excellent pin scheme map for reference at
 L<pinout.xyz|https://pinout.xyz/pinout/wiringpi>. You can also run
-C<gpio readall> at the command line to get a pin chart.
+C<gpio readall> at the command line to get a pin chart, or from the command
+line, run the C<pinmap> command that was installed by this module.
 
 =head1 OPERATIONAL METHODS
 
@@ -250,14 +251,16 @@ making these calls with C<sudo> for you, so that you don't have to do anything
 different no matter the mode you're using.
 
 When using C<system> mode, the user running your application should be able
-to at minimum call the <c>gpio</c> application without supplying a password.
+to at minimum call the C<gpioc> application without supplying a password.
 The default Raspberry Pi user C<pi> can do this by default.
 
 See L<wiringPi setup reference|http://wiringpi.com/reference/setup> for
 important details on the differences.
 
 There's an excellent pin scheme map for reference at
-L<pinout.xyz|https://pinout.xyz/pinout/wiringpi>.
+L<pinout.xyz|https://pinout.xyz/pinout/wiringpi>. You can also run the C<pinmap>
+application that was included in this distribution from the command line to get
+a printout of pin mappings.
 
 =back
 
@@ -301,24 +304,6 @@ LCD displays connected to your Raspberry Pi.
 Returns a L<RPi::WiringPi::Interrupt> object, which allows you to act when
 certain events occur (eg: a button press). This module is better used through
 the L<RPi::WiringPi::Pin> object.
-
-=head1 IMPORTANT NOTES
-
-=over 4
-
-=item - L<wiringPi|http://wiringpi.com> must be installed prior to
-installing/using this module.
-
-=item - By default, we use C<BCM> interpretation of GPIO pin mapping.
-See C<new> method to change this behaviour.
-
-=item - This module hijacks fatal errors with C<$SIG{__DIE__}>, as well as
-C<$SIG{INT}>. This is so that in the case of a fatal error, the Raspberry Pi
-pins are never left in an inconsistent state. By default, we trap the C<die()>,
-reset all pins to their default (INPUT, LOW), then we C<exit()>. Look at the
-C<fatal_exit> param in C<new()> to change the behaviour.
-
-=back
 
 =head1 AUTHOR
 

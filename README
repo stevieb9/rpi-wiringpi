@@ -75,7 +75,7 @@ DESCRIPTION
     registry of pins and other data. We also trap $SIG{__DIE__} and
     $SIG{INT}, so that in the event of a crash, we can reset the Pi back to
     default settings, so components are not left in an inconsistent state.
-    Component modules do none of these things.
+    Component moduls do none of these things.
 
     There are a basic set of constants that can be imported. See
     RPi::WiringPi::Constant.
@@ -86,7 +86,8 @@ DESCRIPTION
     It's handy to have access to a pin mapping conversion chart. There's an
     excellent pin scheme map for reference at pinout.xyz
     <https://pinout.xyz/pinout/wiringpi>. You can also run gpio readall at
-    the command line to get a pin chart.
+    the command line to get a pin chart, or from the command line, run the
+    pinmap command that was installed by this module.
 
 OPERATIONAL METHODS
 
@@ -123,14 +124,16 @@ OPERATIONAL METHODS
       have to do anything different no matter the mode you're using.
 
       When using system mode, the user running your application should be
-      able to at minimum call the <c>gpio</c> application without supplying
-      a password. The default Raspberry Pi user pi can do this by default.
+      able to at minimum call the gpioc application without supplying a
+      password. The default Raspberry Pi user pi can do this by default.
 
       See wiringPi setup reference <http://wiringpi.com/reference/setup>
       for important details on the differences.
 
       There's an excellent pin scheme map for reference at pinout.xyz
-      <https://pinout.xyz/pinout/wiringpi>.
+      <https://pinout.xyz/pinout/wiringpi>. You can also run the pinmap
+      application that was included in this distribution from the command
+      line to get a printout of pin mappings.
 
     fatal_exit => $bool
 
@@ -164,20 +167,6 @@ OPERATIONAL METHODS
     Returns a RPi::WiringPi::Interrupt object, which allows you to act when
     certain events occur (eg: a button press). This module is better used
     through the RPi::WiringPi::Pin object.
-
-IMPORTANT NOTES
-
-    - wiringPi <http://wiringpi.com> must be installed prior to
-    installing/using this module.
-
-    - By default, we use BCM interpretation of GPIO pin mapping. See new
-    method to change this behaviour.
-
-    - This module hijacks fatal errors with $SIG{__DIE__}, as well as
-    $SIG{INT}. This is so that in the case of a fatal error, the Raspberry
-    Pi pins are never left in an inconsistent state. By default, we trap
-    the die(), reset all pins to their default (INPUT, LOW), then we
-    exit(). Look at the fatal_exit param in new() to change the behaviour.
 
 AUTHOR
 
