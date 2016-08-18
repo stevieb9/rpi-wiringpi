@@ -26,15 +26,17 @@ if ($which == 1){
     print "WPI scheme test\n";
 
     die "\ntest 1 requires root\n" if $> != 0;
+    
     my $pi = $mod->new(setup => 'wpi');
     my $p = $pi->pin(29);
 
     $p->mode(OUTPUT);
+
     print "WPI: HIGH\n";
     $p->write(HIGH);
     sleep 1;
-    $p->write(LOW);
     $p->mode(INPUT);
+    $p->write(LOW); 
 }
 
 # gpio
@@ -43,7 +45,7 @@ if ($which == 2){
     print "GPIO scheme test\n";
 
     die "\ntest 2 requires root\n" if $> != 0;
-
+    
     my $pi = $mod->new(setup => 'gpio');
     my $p = $pi->pin(21);
 
@@ -51,8 +53,9 @@ if ($which == 2){
     print "GPIO: HIGH\n";
     $p->write(HIGH);
     sleep 1;
-    $p->write(LOW);
     $p->mode(INPUT);
+    $p->write(LOW); 
+
 }
 
 # phys
@@ -66,11 +69,12 @@ if ($which == 3){
     my $p = $pi->pin(40);
 
     $p->mode(OUTPUT);
+
     print "PHYS: HIGH\n";
     $p->write(HIGH);
     sleep 1;
-    $p->write(LOW);
     $p->mode(INPUT);
+    $p->write(LOW); 
 }
 
 # sys

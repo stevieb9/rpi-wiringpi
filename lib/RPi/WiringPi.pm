@@ -43,11 +43,11 @@ sub new {
             $self->pin_scheme($scheme);
         }
         else {
-            # we default to sys mode
+            # we default to wpi mode
 
             if (! defined $self->{setup}) {
-                $self->SUPER::setup_sys();
-                $self->pin_scheme(RPI_MODE_WPI);
+                $self->SUPER::setup_gpio();
+                $self->pin_scheme(RPI_MODE_GPIO);
             }
             else {
                 if ($self->_setup =~ /^s/) {
@@ -192,9 +192,9 @@ can select from... one where you must run your scripts as C<root>, the other
 where you can use a non-root user. For the latter, we do make a few calls with
 C<sudo>, so when in this mode, your user account must have password-less
 C<sudo> access to at minimum the C<gpio> command line utility. The default user
-account (C<pi>) on Raspbian OS has this right by default. We default to the
-non-root configuration. See the details in the C<new> method below for further
-details.
+account (C<pi>) on Raspbian OS has this right by default. We default to using
+the C<gpio> configuration, which requires root. See the details in the C<new> 
+method below for further details.
 
 This is the root module for the C<RPi::WiringPi> system. It interfaces to a
 Raspberry Pi board, its accessories and its GPIO pins via the 
@@ -241,8 +241,8 @@ Optional. This option specifies which pin mapping (numbering scheme) to use.
 
     wiringPi:   wiringPi's numbering
     physical:   physical pin numbering
-    gpio:       GPIO numbering
-    system:     GPIO numbering (root not required in this mode)
+    gpio:       GPIO numbering          # default if not sent in
+    system:     GPIO numbering (root not required)
 
 You can also specify C<none> for testing purposes. This will bypass running
 the setup routines.
