@@ -80,6 +80,7 @@ sub unexport_pin {
 }
 sub register_pin {
     my ($self, $pin);
+    
     my $gpio_num = $self->pin_to_gpio($pin->num);
     $self->{registered_pins}{$gpio_num} = $pin;
 
@@ -92,7 +93,7 @@ sub unregister_pin {
     #FIXME: see if unexport resets a pin
     $self->unexport_pin($pin->num);
     my @pins = split /,/, $ENV{RPI_PINS};
-    @pins = grep {$num_pin != $_} @pins;
+    @pins = grep {$pin->num != $_} @pins;
     $ENV{RPI_PINS} = join ',', @pins;
     delete $self->{registered_pins}{$pin->num};
 }

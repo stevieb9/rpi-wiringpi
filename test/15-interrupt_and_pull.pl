@@ -27,81 +27,74 @@ if ($which == 1){
 
     die "test requires root user\n" if $> != 0;
 
-    my $pi = $mod->new;
+    my $pi = $mod->new(setup => 'wpi');
     my $p = $pi->pin(29);
 
-    $p->interrupt_set(EDGE_RISING, 'handler');
+    $p->interrupt_set(EDGE_FALLING, 'handler');
 
     $p->mode(INPUT);
-    $p->pull(HIGH);
+    $p->pull(LOW);
 
     print "hit ENTER...\n";
     <STDIN>;
-
-    $p->write(LOW);
 }
 
 # gpio
 
-if ($which == 2){
+elsif ($which == 2){
     print "GPIO interrupt test\n";
 
     die "test requires root user\n" if $> != 0;
 
-    my $pi = $mod->new;
+    my $pi = $mod->new(setup => 'gpio');
     my $p = $pi->pin(21);
 
-    $p->interrupt_set(EDGE_RISING, 'handler');
+    $p->interrupt_set(EDGE_FALLING, 'handler');
 
     $p->mode(INPUT);
-    $p->pull(HIGH);
+    $p->pull(LOW);
 
     print "hit ENTER...\n";
     <STDIN>;
-
-    $p->write(LOW);
 }
 
 # phys
 
-if ($which == 3){
+elsif ($which == 3){
     print "PHYS interrupt test\n";
 
     die "test requires root user\n" if $> != 0;
 
-    my $pi = $mod->new;
+    my $pi = $mod->new(setup => 'phys');
     my $p = $pi->pin(40);
 
-    $p->interrupt_set(EDGE_RISING, 'handler');
+    $p->interrupt_set(EDGE_FALLING, 'handler');
 
     $p->mode(INPUT);
-    $p->pull(HIGH);
-
+    $p->pull(LOW);
     print "hit ENTER...\n";
     <STDIN>;
-
-    $p->write(LOW);
+    exit;
 }
 
 # sys
 
-if ($which == 4){
+elsif ($which == 4){
     print "GPIO_SYS interrupt test\n";
 
     die "test requires a non-root user\n" if $> == 0;
 
-    my $pi = $mod->new;
+    my $pi = $mod->new(setup => 'sys');
     my $p = $pi->pin(21);
 
-    $p->interrupt_set(EDGE_RISING, 'handler');
+    $p->interrupt_set(EDGE_FALLING, 'handler');
 
     $p->mode(INPUT);
-    $p->pull(HIGH);
+    $p->pull(LOW);
 
     print "hit ENTER...\n";
     <STDIN>;
-
-    $p->write(LOW);
+    exit;
 }
 
 sub handler {

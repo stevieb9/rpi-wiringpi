@@ -26,7 +26,7 @@ if ($which == 1){
     print "WPI scheme test\n";
 
     die "\ntest 1 requires root\n" if $> != 0;
-    my $pi = $mod->new;
+    my $pi = $mod->new(setup => 'wpi');
     my $p = $pi->pin(29);
 
     $p->mode(OUTPUT);
@@ -75,7 +75,7 @@ if ($which == 3){
 
 # sys
 
-if ($which = 4){
+if ($which == 4){
     print "GPIO_SYS scheme test\n";
 
     die "\ntest 4 requires non-root user\n" if $> == 0;

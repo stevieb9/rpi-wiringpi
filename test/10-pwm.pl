@@ -18,11 +18,6 @@ if (! @ARGV){
 
 # LED should gradually get brighter then turn off for all tests
 
-if (! @ARGV){
-    print "need arg\n";
-    exit;
-}
-
 my $which = $ARGV[0];
 
 my $mod = 'RPi::WiringPi';
@@ -34,14 +29,14 @@ if ($which == 1){
 
     die "\ntest 1 requires root\n" if $> != 0;
 
-    my $pi = $mod->new;
+    my $pi = $mod->new(setup => 'wpi');
     my $p = $pi->pin(1);
     
     $p->mode(PWM_OUT);
 
     for (0..100){
         $p->pwm($_);
-        usleep 5000;
+        usleep 10000;
     }
     print "hit ENTER...\n";
     <STDIN>;
@@ -65,7 +60,7 @@ if ($which == 2){
 
     for (0..100){
         $p->pwm($_);
-        usleep 5000;
+        usleep 10000;
     }
     print "hit ENTER...\n";
     <STDIN>;
@@ -89,7 +84,7 @@ if ($which == 3){
 
     for (0..100){
         $p->pwm($_);
-        usleep 5000;
+        usleep 10000;
     }
     print "hit ENTER...\n";
     <STDIN>;
@@ -113,7 +108,7 @@ if ($which == 4){
 
     for (0..100){
         $p->pwm($_);
-        usleep 5000;
+        usleep 10000;
     }
     print "hit ENTER...\n";
     <STDIN>;

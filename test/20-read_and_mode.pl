@@ -3,13 +3,14 @@ use strict;
 
 use RPi::WiringPi;
 use RPi::WiringPi::Constant qw(:all);
+use Time::HiRes qw(usleep);
 
 if (! @ARGV){
     print "\nneed test number as arg: 1-WPI, 2-GPIO, 3-PHYS, 4-SYS\n";
     print "\nthis test tests read() and reading mode() pin functions. " .
           "Connect pin 40 to 3.3v power through a pull-up 4.7k or10k " .
           "resistor\n" .
-          "Each test should print '*scheme* mode: 0, state: 1\n";
+          "Each test should print '*scheme* mode: 0, state: 1\n" x 10;
     exit;
 }
 
@@ -29,13 +30,17 @@ if ($which == 1){
 
     die "\ntest 1 requires root\n" if $> != 0;
 
-    my $pi = $mod->new;
+    my $pi = $mod->new(setup => 'wpi');
     my $p = $pi->pin(29);
 
     $p->mode(INPUT);
     my $mode = $p->mode;
-    my $state = $p->read;
-    print "WPI - mode: $mode, state: $state\n";
+
+    for (1..10){
+        my $state = $p->read;
+        print "WPI - mode: $mode, state: $state\n";
+        sleep 2;
+    }
 }
 
 # gpio
@@ -50,8 +55,12 @@ if ($which == 2){
 
     $p->mode(INPUT);
     my $mode = $p->mode;
-    my $state = $p->read;
-    print "GPIO - mode: $mode, state: $state\n";
+
+    for (1..10){
+        my $state = $p->read;
+        print "GPIO - mode: $mode, state: $state\n";
+        sleep 2;
+    }
 }
 
 # phys
@@ -66,13 +75,17 @@ if ($which == 3){
 
     $p->mode(INPUT);
     my $mode = $p->mode;
-    my $state = $p->read;
-    print "PHYS - mode: $mode, state: $state\n";
+
+    for (1..10){
+        my $state = $p->read;
+        print "PHYS - mode: $mode, state: $state\n";
+        sleep 2;
+    }
 }
 
 # sys
 
-if ($which = 4){
+if ($which == 4){
     print "GPIO_SYS scheme test\n";
 
     die "\ntest 4 requires non-root user\n" if $> == 0;
@@ -82,6 +95,10 @@ if ($which = 4){
 
     $p->mode(INPUT);
     my $mode = $p->mode;
-    my $state = $p->read;
-    print "GPIO_SYS - mode: $mode, state: $state\n";
+
+    for (1..10){
+        my $state = $p->read;
+        print "SYS - mode: $mode, state: $state\n";
+        sleep 2;
+    }
 }
