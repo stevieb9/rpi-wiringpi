@@ -6,6 +6,8 @@ use RPi::WiringPi;
 use RPi::WiringPi::Constant qw(:all);
 use Time::HiRes qw(usleep);
 
+# phys 12, wpi 1, gpio 18
+
 if (! @ARGV){
     print "need arg\n";
     exit;
@@ -13,50 +15,65 @@ if (! @ARGV){
 
 my $which = $ARGV[0];
 
-# connect LED to physical pin 40
-# led should blink three times
-
-# phys: 40, wpi: 29, gpio: 21
-
 my $mod = 'RPi::WiringPi';
 
 if ($which == 1){ 
     # WPI - setup()
     my $pi = $mod->new;
-    my $p = $pi->pin(29);
+    my $p = $pi->pin(1);
     
     $p->mode(PWM_OUT);
 
-    for (0..1023){
+    for (0..100){
         $p->pwm($_);
-        usleep 50000;
+        usleep 5000;
     }
-    $p->write(LOW);
+    print "done\n";
+    <STDIN>;
+
+    $p->pwm(0);
     $p->mode(INPUT);
+    $p->write(LOW);
 }
 
-if ($which == 2){
-    # GPIO - setup_gpio()
+# gpio
+
+if ($which == 2){ 
+    # WPI - setup()
     my $pi = $mod->new(setup => 'gpio');
-    my $p = $pi->pin(21);
+    my $p = $pi->pin(18);
+    
+    $p->mode(PWM_OUT);
 
-    $p->mode(OUTPUT);
-    print "GPIO: HIGH\n";
-    $p->write(HIGH);
-    sleep 1;
-    $p->write(LOW);
+    for (0..100){
+        $p->pwm($_);
+        usleep 5000;
+    }
+    print "done\n";
+    <STDIN>;
+
+    $p->pwm(0);
     $p->mode(INPUT);
+    $p->write(LOW);
 }
+
+# phys
 
 if ($which == 3){ 
-    # PHYS - setup_phys()
+    # WPI - setup()
     my $pi = $mod->new(setup => 'phys');
-    my $p = $pi->pin(40);
+    my $p = $pi->pin(12);
+    
+    $p->mode(PWM_OUT);
 
-    $p->mode(OUTPUT);
-    print "PHYS: HIGH\n";
-    $p->write(HIGH);
-    sleep 1;
-    $p->write(LOW);
+    for (0..100){
+        $p->pwm($_);
+        usleep 5000;
+    }
+    print "done\n";
+    <STDIN>;
+
+    $p->pwm(0);
     $p->mode(INPUT);
+    $p->write(LOW);
 }
