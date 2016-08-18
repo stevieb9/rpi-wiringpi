@@ -7,7 +7,7 @@ use RPi::WiringPi::Constant qw(:all);
 if (! @ARGV){
     print "\nneed test number as arg: 1-WPI, 2-GPIO, 3-PHYS, 4-SYS\n";
     print "\nthis test tests export(), mode() and write() pin functions. " .
-          "Connect an LED to physical pin 40\n";
+          "Connect an LED to physical pin 40. Each test should blink the LED\n";
     exit;
 }
 

@@ -8,7 +8,7 @@ use RPi::WiringPi::Constant qw(:all);
 if (! @ARGV){
     print "\nneed test number as arg: 1-SYS\n";
     print "\nthis test tests that a pin is exported in SYS mode. " .
-          "Connect an LED to physical pin 40\n";
+          "Connect an LED to physical pin 40. The LED should blink.\n";
     exit;
 }
 

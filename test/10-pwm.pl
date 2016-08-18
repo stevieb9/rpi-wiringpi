@@ -9,7 +9,8 @@ use Time::HiRes qw(usleep);
 if (! @ARGV){
     print "\nneed test number as arg: 1-WPI, 2-GPIO, 3-PHYS, 4-SYS\n";
     print "\nthis test tests the pwm() pin function. " .
-          "Connect an LED to physical pin *12*\n";
+          "Connect an LED to physical pin *12*. The LED should gradually get " .
+          "brighter for each test.\n";
     exit;
 }
 

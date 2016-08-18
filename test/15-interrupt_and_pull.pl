@@ -9,7 +9,7 @@ use Time::HiRes qw(usleep);
 if (! @ARGV){
     print "\nneed test number as arg: 1-WPI, 2-GPIO, 3-PHYS, 4-SYS\n";
     print "\nthis test tests interrupts. " .
-          "Connect an LED to physical pin 40\n";
+    #FIXME: need setup info to print
     exit;
 }
 

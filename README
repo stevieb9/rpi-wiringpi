@@ -168,6 +168,31 @@ OPERATIONAL METHODS
     certain events occur (eg: a button press). This module is better used
     through the RPi::WiringPi::Pin object.
 
+RUNNING TESTS
+
+    This distribution does not have a typical set of unit tests. This is
+    because to ensure proper functionality, you need to be running on a
+    Rasbperry Pi board that has a couple of very basic circuits set up.
+
+    The tests are in individual Perl scripts inside of the test/ directory
+    inside this distribution.
+
+    Each test, when run without any command line arguments, will print out
+    what you need to do. Most tests require a single LED connected to a
+    single GPIO pin, then you select the test number to run (1-4) and pass
+    that in as an argument.
+
+    The number of the test correlates with a specific setup mode.
+
+    Example:
+
+        $ perl test/10-pwm.pl
+    
+        need test number as arg: 1-WPI, 2-GPIO, 3-PHYS, 4-SYS
+    
+        this test tests the pwm() pin function. Connect an LED to physical pin *12*.
+        The LED should gradually get brighter for each test.
+
 AUTHOR
 
     Steve Bertrand, <steveb@cpan.org>
