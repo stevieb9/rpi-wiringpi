@@ -176,8 +176,14 @@ various items
 
 =head1 DESCRIPTION
 
-WARNING: Until version 1.00 is released, the API and other functionality of
-this module may change, and things may break from time-to-time.
+This (v0.99_06) will be the last unstable release before v1.00 becomes
+available. Things may be broken and documentation may be inaccurate.
+
+This is the root module for the C<RPi::WiringPi> system. It interfaces to a
+Raspberry Pi board, its accessories and its GPIO pins via the
+L<wiringPi|http://wiringpi.com> library through the Perl wrapper
+L<WiringPi::API|https://metacpan.org/pod/WiringPi::API>
+module.
 
 IMPORTANT (C<root> vs C<sudo>):
 

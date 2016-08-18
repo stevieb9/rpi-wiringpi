@@ -111,9 +111,6 @@ interface
 
 =head1 DESCRIPTION
 
-WARNING: Until version 1.00 is released, the API and other functionality of
-this module may change, and things may break from time-to-time.
-
 This module contains various utilities for L<RPi::WiringPi> that don't
 necessarily fit anywhere else. It is a base class, and is not designed to be
 used independently.

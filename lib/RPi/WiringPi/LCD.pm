@@ -122,9 +122,8 @@ pins
 
 =head1 DESCRIPTION
 
-WARNING: Until version 1.00 has been released, the API along with functionality
-may change at any time without any notice. If you happen to be testing with 
-this software and find something broken, please contact me.
+This module acts as an interface to typical 2 or 4 row, 16 or 20 column LCD
+screens when connected to a Raspberry Pi.
 
 =head1 METHODS
 
