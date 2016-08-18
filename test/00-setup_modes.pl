@@ -78,15 +78,28 @@ if ($which == 3){
 if ($which == 4){
     print "GPIO_SYS scheme test\n";
 
+
     die "\ntest 4 requires non-root user\n" if $> == 0;
 
+    print "pin not yet exported\n" if ! -X '/sys/class/gpio/gpio21';
+    
+    print "pin is exported but shouldn't be!\n" 
+      if -X '/sys/class/gpio/gpio21';
+    
     my $pi = $mod->new(setup => 'sys');
     my $p = $pi->pin(21);
 
     $p->mode(OUTPUT);
+
+    print "pin exported\n" if -X '/sys/class/gpio/gpio21';
+
     print "SYS: HIGH\n";
     $p->write(HIGH);
     sleep 1;
     $p->write(LOW);
     $p->mode(INPUT);
+
+    $pi->unexport_pin($p->num);
+
+    print "pin unexported\n" if ! -X '/sys/class/gpio/gpio21';
 }

@@ -94,7 +94,6 @@ elsif ($which == 4){
 
     print "hit ENTER...\n";
     <STDIN>;
-    exit;
 }
 
 sub handler {

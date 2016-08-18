@@ -101,12 +101,15 @@ if ($which == 4){
 
     die "\ntest 4 requires a non-root user\n" if $> == 0;
 
+    die "SYS mode can't do PWM\n";
+
     my $pi = $mod->new(setup => 'sys');
     my $p = $pi->pin(18);
 
     $p->mode(PWM_OUT);
 
     for (0..100){
+        print "$_\n";
         $p->pwm($_);
         usleep 10000;
     }
@@ -114,6 +117,5 @@ if ($which == 4){
     <STDIN>;
 
     $p->pwm(0);
-    $p->mode(INPUT);
-    $p->write(LOW);
+    $pi->unexport_pin($p->num); 
 }

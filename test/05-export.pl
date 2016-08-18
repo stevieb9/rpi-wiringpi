@@ -25,14 +25,23 @@ if ($which == 1){
 
     die "non-root user required\n" if $> == 0;
 
+    print "pin not yet exported\n" if ! -X '/sys/class/gpio/gpio21';
+
+    print "pin is exported but shouldn't be!\n" 
+      if -X '/sys/class/gpio/gpio21';
+
     my $pi = $mod->new(setup => 'sys');
     my $p = $pi->pin(21);
 
     $p->mode(OUTPUT);
+
+    print "pin exported by mode()\n" if -X '/sys/class/gpio/gpio21';
+
     $p->write(HIGH);
 
     print "hit ENTER...\n";
     <STDIN>;
-    $p->write(LOW);
-    $p->mode(INPUT);
+    $pi->unexport_pin($p->num);
+
+    print "pin unexported by unexport_pin)\n" if ! -X '/sys/class/gpio/gpio21';
 }

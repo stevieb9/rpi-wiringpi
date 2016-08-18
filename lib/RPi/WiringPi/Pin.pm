@@ -23,7 +23,7 @@ sub new {
     $self->{pin} = $pin;
 
     if ($self->pin_scheme == RPI_MODE_GPIO_SYS){
-        $self->export_pin($pin->num);
+        $self->export_pin($self->num);
     }
     return $self;
 }
@@ -41,10 +41,18 @@ sub mode {
     # shell out to 'gpio' if in SYS mode
 
     if ($self->pin_scheme == RPI_MODE_GPIO_SYS){
-        $mode = 'in'    if $mode == INPUT;
-        $mode = 'out'   if $mode == OUTPUT;
-        $mode = 'pwm'   if $mode == PWM_OUT;
-        $mode = 'clock' if $mode == GPIO_CLOCK;
+        if ($mode == INPUT){
+            $mode = 'in';
+        }
+        elsif ($mode == OUTPUT){
+            $mode = 'out';
+        }
+        elsif ($mode == PWM_OUT){
+            $mode = 'pwm';
+        }
+        elsif ($mode == GPIO_CLOCK){
+            $mode = 'clock';
+        }
 
         my $num = $self->num;
         `sudo gpio -g mode $num $mode`;
@@ -108,6 +116,9 @@ sub pwm {
     if ($self->mode != 2){
         my $num = $self->num;
         die "\npin $num isn't set to mode 2 (PWM). pwm() can't be set\n";
+    }
+    if ($self->pin_scheme == RPI_MODE_GPIO_SYS){
+        die "\nPWM functionality isn't available in SYS mode\n";
     }
     if ($value > 1023 || $value < 0){
         die "Core::pwm_write value must be 0-1023";
