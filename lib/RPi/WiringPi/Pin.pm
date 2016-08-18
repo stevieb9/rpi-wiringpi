@@ -188,24 +188,24 @@ Mandatory: The pin number to attach to.
 
 =head2 mode($mode)
 
-Puts the GPIO pin into either INPUT, OUTPUT, PWM_OUT or GPIO_CLOCK mode. If
-C<$mode> is not sent in, we'll return the pin's current mode.
+Puts the GPIO pin into either C<INPUT>, C<OUTPUT>, C<PWM_OUT> or C<GPIO_CLOCK>
+mode. If C<$mode> is not sent in, we'll return the pin's current mode.
 
 Parameters:
 
     $mode
 
 Optional: If not sent in, we'll simply return the current mode of the pin.
-Otherwise, send in: C<0> for INPUT, C<1> for OUTPUT, C<2> for PWM_OUT and C<3>
-for GPIO_CLOCK (clock) mode.
+Otherwise, send in: C<0> for C<INPUT>, C<1> for C<OUTPUT>, C<2> for CPWM_OUT>
+and C<3> for C<GPIO_CLOCK> (clock) mode.
 
 =head2 read()
 
-Returns C<1> if the pin is HIGH (on) and C<0> if the pin is LOW (off).
+Returns C<1> if the pin is C<HIGH> (on) and C<0> if the pin is C<LOW> (off).
 
 =head2 write($state)
 
-For pins in OUTPUT mode, will turn on (HIGH) the pin, or off (LOW).
+For pins in C<OUTPUT> mode, will turn C<HIGH> (on) the pin, or C<LOW> (off).
 
 Parameters:
 
@@ -222,7 +222,8 @@ Parameter:
 
     $direction
 
-Mandatory: C<2> for UP, C<1> for DOWN and C<0> to turn off the resistor.
+Mandatory: C<2> for C<PUD_UP>, C<1> for C<PUD_DOWN> and C<0> for C<PUD_OFF>
+(disabled the resistor).
 
 =head2 interrupt_set($edge, $callback)
 
@@ -232,7 +233,8 @@ Parameters:
 
     $edge
 
-Mandatory: C<1> (falling), C<2> (rising), or C<3> for both.
+Mandatory: C<1> for C<EDGE_FALLING>, C<2> for C<EDGE_RISING>, or C<3> for
+C<EDGE_BOTH>.
 
     $callback
 

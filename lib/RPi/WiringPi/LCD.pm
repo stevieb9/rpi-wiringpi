@@ -94,7 +94,7 @@ this software and find something broken, please contact me.
 
 =head2 new()
 
-Returns a new C<WiringPi::API> object.
+Returns a new C<RPi::WiringPi::LCD> object.
 
 =head2 init(%args)
 

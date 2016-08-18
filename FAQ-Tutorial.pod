@@ -13,17 +13,17 @@ L<RPi::WiringPi::Constant> module.
 
 =head1 GLOSSARY OF TERMS
 
-    HIGH -          connected to 3.3v (positive)
-    LOW  -          connected to 0v (ground)
-    floating -      state where a pin is not stable at HIGH or LOW
-    PWM -           Pulse Width Modulation (potentiometer-like)
-    INPUT -         pin is listening only
-    OUTPUT -        pin is active in turning things on/off
-    PWM_OUT -       pin is OUTPUT, but PWM capable
-    GPIO_CLOCK -    pin is used for timing
-    PUD  -          internal pull up/down resistor
-    PUD_UP -        PUD resistor pulled to HIGH
-    PUD_DOWN -      PUD resistor pulled to LOW
+    HIGH         -  connected to 3.3v (positive)
+    LOW          -  connected to 0v (ground)
+    floating     -  state where a pin is not stable at HIGH or LOW
+    PWM          -  Pulse Width Modulation (potentiometer-like)
+    INPUT        -  pin is listening only
+    OUTPUT       -  pin is active in turning things on/off
+    PWM_OUT      -  pin is OUTPUT, but PWM capable
+    GPIO_CLOCK   -  pin is used for timing
+    PUD          -  internal pull up/down resistor
+    PUD_UP       -  PUD resistor pulled to HIGH
+    PUD_DOWN     -  PUD resistor pulled to LOW
     EDGE_FALLING -  a state when a pin goes from HIGH to LOW
     EDGE_RISING  -  a state when a pin goes from LOW to HIGH
     EDGE_BOTH    -  both of the above states
@@ -193,7 +193,7 @@ C<d4> through C<d7>. Look at LCD pin 4-7 as LCD pin 0-3 when in 4-bit mode.
         strb  => 2,     # GPIO pin for the LCD strobe (E) pin
         d0    => 3,     #
         ...             # d0-d3 GPIO pinout numbers
-        d3    =>6,      #
+        d3    => 6,     #
         d4    => 7,     # set d4-d7 to all 0 (zero) if in 4-bit mode
         ...             # otherwise, set them to their respective
         d7    => 11     # GPIO pins

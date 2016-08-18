@@ -125,7 +125,7 @@ used independently.
 Returns the current pin mapping in use. Returns C<0> for C<wiringPi> scheme,
 C<1> for GPIO, C<2> for System GPIO, C<3> for physical board and C<-1> if a
 scheme has not yet been configured (ie. one of the C<setup*()> methods has
-not yet been called.
+not yet been called).
 
 If using L<RPi::WiringPi::Constant>, these map out to:
 
@@ -149,9 +149,7 @@ reference.
 
 Parameters:
 
-=over 8
-
-=item    $scheme
+    $scheme
 
 Optional: By default, we'll check if you've already run a setup routine, and
 if so, we'll use the scheme currently in use. If one is not in use and no
@@ -172,13 +170,11 @@ For C<'GPIO'> scheme:
         ...
     };
 
-=back
-
 =head2 pin_to_gpio($pin, $scheme)
 
-Converts the specified pin from the specified scheme (C<RPI_MODE_WPI>
-(wiringPi), or <RPI_MODE_PHYS> (physical board numbering scheme) to the GPIO
-number format.
+Dynamically converts the specified pin from the specified scheme
+(C<RPI_MODE_WPI> (wiringPi), or C<RPI_MODE_PHYS> (physical board numbering
+scheme) to the GPIO number format.
 
 If C<$scheme> is not sent in, we'll attempt to fetch the scheme currently in
 use and use that.
@@ -187,7 +183,7 @@ Example:
 
     my $num = pin_to_gpio(6, RPI_MODE_WPI);
 
-That will understand the pin number 6 to be the wiringPi representation, and
+That will understand the pin number C<6> to be the wiringPi representation, and
 will return the GPIO representation.
 
 =head2 wpi_to_gpio($pin_num)
@@ -219,7 +215,7 @@ Pin number must be the C<GPIO> pin number representation.
 
 =head2 unexport_pin($pin_num)
 
-Unexports a pin.
+Unexports a pin. Only needed if using the C<setup_sys()> initialization method.
 
 Pin number must be the C<GPIO> pin number representation.
 
@@ -235,19 +231,20 @@ the pins in use when required.
 
 Parameters:
 
-=over 8
-
-=item    $pin_obj
+    $pin_obj
 
 Mandatory: An object instance of L<RPi::WiringPi::Pin> class.
-
-=back
 
 =head2 unregister_pin($pin_obj)
 
 Pretty much the opposite  of C<register_pin()>, however we do not destroy the
 pin object, we simply reset it to C<INPUT> mode, C<LOW> state and disable any
 pull up/down resistors that may have been set.
+
+=head2 cleanup()
+
+Resets all registered pins back to default settings (off). It's important that
+this method be called in each application.
 
 =head1 ENVIRONMENT VARIABLES
 
@@ -259,28 +256,9 @@ non-Raspberry Pi boards.
 Set to true, will bypass the C<wiringPi> board checks. False will re-enable
 them.
 
-=head1 IMPORTANT NOTES
+=head2 PI_BOARD
 
-=over 4
-
-=item - L<wiringPi|http://wiringpi.com> must be installed prior to
-installing/using this module.
-
-=item - By default, we use C<wiringPi>'s interpretation of GPIO pin mapping.
-See C<new> method to change this behaviour.
-
-=item - This module hijacks fatal errors with C<$SIG{__DIE__}>, as well as
-C<$SIG{INT}>. This is so that in the case of a fatal error, the Raspberry Pi
-pins are never left in an inconsistent state. By default, we trap the C<die()>,
-reset all pins to their default (INPUT, LOW), then we C<exit()>. Look at the
-C<fatal_exit> param in C<new()> to change the behaviour.
-
-=back
-
-=head2 cleanup()
-
-Resets all registered pins back to default settings (off). It's important that
-this method be called in each application.
+Useful only for unit testing. Tells us that we're on Pi hardware.
 
 =head1 AUTHOR
 

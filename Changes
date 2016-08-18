@@ -1,6 +1,9 @@
 Revision history for Perl extension RPi::WiringPi.
 
-0.99_05
+0.99_06 UNREL
+        - POD cleanup
+
+0.99_05 2016-08-18
         - added Util::_sys_mode() to determine if we need wrappers for certain
           calls or not
         - changed back to the default setup() call instead of setup_sys(), as

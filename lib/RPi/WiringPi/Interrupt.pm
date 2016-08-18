@@ -64,7 +64,7 @@ RPi::WiringPi::Interrupt - Raspberry Pi GPIO pin interrupts
 
     my $pin = 6;
 
-    $int->set($pin, EDGE_HIGH, 'interrupt_handler');
+    $int->set($pin, EDGE_RISING, 'interrupt_handler');
 
     sub interrupt_handler {
         print "in handler";
@@ -79,8 +79,9 @@ This module allows you to set up, and un-set GPIO pin edge detection
 interrupts where you can supply the name of a Perl subroutine that you write
 that will act as the interrupt handler.
 
-The backend is written in C and is threaded, so it doesn't block the main
-program thread from running while waiting for the interrupt to occur.
+The Interrupt Service Request is written in C and runs in a separate thread, so
+it doesn't block the main program thread from running while waiting for the
+interrupt to occur.
 
 =head1 METHODS
 
@@ -103,7 +104,8 @@ appropriately regardless of which pin mapping you're currently using.
 
     $edge
 
-Mandatory: One of C<1> (LOW), C<2> (HIGH) or C<3> for both HIGH and LOW.
+Mandatory: One of C<1> for C<EDGE_FALLING>, C<2> for C<EDGE_RISING> or C<3> for
+C<EDGE_BOTH>.
 
     $callback
 
