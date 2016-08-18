@@ -84,6 +84,42 @@ __END__
 RPi::WiringPi::LCD - Perl interface to Raspberry Pi LCD displays via the GPIO
 pins
 
+=head1 SYNOPSIS
+
+    use RPi::WiringPi
+
+    my $pi = RPi::WiringPi->new;
+    my $lcd = $pi->lcd;
+
+    my %lcd_args = (
+        rows  => 2,     # number of display rows, 2 or 4
+        cols  => 16,    # number of display columns 16 or 20
+        bits  => 4,     # data width in bits, 4 or 8
+        rs    => 1,     # GPIO pin for the LCD RS pin
+        strb  => 2,     # GPIO pin for the LCD strobe (E) pin
+        d0    => 3,     #
+        ...             # d0-d3 GPIO pinout numbers
+        d3    =>6,      #
+        d4    => 7,     # set d4-d7 to all 0 (zero) if in 4-bit mode
+        ...             # otherwise, set them to their respective
+        d7    => 11     # GPIO pins
+    );
+
+    # initialize the LCD screen
+
+    $lcd->init(%lcd_args);
+
+    my $perl_ver = '5.24.0';
+    my $name = 'stevieb';
+
+    $lcd->home; # row 0, col 0
+
+    $lcd->print("${name}'s RPi, on");
+
+    $lcd->position(0, 1); # row 2
+
+    $lcd->print("Perl $perl_ver...");
+
 =head1 DESCRIPTION
 
 WARNING: Until version 1.00 has been released, the API along with functionality
