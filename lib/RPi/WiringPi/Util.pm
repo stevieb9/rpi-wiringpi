@@ -78,9 +78,14 @@ sub unexport_pin {
     my ($self, $pin) = @_;
     system "sudo", "gpio", "unexport", $self->pin_to_gpio($pin);
 }
+sub registered_pins {
+    my ($self, $env) = @_;
+    return $self->{registered_pins} if ! defined $env;
+    return $ENV{RPI_PINS};
+}
 sub register_pin {
     my ($self, $pin);
-    
+
     my $gpio_num = $self->pin_to_gpio($pin->num);
     $self->{registered_pins}{$gpio_num} = $pin;
 
@@ -217,9 +222,13 @@ Unexports a pin. Only needed if using the C<setup_sys()> initialization method.
 
 Pin number must be the C<GPIO> pin number representation.
 
-=head2 registered_pins()
+=head2 registered_pins($env)
 
-Returns an array of L<RPi::WiringPi::Pin> objects that are currently
+if C<$env> is set to true, we'll return a string containing a comma separated
+list of the pin numbers in GPIO scheme. This is so on emergency cleanup, the
+object may have already been destroyed.
+
+Otherwise, returns an array of L<RPi::WiringPi::Pin> objects that are currently
 registered, and deemed to be in use.
 
 =head2 register_pin($pin_obj)
