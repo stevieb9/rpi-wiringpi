@@ -19,11 +19,12 @@ sub new {
 sub set {
     my ($self, $pin, $edge, $callback) = @_;
 
+    #FIXME: unset is borked, segfaults
     # unset the interrupt if we're changing
     # it
 
     if (defined $interrupts->{$pin}{edge}){
-        $self->unset($pin);
+        #$self->unset($pin);
     }
 
     $interrupts->{$pin}{edge} = $edge;

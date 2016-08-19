@@ -130,10 +130,10 @@ sub num {
 }
 sub interrupt_set {
     my ($self, $edge, $callback) = @_;
-    $self->set_interrupt($self->num, $edge, $callback);
-    #my $int = RPi::WiringPi::Interrupt->new;
-    #$int->set($self->num, $edge, $callback);
-    #$self->{interrupt} = $int;
+    #$self->set_interrupt($self->num, $edge, $callback);
+    my $int = RPi::WiringPi::Interrupt->new;
+    $int->set($self->num, $edge, $callback);
+    $self->{interrupt} = $int;
 }
 sub interrupt_unset {
     my $self = shift;

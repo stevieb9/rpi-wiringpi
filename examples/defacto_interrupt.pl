@@ -8,7 +8,7 @@ use Time::HiRes qw(usleep);
 
 if (! @ARGV){
     print "\nneed test number as arg: 1-WPI, 2-GPIO, 3-PHYS, 4-SYS\n";
-    print "\nthis test tests interrupts. No circuitry is required. Each test " .
+    print "\nthis test tests interrupts. Wire phys pin 40 to a grounded button, and push the button. Each test " .
           "should output 'in handler!'";
     exit;
 }
@@ -30,11 +30,10 @@ if ($which == 1){
     my $pi = $mod->new(setup => 'wpi');
     my $p = $pi->pin(29);
 
-    $p->interrupt_set(EDGE_FALLING, 'handler');
-
     $p->mode(INPUT);
     $p->pull(PUD_UP);
 
+    $p->interrupt_set(EDGE_FALLING, 'handler');
 
     for (1..5){
         sleep 1;
