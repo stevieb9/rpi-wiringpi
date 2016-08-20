@@ -1,4 +1,4 @@
-eackage RPi::WiringPi::Util;
+package RPi::WiringPi::Util;
 
 use strict;
 use warnings;

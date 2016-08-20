@@ -81,6 +81,14 @@ sub new {
 }
 sub pin {
     my ($self, $pin_num) = @_;
+
+    my $registered_pins = $self->registered_pins;
+    my $gpio = $self->pin_to_gpio($pin_num);
+
+    if (defined $ENV{RPI_PINS} && grep {$gpio == $_} split /,/, $registered_pins){
+        die "\npin $pin_num is already in use...\n";
+    }
+
     my $pin = RPi::WiringPi::Pin->new($pin_num);
     $self->register_pin($pin);
     return $pin;

@@ -18,15 +18,8 @@ sub new {
         die "pin number must be between 0 and 40\n";
     }
 
-    my $registered_pins = $self->registered_pins;
-    my $gpio = $self->pin_to_gpio($pin);
-
-    if (grep {$gpio == $_} split /,/, $registered_pins){
-        die "\npin $pin is already in use...\n";
-    }
-
     my $self = bless {}, $class;
-
+    
     $self->{pin} = $pin;
 
     if ($self->pin_scheme == RPI_MODE_GPIO_SYS){
