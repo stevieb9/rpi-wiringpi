@@ -84,8 +84,7 @@ sub registered_pins {
     return $ENV{RPI_PINS};
 }
 sub register_pin {
-    my ($self, $pin);
-
+    my ($self, $pin) = @_;
     my $gpio_num = $self->pin_to_gpio($pin->num);
     $self->{registered_pins}{$gpio_num} = $pin;
 
@@ -103,7 +102,11 @@ sub unregister_pin {
     delete $self->{registered_pins}{$pin->num};
 }
 sub cleanup{
-    # empty
+    my $pins = $ENV{RPI_PINS};
+    for (split /,/, $pins){
+        `sudo gpio -g mode $_ in`;
+        `sudo gpio -g mode $_ tri`;
+    }
 }
 sub _vim{1;};
 1;

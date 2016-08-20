@@ -18,7 +18,7 @@ BEGIN {
     sub error {
         my $err = shift;
         print "\ndie() caught... ".  __PACKAGE__ ." is cleaning up\n",
-        _shutdown();
+        RPi::WiringPi::Util::cleanup();
         print "\ncleaned up, exiting...\n";
         print "\noriginal error: $err\n";
         exit if $fatal_exit;
@@ -82,7 +82,7 @@ sub new {
 sub pin {
     my ($self, $pin_num) = @_;
     my $pin = RPi::WiringPi::Pin->new($pin_num);
-    #$self->register_pin($pin);
+    $self->register_pin($pin);
     return $pin;
 }
 sub board {
@@ -109,16 +109,6 @@ sub _fatal_exit {
 }
 sub _setup {
     return $_[0]->{setup};
-}
-sub _shutdown {
-    # emergency die() handler cleanup
-    if (defined $ENV{RPI_PINS}) {
-        my @pins = split ',', $ENV{RPI_PINS};
-        for (@pins) {
-            #FIXME: WiringPi::API->write_pin( $_, LOW );
-            #FIXME: WiringPi::API->pin_mode( $_, INPUT );
-        }
-    }
 }
 
 sub _vim{1;};
