@@ -1,4 +1,4 @@
-package RPi::WiringPi::Util;
+eackage RPi::WiringPi::Util;
 
 use strict;
 use warnings;
@@ -80,26 +80,15 @@ sub unexport_pin {
 }
 sub registered_pins {
     my ($self, $env) = @_;
-    return $self->{registered_pins} if ! defined $env;
     return $ENV{RPI_PINS};
 }
 sub register_pin {
     my ($self, $pin) = @_;
-    my $gpio_num = $self->pin_to_gpio($pin->num);
-    $self->{registered_pins}{$gpio_num} = $pin;
 
+    my $gpio_num = $self->pin_to_gpio($pin->num);
     $ENV{RPI_PINS} = ! defined $ENV{RPI_PINS}
         ? $gpio_num
         : "$ENV{RPI_PINS},$gpio_num";
-}
-sub unregister_pin {
-    my ($self, $pin) = @_;
-    #FIXME: see if unexport resets a pin
-    $self->unexport_pin($pin->num);
-    my @pins = split /,/, $ENV{RPI_PINS};
-    @pins = grep {$pin->num != $_} @pins;
-    $ENV{RPI_PINS} = join ',', @pins;
-    delete $self->{registered_pins}{$pin->num};
 }
 sub cleanup{
     my $pins = $ENV{RPI_PINS};
@@ -225,14 +214,10 @@ Unexports a pin. Only needed if using the C<setup_sys()> initialization method.
 
 Pin number must be the C<GPIO> pin number representation.
 
-=head2 registered_pins($env)
+=head2 registered_pins()
 
-if C<$env> is set to true, we'll return a string containing a comma separated
-list of the pin numbers in GPIO scheme. This is so on emergency cleanup, the
-object may have already been destroyed.
-
-Otherwise, returns an array of L<RPi::WiringPi::Pin> objects that are currently
-registered, and deemed to be in use.
+Returns a list of comma-separated pin numbers in GPIO scheme that have been used
+in your program run.
 
 =head2 register_pin($pin_obj)
 
@@ -244,12 +229,6 @@ Parameters:
     $pin_obj
 
 Mandatory: An object instance of L<RPi::WiringPi::Pin> class.
-
-=head2 unregister_pin($pin_obj)
-
-Pretty much the opposite  of C<register_pin()>, however we do not destroy the
-pin object, we simply reset it to C<INPUT> mode, C<LOW> state and disable any
-pull up/down resistors that may have been set.
 
 =head2 cleanup()
 

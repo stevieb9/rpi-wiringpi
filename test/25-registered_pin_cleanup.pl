@@ -35,8 +35,6 @@ if ($which == 1){
     $p1->write(HIGH);
     sleep 1;
 
-    my $pins = $pi->registered_pins(1);
-
     $p29->pull(PUD_UP);
 
     $pi->cleanup;
@@ -61,8 +59,6 @@ if ($which == 2){
     $p18->write(HIGH);
 
     sleep 1;
-
-    my $pins = $pi->registered_pins(1);
 
     $p21->pull(PUD_UP);
     
@@ -89,8 +85,6 @@ if ($which == 3){
 
     sleep 1;
 
-    my $pins = $pi->registered_pins(1);
-
     $p40->pull(PUD_UP);
 
     $pi->cleanup;
@@ -115,8 +109,6 @@ if ($which == 4){
     $p18->write(HIGH);
 
     sleep 1;
-
-    my $pins = $pi->registered_pins(1);
 
     $p21->pull(PUD_UP);
 
