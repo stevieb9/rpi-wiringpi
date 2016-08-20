@@ -135,13 +135,6 @@ sub interrupt_set {
     $int->set($self->num, $edge, $callback);
     $self->{interrupt} = $int;
 }
-sub interrupt_unset {
-    my $self = shift;
-    if (! defined $self->{interrupt}){
-        die "pin " . $self->num ." doesn't have an interrupt to unset\n";
-    }
-    $self->{interrupt}->unset($self->num);
-}
 sub _vim{1;};
 1;
 __END__
@@ -253,10 +246,6 @@ C<EDGE_BOTH>.
 The string name of a Perl subroutine that you've already written within your
 code. This is the interrupt handler. When an interrupt is triggered, the code
 in this subroutine will run.
-
-=head2 interrupt_unset()
-
-Removes an interrupt from the pin, if set.
 
 =head2 pwm($value)
 

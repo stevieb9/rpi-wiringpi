@@ -9,6 +9,7 @@ Revision history for Perl extension RPi::WiringPi.
         - removed unregister_pin()
         - we now die() if trying to use a pin that is already in use
         - removed Interrupt::unset()
+        - removed Pin::unset_interrupt()
 
 0.99_05 2016-08-18
         - added Util::_sys_mode() to determine if we need wrappers for certain
