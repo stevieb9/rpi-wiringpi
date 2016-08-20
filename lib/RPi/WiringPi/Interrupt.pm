@@ -18,34 +18,8 @@ sub new {
 }
 sub set {
     my ($self, $pin, $edge, $callback) = @_;
-
-    #FIXME: unset is borked, segfaults
-    # unset the interrupt if we're changing
-    # it
-
-    if (defined $interrupts->{$pin}{edge}){
-        #$self->unset($pin);
-    }
-
     $interrupts->{$pin}{edge} = $edge;
-
     $self->set_interrupt($pin, $edge, $callback);
-}
-sub unset {
-    my ($self, $pin) = @_;
-    if ($pin eq 'all'){
-        for (keys %$interrupts){
-            $self->unset($_);
-        }
-    }
-    else {
-        my $gpio = $self->pin_to_gpio($pin);
-        system "gpio", "edge", $gpio, "none";
-    }
-}
-sub DESTROY {
-    my $self = shift;
-    $self->unset('all');
 }
 
 sub _vim{1;};
@@ -71,8 +45,6 @@ RPi::WiringPi::Interrupt - Raspberry Pi GPIO pin interrupts
         print "in handler";
         # turn a pin on, or do other things
     }
-
-    $int->unset($pin);
 
 =head1 DESCRIPTION
 
@@ -113,21 +85,6 @@ C<EDGE_BOTH>.
 Mandatory: This is the name of a user-written Perl subroutine that contains
 the code you want to execute when the edge change is detected on the pin.
 (ie. the Interrupt Handler).
-
-=head2 unset($pin)
-
-Terminates an interrupt thread, and stops monitoring for more.
-
-Parameters:
-
-    $pin
-
-Mandatory: The pin number. You can also send in C<'all'>, which will disable
-all currently implemented interrupts.
-
-    $edge
-
-Mandatory: see C<set()> for details.
 
 =head1 SEE ALSO
 
