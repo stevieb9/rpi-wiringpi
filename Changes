@@ -1,6 +1,6 @@
 Revision history for Perl extension RPi::WiringPi.
 
-0.99_06 UNREL
+0.99_06 2016-08-22
         - POD cleanup
         - cleanup() added, puts each registered pin in INPUT mode, and disables
           PUD if set
@@ -17,6 +17,8 @@ Revision history for Perl extension RPi::WiringPi.
           are now located directly in WiringPi.pm
         - we now check for duplicate pins in $pi->pin() and in register_pin()
         - added test for duplicate pin registration
+        - added system setup information in FAQ
+
 
 0.99_05 2016-08-18
         - added Util::_sys_mode() to determine if we need wrappers for certain

@@ -182,9 +182,6 @@ various items
 
 =head1 DESCRIPTION
 
-This (v0.99_06) will be the last unstable release before v1.00 becomes
-available. Things may be broken and documentation may be inaccurate.
-
 This is the root module for the C<RPi::WiringPi> system. It interfaces to a
 Raspberry Pi board, its accessories and its GPIO pins via the
 L<wiringPi|http://wiringpi.com> library through the Perl wrapper
@@ -239,10 +236,10 @@ Parameters:
 
 Optional. This option specifies which pin mapping (numbering scheme) to use.
 
-    wiringPi:   wiringPi's numbering
-    physical:   physical pin numbering
-    gpio:       GPIO numbering          # default if not sent in
-    system:     GPIO numbering (root not required)
+    wpi:    wiringPi's numbering
+    phys:   physical pin numbering
+    gpio:   GPIO numbering
+    sys:    GPIO numbering (root not required)
 
 You can also specify C<none> for testing purposes. This will bypass running
 the setup routines.
