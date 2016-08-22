@@ -42,8 +42,7 @@ if ($which == 1){
     <STDIN>;
 
     $p->pwm(0);
-    $p->mode(INPUT);
-    $p->write(LOW);
+    $pi->cleanup;
 }
 
 # gpio
@@ -66,8 +65,7 @@ if ($which == 2){
     <STDIN>;
 
     $p->pwm(0);
-    $p->mode(INPUT);
-    $p->write(LOW);
+    $pi->cleanup;
 }
 
 # phys
@@ -90,8 +88,7 @@ if ($which == 3){
     <STDIN>;
 
     $p->pwm(0);
-    $p->mode(INPUT);
-    $p->write(LOW);
+    $pi->cleanup;
 }
 
 # sys
@@ -115,5 +112,5 @@ if ($which == 4){
     <STDIN>;
 
     $p->pwm(0);
-    $pi->unexport_pin($p->num); 
+    $pi->cleanup;
 }

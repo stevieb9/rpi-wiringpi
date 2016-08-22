@@ -1,6 +1,7 @@
 bin/pinmap
 Changes
 examples/button.pl
+examples/defacto_interrupt.pl
 examples/get_alt.pl
 examples/lcd.pl
 examples/lcd_working.py
@@ -28,4 +29,11 @@ t/25-sig_die.t
 t/30-sig_int.t
 t/35-pin_map.t
 t/40-interrupt_and_pud.t
+test/00-setup_modes.pl
+test/05-export.pl
+test/10-pwm.pl
+test/15-interrupt_and_pull.pl
+test/20-read_and_mode.pl
+test/25-registered_pin_cleanup.pl
+test/30-check_registered_pins.pl
 typemap

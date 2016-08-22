@@ -15,6 +15,8 @@ Revision history for Perl extension RPi::WiringPi.
           pin capable of hardware PWM (GPIO pin 18)
         - removed Board.pm from the distribution. The methods it used to handle
           are now located directly in WiringPi.pm
+        - we now check for duplicate pins in $pi->pin() and in register_pin()
+        - added test for duplicate pin registration
 
 0.99_05 2016-08-18
         - added Util::_sys_mode() to determine if we need wrappers for certain

@@ -86,7 +86,7 @@ sub pin {
     my $gpio = $self->pin_to_gpio($pin_num);
 
     if (defined $ENV{RPI_PINS} && grep {$gpio == $_} split /,/, $pins_in_use){
-        die "\npin $pin_num is already in use...\n";
+        die "\npin $pin_num is already in use... can't create second object\n";
     }
 
     my $pin = RPi::WiringPi::Pin->new($pin_num);

@@ -53,7 +53,7 @@ if ($which == 1){
     print "hit ENTER...\n";
     <STDIN>;
 
-    $p->pull(PUD_OFF);
+    $pi->cleanup;
 }
 
 # gpio
@@ -91,7 +91,7 @@ elsif ($which == 2){
     print "hit ENTER...\n";
     <STDIN>;
 
-    $p->pull(PUD_OFF);
+    $pi->cleanup;
 }
 
 # phys
@@ -129,7 +129,7 @@ elsif ($which == 3){
     print "hit ENTER...\n";
     <STDIN>;
 
-    $p->pull(PUD_OFF);
+    $pi->cleanup;
 }
 
 # sys
@@ -167,7 +167,7 @@ elsif ($which == 4){
     print "hit ENTER...\n";
     <STDIN>;
 
-    $p->pull(PUD_OFF);
+    $pi->cleanup;
 }
 
 sub handler {
