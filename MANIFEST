@@ -7,6 +7,7 @@ examples/lcd.pl
 examples/lcd_working.py
 examples/on_off.pl
 examples/pwm.pl
+examples/softpwm.pl
 examples/temp_hum_display.pl
 FAQ-Tutorial.pod
 lib/RPi/WiringPi.pm

@@ -104,7 +104,6 @@ if ($which == 4){
     $p->mode(PWM_OUT);
 
     for (0..100){
-        print "$_\n";
         $p->pwm($_);
         usleep 10000;
     }

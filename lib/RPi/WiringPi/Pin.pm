@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use parent 'WiringPi::API';
+use parent 'RPi::WiringPi';
 use parent 'RPi::WiringPi::Util';
 
 use RPi::WiringPi::Constant qw(:all);
@@ -116,7 +117,7 @@ sub pwm {
 
     my $gpio = $self->pin_to_gpio($self->num);
 
-    if ($self->mode != 2 && $gpio != 18){
+    if ($self->mode != 2 && $gpio == 18){
         my $num = $self->num;
         die "\npin $num isn't set to mode 2 (PWM). pwm() can't be set\n";
     }
@@ -125,15 +126,11 @@ sub pwm {
         die "\npwm() value must be 0-1023\n";
     }
 
-    if ($self->pin_scheme == RPI_MODE_GPIO_SYS || $gpio != 18){
-        if (! $self->_soft_pwm_enabled){
-            $self->soft_pwm_create($pin->num, 0, $self->pwm_range)
-        }
-        $self->soft_pwm_write($self->num, $value);
+    if ($self->pin_scheme == RPI_MODE_GPIO_SYS){
+        die "\nat this time, it isn't possible to use PWM in SYS mode\n";
     }
-    else {
-        $self->pwm_write($self->num, $value);
-    }
+
+    $self->pwm_write($self->num, $value);
 }
 sub num {
     return $_[0]->{pin};
@@ -268,8 +265,7 @@ in this subroutine will run.
 
 Sets the level of the Pulse Width Modulation (PWM) of the pin. Dies if the
 pin's C<mode()> is not set to PWM (C<2>). Note that only physical pin 12
-(wiringPi pin 1, GPIO pin 18) is PWM hardware capable. See C<soft_pwm()> to
-use a software-based PWM implementation on all other pins.
+(wiringPi pin 1, GPIO pin 18) is PWM hardware capable. 
 
 Parameter:
 

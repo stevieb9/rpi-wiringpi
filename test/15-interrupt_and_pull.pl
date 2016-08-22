@@ -42,17 +42,6 @@ if ($which == 1){
     print "hit ENTER...\n";
     <STDIN>;
 
-    $p->interrupt_set(EDGE_BOTH, 'handler');
-
-    print "press the button once, you should see 'in handler!' printed twice\n";
-
-    for (1..5){
-        sleep 1;
-    }
-
-    print "hit ENTER...\n";
-    <STDIN>;
-
     $pi->cleanup;
 }
 
@@ -72,17 +61,6 @@ elsif ($which == 2){
     $p->interrupt_set(EDGE_FALLING, 'handler');
 
     print "press the button once, you should see 'in handler!' printed once\n";
-
-    for (1..5){
-        sleep 1;
-    }
-
-    print "hit ENTER...\n";
-    <STDIN>;
-
-    $p->interrupt_set(EDGE_BOTH, 'handler');
-
-    print "press the button once, you should see 'in handler!' printed twice\n";
 
     for (1..5){
         sleep 1;
@@ -118,17 +96,6 @@ elsif ($which == 3){
     print "hit ENTER...\n";
     <STDIN>;
 
-    $p->interrupt_set(EDGE_BOTH, 'handler');
-
-    print "press the button once, you should see 'in handler!' printed twice\n";
-
-    for (1..5){
-        sleep 1;
-    }
-
-    print "hit ENTER...\n";
-    <STDIN>;
-
     $pi->cleanup;
 }
 
@@ -148,17 +115,6 @@ elsif ($which == 4){
     $p->interrupt_set(EDGE_FALLING, 'handler');
 
     print "press the button once, you should see 'in handler!' printed once\n";
-
-    for (1..5){
-        sleep 1;
-    }
-
-    print "hit ENTER...\n";
-    <STDIN>;
-
-    $p->interrupt_set(EDGE_BOTH, 'handler');
-
-    print "press the button once, you should see 'in handler!' printed twice\n";
 
     for (1..5){
         sleep 1;

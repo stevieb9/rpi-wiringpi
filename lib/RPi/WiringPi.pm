@@ -43,7 +43,7 @@ sub new {
             $self->pin_scheme($scheme);
         }
         else {
-            # we default to wpi mode
+            # we default to gpio mode
 
             if (! defined $self->{setup}) {
                 $self->SUPER::setup_gpio();
@@ -92,11 +92,6 @@ sub pin {
     my $pin = RPi::WiringPi::Pin->new($pin_num);
     $self->register_pin($pin);
     return $pin;
-}
-sub board {
-    my $self = shift;
-    my $board = RPi::WiringPi::Board->new;
-    return $board;
 }
 sub lcd {
     my $self = shift;
@@ -188,16 +183,12 @@ L<wiringPi|http://wiringpi.com> library through the Perl wrapper
 L<WiringPi::API|https://metacpan.org/pod/WiringPi::API>
 module.
 
-IMPORTANT (C<root> vs C<sudo>):
+The scripts you write using this software requires those scripts to be run
+as root (or with C<sudo>, if configured properly... see 
+L<RPi::WiringPi::Tutorial.pod>.
 
-Using this software requires root privileges. There are two separate modes you
-can select from... one where you must run your scripts as C<root>, the other
-where you can use a non-root user. For the latter, we do make a few calls with
-C<sudo>, so when in this mode, your user account must have password-less
-C<sudo> access to at minimum the C<gpio> command line utility. The default user
-account (C<pi>) on Raspbian OS has this right by default. We default to using
-the C<gpio> configuration, which requires root. See the details in the C<new> 
-method below for further details.
+By default, we set up using the C<GPIO> numbering scheme for pins. See C<new()>
+method for information on how to change this.
 
 This module is essentially a 'manager' for the sub-modules (ie. components).
 You can use the component modules directly, but retrieving components through
@@ -239,23 +230,9 @@ Optional. This option specifies which pin mapping (numbering scheme) to use.
     wpi:    wiringPi's numbering
     phys:   physical pin numbering
     gpio:   GPIO numbering
-    sys:    GPIO numbering (root not required)
 
 You can also specify C<none> for testing purposes. This will bypass running
 the setup routines.
-
-!!! C<system> mode uses C<sudo> !!!
-
-C<system> mode is the only mode where you do not need to run your application
-as the C<root> user. To this end, in C<wiringPi> when using C<system> mode,
-you have to export and manually manipulate the pins with the C<gpio>
-application prior to using them. I have wrapped around this limitation by
-making these calls with C<sudo> for you, so that you don't have to do anything
-different no matter the mode you're using.
-
-When using C<system> mode, the user running your application should be able
-to at minimum call the C<gpioc> application without supplying a password.
-The default Raspberry Pi user C<pi> can do this by default.
 
 See L<wiringPi setup reference|http://wiringpi.com/reference/setup> for
 important details on the differences.
