@@ -1,184 +1,152 @@
 NAME
-
     RPi::WiringPi - Perl interface to Raspberry Pi's board, GPIO, LCDs and
     other various items
 
 SYNOPSIS
-
         use RPi::WiringPi;
         use RPi::WiringPi::Constant qw(:all);
-    
+
         my $pi = RPi::WiringPi->new;
-    
-        # board
-    
-        my $board = $pi->board;
-        my $revision = $pi->rev;
-        print "Raspberry Pi board revision: $revision"\n";
-    
+
+        my $board_revision = $pi->rev;
+
         # pin
-    
+
         my $pin = $pi->pin(5);
         $pin->mode(OUTPUT);
         $pin->write(ON);
-    
+
         my $num = $pin->num;
         my $mode = $pin->mode;
         my $state = $pin->read;
-    
+
         # LCD
-    
+
         my $lcd = $pi->lcd;
-    
+
         $lcd->init(...);
-    
+
         # first column, first row
-        
-        $lcd->position(0, 0); 
-        $lcd->print("Pi rev: $revision");
     
+        $lcd->position(0, 0); 
+        $lcd->print("Pi rev: $board_revision");
+
         # first column, second row
-        
+    
         $lcd->position(0, 1);
         $lcd->print("pin $num... mode: $mode, state: $state");
-    
+
         $lcd->clear;
         $lcd->display(OFF);
-    
+
         $pi->cleanup;
 
 DESCRIPTION
+    This is the root module for the `RPi::WiringPi' system. It interfaces to
+    a Raspberry Pi board, its accessories and its GPIO pins via the wiringPi
+    library through the Perl wrapper WiringPi::API module.
 
-    This (v0.99_06) will be the last unstable release before v1.00 becomes
-    available. Things may be broken and documentation may be inaccurate.
+    The scripts you write using this software requires those scripts to be
+    run as root (or with `sudo', if configured properly... see
+    RPi::WiringPi::Tutorial.pod.
 
-    This is the root module for the RPi::WiringPi system. It interfaces to
-    a Raspberry Pi board, its accessories and its GPIO pins via the
-    wiringPi <http://wiringpi.com> library through the Perl wrapper
-    WiringPi::API <https://metacpan.org/pod/WiringPi::API> module.
-
-    IMPORTANT (root vs sudo):
-
-    Using this software requires root privileges. There are two separate
-    modes you can select from... one where you must run your scripts as
-    root, the other where you can use a non-root user. For the latter, we
-    do make a few calls with sudo, so when in this mode, your user account
-    must have password-less sudo access to at minimum the gpio command line
-    utility. The default user account (pi) on Raspbian OS has this right by
-    default. We default to the non-root configuration. See the details in
-    the new method below for further details.
-
-    This is the root module for the RPi::WiringPi system. It interfaces to
-    a Raspberry Pi board, its accessories and its GPIO pins via the
-    wiringPi <http://wiringpi.com> library through the Perl wrapper
-    WiringPi::API <https://metacpan.org/pod/WiringPi::API> module.
+    By default, we set up using the `GPIO' numbering scheme for pins. See
+    `new()' method for information on how to change this.
 
     This module is essentially a 'manager' for the sub-modules (ie.
     components). You can use the component modules directly, but retrieving
     components through this module instead has many benefits. We maintain a
-    registry of pins and other data. We also trap $SIG{__DIE__} and
-    $SIG{INT}, so that in the event of a crash, we can reset the Pi back to
-    default settings, so components are not left in an inconsistent state.
-    Component moduls do none of these things.
+    registry of pins and other data. We also trap `$SIG{__DIE__}' and
+    `$SIG{INT}', so that in the event of a crash, we can reset the Pi back
+    to default settings, so components are not left in an inconsistent
+    state. Component moduls do none of these things.
 
     There are a basic set of constants that can be imported. See
     RPi::WiringPi::Constant.
 
-    wiringPi <http://wiringpi.com> must be installed prior to
-    installing/using this module.
+    wiringPi must be installed prior to installing/using this module.
 
     It's handy to have access to a pin mapping conversion chart. There's an
-    excellent pin scheme map for reference at pinout.xyz
-    <https://pinout.xyz/pinout/wiringpi>. You can also run gpio readall at
-    the command line to get a pin chart, or from the command line, run the
-    pinmap command that was installed by this module.
+    excellent pin scheme map for reference at pinout.xyz. You can also run
+    `gpio readall' at the command line to get a pin chart, or from the
+    command line, run the `pinmap' command that was installed by this
+    module.
 
 OPERATIONAL METHODS
-
     See RPi::WiringPi::Util for utility/helper methods that are imported
-    into an RPi::WiringPi object.
+    into an `RPi::WiringPi' object.
 
- new(%args)
-
-    Returns a new RPi::WiringPi object. Calls setup() by default, setting
-    pin numbering scheme to WPI (wiringPi scheme).
+  new(%args)
+    Returns a new `RPi::WiringPi' object. Calls `setup()' by default,
+    setting pin numbering scheme to `WPI' (wiringPi scheme).
 
     Parameters:
 
     setup => $value
+            Optional. This option specifies which pin mapping (numbering
+            scheme) to use.
 
-      Optional. This option specifies which pin mapping (numbering scheme)
-      to use.
+                wpi:    wiringPi's numbering
+                phys:   physical pin numbering
+                gpio:   GPIO numbering
 
-          wiringPi:   wiringPi's numbering
-          physical:   physical pin numbering
-          gpio:       GPIO numbering
-          system:     GPIO numbering (root not required in this mode)
+            You can also specify `none' for testing purposes. This will
+            bypass running the setup routines.
 
-      You can also specify none for testing purposes. This will bypass
-      running the setup routines.
+            See wiringPi setup reference for important details on the
+            differences.
 
-      !!! system mode uses sudo !!!
-
-      system mode is the only mode where you do not need to run your
-      application as the root user. To this end, in wiringPi when using
-      system mode, you have to export and manually manipulate the pins with
-      the gpio application prior to using them. I have wrapped around this
-      limitation by making these calls with sudo for you, so that you don't
-      have to do anything different no matter the mode you're using.
-
-      When using system mode, the user running your application should be
-      able to at minimum call the gpioc application without supplying a
-      password. The default Raspberry Pi user pi can do this by default.
-
-      See wiringPi setup reference <http://wiringpi.com/reference/setup>
-      for important details on the differences.
-
-      There's an excellent pin scheme map for reference at pinout.xyz
-      <https://pinout.xyz/pinout/wiringpi>. You can also run the pinmap
-      application that was included in this distribution from the command
-      line to get a printout of pin mappings.
+            There's an excellent pin scheme map for reference at pinout.xyz.
+            You can also run the `pinmap' application that was included in
+            this distribution from the command line to get a printout of pin
+            mappings.
 
     fatal_exit => $bool
+            Optional: We trap all `die()' calls and clean up for safety
+            reasons. If a call to `die()' is trapped, by default, we clean
+            up, and then `exit()'. Set `fatal_exit' to false (`0') to
+            perform the cleanup, and then continue running your script. This
+            is for unit testing purposes only.
 
-      Optional: We trap all die() calls and clean up for safety reasons. If
-      a call to die() is trapped, by default, we clean up, and then exit().
-      Set fatal_exit to false (0) to perform the cleanup, and then continue
-      running your script. This is for unit testing purposes only.
-
- pin($pin_num)
-
+  pin($pin_num)
     Returns a RPi::WiringPi::Pin object, mapped to a specified GPIO pin.
 
     Parameters:
 
     $pin_num
+            Mandatory: The pin number to attach to.
 
-      Mandatory: The pin number to attach to.
-
- board()
-
-    Returns a RPi::WiringPi::Board object which has access to various
-    attributes of the Raspberry Pi physical board itself.
-
- lcd()
-
+  lcd()
     Returns a RPi::WiringPi::LCD object, which allows you to fully
     manipulate LCD displays connected to your Raspberry Pi.
 
- interrupt($pin, $edge, $callback)
-
+  interrupt($pin, $edge, $callback)
     Returns a RPi::WiringPi::Interrupt object, which allows you to act when
     certain events occur (eg: a button press). This module is better used
     through the RPi::WiringPi::Pin object.
 
-RUNNING TESTS
+  rev()
+    Returns the revision of the Pi board.
 
+  pwm_range($range)
+    Changes the range of Pulse Width Modulation (PWM). The default is `0'
+    through `1023'.
+
+    Parameters:
+
+        $range
+
+    Mandatory: An integer specifying the high-end of the range. The range
+    always starts at `0'. Eg: if `$range' is `359', if you incremented PWM
+    by `1' every second, you'd rotate a step motor one complete rotation in
+    exactly one minute.
+
+RUNNING TESTS
     This distribution does not have a typical set of unit tests. This is
     because to ensure proper functionality, you need to be running on a
     Rasbperry Pi board that has a couple of very basic circuits set up.
 
-    The tests are in individual Perl scripts inside of the test/ directory
+    The tests are in individual Perl scripts inside of the `test/' directory
     inside this distribution.
 
     Each test, when run without any command line arguments, will print out
@@ -191,18 +159,16 @@ RUNNING TESTS
     Example:
 
         $ perl test/10-pwm.pl
-    
+
         need test number as arg: 1-WPI, 2-GPIO, 3-PHYS, 4-SYS
-    
+
         this test tests the pwm() pin function. Connect an LED to physical pin *12*.
         The LED should gradually get brighter for each test.
 
 AUTHOR
-
     Steve Bertrand, <steveb@cpan.org>
 
 COPYRIGHT AND LICENSE
-
     Copyright (C) 2016 by Steve Bertrand
 
     This library is free software; you can redistribute it and/or modify it
