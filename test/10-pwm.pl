@@ -101,8 +101,6 @@ if ($which == 4){
 
     die "\ntest 4 requires a non-root user\n" if $> == 0;
 
-    die "SYS mode can't do PWM\n";
-
     my $pi = $mod->new(setup => 'sys');
     my $p = $pi->pin(18);
 

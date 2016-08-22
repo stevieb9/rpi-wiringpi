@@ -108,6 +108,17 @@ sub interrupt {
     my $interrupt = RPi::WiringPi::Interrupt->new;
     return $interrupt;
 }
+sub rev {
+    return $_[0]->board_rev;
+}
+sub pwm_range {
+    my ($self, $range) = @_;
+    if (defined $range){
+       $self->{pwm_range} = $range;
+        $self->pwm_set_range($range);
+    }
+    return defined $self->{pwm_range} ? $self->{pwm_range} : 1023;
+}
 
 # private
 
@@ -135,17 +146,14 @@ various items
 
     my $pi = RPi::WiringPi->new;
 
-    # board
-
-    my $board = $pi->board;
-    my $revision = $pi->rev;
-    print "Raspberry Pi board revision: $revision"\n";
+    my $board_revision = $pi->rev;
 
     # pin
 
     my $pin = $pi->pin(5);
     $pin->mode(OUTPUT);
     $pin->write(ON);
+
 
     my $num = $pin->num;
     my $mode = $pin->mode;
@@ -160,7 +168,7 @@ various items
     # first column, first row
     
     $lcd->position(0, 0); 
-    $lcd->print("Pi rev: $revision");
+    $lcd->print("Pi rev: $board_revision");
 
     # first column, second row
     
@@ -193,12 +201,6 @@ C<sudo> access to at minimum the C<gpio> command line utility. The default user
 account (C<pi>) on Raspbian OS has this right by default. We default to using
 the C<gpio> configuration, which requires root. See the details in the C<new> 
 method below for further details.
-
-This is the root module for the C<RPi::WiringPi> system. It interfaces to a
-Raspberry Pi board, its accessories and its GPIO pins via the 
-L<wiringPi|http://wiringpi.com> library through the Perl wrapper
-L<WiringPi::API|https://metacpan.org/pod/WiringPi::API>
-module.
 
 This module is essentially a 'manager' for the sub-modules (ie. components).
 You can use the component modules directly, but retrieving components through
@@ -293,11 +295,6 @@ Mandatory: The pin number to attach to.
 
 =back
 
-=head2 board()
-
-Returns a L<RPi::WiringPi::Board> object which has access to various
-attributes of the Raspberry Pi physical board itself.
-
 =head2 lcd()
 
 Returns a L<RPi::WiringPi::LCD> object, which allows you to fully manipulate
@@ -308,6 +305,24 @@ LCD displays connected to your Raspberry Pi.
 Returns a L<RPi::WiringPi::Interrupt> object, which allows you to act when
 certain events occur (eg: a button press). This module is better used through
 the L<RPi::WiringPi::Pin> object.
+
+=head2 rev()
+
+Returns the revision of the Pi board.
+
+=head2 pwm_range($range)
+
+Changes the range of Pulse Width Modulation (PWM). The default is C<0> through
+C<1023>.
+
+Parameters:
+
+    $range
+
+Mandatory: An integer specifying the high-end of the range. The range always
+starts at C<0>. Eg: if C<$range> is C<359>, if you incremented PWM by C<1>
+every second, you'd rotate a step motor one complete rotation in exactly one
+minute.
 
 =head1 RUNNING TESTS
 

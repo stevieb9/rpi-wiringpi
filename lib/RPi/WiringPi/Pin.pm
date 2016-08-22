@@ -113,17 +113,27 @@ sub pull {
 }
 sub pwm {
     my ($self, $value) = @_;
-    if ($self->mode != 2){
+
+    my $gpio = $self->pin_to_gpio($self->num);
+
+    if ($self->mode != 2 && $gpio != 18){
         my $num = $self->num;
         die "\npin $num isn't set to mode 2 (PWM). pwm() can't be set\n";
     }
-    if ($self->pin_scheme == RPI_MODE_GPIO_SYS){
-        die "\nPWM functionality isn't available in SYS mode\n";
-    }
+
     if ($value > 1023 || $value < 0){
-        die "Core::pwm_write value must be 0-1023";
+        die "\npwm() value must be 0-1023\n";
     }
-    $self->pwm_write($self->num, $value);
+
+    if ($self->pin_scheme == RPI_MODE_GPIO_SYS || $gpio != 18){
+        if (! $self->_soft_pwm_enabled){
+            $self->soft_pwm_create($pin->num, 0, $self->pwm_range)
+        }
+        $self->soft_pwm_write($self->num, $value);
+    }
+    else {
+        $self->pwm_write($self->num, $value);
+    }
 }
 sub num {
     return $_[0]->{pin};
@@ -134,6 +144,13 @@ sub interrupt_set {
     my $int = RPi::WiringPi::Interrupt->new;
     $int->set($self->num, $edge, $callback);
     $self->{interrupt} = $int;
+}
+sub _soft_pwm_enabled {
+    my ($self, $enabled) = @_;
+    $self->{soft_pwm_enabled} = $enabled if defined $enabled;
+    return defined $self->{soft_pwm_enabled}  && $self->{soft_pwm_enabled}
+        ? 1
+        : 0;
 }
 sub _vim{1;};
 1;

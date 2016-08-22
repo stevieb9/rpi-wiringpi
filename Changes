@@ -10,6 +10,11 @@ Revision history for Perl extension RPi::WiringPi.
         - we now die() if trying to use a pin that is already in use
         - removed Interrupt::unset()
         - removed Pin::unset_interrupt()
+        - software PWM is now used in the following two cases: 1) when in
+          RPI_MODE_GPIO_SYS usage mode, and 2) if not using the only physical
+          pin capable of hardware PWM (GPIO pin 18)
+        - removed Board.pm from the distribution. The methods it used to handle
+          are now located directly in WiringPi.pm
 
 0.99_05 2016-08-18
         - added Util::_sys_mode() to determine if we need wrappers for certain
