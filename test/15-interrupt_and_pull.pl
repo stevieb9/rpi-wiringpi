@@ -8,8 +8,6 @@ use Time::HiRes qw(usleep);
 
 if (! @ARGV){
     print "\nneed test number as arg: 1-WPI, 2-GPIO, 3-PHYS, 4-SYS\n";
-    print "\nthis test tests interrupts. No circuitry is required. Each test " .
-          "should output 'in handler!'";
     exit;
 }
 
@@ -35,6 +33,19 @@ if ($which == 1){
 
     $p->interrupt_set(EDGE_FALLING, 'handler');
 
+    print "press the button once, you should see 'in handler!' printed once\n";
+
+    for (1..5){
+        sleep 1;
+    }
+
+    print "hit ENTER...\n";
+    <STDIN>;
+
+    $p->interrupt_set(EDGE_BOTH, 'handler');
+
+    print "press the button once, you should see 'in handler!' printed twice\n";
+
     for (1..5){
         sleep 1;
     }
@@ -55,10 +66,23 @@ elsif ($which == 2){
     my $pi = $mod->new(setup => 'gpio');
     my $p = $pi->pin(21);
 
-    $p->interrupt_set(EDGE_FALLING, 'handler');
-    
     $p->mode(INPUT);
     $p->pull(PUD_UP);
+
+    $p->interrupt_set(EDGE_FALLING, 'handler');
+
+    print "press the button once, you should see 'in handler!' printed once\n";
+
+    for (1..5){
+        sleep 1;
+    }
+
+    print "hit ENTER...\n";
+    <STDIN>;
+
+    $p->interrupt_set(EDGE_BOTH, 'handler');
+
+    print "press the button once, you should see 'in handler!' printed twice\n";
 
     for (1..5){
         sleep 1;
@@ -80,10 +104,23 @@ elsif ($which == 3){
     my $pi = $mod->new(setup => 'phys');
     my $p = $pi->pin(40);
 
-    $p->interrupt_set(EDGE_FALLING, 'handler');
-
     $p->mode(INPUT);
     $p->pull(PUD_UP);
+
+    $p->interrupt_set(EDGE_FALLING, 'handler');
+
+    print "press the button once, you should see 'in handler!' printed once\n";
+
+    for (1..5){
+        sleep 1;
+    }
+
+    print "hit ENTER...\n";
+    <STDIN>;
+
+    $p->interrupt_set(EDGE_BOTH, 'handler');
+
+    print "press the button once, you should see 'in handler!' printed twice\n";
 
     for (1..5){
         sleep 1;
@@ -105,14 +142,28 @@ elsif ($which == 4){
     my $pi = $mod->new(setup => 'sys');
     my $p = $pi->pin(21);
 
-    $p->interrupt_set(EDGE_FALLING, 'handler');
-
     $p->mode(INPUT);
     $p->pull(PUD_UP);
+
+    $p->interrupt_set(EDGE_FALLING, 'handler');
+
+    print "press the button once, you should see 'in handler!' printed once\n";
 
     for (1..5){
         sleep 1;
     }
+
+    print "hit ENTER...\n";
+    <STDIN>;
+
+    $p->interrupt_set(EDGE_BOTH, 'handler');
+
+    print "press the button once, you should see 'in handler!' printed twice\n";
+
+    for (1..5){
+        sleep 1;
+    }
+
     print "hit ENTER...\n";
     <STDIN>;
 
