@@ -99,10 +99,10 @@ pins
         strb  => 2,     # GPIO pin for the LCD strobe (E) pin
         d0    => 3,     #
         ...             # d0-d3 GPIO pinout numbers
-        d3    =>6,      #
+        d3    => 6,     #
         d4    => 7,     # set d4-d7 to all 0 (zero) if in 4-bit mode
         ...             # otherwise, set them to their respective
-        d7    => 11     # GPIO pins
+        d7    => 11,    # GPIO pins
     );
 
     # initialize the LCD screen

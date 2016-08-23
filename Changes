@@ -4,6 +4,7 @@ Revision history for Perl extension RPi::WiringPi.
         - SYS mode has been disabled and hidden until the PWM and interrupt
           functionality can be sorted out for that mode
         - cleaned up manual test help info as to be accurate
+        - POD editing
 
 0.99_06 2016-08-22
         - POD cleanup
