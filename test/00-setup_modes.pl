@@ -35,8 +35,8 @@ if ($which == 1){
     print "WPI: HIGH\n";
     $p->write(HIGH);
     sleep 1;
-    $p->mode(INPUT);
-    $p->write(LOW); 
+
+    $pi->cleanup;
 }
 
 # gpio
@@ -53,9 +53,8 @@ if ($which == 2){
     print "GPIO: HIGH\n";
     $p->write(HIGH);
     sleep 1;
-    $p->mode(INPUT);
-    $p->write(LOW); 
 
+    $pi->cleanup;
 }
 
 # phys
@@ -73,8 +72,8 @@ if ($which == 3){
     print "PHYS: HIGH\n";
     $p->write(HIGH);
     sleep 1;
-    $p->mode(INPUT);
-    $p->write(LOW); 
+
+    $pi->cleanup;
 }
 
 # sys

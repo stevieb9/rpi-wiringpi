@@ -8,7 +8,7 @@ use Time::HiRes qw(usleep);
 if (! @ARGV){
     print "\nneed test number as arg: 1-WPI, 2-GPIO, 3-PHYS, 4-SYS\n";
     print "\nthis test tests read() and reading mode() pin functions. " .
-          "Connect pin 40 to 3.3v power through a pull-up 4.7k or10k " .
+          "Connect pin 40 to 3.3v power through a pull-up 4.7k - 10k " .
           "resistor\n" .
           "Each test should print 10x '*scheme* mode: 0, state: 1\n";
     exit;

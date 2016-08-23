@@ -8,6 +8,8 @@ use Time::HiRes qw(usleep);
 
 if (! @ARGV){
     print "\nneed test number as arg: 1-WPI, 2-GPIO, 3-PHYS, 4-SYS\n";
+    print "\nConnect a button to phys pin 40 through to GND\n";
+    print "Each test will explain what to do while running\n";
     exit;
 }
 

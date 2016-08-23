@@ -10,7 +10,7 @@ use parent 'RPi::WiringPi::Util';
 use RPi::WiringPi::Constant qw(:all);
 use RPi::WiringPi::Interrupt;
 
-our $VERSION = '0.99_06';
+our $VERSION = '1.00';
 
 sub new {
     my ($class, $pin) = @_;
@@ -215,7 +215,7 @@ Parameters:
     $mode
 
 Optional: If not sent in, we'll simply return the current mode of the pin.
-Otherwise, send in: C<0> for C<INPUT>, C<1> for C<OUTPUT>, C<2> for CPWM_OUT>
+Otherwise, send in: C<0> for C<INPUT>, C<1> for C<OUTPUT>, C<2> for C<PWM_OUT>
 and C<3> for C<GPIO_CLOCK> (clock) mode.
 
 =head2 read()

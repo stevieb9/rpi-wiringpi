@@ -6,7 +6,7 @@ use RPi::WiringPi::Constant qw(:all);
 if (! @ARGV){
     print "\nneed test number as arg: 1-WPI, 2-GPIO, 3-PHYS\n";
     print "\nthis test tests registered_pins(). No wiring is required" .
-          "Each test will die\n";
+          "Each test should die\n";
     exit;
 }
 

@@ -10,7 +10,7 @@ use RPi::WiringPi::LCD;
 use RPi::WiringPi::Pin;
 use RPi::WiringPi::Interrupt;
 
-our $VERSION = '0.99_06';
+our $VERSION = '1.00';
 
 my $fatal_exit = 1;
 
@@ -184,8 +184,8 @@ L<WiringPi::API|https://metacpan.org/pod/WiringPi::API>
 module.
 
 The scripts you write using this software requires those scripts to be run
-as root (or with C<sudo>, if configured properly... see 
-L<RPi::WiringPi::Tutorial.pod>.
+as root, (with C<sudo> if configured properly... see
+L<RPi::WiringPi::FAQ>).
 
 By default, we set up using the C<GPIO> numbering scheme for pins. See C<new()>
 method for information on how to change this.
@@ -207,7 +207,8 @@ It's handy to have access to a pin mapping conversion chart. There's an
 excellent pin scheme map for reference at
 L<pinout.xyz|https://pinout.xyz/pinout/wiringpi>. You can also run
 C<gpio readall> at the command line to get a pin chart, or from the command
-line, run the C<pinmap> command that was installed by this module.
+line, run the C<pinmap> command that was installed by this module, or
+C<wiringPi>'s C<gpio readall> command.
 
 =head1 OPERATIONAL METHODS
 
@@ -257,7 +258,8 @@ your script. This is for unit testing purposes only.
 
 =head2 pin($pin_num)
 
-Returns a L<RPi::WiringPi::Pin> object, mapped to a specified GPIO pin.
+Returns a L<RPi::WiringPi::Pin> object, mapped to a specified GPIO pin, which
+you can then perform operations on.
 
 Parameters:
 
@@ -277,8 +279,8 @@ LCD displays connected to your Raspberry Pi.
 =head2 interrupt($pin, $edge, $callback)
 
 Returns a L<RPi::WiringPi::Interrupt> object, which allows you to act when
-certain events occur (eg: a button press). This module is better used through
-the L<RPi::WiringPi::Pin> object.
+certain events occur (eg: a button press). This functionality is better used
+through the L<RPi::WiringPi::Pin> object you created with C<pin()>.
 
 =head2 rev()
 
