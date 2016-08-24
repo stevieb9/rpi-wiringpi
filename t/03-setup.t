@@ -8,7 +8,7 @@ use Test::More;
 if (! $ENV{PI_BOARD}){
     warn "\n*** PI_BOARD is not set! ***\n";
     $ENV{NO_BOARD} = 1;
-    exit;
+    plan skip_all => "not on a pi board\n";
 }
 
 {
