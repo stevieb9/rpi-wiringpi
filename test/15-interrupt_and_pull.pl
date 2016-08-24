@@ -43,7 +43,7 @@ if ($which == 1){
 
     print "hit ENTER...\n";
     <STDIN>;
-
+    sleep 1;
     $pi->cleanup;
 }
 

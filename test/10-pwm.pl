@@ -34,7 +34,7 @@ if ($which == 1){
     
     $p->mode(PWM_OUT);
 
-    for (0..100){
+    for (1..100){
         $p->pwm($_);
         usleep 10000;
     }
