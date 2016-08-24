@@ -149,7 +149,6 @@ various items
     $pin->mode(OUTPUT);
     $pin->write(ON);
 
-
     my $num = $pin->num;
     my $mode = $pin->mode;
     my $state = $pin->read;
