@@ -207,7 +207,7 @@ Mandatory: The pin number to attach to.
 
 =head2 mode($mode)
 
-Puts the GPIO pin into either C<INPUT>, C<OUTPUT>, C<PWM_OUT> or C<GPIO_CLOCK>
+Puts the pin into either C<INPUT>, C<OUTPUT>, C<PWM_OUT> or C<GPIO_CLOCK>
 mode. If C<$mode> is not sent in, we'll return the pin's current mode.
 
 Parameters:
@@ -216,7 +216,7 @@ Parameters:
 
 Optional: If not sent in, we'll simply return the current mode of the pin.
 Otherwise, send in: C<0> for C<INPUT>, C<1> for C<OUTPUT>, C<2> for C<PWM_OUT>
-and C<3> for C<GPIO_CLOCK> (clock) mode.
+and C<3> for C<GPIO_CLOCK> mode.
 
 =head2 read()
 
@@ -273,6 +273,9 @@ Parameter:
 
 Mandatory: values range from 0-1023. C<0> for 0% (off) and C<1023> for 100%
 (fully on).
+
+See L<RPi::WiringPi/pwm_range-range> for details on how to modify the range to
+something other than C<0-1023>.
 
 =head2 num()
 

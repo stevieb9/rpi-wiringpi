@@ -37,13 +37,13 @@ software (or you want to use interrupts), you should do some pre-configuration
 of your system. Note that the system installed Perl does not use threads, which
 is required for interrupts to function.
 
-As your normal, every day user, install L<http://perlbrew.pl|perlbrew>, Then
+As your normal, every day user, install L<perlbrew|http://perlbrew.pl>, Then
 install an instance of Perl, and switch to it:
 
     perlbrew install perl-5.24.0
     perlbrew switch perl-5.24.0
 
-To use C<sudo> to install to and run scripts within the appropriate Perl
+To use C<sudo> to run your scripts within the appropriate Perl
 installation, you need to modify the C</etc/sudoers> file. Prepend the string
 value for the C<secure_path> directive to include the path to the new
 C<perlbrew> managed perl, followed by a colon. For example:
@@ -59,6 +59,8 @@ your default system installation intact.
 The first thing you need to do is call an appropriate setup method. We do
 that automatically. See L<new()|RPi::WiringPi/"new-args"> to see how to use
 non-default setup routines. By default, we use the GPIO pin numbering scheme.
+Run the included C<pinmap> program to get a printout of a chart containing the
+various pin numbers for the different mapping schemes.
 
     my $pi = RPi::WiringPi->new;
 
@@ -107,7 +109,7 @@ Pulse Width Modulation kind of acts like a potentiometer (or a variable
 switch... like a light dimmer). They are used to send pulses of electricity
 to a device across time. It is required for things like stepper motors, or
 dimming an LED. Note that only physical pin C<12> on the Raspberry Pi has
-hardware-based PWM.
+hardware-based PWM (GPIO #18).
 
     # set the pin to PWM_OUT mode. Must be physical pin 12
 
@@ -120,11 +122,11 @@ hardware-based PWM.
     # make pin go from off to bright gradually...
     # requires Time::HiRes qw(usleep);
 
-    my $pin = $pi->pin(27);
+    my $pin = $pi->pin(18);
     $pin->mode(PWM_OUT);
 
     for (0..1023){
-        $pin->write($_);
+        $pin->pwm($_);
         usleep 50000;
     }
 
@@ -153,10 +155,6 @@ obviously want to be doing other things while waiting for that button press.
 
     $pin->interrupt_set(EDGE_BOTH, 'handler');
 
-    # remove an interrupt
-
-    $pin->interrupt_unset;
-
     sub handler {
         print "in handler\n";
         # do other stuff, perhaps turning on/off other pins
@@ -167,7 +165,7 @@ obviously want to be doing other things while waiting for that button press.
 Although we've already used interrupts from within a pin object, you can use
 them separately as well.
 
-=head2 Interrupt: Setting and unsetting
+=head2 Interrupt: Configuring
 
     my $interrupt = $pi->interrupt;
 
@@ -179,18 +177,13 @@ them separately as well.
 
     $interrupt->set(27, EDGE_RISING, 'callback');
 
-    # unset the interrupt
-
-    $interrupt->unset(27);
-
     sub callback {
         ...
     }
 
 =head2 Board: Get your Pi's board revision
 
-    my $board = $pi->board;
-    my $revision = $board->rev;
+    my $revision = $pi->rev;
 
 =head2 LCD: Initialize
 
