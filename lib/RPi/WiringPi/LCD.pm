@@ -86,10 +86,9 @@ pins
 
 =head1 SYNOPSIS
 
-    use RPi::WiringPi
+    use RPi::WiringPi::LCD;
 
-    my $pi = RPi::WiringPi->new;
-    my $lcd = $pi->lcd;
+    my $lcd = RPi::WiringPi::LCD->new;
 
     my %lcd_args = (
         rows  => 2,     # number of display rows, 2 or 4
@@ -123,7 +122,9 @@ pins
 =head1 DESCRIPTION
 
 This module acts as an interface to typical 2 or 4 row, 16 or 20 column LCD
-screens when connected to a Raspberry Pi.
+screens when connected to a Raspberry Pi. It is best used through a
+L<RPi::WiringPi> object.
+
 
 =head1 METHODS
 

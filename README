@@ -1,186 +1,178 @@
 NAME
 
-    RPi::WiringPi - Perl interface to Raspberry Pi's board, GPIO, LCDs and
-    other various items
+    RPi::WiringPi::LCD - Perl interface to Raspberry Pi LCD displays via
+    the GPIO pins
 
 SYNOPSIS
 
-        use RPi::WiringPi;
-        use RPi::WiringPi::Constant qw(:all);
+        use RPi::WiringPi::LCD;
     
-        my $pi = RPi::WiringPi->new;
+        my $lcd = RPi::WiringPi::LCD->new;
     
-        my $board_revision = $pi->rev;
+        my %lcd_args = (
+            rows  => 2,     # number of display rows, 2 or 4
+            cols  => 16,    # number of display columns 16 or 20
+            bits  => 4,     # data width in bits, 4 or 8
+            rs    => 1,     # GPIO pin for the LCD RS pin
+            strb  => 2,     # GPIO pin for the LCD strobe (E) pin
+            d0    => 3,     #
+            ...             # d0-d3 GPIO pinout numbers
+            d3    => 6,     #
+            d4    => 7,     # set d4-d7 to all 0 (zero) if in 4-bit mode
+            ...             # otherwise, set them to their respective
+            d7    => 11,    # GPIO pins
+        );
     
-        # pin
+        # initialize the LCD screen
     
-        my $pin = $pi->pin(5);
-        $pin->mode(OUTPUT);
-        $pin->write(ON);
+        $lcd->init(%lcd_args);
     
-        my $num = $pin->num;
-        my $mode = $pin->mode;
-        my $state = $pin->read;
+        my $perl_ver = '5.24.0';
+        my $name = 'stevieb';
     
-        # LCD
+        $lcd->home; # row 0, col 0
     
-        my $lcd = $pi->lcd;
+        $lcd->print("${name}'s RPi, on");
     
-        $lcd->init(...);
+        $lcd->position(0, 1); # row 2
     
-        # first column, first row
-        
-        $lcd->position(0, 0); 
-        $lcd->print("Pi rev: $board_revision");
-    
-        # first column, second row
-        
-        $lcd->position(0, 1);
-        $lcd->print("pin $num... mode: $mode, state: $state");
-    
-        $lcd->clear;
-        $lcd->display(OFF);
-    
-        $pi->cleanup;
+        $lcd->print("Perl $perl_ver...");
 
 DESCRIPTION
 
-    This is the root module for the RPi::WiringPi system. It interfaces to
-    a Raspberry Pi board, its accessories and its GPIO pins via the
-    wiringPi <http://wiringpi.com> library through the Perl wrapper
-    WiringPi::API <https://metacpan.org/pod/WiringPi::API> module.
+    This module acts as an interface to typical 2 or 4 row, 16 or 20 column
+    LCD screens when connected to a Raspberry Pi. It is best used through a
+    RPi::WiringPi object.
 
-    The scripts you write using this software requires those scripts to be
-    run as root, (with sudo if configured properly... see
-    RPi::WiringPi::FAQ).
+METHODS
 
-    By default, we set up using the GPIO numbering scheme for pins. See
-    new() method for information on how to change this.
+ new()
 
-    This module is essentially a 'manager' for the sub-modules (ie.
-    components). You can use the component modules directly, but retrieving
-    components through this module instead has many benefits. We maintain a
-    registry of pins and other data. We also trap $SIG{__DIE__} and
-    $SIG{INT}, so that in the event of a crash, we can reset the Pi back to
-    default settings, so components are not left in an inconsistent state.
-    Component moduls do none of these things.
+    Returns a new RPi::WiringPi::LCD object.
 
-    There are a basic set of constants that can be imported. See
-    RPi::WiringPi::Constant.
+ init(%args)
 
-    wiringPi <http://wiringpi.com> must be installed prior to
-    installing/using this module.
-
-    It's handy to have access to a pin mapping conversion chart. There's an
-    excellent pin scheme map for reference at pinout.xyz
-    <https://pinout.xyz/pinout/wiringpi>. You can also run gpio readall at
-    the command line to get a pin chart, or from the command line, run the
-    pinmap command that was installed by this module, or wiringPi's gpio
-    readall command.
-
-OPERATIONAL METHODS
-
-    See RPi::WiringPi::Util for utility/helper methods that are imported
-    into an RPi::WiringPi object.
-
- new(%args)
-
-    Returns a new RPi::WiringPi object. Calls setup() by default, setting
-    pin numbering scheme to WPI (wiringPi scheme).
+    Initializes the LCD library, and returns an integer representing the
+    handle handle (file descriptor) of the device. The return is supposed
+    to be constant, so DON'T change it.
 
     Parameters:
 
-    setup => $value
+        %args = (
+            rows => $num,       # number of rows. eg: 16 or 20
+            cols => $num,       # number of columns. eg: 2 or 4
+            bits => 4|8,        # width of the interface (4 or 8)
+            rs => $pin_num,     # pin number of the LCD's RS pin
+            strb => $pin_num,   # pin number of the LCD's strobe (E) pin
+            d0 => $pin_num,     # pin number for LCD data pin 1
+            ...
+            d7 => $pin_num,     # pin number for LCD data pin 8
+        );
 
-      Optional. This option specifies which pin mapping (numbering scheme)
-      to use.
+    Mandatory: All entries must have a value. If you're only using four (4)
+    bit width, d4 through d7 must be set to 0.
 
-          wpi:    wiringPi's numbering
-          phys:   physical pin numbering
-          gpio:   GPIO numbering
+    NOTE: In 4-bit mode, connect to pins d4 - d7 on the LCD. These pins act
+    as d0 - d3 when not in 8-bit mode.
 
-      You can also specify none for testing purposes. This will bypass
-      running the setup routines.
+ home()
 
-      See wiringPi setup reference <http://wiringpi.com/reference/setup>
-      for important details on the differences.
+    Moves the LCD cursor to the home position (top row, leftmost column).
 
-      There's an excellent pin scheme map for reference at pinout.xyz
-      <https://pinout.xyz/pinout/wiringpi>. You can also run the pinmap
-      application that was included in this distribution from the command
-      line to get a printout of pin mappings.
+ clear()
 
-    fatal_exit => $bool
+    Clears the LCD display of all data, and return the cursor to the home
+    position.
 
-      Optional: We trap all die() calls and clean up for safety reasons. If
-      a call to die() is trapped, by default, we clean up, and then exit().
-      Set fatal_exit to false (0) to perform the cleanup, and then continue
-      running your script. This is for unit testing purposes only.
+ display($state)
 
- pin($pin_num)
-
-    Returns a RPi::WiringPi::Pin object, mapped to a specified GPIO pin,
-    which you can then perform operations on.
+    Turns the LCD display on and off.
 
     Parameters:
 
-    $pin_num
+        $state
 
-      Mandatory: The pin number to attach to.
+    Mandatory: 0 to turn the display off, and 1 for on.
 
- lcd()
+ cursor($state)
 
-    Returns a RPi::WiringPi::LCD object, which allows you to fully
-    manipulate LCD displays connected to your Raspberry Pi.
-
- interrupt($pin, $edge, $callback)
-
-    Returns a RPi::WiringPi::Interrupt object, which allows you to act when
-    certain events occur (eg: a button press). This functionality is better
-    used through the RPi::WiringPi::Pin object you created with pin().
-
- rev()
-
-    Returns the revision of the Pi board.
-
- pwm_range($range)
-
-    Changes the range of Pulse Width Modulation (PWM). The default is 0
-    through 1023.
+    Turns the LCD cursor on and off.
 
     Parameters:
 
-        $range
+        $state
 
-    Mandatory: An integer specifying the high-end of the range. The range
-    always starts at 0. Eg: if $range is 359, if you incremented PWM by 1
-    every second, you'd rotate a step motor one complete rotation in
-    exactly one minute.
+    Mandatory: 0 to turn the cursor off, 1 for on.
 
-RUNNING TESTS
+ cursor_blink($state)
 
-    This distribution does not have a typical set of unit tests. This is
-    because to ensure proper functionality, you need to be running on a
-    Rasbperry Pi board that has a couple of very basic circuits set up.
+    Parameters:
 
-    The tests are in individual Perl scripts inside of the test/ directory
-    inside this distribution.
+        $state
 
-    Each test, when run without any command line arguments, will print out
-    what you need to do. Most tests require a single LED connected to a
-    single GPIO pin, then you select the test number to run (1-4) and pass
-    that in as an argument.
+    Mandatory: 0 to stop blinking, 1 to enable.
 
-    The number of the test correlates with a specific setup mode.
+ send_cmd($command)
 
-    Example:
+    Sends any arbitrary command to the LCD. (I've never tested this!).
 
-        $ perl test/10-pwm.pl
-    
-        need test number as arg: 1-WPI, 2-GPIO, 3-PHYS, 4-SYS
-    
-        this test tests the pwm() pin function. Connect an LED to physical pin *12*.
-        The LED should gradually get brighter for each test.
+    Parameters:
+
+        $command
+
+    Mandatory: A command to submit to the LCD.
+
+ position($x, $y)
+
+    Moves the cursor to the specified position on the LCD display.
+
+    Parameters:
+
+        $x
+
+    Mandatory: Column position. 0 is the left-most edge.
+
+        $y
+
+    Mandatory: Row position. 0 is the top row.
+
+ char_def($index, $data)
+
+    This allows you to re-define one of the 8 user-definable characters in
+    the display. The data array is 8 bytes which represent the character
+    from the top-line to the bottom line. Note that the characters are
+    actually 5×8, so only the lower 5 bits are used. The index is from 0 to
+    7 and you can subsequently print the character defined using the
+    lcdPutchar() call.
+
+    Parameters:
+
+        $index
+
+    Mandatory: Index of the display character. Values are 0-7.
+
+        $data
+
+    Mandatory: See above description.
+
+ print_char($char)
+
+    Writes a single ASCII character to the LCD display, at the current
+    cursor position.
+
+    Parameters:
+
+        $char
+
+    Mandatory: A single ASCII character.
+
+ print($string)
+
+    Parameters:
+
+        $string
+
+    Mandatory: A string to display.
 
 AUTHOR
 
@@ -193,4 +185,13 @@ COPYRIGHT AND LICENSE
     This library is free software; you can redistribute it and/or modify it
     under the same terms as Perl itself, either Perl version 5.18.2 or, at
     your option, any later version of Perl 5 you may have available.
+
+POD ERRORS
+
+    Hey! The above document had some coding errors, which are explained
+    below:
+
+    Around line 143:
+
+      Non-ASCII character seen before =encoding in '5×8,'. Assuming UTF-8
 

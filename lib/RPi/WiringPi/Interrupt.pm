@@ -48,13 +48,13 @@ RPi::WiringPi::Interrupt - Raspberry Pi GPIO pin interrupts
 
 =head1 DESCRIPTION
 
-This module allows you to set up, and un-set GPIO pin edge detection
-interrupts where you can supply the name of a Perl subroutine that you write
-that will act as the interrupt handler.
+This module allows you to set up GPIO pin edge detection interrupts where you
+can supply the name of a Perl subroutine that you write that will act as the
+interrupt handler.
 
-The Interrupt Service Request is written in C and runs in a separate thread, so
-it doesn't block the main program thread from running while waiting for the
-interrupt to occur.
+The Interrupt Service Routine (ISR) is written in C and runs in a separate
+thread, so it doesn't block the main program thread from running while waiting
+for the interrupt to occur.
 
 =head1 METHODS
 
@@ -82,9 +82,9 @@ C<EDGE_BOTH>.
 
     $callback
 
-Mandatory: This is the name of a user-written Perl subroutine that contains
-the code you want to execute when the edge change is detected on the pin.
-(ie. the Interrupt Handler).
+Mandatory: This is a string containing the name of a user-written Perl
+subroutine that contains the code you want to execute when the edge change is
+detected on the pin. (ie. the Interrupt Handler).
 
 =head1 SEE ALSO
 

@@ -182,6 +182,9 @@ L<wiringPi|http://wiringpi.com> library through the Perl wrapper
 L<WiringPi::API|https://metacpan.org/pod/WiringPi::API>
 module.
 
+L<wiringPi|http://wiringpi.com> must be installed prior to installing/using
+this module.
+
 The scripts you write using this software requires those scripts to be run
 as root, (with C<sudo> if configured properly... see
 L<RPi::WiringPi::FAQ>).
@@ -199,15 +202,11 @@ in an inconsistent state. Component moduls do none of these things.
 There are a basic set of constants that can be imported. See
 L<RPi::WiringPi::Constant>.
 
-L<wiringPi|http://wiringpi.com> must be installed prior to installing/using
-this module.
-
 It's handy to have access to a pin mapping conversion chart. There's an
 excellent pin scheme map for reference at
-L<pinout.xyz|https://pinout.xyz/pinout/wiringpi>. You can also run
-C<gpio readall> at the command line to get a pin chart, or from the command
-line, run the C<pinmap> command that was installed by this module, or
-C<wiringPi>'s C<gpio readall> command.
+L<pinout.xyz|https://pinout.xyz/pinout/wiringpi>. You can also run the C<pinmap>
+command that was installed by this module, or C<wiringPi>'s C<gpio readall>
+command.
 
 =head1 OPERATIONAL METHODS
 
@@ -216,8 +215,8 @@ an C<RPi::WiringPi> object.
 
 =head2 new(%args)
 
-Returns a new C<RPi::WiringPi> object. Calls C<setup()> by default, setting
-pin numbering scheme to C<WPI> (wiringPi scheme).
+Returns a new C<RPi::WiringPi> object. By default, we set the pin numbering
+scheme to C<GPIO> (Broadcom (BCM) GPIO scheme).
 
 Parameters:
 
@@ -235,7 +234,7 @@ You can also specify C<none> for testing purposes. This will bypass running
 the setup routines.
 
 See L<wiringPi setup reference|http://wiringpi.com/reference/setup> for
-important details on the differences.
+the full details on the differences.
 
 There's an excellent pin scheme map for reference at
 L<pinout.xyz|https://pinout.xyz/pinout/wiringpi>. You can also run the C<pinmap>
@@ -301,27 +300,8 @@ minute.
 
 =head1 RUNNING TESTS
 
-This distribution does not have a typical set of unit tests. This is because to
-ensure proper functionality, you need to be running on a Rasbperry Pi board that
-has a couple of very basic circuits set up.
-
-The tests are in individual Perl scripts inside of the C<test/> directory inside
-this distribution.
-
-Each test, when run without any command line arguments, will print out what you
-need to do. Most tests require a single LED connected to a single GPIO pin, then
-you select the test number to run (1-4) and pass that in as an argument.
-
-The number of the test correlates with a specific setup mode.
-
-Example:
-
-    $ perl test/10-pwm.pl
-
-    need test number as arg: 1-WPI, 2-GPIO, 3-PHYS, 4-SYS
-
-    this test tests the pwm() pin function. Connect an LED to physical pin *12*.
-    The LED should gradually get brighter for each test.
+Please see L<RUNNING TESTS|RPi::WiringPi::FAQ/RUNNING-TESTS> in the
+L<FAQ|RPi::WiringPi::FAQ-Tutorial>.
 
 =head1 AUTHOR
 
