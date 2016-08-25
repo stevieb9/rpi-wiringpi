@@ -185,8 +185,8 @@ module.
 L<wiringPi|http://wiringpi.com> must be installed prior to installing/using
 this module.
 
-The scripts you write using this software requires those scripts to be run
-as root, (with C<sudo> if configured properly... see
+The scripts you write using this software must be run as the C<root> user
+(preferrably using C<sudo>, if configured properly... see
 L<RPi::WiringPi::FAQ>).
 
 By default, we set up using the C<GPIO> numbering scheme for pins. See C<new()>
