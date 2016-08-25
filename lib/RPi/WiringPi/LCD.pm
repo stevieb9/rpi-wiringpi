@@ -141,8 +141,8 @@ so DON'T change it.
 Parameters:
 
     %args = (
-        rows => $num,       # number of rows. eg: 16 or 20
-        cols => $num,       # number of columns. eg: 2 or 4
+        rows => $num,       # number of rows. eg: 2 or 4
+        cols => $num,       # number of columns. eg: 16 or 20
         bits => 4|8,        # width of the interface (4 or 8)
         rs => $pin_num,     # pin number of the LCD's RS pin
         strb => $pin_num,   # pin number of the LCD's strobe (E) pin

@@ -1,178 +1,164 @@
 NAME
 
-    RPi::WiringPi::LCD - Perl interface to Raspberry Pi LCD displays via
-    the GPIO pins
+    RPi::WiringPi - Perl interface to Raspberry Pi's board, GPIO, LCDs and
+    other various items
 
 SYNOPSIS
 
-        use RPi::WiringPi::LCD;
+        use RPi::WiringPi;
+        use RPi::WiringPi::Constant qw(:all);
     
-        my $lcd = RPi::WiringPi::LCD->new;
+        my $pi = RPi::WiringPi->new;
     
-        my %lcd_args = (
-            rows  => 2,     # number of display rows, 2 or 4
-            cols  => 16,    # number of display columns 16 or 20
-            bits  => 4,     # data width in bits, 4 or 8
-            rs    => 1,     # GPIO pin for the LCD RS pin
-            strb  => 2,     # GPIO pin for the LCD strobe (E) pin
-            d0    => 3,     #
-            ...             # d0-d3 GPIO pinout numbers
-            d3    => 6,     #
-            d4    => 7,     # set d4-d7 to all 0 (zero) if in 4-bit mode
-            ...             # otherwise, set them to their respective
-            d7    => 11,    # GPIO pins
-        );
+        my $board_revision = $pi->rev;
     
-        # initialize the LCD screen
+        # pin
     
-        $lcd->init(%lcd_args);
+        my $pin = $pi->pin(5);
+        $pin->mode(OUTPUT);
+        $pin->write(ON);
     
-        my $perl_ver = '5.24.0';
-        my $name = 'stevieb';
+        my $num = $pin->num;
+        my $mode = $pin->mode;
+        my $state = $pin->read;
     
-        $lcd->home; # row 0, col 0
+        # LCD
     
-        $lcd->print("${name}'s RPi, on");
+        my $lcd = $pi->lcd;
     
-        $lcd->position(0, 1); # row 2
+        $lcd->init(...);
     
-        $lcd->print("Perl $perl_ver...");
+        # first column, first row
+        
+        $lcd->position(0, 0); 
+        $lcd->print("Pi rev: $board_revision");
+    
+        # first column, second row
+        
+        $lcd->position(0, 1);
+        $lcd->print("pin $num... mode: $mode, state: $state");
+    
+        $lcd->clear;
+        $lcd->display(OFF);
+    
+        $pi->cleanup;
 
 DESCRIPTION
 
-    This module acts as an interface to typical 2 or 4 row, 16 or 20 column
-    LCD screens when connected to a Raspberry Pi. It is best used through a
-    RPi::WiringPi object.
+    This is the root module for the RPi::WiringPi system. It interfaces to
+    a Raspberry Pi board, its accessories and its GPIO pins via the
+    wiringPi <http://wiringpi.com> library through the Perl wrapper
+    WiringPi::API <https://metacpan.org/pod/WiringPi::API> module.
 
-METHODS
+    wiringPi <http://wiringpi.com> must be installed prior to
+    installing/using this module.
 
- new()
+    The scripts you write using this software must be run as the root user
+    (preferrably using sudo, if configured properly... see
+    RPi::WiringPi::FAQ).
 
-    Returns a new RPi::WiringPi::LCD object.
+    By default, we set up using the GPIO numbering scheme for pins. See
+    new() method for information on how to change this.
 
- init(%args)
+    This module is essentially a 'manager' for the sub-modules (ie.
+    components). You can use the component modules directly, but retrieving
+    components through this module instead has many benefits. We maintain a
+    registry of pins and other data. We also trap $SIG{__DIE__} and
+    $SIG{INT}, so that in the event of a crash, we can reset the Pi back to
+    default settings, so components are not left in an inconsistent state.
+    Component moduls do none of these things.
 
-    Initializes the LCD library, and returns an integer representing the
-    handle handle (file descriptor) of the device. The return is supposed
-    to be constant, so DON'T change it.
+    There are a basic set of constants that can be imported. See
+    RPi::WiringPi::Constant.
 
-    Parameters:
+    It's handy to have access to a pin mapping conversion chart. There's an
+    excellent pin scheme map for reference at pinout.xyz
+    <https://pinout.xyz/pinout/wiringpi>. You can also run the pinmap
+    command that was installed by this module, or wiringPi's gpio readall
+    command.
 
-        %args = (
-            rows => $num,       # number of rows. eg: 16 or 20
-            cols => $num,       # number of columns. eg: 2 or 4
-            bits => 4|8,        # width of the interface (4 or 8)
-            rs => $pin_num,     # pin number of the LCD's RS pin
-            strb => $pin_num,   # pin number of the LCD's strobe (E) pin
-            d0 => $pin_num,     # pin number for LCD data pin 1
-            ...
-            d7 => $pin_num,     # pin number for LCD data pin 8
-        );
+OPERATIONAL METHODS
 
-    Mandatory: All entries must have a value. If you're only using four (4)
-    bit width, d4 through d7 must be set to 0.
+    See RPi::WiringPi::Util for utility/helper methods that are imported
+    into an RPi::WiringPi object.
 
-    NOTE: In 4-bit mode, connect to pins d4 - d7 on the LCD. These pins act
-    as d0 - d3 when not in 8-bit mode.
+ new(%args)
 
- home()
-
-    Moves the LCD cursor to the home position (top row, leftmost column).
-
- clear()
-
-    Clears the LCD display of all data, and return the cursor to the home
-    position.
-
- display($state)
-
-    Turns the LCD display on and off.
+    Returns a new RPi::WiringPi object. By default, we set the pin
+    numbering scheme to GPIO (Broadcom (BCM) GPIO scheme).
 
     Parameters:
 
-        $state
+    setup => $value
 
-    Mandatory: 0 to turn the display off, and 1 for on.
+      Optional. This option specifies which pin mapping (numbering scheme)
+      to use.
 
- cursor($state)
+          wpi:    wiringPi's numbering
+          phys:   physical pin numbering
+          gpio:   GPIO numbering
 
-    Turns the LCD cursor on and off.
+      You can also specify none for testing purposes. This will bypass
+      running the setup routines.
 
-    Parameters:
+      See wiringPi setup reference <http://wiringpi.com/reference/setup>
+      for the full details on the differences.
 
-        $state
+      There's an excellent pin scheme map for reference at pinout.xyz
+      <https://pinout.xyz/pinout/wiringpi>. You can also run the pinmap
+      application that was included in this distribution from the command
+      line to get a printout of pin mappings.
 
-    Mandatory: 0 to turn the cursor off, 1 for on.
+    fatal_exit => $bool
 
- cursor_blink($state)
+      Optional: We trap all die() calls and clean up for safety reasons. If
+      a call to die() is trapped, by default, we clean up, and then exit().
+      Set fatal_exit to false (0) to perform the cleanup, and then continue
+      running your script. This is for unit testing purposes only.
 
-    Parameters:
+ pin($pin_num)
 
-        $state
-
-    Mandatory: 0 to stop blinking, 1 to enable.
-
- send_cmd($command)
-
-    Sends any arbitrary command to the LCD. (I've never tested this!).
-
-    Parameters:
-
-        $command
-
-    Mandatory: A command to submit to the LCD.
-
- position($x, $y)
-
-    Moves the cursor to the specified position on the LCD display.
+    Returns a RPi::WiringPi::Pin object, mapped to a specified GPIO pin,
+    which you can then perform operations on.
 
     Parameters:
 
-        $x
+    $pin_num
 
-    Mandatory: Column position. 0 is the left-most edge.
+      Mandatory: The pin number to attach to.
 
-        $y
+ lcd()
 
-    Mandatory: Row position. 0 is the top row.
+    Returns a RPi::WiringPi::LCD object, which allows you to fully
+    manipulate LCD displays connected to your Raspberry Pi.
 
- char_def($index, $data)
+ interrupt($pin, $edge, $callback)
 
-    This allows you to re-define one of the 8 user-definable characters in
-    the display. The data array is 8 bytes which represent the character
-    from the top-line to the bottom line. Note that the characters are
-    actually 5×8, so only the lower 5 bits are used. The index is from 0 to
-    7 and you can subsequently print the character defined using the
-    lcdPutchar() call.
+    Returns a RPi::WiringPi::Interrupt object, which allows you to act when
+    certain events occur (eg: a button press). This functionality is better
+    used through the RPi::WiringPi::Pin object you created with pin().
 
-    Parameters:
+ rev()
 
-        $index
+    Returns the revision of the Pi board.
 
-    Mandatory: Index of the display character. Values are 0-7.
+ pwm_range($range)
 
-        $data
-
-    Mandatory: See above description.
-
- print_char($char)
-
-    Writes a single ASCII character to the LCD display, at the current
-    cursor position.
+    Changes the range of Pulse Width Modulation (PWM). The default is 0
+    through 1023.
 
     Parameters:
 
-        $char
+        $range
 
-    Mandatory: A single ASCII character.
+    Mandatory: An integer specifying the high-end of the range. The range
+    always starts at 0. Eg: if $range is 359, if you incremented PWM by 1
+    every second, you'd rotate a step motor one complete rotation in
+    exactly one minute.
 
- print($string)
+RUNNING TESTS
 
-    Parameters:
-
-        $string
-
-    Mandatory: A string to display.
+    Please see RUNNING TESTS in the FAQ.
 
 AUTHOR
 
@@ -185,13 +171,4 @@ COPYRIGHT AND LICENSE
     This library is free software; you can redistribute it and/or modify it
     under the same terms as Perl itself, either Perl version 5.18.2 or, at
     your option, any later version of Perl 5 you may have available.
-
-POD ERRORS
-
-    Hey! The above document had some coding errors, which are explained
-    below:
-
-    Around line 143:
-
-      Non-ASCII character seen before =encoding in '5×8,'. Assuming UTF-8
 
