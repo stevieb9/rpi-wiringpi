@@ -21,6 +21,7 @@ for (1..40){
 }
 
 print "\n";
+print "PHYS:  WPI:   GPIO:\n";
 
 for (41..63){
     my $wpi = $wpi_map->{$_};
