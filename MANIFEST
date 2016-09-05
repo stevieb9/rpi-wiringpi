@@ -27,3 +27,5 @@ test/15-interrupt_and_pull.pl
 test/20-read_and_mode.pl
 test/25-registered_pin_cleanup.pl
 test/30-check_registered_pins.pl
+test/images/after.jpg
+test/images/before.jpg
