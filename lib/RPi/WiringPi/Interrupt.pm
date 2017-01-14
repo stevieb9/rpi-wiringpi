@@ -9,7 +9,7 @@ use parent 'RPi::WiringPi::Util';
 use Config;
 use RPi::WiringPi::Constant qw(:all);
 
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 
 my $interrupts = {};
 
