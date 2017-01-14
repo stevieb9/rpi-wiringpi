@@ -225,9 +225,9 @@ We'll get right into the code:
         $pin->write(HIGH);
     }
 
-=head2 Board: Get your Pi's board revision
+=head2 Board: Get the GPIO layout
 
-    my $revision = $pi->rev;
+    my $revision = $pi->gpio_layout;
 
 =head2 LCD: Initialize
 
@@ -316,6 +316,18 @@ Here's a trivial script that outputs information to specific LCD positions
     $lcd->print("${name}'s RPi, on");
     $lcd->position(0, 1);
     $lcd->print("Perl $perl_ver...");
+
+=head2 BMP180 barometric sensor
+
+A full use-case example of using the barometric/temperature sensor:
+
+    my $pin_base = 200; # any number higher than the highest GPIO
+
+    my $bmp = $pi->bmp($pin_base);
+
+    my $f = $bmp->temp;
+    my $c = $bmp->temp('c');
+    my $p = $bmp->pressure; # kPa
 
 =head2 Util: Overview
 

@@ -199,7 +199,7 @@ various items
     # first column, first row
     
     $lcd->position(0, 0); 
-    $lcd->print("Pi rev: $board_revision");
+    $lcd->print("hi there!");
 
     # first column, second row
     
@@ -317,9 +317,9 @@ Returns a L<RPi::WiringPi::Interrupt> object, which allows you to act when
 certain events occur (eg: a button press). This functionality is better used
 through the L<RPi::WiringPi::Pin> object you created with C<pin()>.
 
-=head2 rev()
+=head2 gpio_layout()
 
-Returns the revision of the Pi board.
+Returns the current GPIO layout scheme.
 
 =head2 pwm_range($range)
 
