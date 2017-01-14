@@ -7,7 +7,7 @@ use parent 'WiringPi::API';
 
 use RPi::WiringPi::Constant qw(:all);
 
-our $VERSION = '1.03';
+our $VERSION = '2.36.1';
 
 sub pin_to_gpio {
     my ($self, $pin, $scheme) = @_;
