@@ -6,11 +6,12 @@ use warnings;
 use parent 'RPi::WiringPi::Util';
 
 use RPi::WiringPi::Constant qw(:all);
+use RPi::WiringPi::BMP180;
+use RPi::WiringPi::Interrupt;
 use RPi::WiringPi::LCD;
 use RPi::WiringPi::Pin;
-use RPi::WiringPi::Interrupt;
 
-our $VERSION = '1.03';
+our $VERSION = '2.36.1';
 
 my $fatal_exit = 1;
 
@@ -100,13 +101,17 @@ sub lcd {
     my $lcd = RPi::WiringPi::LCD->new;
     return $lcd;
 }
+sub bmp180 {
+    my ($self, $base) = @_;
+    return RPi::WiringPi::BMP180->new($base);
+}
 sub interrupt {
     my $self = shift;
     my $interrupt = RPi::WiringPi::Interrupt->new;
     return $interrupt;
 }
-sub rev {
-    return $_[0]->board_rev;
+sub gpio_layout {
+    return $_[0]->gpio_layout;
 }
 sub pwm_range {
     my ($self, $range) = @_;
@@ -148,8 +153,6 @@ various items
 
     my $pi = RPi::WiringPi->new;
 
-    my $board_revision = $pi->rev;
-
     # pin
 
     my $pin = $pi->pin(5);
@@ -176,6 +179,16 @@ various items
         my $pin = $pi->pin($_);
         $pin->write(HIGH);
     }
+
+    # BMP180 barometric pressure sensor
+
+    my $base = 300; 
+
+    my $bmp = $pi->bmp($base);
+
+    my $farenheit = $bmp->temp;
+    my $celcius   = $bmp->temp('c');
+    my $pressure  = $bmp->pressure; # kPa
 
     # LCD
 
@@ -207,10 +220,10 @@ L<WiringPi::API|https://metacpan.org/pod/WiringPi::API>
 module.
 
 L<wiringPi|http://wiringpi.com> must be installed prior to installing/using
-this module.
+this module (v2.36+).
 
-The scripts you write using this software must be run as the C<root> user
-(preferrably using C<sudo>, if configured properly... see
+The scripts you write using this software may need to be run as the C<root> user
+(preferrably using C<sudo>, if configured properly... see 
 L<RPi::WiringPi::FAQ>).
 
 By default, we set up using the C<GPIO> numbering scheme for pins. See C<new()>
@@ -356,6 +369,12 @@ shift register.
 
 Mandatory: Integer, the GPIO pin number attached to the C<STCP> pin (12) on the
 shift register.
+
+=head2 bmp()
+
+Returns a L<RPi::WiringPi::BMP180> object, which allows you to return the
+current temperature in farenheit or celcius, along with the ability to retrieve
+the barometric pressure in kPa.
 
 =head1 RUNNING TESTS
 

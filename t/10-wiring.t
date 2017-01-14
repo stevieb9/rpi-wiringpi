@@ -21,15 +21,23 @@ my $pi = $mod->new(fatal_exit => 0);
     my $pin2 = $pi->pin(2);
     my $pin3 = $pi->pin(3);
 
-    my @pins = $pi->registered_pins;
+    my %pin_map = (
+        1 => $pin1,
+        2 => $pin2,
+        3 => $pin3,
+    );
 
-    my $c = 1;
-    for (@pins){
-        isa_ok $_, 'RPi::WiringPi::Pin';
-        is $_->num, $c, "pin $c has correct num";
-        $c++;
+    my $pins = $pi->registered_pins;
+    is ((split /,/, $pins), 3, "proper num of pins registered");
+
+    for (keys %pin_map){
+        is $pin_map{$_}->num, $_, "\$pin$_ has proper num()";
     }
+}
 
+done_testing();
+
+__END__
     $pi->unregister_pin($pin3);
     is $pi->registered_pins, 2, "unregistered pin ok";
 
@@ -44,4 +52,5 @@ my $pi = $mod->new(fatal_exit => 0);
 
 }
 
-done_testing();
+
+
