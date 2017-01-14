@@ -24,7 +24,7 @@ WriteMakefile(
         },
     },
     PREREQ_PM         => {
-        'WiringPi::API'             => 1.04,
+        'WiringPi::API'             => 2.36.1,
         'RPi::WiringPi::Constant'   => 0.02,
     },
 );
