@@ -1,11 +1,12 @@
 Revision history for Perl extension RPi::WiringPi.
 
-2.36.1  2017-01-14
+2.36.2  2017-01-14
         - change versioning. The X.XX portion represents which version of
           WiringPi::API and wiringPi we're compatible with
         - cleaned up some tests due to previous changes
         - added BMP180.pm module and all functionality of the barometric
           pressure sensor per WiringPi::API
+        - updated ver of WiringPi::API prereq to v2.36.1
 
 1.02    2017-01-13
         - incorporated shift registers after adding to WiringPi::API
