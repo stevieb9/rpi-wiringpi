@@ -14,7 +14,7 @@ $SIG{INT} = sub { $continue = 0; };
 # initialize using the BCM GPIO pin
 # numbering scheme
 
-my $pi = RPi::WiringPi->new(setup => 'gpio');
+my $pi = RPi::WiringPi->new();#setup => 'gpio');
 
 # prepare and initialize the LCD
 
