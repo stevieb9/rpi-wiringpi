@@ -15,8 +15,14 @@ our $VERSION = '1.02';
 sub new {
     my ($class, $pin) = @_;
 
-    if (! defined $pin || ($pin > 40 || $pin < 0)){
-        die "pin number must be between 0 and 40\n";
+    # with shift register, this can be any number
+
+    #if (! defined $pin || ($pin > 40 || $pin < 0)){
+    #    die "pin number must be between 0 and 40\n";
+    #}
+
+    if (! defined $pin || $pin !~ /^\d+$/){
+        die "pin must be an integer\n";
     }
 
     my $self = bless {}, $class;

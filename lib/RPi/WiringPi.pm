@@ -35,8 +35,7 @@ sub new {
     $self = bless {%args}, $self;
 
     if (! $ENV{NO_BOARD}){
-
-        if (my $scheme = $ENV{RPI_SCHEME}){
+        if (my $scheme = $ENV{RPI_PIN_MODE}){
             # this checks if another application has already run
             # a setup routine
 
@@ -65,6 +64,9 @@ sub new {
                 elsif ($self->_setup =~ /^p/) {
                     $self->SUPER::setup_phys();
                     $self->pin_scheme(RPI_MODE_PHYS);
+                }
+                elsif ($self->_setup =~ /^W/){
+                    $self->pin_scheme(RPI_MODE_WPI);
                 }
                 else {
                     $self->pin_scheme(RPI_MODE_UNINIT);
@@ -114,6 +116,11 @@ sub pwm_range {
     }
     return defined $self->{pwm_range} ? $self->{pwm_range} : 1023;
 }
+sub shift_register {
+    my ($self, $base, $num_pins, $data, $clk, $latch) = @_;
+
+    $self->shift_reg_setup($base, $num_pins, $data, $clk, $latch);
+}
 
 # private
 
@@ -152,6 +159,23 @@ various items
     my $num = $pin->num;
     my $mode = $pin->mode;
     my $state = $pin->read;
+
+    # Shift Register
+
+    my ($base, $num_pins, $data, $clk, $latch)
+      = (100, 8, 5, 6, 13);
+
+    $pi->shift_register(
+        $base, $num_pins, $data, $clk, $latch
+    );
+
+    # now we can access the new 8 pins of the
+    # register commencing at new pin 100-107
+
+    for (100..107){
+        my $pin = $pi->pin($_);
+        $pin->write(HIGH);
+    }
 
     # LCD
 
@@ -297,6 +321,41 @@ Mandatory: An integer specifying the high-end of the range. The range always
 starts at C<0>. Eg: if C<$range> is C<359>, if you incremented PWM by C<1>
 every second, you'd rotate a step motor one complete rotation in exactly one
 minute.
+
+=head2 shift_register($base, $num_pins, $data, $clk, $latch)
+
+Allows you to access the output pins of up to four 74HC595 shift registers, for
+a total of eight new output pins per register.
+
+Parameters:
+
+    $base
+
+Mandatory: Integer, represents the number at which you want to start
+referencing the new output pins attached to the register(s). For example, if
+you use C<100> here, output pin C<0> of the register will be C<100>, output
+C<1> will be C<101> etc.
+
+    $num_pins
+
+Mandatory: Integer, the number of output pins on the registers you want to use.
+Each register has eight outputs, so if you have a single register in use, the
+maximum number of additional pins would be eight.
+
+    $data
+
+Mandatory: Integer, the GPIO pin number attached to the C<DS> pin (14) on the
+shift register.
+
+    $clk
+
+Mandatory: Integer, the GPIO pin number attached to the C<SHCP> pin (11) on the
+shift register.
+
+    $latch
+
+Mandatory: Integer, the GPIO pin number attached to the C<STCP> pin (12) on the
+shift register.
 
 =head1 RUNNING TESTS
 

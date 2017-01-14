@@ -1,6 +1,11 @@
 Revision history for Perl extension RPi::WiringPi.
 
-1.01 UNREL
+1.02    2017-01-13
+        - incorporated shift registers after adding to WiringPi::API
+        - added shift_register()
+        - updated documentation (POD and Tutorial)
+
+1.01    2016-08-27
         - no functional changes
         - POD fixes, updates and clarifications (thanks 'jmlynesjr' from
           PerlMonks for assisting)

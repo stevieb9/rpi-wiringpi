@@ -181,6 +181,50 @@ them separately as well.
         ...
     }
 
+=head2 Shift Register: Utilization
+
+This software has the capability to add up to four 74HC595 shift registers.
+This allows you to add up to eight extra output pins per register.
+
+We'll get right into the code:
+
+    # the new register pins will start at GPIO 100.
+    # this can be any number outside of existing GPIO
+
+    my $base = 100;
+    
+    # the number of pins on the register(s) you plan on
+    # using. Maximum eight per register
+
+    my $num_pins = 8;
+
+    # the GPIO pin number that the register's DS pin (14)
+    # is connected to
+
+    my $data = 5;
+
+    # the GPIO pin number that the register's SHCP pin (11)
+    # is connected to. This is the register's clock
+
+    my $clk = 6;
+
+    # the GPIO pin number that the register's STCP pin (12)
+    # is connected to. This is the register's latch pin
+
+    my $latch = 13;
+
+    # initialize the register
+
+    $pi->shift_register($base, $num_pins, $data, $clk, $latch);
+
+    # now you have full access to the register's eight outputs
+    # through standard methods
+
+    for (100..107){
+        my $pin = $pi->pin($_);
+        $pin->write(HIGH);
+    }
+
 =head2 Board: Get your Pi's board revision
 
     my $revision = $pi->rev;
