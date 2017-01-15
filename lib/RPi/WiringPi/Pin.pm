@@ -29,9 +29,6 @@ sub new {
     
     $self->{pin} = $pin;
 
-    if ($self->pin_scheme == RPI_MODE_GPIO_SYS){
-        $self->export_pin($self->num);
-    }
     return $self;
 }
 sub mode {
@@ -45,28 +42,7 @@ sub mode {
             "(output), 2 (PWM output) or 3 (GPIO CLOCK output)\n";
     }
 
-    # shell out to 'gpio' if in SYS mode
-
-    if ($self->pin_scheme == RPI_MODE_GPIO_SYS){
-        if ($mode == INPUT){
-            $mode = 'in';
-        }
-        elsif ($mode == OUTPUT){
-            $mode = 'out';
-        }
-        elsif ($mode == PWM_OUT){
-            $mode = 'pwm';
-        }
-        elsif ($mode == GPIO_CLOCK){
-            $mode = 'clock';
-        }
-
-        my $num = $self->num;
-        `sudo gpio -g mode $num $mode`;
-    }
-    else {
-        $self->pin_mode($self->num, $mode);
-    }
+    $self->pin_mode($self->num, $mode);
 }
 sub read {
     my $state = $_[0]->read_pin($_[0]->num);
@@ -77,13 +53,7 @@ sub write {
     if ($value != 0 && $value != 1){
         die "Core::write_pin value must be 0 or 1\n";
     }
-    if ($self->pin_scheme == RPI_MODE_GPIO_SYS){
-        my $num = $self->num;
-        `sudo gpio -g write $num $value`;
-    }
-    else {
-        $self->write_pin($self->num, $value);
-    }
+    $self->write_pin($self->num, $value);
 }
 sub pull {
     my ($self, $direction) = @_;
@@ -94,29 +64,8 @@ sub pull {
         die "Core::pull_up_down requires either 0, 1 or 2 for direction";
     }
 
-    # shell out to 'gpio' if in SYS mode
-
-    if ($self->pin_scheme == RPI_MODE_GPIO_SYS){
-
-        if ($direction == PUD_DOWN){
-            $direction = 'down';
-        }
-        elsif ($direction == PUD_UP){
-            $direction = 'up';
-        }
-        else {
-            # PUD_OFF
-            $direction = 'tri';
-        }
-
-        my $num = $self->num;
-        $self->mode(INPUT);
-        `sudo gpio -g $num $direction`;
-    }
-    else {
-        $self->mode(INPUT);
-        $self->pull_up_down($self->num, $direction);
-    }
+    $self->mode(INPUT);
+    $self->pull_up_down($self->num, $direction);
 }
 sub pwm {
     my ($self, $value) = @_;
@@ -130,10 +79,6 @@ sub pwm {
 
     if ($value > 1023 || $value < 0){
         die "\npwm() value must be 0-1023\n";
-    }
-
-    if ($self->pin_scheme == RPI_MODE_GPIO_SYS){
-        die "\nat this time, it isn't possible to use PWM in SYS mode\n";
     }
 
     $self->pwm_write($self->num, $value);
