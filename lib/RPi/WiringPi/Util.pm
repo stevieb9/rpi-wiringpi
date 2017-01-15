@@ -22,7 +22,7 @@ sub pin_to_gpio {
     elsif ($scheme == RPI_MODE_PHYS){
         return $self->phys_to_gpio($pin);
     }
-    elsif (($scheme == RPI_MODE_GPIO) || ($scheme == RPI_MODE_GPIO_SYS)){
+    elsif ($scheme == RPI_MODE_GPIO){
         return $pin;
     }
     if ($scheme == RPI_MODE_UNINIT){
@@ -47,7 +47,7 @@ sub pin_map {
         if ($scheme == RPI_MODE_WPI) {
             $pin = $self->phys_to_wpi($_);
         }
-        elsif (($scheme == RPI_MODE_GPIO) || ($scheme == RPI_MODE_GPIO_SYS)){
+        elsif ($scheme == RPI_MODE_GPIO){
             $pin = $self->phys_to_gpio($_);
         }
         elsif ($scheme == RPI_MODE_PHYS){
@@ -132,7 +132,7 @@ If using L<RPi::WiringPi::Constant>, these map out to:
 
     0  => RPI_MODE_WPI
     1  => RPI_MODE_GPIO
-    2  => RPI_MODE_GPIO_SYS
+    2  => RPI_MODE_GPIO_SYS # unused in RPi::WiringPi
     3  => RPI_MODE_PHYS
     -1 => RPI_MODE_UNINIT
 

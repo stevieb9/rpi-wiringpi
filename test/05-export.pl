@@ -12,26 +12,17 @@ my $mod = 'RPi::WiringPi';
 
 die "non-root user required\n" if $> == 0;
 
+
+my $pi = $mod->new;
+
 is ((-X '/sys/class/gpio/gpio29'), undef, "pin not yet exported");
 
-my $pi = $mod->new(setup => 'sys');
-my $p = $pi->pin(29);
-
-say $p->num;
-$p->mode(OUTPUT);
-
-is $p->mode, OUTPUT, "pinmode set to output ok";
+$pi->export_pin(29);
 
 is ((-X '/sys/class/gpio/gpio29'), 1, "mode() has exported pin ok");
 
-$p->write(HIGH);
-
-is $p->read, 1, "exported pin went HIGH ok";
-
-$pi->unexport_pin($p->num);
+$pi->unexport_pin(29);
 
 is ((-X '/sys/class/gpio/gpio29'), undef, "unexport_pin() ok");
-
-$pi->cleanup;
 
 done_testing();

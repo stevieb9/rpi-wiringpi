@@ -50,11 +50,7 @@ sub new {
                 $self->pin_scheme(RPI_MODE_GPIO);
             }
             else {
-                if ($self->_setup =~ /^s/) {
-                    $self->SUPER::setup_sys();
-                    $self->pin_scheme(RPI_MODE_GPIO_SYS);
-                }
-                elsif ($self->_setup =~ /^w/) {
+                if ($self->_setup =~ /^w/) {
                     $self->SUPER::setup();
                     $self->pin_scheme(RPI_MODE_WPI);
                 }
@@ -222,9 +218,8 @@ module.
 L<wiringPi|http://wiringpi.com> must be installed prior to installing/using
 this module (v2.36+).
 
-The scripts you write using this software may need to be run as the C<root> user
-(preferrably using C<sudo>, if configured properly... see 
-L<RPi::WiringPi::FAQ>).
+For the system calls that require C<root>, we make a call to sudo so that you
+don't have to run the entire script as the superuser.
 
 By default, we set up using the C<GPIO> numbering scheme for pins. See C<new()>
 method for information on how to change this.
