@@ -1,108 +1,103 @@
 use warnings;
 use strict;
+use feature 'say';
 
+use Data::Dumper;
 use RPi::WiringPi;
 use RPi::WiringPi::Constant qw(:all);
+use Test::More;
 
-if (! @ARGV){
-    print "\nneed test number as arg: 1-WPI, 2-GPIO, 3-PHYS, 4-SYS\n";
-    print "\nthis test tests export(), mode() and write() pin functions. " .
-          "Connect an LED to physical pin 40. Each test should blink the LED\n";
-    exit;
-}
+# physical pin numbers
 
-# connect LED to physical pin 40
-# led should blink for all tests
-
-# phys: 40, wpi: 29, gpio: 21
-
-my $which = $ARGV[0];
+my $i_base = 35;
+my $o_base = 40;
 
 my $mod = 'RPi::WiringPi';
 
-# WPI
 
-if ($which == 1){
-    print "WPI scheme test\n";
+{ # wpi
 
-    die "\ntest 1 requires root\n" if $> != 0;
-    
     my $pi = $mod->new(setup => 'wpi');
-    my $p = $pi->pin(29);
 
-    $p->mode(OUTPUT);
+    my $i_pin = $pi->phys_to_wpi($i_base);
+    my $o_pin = $pi->phys_to_wpi($o_base);
 
-    print "WPI: HIGH\n";
-    $p->write(HIGH);
-    sleep 1;
-
-    $pi->cleanup;
-}
-
-# gpio
-
-if ($which == 2){
-    print "GPIO scheme test\n";
-
-    die "\ntest 2 requires root\n" if $> != 0;
+    my $i = $pi->pin($i_pin);
+    my $p = $pi->pin($o_pin);
+  
+    is $i->num, 24, "wpi input pin number ok";
+    is $p->num, 29, "wpi output pin number ok";
     
-    my $pi = $mod->new(setup => 'gpio');
-    my $p = $pi->pin(21);
-
+    $i->mode(INPUT);
     $p->mode(OUTPUT);
-    print "GPIO: HIGH\n";
+
     $p->write(HIGH);
-    sleep 1;
+    
+    is $i->read, HIGH, "wpi setup ok";
+
+    $p->write(LOW);
 
     $pi->cleanup;
+
+    is $i->read, LOW, "wpi input pin is low";
+    is $i->mode, INPUT, "wpi input pin back to input";
+    is $p->mode, INPUT, "wpi output pin back to output";
 }
 
-# phys
+{ # gpio
 
-if ($which == 3){
-    print "PHYS scheme test\n";
 
-    die "\ntest 3 requires root\n" if $> != 0;
+    my $pi = $mod->new(setup => 'gpio');
+
+    my $i_pin = $pi->phys_to_gpio($i_base);
+    my $o_pin = $pi->phys_to_gpio($o_base);
+
+    my $i = $pi->pin($i_pin);
+    my $p = $pi->pin($o_pin);
+
+    is $i->num, 19, "gpio input pin number ok";
+    is $p->num, 21, "gpio output pin number ok";
+
+    $i->mode(INPUT);
+    $p->mode(OUTPUT);
+
+    $p->write(HIGH);
+    
+    is $i->read, HIGH, "gpio setup ok";
+
+    $p->write(LOW);
+
+    $pi->cleanup;
+
+    is $i->read, LOW, "gpio input pin is low";
+    is $i->mode, INPUT, "gpio input pin back to input";
+    is $p->mode, INPUT, "gpio output pin back to output";
+}
+
+{ # phys
 
     my $pi = $mod->new(setup => 'phys');
-    my $p = $pi->pin(40);
 
+    my $i = $pi->pin($i_base);
+    my $p = $pi->pin($o_base);
+  
+    is $i->num, 35, "phys input pin number ok";
+    is $p->num, 40, "phys output pin number ok";
+
+    $i->mode(INPUT);
     $p->mode(OUTPUT);
 
-    print "PHYS: HIGH\n";
     $p->write(HIGH);
-    sleep 1;
+    
+    is $i->read, HIGH, "phys setup ok";
+
+    $p->write(LOW);
 
     $pi->cleanup;
+
+    is $i->read, LOW, "phys input pin is low";
+    is $i->mode, INPUT, "phys input pin back to input";
+    is $p->mode, INPUT, "phys output pin back to output";
 }
 
-# sys
-
-if ($which == 4){
-    print "GPIO_SYS scheme test\n";
-
-
-    die "\ntest 4 requires non-root user\n" if $> == 0;
-
-    print "pin not yet exported\n" if ! -X '/sys/class/gpio/gpio21';
-    
-    print "pin is exported but shouldn't be!\n" 
-      if -X '/sys/class/gpio/gpio21';
-    
-    my $pi = $mod->new(setup => 'sys');
-    my $p = $pi->pin(21);
-
-    $p->mode(OUTPUT);
-
-    print "pin exported\n" if -X '/sys/class/gpio/gpio21';
-
-    print "SYS: HIGH\n";
-    $p->write(HIGH);
-    sleep 1;
-    $p->write(LOW);
-    $p->mode(INPUT);
-
-    $pi->unexport_pin($p->num);
-
-    print "pin unexported\n" if ! -X '/sys/class/gpio/gpio21';
-}
+done_testing();
