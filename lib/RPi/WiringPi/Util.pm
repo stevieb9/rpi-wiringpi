@@ -100,6 +100,7 @@ sub cleanup{
     for (split /,/, $pins){
         `sudo gpio -g mode $_ in`;
         `sudo gpio -g mode $_ tri`;
+        delete $ENV{RPI_PINS};
     }
 }
 sub _vim{1;};
