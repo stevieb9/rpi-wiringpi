@@ -23,6 +23,7 @@ WriteMakefile(
             },
         },
     },
+    MIN_PERL_VERSION   => 5.006,
     PREREQ_PM         => {
         'WiringPi::API'             => 2.36.1,
         'RPi::WiringPi::Constant'   => 0.02,
