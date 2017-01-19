@@ -9,6 +9,9 @@ use RPi::WiringPi::Constant qw(:all);
 
 our $VERSION = '2.36.3';
 
+sub gpio_layout {
+    return $_[0]->gpio_layout;
+}
 sub pin_to_gpio {
     my ($self, $pin, $scheme) = @_;
 
@@ -120,6 +123,10 @@ necessarily fit anywhere else. It is a base class, and is not designed to be
 used independently.
 
 =head1 METHODS
+
+=head2 gpio_layout()
+
+Returns the GPIO layout which indicates the board revision number.
 
 =head2 pin_scheme()
 
