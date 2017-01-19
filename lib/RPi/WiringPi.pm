@@ -106,9 +106,6 @@ sub interrupt {
     my $interrupt = RPi::WiringPi::Interrupt->new;
     return $interrupt;
 }
-sub gpio_layout {
-    return $_[0]->gpio_layout;
-}
 sub pwm_range {
     my ($self, $range) = @_;
     if (defined $range){
@@ -311,10 +308,6 @@ LCD displays connected to your Raspberry Pi.
 Returns a L<RPi::WiringPi::Interrupt> object, which allows you to act when
 certain events occur (eg: a button press). This functionality is better used
 through the L<RPi::WiringPi::Pin> object you created with C<pin()>.
-
-=head2 gpio_layout()
-
-Returns the current GPIO layout scheme.
 
 =head2 pwm_range($range)
 
