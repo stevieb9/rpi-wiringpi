@@ -73,6 +73,14 @@ sub pin_scheme {
         ? $ENV{RPI_PIN_MODE}
         : RPI_MODE_UNINIT;
 }
+sub pwm_range {
+    my ($self, $range) = @_;
+    if (defined $range){
+       $self->{pwm_range} = $range;
+        $self->pwm_set_range($range);
+    }
+    return defined $self->{pwm_range} ? $self->{pwm_range} : 1023;
+}
 sub export_pin {
     my ($self, $pin) = @_;
     system "sudo", "gpio", "export", $self->pin_to_gpio($pin), "in";
@@ -214,6 +222,22 @@ Parameters:
     $pin_num
 
 Mandatory: The pin number printed on the physical Pi board.
+
+=head2 pwm_range($range)
+
+Changes the range of Pulse Width Modulation (PWM). The default is C<0> through
+C<1023>.
+
+Parameters:
+
+=over 8
+=item   $range
+=back
+
+Mandatory: An integer specifying the high-end of the range. The range always
+starts at C<0>. Eg: if C<$range> is C<359>, if you incremented PWM by C<1>
+every second, you'd rotate a step motor one complete rotation in exactly one
+minute.
 
 =head2 export_pin($pin_num)
 

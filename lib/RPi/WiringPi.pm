@@ -5,6 +5,7 @@ use warnings;
 
 use parent 'RPi::WiringPi::Util';
 
+use RPi::ADC::ADS;
 use RPi::WiringPi::Constant qw(:all);
 use RPi::WiringPi::BMP180;
 use RPi::WiringPi::Interrupt;
@@ -78,6 +79,11 @@ sub new {
     $self->_fatal_exit;
     return $self;
 }
+sub adc {
+    my ($self, %args) = @_;
+    my $adc = RPi::ADC::ADS->new(%args);
+    return $adc;
+}
 sub pin {
     my ($self, $pin_num) = @_;
 
@@ -105,14 +111,6 @@ sub interrupt {
     my $self = shift;
     my $interrupt = RPi::WiringPi::Interrupt->new;
     return $interrupt;
-}
-sub pwm_range {
-    my ($self, $range) = @_;
-    if (defined $range){
-       $self->{pwm_range} = $range;
-        $self->pwm_set_range($range);
-    }
-    return defined $self->{pwm_range} ? $self->{pwm_range} : 1023;
 }
 sub shift_register {
     my ($self, $base, $num_pins, $data, $clk, $latch) = @_;
@@ -146,7 +144,9 @@ various items
 
     my $pi = RPi::WiringPi->new;
 
+    #
     # pin
+    #
 
     my $pin = $pi->pin(5);
     $pin->mode(OUTPUT);
@@ -156,8 +156,21 @@ various items
     my $mode = $pin->mode;
     my $state = $pin->read;
 
-    # Shift Register
+    #
+    # analog to digital converter
+    #
 
+    my $adc = $pi->adc;
+   
+    # read channel A0 on the ADC
+
+    my $v = $adc->volts(0);
+    my $p = $adc->percent(0);
+
+    #
+    # shift register
+    #
+    
     my ($base, $num_pins, $data, $clk, $latch)
       = (100, 8, 5, 6, 13);
 
@@ -173,8 +186,10 @@ various items
         $pin->write(HIGH);
     }
 
+    #
     # BMP180 barometric pressure sensor
-
+    #
+    
     my $base = 300; 
 
     my $bmp = $pi->bmp($base);
@@ -183,7 +198,9 @@ various items
     my $celcius   = $bmp->temp('c');
     my $pressure  = $bmp->pressure; # kPa
 
+    #
     # LCD
+    #
 
     my $lcd = $pi->lcd;
 
@@ -215,9 +232,6 @@ module.
 L<wiringPi|http://wiringpi.com> must be installed prior to installing/using
 this module (v2.36+).
 
-For the system calls that require C<root>, we make a call to sudo so that you
-don't have to run the entire script as the superuser.
-
 By default, we set up using the C<GPIO> numbering scheme for pins. See C<new()>
 method for information on how to change this.
 
@@ -237,7 +251,7 @@ L<pinout.xyz|https://pinout.xyz/pinout/wiringpi>. You can also run the C<pinmap>
 command that was installed by this module, or C<wiringPi>'s C<gpio readall>
 command.
 
-=head1 OPERATIONAL METHODS
+=head1 METHODS
 
 See L<RPi::WiringPi::Util> for utility/helper methods that are imported into
 an C<RPi::WiringPi> object.
@@ -250,8 +264,8 @@ scheme to C<GPIO> (Broadcom (BCM) GPIO scheme).
 Parameters:
 
 =over 8
-
 =item   setup => $value
+=back
 
 Optional. This option specifies which pin mapping (numbering scheme) to use.
 
@@ -270,18 +284,14 @@ L<pinout.xyz|https://pinout.xyz/pinout/wiringpi>. You can also run the C<pinmap>
 application that was included in this distribution from the command line to get
 a printout of pin mappings.
 
-=back
-
 =over 8 
-
 =item   fatal_exit => $bool
+=back
 
 Optional: We trap all C<die()> calls and clean up for safety reasons. If a
 call to C<die()> is trapped, by default, we clean up, and then C<exit()>. Set
 C<fatal_exit> to false (C<0>) to perform the cleanup, and then continue running
 your script. This is for unit testing purposes only.
-
-=back
 
 =head2 pin($pin_num)
 
@@ -291,12 +301,10 @@ you can then perform operations on.
 Parameters:
 
 =over 8
-
 =item    $pin_num
+=back
 
 Mandatory: The pin number to attach to.
-
-=back
 
 =head2 lcd()
 
@@ -309,54 +317,64 @@ Returns a L<RPi::WiringPi::Interrupt> object, which allows you to act when
 certain events occur (eg: a button press). This functionality is better used
 through the L<RPi::WiringPi::Pin> object you created with C<pin()>.
 
-=head2 pwm_range($range)
-
-Changes the range of Pulse Width Modulation (PWM). The default is C<0> through
-C<1023>.
-
-Parameters:
-
-    $range
-
-Mandatory: An integer specifying the high-end of the range. The range always
-starts at C<0>. Eg: if C<$range> is C<359>, if you incremented PWM by C<1>
-every second, you'd rotate a step motor one complete rotation in exactly one
-minute.
-
 =head2 shift_register($base, $num_pins, $data, $clk, $latch)
 
-Allows you to access the output pins of up to four 74HC595 shift registers, for
-a total of eight new output pins per register.
+Allows you to access the output pins of up to four 74HC595 shift registers in
+series, for a total of eight new output pins per register. Numerous chains of
+four registers are permitted, each chain uses three GPIO pins.
 
 Parameters:
 
-    $base
+=over 8
+=item   $base
+=back
 
 Mandatory: Integer, represents the number at which you want to start
 referencing the new output pins attached to the register(s). For example, if
 you use C<100> here, output pin C<0> of the register will be C<100>, output
 C<1> will be C<101> etc.
 
-    $num_pins
+=over 8
+=item    $num_pins
+=back
 
 Mandatory: Integer, the number of output pins on the registers you want to use.
 Each register has eight outputs, so if you have a single register in use, the
 maximum number of additional pins would be eight.
 
-    $data
+=over 8
+=item   $data
+=back
 
 Mandatory: Integer, the GPIO pin number attached to the C<DS> pin (14) on the
 shift register.
 
-    $clk
+=over 8
+=item    $clk
+=back
 
 Mandatory: Integer, the GPIO pin number attached to the C<SHCP> pin (11) on the
 shift register.
 
-    $latch
+=over 8
+=item    $latch
+=back
 
 Mandatory: Integer, the GPIO pin number attached to the C<STCP> pin (12) on the
 shift register.
+
+=head2 adc()
+
+Returns a L<RPi::ADC::ADS> object, which allows you to read the four analog
+input channels on an Adafruit ADS1xxx analog to digital converter.
+
+Parameters:
+
+The default (no parameters) is almost always enough, but please do review
+the documentation in the link above for further information, and have a
+look at the 
+L<ADC tutorial section|RPi::WiringPi::FAQ/ANALOG TO DIGITAL CONVERTERS> in
+this distribution.
 
 =head2 bmp()
 

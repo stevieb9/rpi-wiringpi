@@ -9,6 +9,10 @@ Revision history for Perl extension RPi::WiringPi.
         - removed the ability to use SYS (GPIO_SYS) mode. It was implemented to
           avoid having to be root
         - moved gpio_layout() from core to Util
+        - RPi::ADC::ADS is now a prereq (v1.01)
+        - added adc()
+        - moved pwm_range() to Util, leaving only object creation methods
+          in the core module
 
 2.36.2  2017-01-14
         - change versioning. The X.XX portion represents which version of
