@@ -9,6 +9,8 @@ Revision history for Perl extension RPi::WiringPi.
         - removed the ability to use SYS (GPIO_SYS) mode. It was implemented to
           avoid having to be root
         - moved gpio_layout() from core to Util
+        - added docs/, with fritzing drawings and images for basic pwm/ADC
+          setup
 
 2.36.2  2017-01-14
         - change versioning. The X.XX portion represents which version of
