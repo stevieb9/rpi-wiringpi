@@ -17,6 +17,8 @@ Revision history for Perl extension RPi::WiringPi.
         - added ADC section in FAQ
         - added docs/, with fritzing drawings and images for basic pwm/ADC
           setup
+        - incorporated RPi::SPI as spi() to provide direct access to the Serial
+          Peripheral Interface
 
 2.36.2  2017-01-14
         - change versioning. The X.XX portion represents which version of

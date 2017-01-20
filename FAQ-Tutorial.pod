@@ -181,6 +181,25 @@ them separately as well.
         ...
     }
 
+=head2 Serial Peripheral Interface (SPI)
+
+Allows you to write to and read from devices attached to the SPI bus, using the
+external L<RPi::SPI> distribution. Please refer to that documentation for full
+usage instructions.
+
+    # generate a new SPI object
+
+    my $channel = 0; # /dev/spidev0.0
+
+    my $spi = $pi->spi($channel);
+
+    my $buf = [0x01, 0x02];
+    my $len = scalar @$buf;
+
+    # write the two bytes in the buffer to channel /dev/spidev0.0
+
+    $spi->rw($buf, $len);
+
 =head2 Analog to Digital Converter
 
 This functionality is brought in from L<RPi::ADC::ADS>. Please refer to that

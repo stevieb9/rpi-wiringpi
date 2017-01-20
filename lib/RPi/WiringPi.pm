@@ -112,6 +112,11 @@ sub interrupt {
     my $interrupt = RPi::WiringPi::Interrupt->new;
     return $interrupt;
 }
+sub spi {
+    my ($self, $chan, $speed) = @_;
+    my $spi = RPi::SPI->new($chan, $speed);
+    return $spi;
+}
 sub shift_register {
     my ($self, $base, $num_pins, $data, $clk, $latch) = @_;
 
@@ -166,6 +171,19 @@ various items
 
     my $v = $adc->volts(0);
     my $p = $adc->percent(0);
+
+    #
+    # SPI
+    #
+
+    my $channel = 0; # SPI channel /dev/spidev0.0
+
+    my $spi = $pi->spi($channel);
+
+    my $buf = [0x01, 0x02];
+    my $len = scalar @$buf;
+
+    $spi->rw($buf, $len);
 
     #
     # shift register
@@ -316,6 +334,14 @@ LCD displays connected to your Raspberry Pi.
 Returns a L<RPi::WiringPi::Interrupt> object, which allows you to act when
 certain events occur (eg: a button press). This functionality is better used
 through the L<RPi::WiringPi::Pin> object you created with C<pin()>.
+
+=head2 spi($channel, $speed);
+
+Creates a new L<RPi::SPI> object which allows you to communicate on the Serial
+Peripheral Interface (SPI) bus with attached devices.
+
+See the linked documentation for full documentation on usage, or the
+L<RPi::WiringPi::FAQ-Tutorial> for usage examples.
 
 =head2 shift_register($base, $num_pins, $data, $clk, $latch)
 
