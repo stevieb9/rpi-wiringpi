@@ -19,8 +19,18 @@ for (0..PWM_MAX){
     $led_pin->pwm($_);
     my $input = $adc->percent(0);
     
-    print "pin ". $led_pin->num ." is at $input % output capacity\n";
+    print "pin " . $led_pin->num ." at pwm $_ is at $input % output capacity\n";
     
+    select(undef, undef, undef, 0.3);
+}
+
+print "\n\n";
+
+$led_pin->pwm(512);
+
+for (1..10){
+    my $input = $adc->percent(0);
+    print "pin ". $led_pin->num ." at pwm 512 is at $input % output capacity\n";
     select(undef, undef, undef, 0.3);
 }
 
