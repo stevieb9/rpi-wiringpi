@@ -181,6 +181,23 @@ them separately as well.
         ...
     }
 
+=head2 Analog to Digital Converter
+
+This functionality is brought in from L<RPi::ADC::ADS>. Please refer to that
+documentation for full usage instructions.
+
+    # fetch a new ADC object
+
+    my $adc = $pi->adc;
+
+    # fetch the voltage level on pin A0 on the ADC
+
+    my $v = $adc->volts(0);
+
+    # fetch the percentage of input on pin A0
+
+    my $p = $adc->percent(0);
+
 =head2 Shift Register: Utilization
 
 This software has the capability to add up to four 74HC595 shift registers.

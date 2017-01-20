@@ -24,7 +24,9 @@ t/25-sig_die.t
 t/30-sig_int.t
 t/35-pin_map.t
 t/40-interrupt_and_pud.t
-test/00-setup_modes.pl
+test/00-setup.t
+test/01-setup_gpio.t
+test/02-setup_phys.t
 test/05-export.pl
 test/10-pwm.pl
 test/15-interrupt_and_pull.pl

@@ -10,9 +10,11 @@ Revision history for Perl extension RPi::WiringPi.
           avoid having to be root
         - moved gpio_layout() from core to Util
         - RPi::ADC::ADS is now a prereq (v1.01)
-        - added adc()
+        - added adc() (closes #12)
         - moved pwm_range() to Util, leaving only object creation methods
           in the core module
+        - fixed POD in reference to shiftreg (closes #13)
+        - added ADC section in FAQ
 
 2.36.2  2017-01-14
         - change versioning. The X.XX portion represents which version of
