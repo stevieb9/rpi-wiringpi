@@ -28,6 +28,7 @@ WriteMakefile(
     PREREQ_PM         => {
         'WiringPi::API'             => 2.36.3,
         'RPi::ADC::ADS'             => 1.01,
+        'RPi::SPI'                  => 2.36.1,
         'RPi::WiringPi::Constant'   => 0.02,
     },
 );
