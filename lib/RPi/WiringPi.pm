@@ -6,6 +6,7 @@ use warnings;
 use parent 'RPi::WiringPi::Util';
 
 use RPi::ADC::ADS;
+use RPi::SPI;
 use RPi::WiringPi::Constant qw(:all);
 use RPi::WiringPi::BMP180;
 use RPi::WiringPi::Interrupt;
