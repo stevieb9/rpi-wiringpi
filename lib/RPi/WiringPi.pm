@@ -282,9 +282,7 @@ scheme to C<GPIO> (Broadcom (BCM) GPIO scheme).
 
 Parameters:
 
-=over 8
-=item   setup => $value
-=back
+    setup => $value
 
 Optional. This option specifies which pin mapping (numbering scheme) to use.
 
@@ -303,9 +301,7 @@ L<pinout.xyz|https://pinout.xyz/pinout/wiringpi>. You can also run the C<pinmap>
 application that was included in this distribution from the command line to get
 a printout of pin mappings.
 
-=over 8 
-=item   fatal_exit => $bool
-=back
+    fatal_exit => $bool
 
 Optional: We trap all C<die()> calls and clean up for safety reasons. If a
 call to C<die()> is trapped, by default, we clean up, and then C<exit()>. Set
@@ -319,9 +315,7 @@ you can then perform operations on.
 
 Parameters:
 
-=over 8
-=item    $pin_num
-=back
+    $pin_num
 
 Mandatory: The pin number to attach to.
 
@@ -352,40 +346,30 @@ four registers are permitted, each chain uses three GPIO pins.
 
 Parameters:
 
-=over 8
-=item   $base
-=back
+    $base
 
 Mandatory: Integer, represents the number at which you want to start
 referencing the new output pins attached to the register(s). For example, if
 you use C<100> here, output pin C<0> of the register will be C<100>, output
 C<1> will be C<101> etc.
 
-=over 8
-=item    $num_pins
-=back
+    $num_pins
 
 Mandatory: Integer, the number of output pins on the registers you want to use.
 Each register has eight outputs, so if you have a single register in use, the
 maximum number of additional pins would be eight.
 
-=over 8
-=item   $data
-=back
+    $data
 
 Mandatory: Integer, the GPIO pin number attached to the C<DS> pin (14) on the
 shift register.
 
-=over 8
-=item    $clk
-=back
+    $clk
 
 Mandatory: Integer, the GPIO pin number attached to the C<SHCP> pin (11) on the
 shift register.
 
-=over 8
-=item    $latch
-=back
+    $latch
 
 Mandatory: Integer, the GPIO pin number attached to the C<STCP> pin (12) on the
 shift register.
