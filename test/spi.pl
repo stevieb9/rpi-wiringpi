@@ -1,5 +1,6 @@
 use warnings;
 use strict;
+use feature 'say';
 
 use RPi::WiringPi;
 
@@ -10,4 +11,6 @@ my $spi = $pi->spi(0);
 my $buf = [0x01, 0x02];
 my $len = scalar @$buf;
 
-$spi->rw($buf, $len);
+my $ok = $spi->rw($buf, $len);
+
+say $ok;

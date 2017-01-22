@@ -194,7 +194,7 @@ usage instructions.
     my $spi = $pi->spi($channel);
 
     my $buf = [0x01, 0x02];
-    my $len = scalar @$buf;
+    my $len = 2;
 
     # write the two bytes in the buffer to channel /dev/spidev0.0
 
