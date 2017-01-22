@@ -6,6 +6,7 @@ use warnings;
 use parent 'RPi::WiringPi::Util';
 
 use RPi::ADC::ADS;
+use RPi::DigiPot::MCP4XXXX;
 use RPi::SPI;
 use RPi::WiringPi::Constant qw(:all);
 use RPi::WiringPi::BMP180;
@@ -84,6 +85,11 @@ sub adc {
     my ($self, %args) = @_;
     my $adc = RPi::ADC::ADS->new(%args);
     return $adc;
+}
+sub dpot {
+    my ($self, $cs, $channel) = @_;
+    my $dpot = RPi::DigiPot::MCP4XXXX->new($cs, $channel);
+    return $dpot;
 }
 sub pin {
     my ($self, $pin_num) = @_;
@@ -185,6 +191,23 @@ various items
     my $len = scalar @$buf;
 
     $spi->rw($buf, $len);
+
+    #
+    # digital potentiometer
+    #
+
+    my $cs = 18;     # GPIO pin connected to dpot CS pin
+    my $channel = 0; # SPI channel /dev/spidev0.0
+
+    my $dpot = $pi->dpot($cs, $channel);
+
+    # set to 50% output
+
+    $dpot->set(127);
+
+    # shutdown (sleep) the potentiometer
+
+    $dpot->shutdown;
 
     #
     # shift register
@@ -334,6 +357,14 @@ through the L<RPi::WiringPi::Pin> object you created with C<pin()>.
 
 Creates a new L<RPi::SPI> object which allows you to communicate on the Serial
 Peripheral Interface (SPI) bus with attached devices.
+
+See the linked documentation for full documentation on usage, or the
+L<RPi::WiringPi::FAQ-Tutorial> for usage examples.
+
+=head2 dpot($cs, $channel)
+
+Returns a L<RPi::DigiPot::MCP4XXXX> object, which allows you to manage a
+digital potentiometer (only the MCP4XXXX versions are currently supported).
 
 See the linked documentation for full documentation on usage, or the
 L<RPi::WiringPi::FAQ-Tutorial> for usage examples.
