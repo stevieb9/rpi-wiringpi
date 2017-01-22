@@ -4,7 +4,6 @@ Revision history for Perl extension RPi::WiringPi.
         - pod fixes/updates
         - added BMP180 section to FAQ
         - added untracked files
-        - we now perform root-level tasks with sudo internally, so that the
           user doesn't have to run the entire script as such
         - removed the ability to use SYS (GPIO_SYS) mode. It was implemented to
           avoid having to be root
