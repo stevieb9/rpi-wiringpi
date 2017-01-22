@@ -27,10 +27,11 @@ L<RPi::WiringPi::Constant> module.
     EDGE_FALLING -  a state when a pin goes from HIGH to LOW
     EDGE_RISING  -  a state when a pin goes from LOW to HIGH
     EDGE_BOTH    -  both of the above states
+    DPOT         -  digital potentiometer
 
-=head1 HOWTO
+=head1 SETUP
 
-=head2 Setup: Configure your system
+=head2 System configuration
 
 If you want to avoid using your system installed Perl installation to use this
 software (or you want to use interrupts), you should do some pre-configuration
@@ -54,7 +55,9 @@ Now, you can do everything with the normal user account, using their personal
 installation of Perl, and you just need C<sudo> to run your scripts, leaving
 your default system installation intact.
 
-=head2 Pi: Create a Raspberry Pi object
+=head1 PI 
+
+=head2 Create a Raspberry Pi object
 
 The first thing you need to do is call an appropriate setup method. We do
 that automatically. See L<new()|RPi::WiringPi/"new-args"> to see how to use
@@ -64,7 +67,15 @@ various pin numbers for the different mapping schemes.
 
     my $pi = RPi::WiringPi->new;
 
-=head2 Pin: Creating and using a GPIO pin object
+=head2 Board revision
+
+The board revision is the same as the GPIO pin layout on the board:
+
+    my $revision = $pi->gpio_layout;
+
+=head1 PIN 
+
+=head2 Creating and using a GPIO pin object
 
 The L<RPi::WiringPi::Pin> class provides you with objects that directly map to
 the Raspberry Pi's onboard GPIO pins. You generate a pin object through the
@@ -88,7 +99,7 @@ main C<$pi> object we created above.
 
     my $num = $pin->num;
 
-=head2 Pin: Setting a pin's internal pull up/down resistor
+=head2 Internal pull up/down resistor
 
 All GPIO pins on the Raspberry Pi have built-in pull up/down resistors to
 prevent pins being in a "floating" state when not connected to either ground or
@@ -103,7 +114,7 @@ interrupts.
 
     $pin->pull(PUD_DOWN);
 
-=head2 Pin: Using Pulse Width Modulation (PWM)
+=head2 Pulse Width Modulation (PWM)
 
 Pulse Width Modulation kind of acts like a potentiometer (or a variable
 switch... like a light dimmer). They are used to send pulses of electricity
@@ -130,7 +141,7 @@ hardware-based PWM (GPIO #18).
         usleep 50000;
     }
 
-=head2 Pin: Using interrupts
+=head2 Interrupt usage
 
 Built in is the ability to have Perl code you define executed when a pin's edge
 changes (a pin goes from LOW to HIGH or vice-versa). This code acts as an
@@ -160,12 +171,12 @@ obviously want to be doing other things while waiting for that button press.
         # do other stuff, perhaps turning on/off other pins
     }
 
-=head2 Interrupt: Overview
+=head1 INTERRUPTS
 
 Although we've already used interrupts from within a pin object, you can use
 them separately as well.
 
-=head2 Interrupt: Configuring
+=head2 Configuring
 
     my $interrupt = $pi->interrupt;
 
@@ -181,7 +192,9 @@ them separately as well.
         ...
     }
 
-=head2 Serial Peripheral Interface (SPI)
+=head1 SERIAL PERIPHERAL INTERFACE (SPI) BUS
+
+=head2 Set up and communication
 
 Allows you to write to and read from devices attached to the SPI bus, using the
 external L<RPi::SPI> distribution. Please refer to that documentation for full
@@ -200,7 +213,9 @@ usage instructions.
 
     $spi->rw($buf, $len);
 
-=head2 Analog to Digital Converter
+=head1 ANALOG TO DIGITAL CONVERTERS (ADC)
+
+=head2 Initialization and reading input
 
 This functionality is brought in from L<RPi::ADC::ADS>. Please refer to that
 documentation for full usage instructions.
@@ -217,7 +232,9 @@ documentation for full usage instructions.
 
     my $p = $adc->percent(0);
 
-=head2 Digital Potentiometer
+=head1 DIGITAL POTENTIOMETERS
+
+=head2 Initialization and usage
 
 This functionality is brought in from L<RPi::DigiPot::MCP4XXXX>. Please refer to
 that documentation for full usage instructions.
@@ -235,10 +252,18 @@ that documentation for full usage instructions.
 
     $dpot->shutdown;
 
-=head2 Shift Register: Utilization
+=head1 SHIFT REGISTERS
 
-This software has the capability to add up to four 74HC595 shift registers.
-This allows you to add up to eight extra output pins per register.
+=head2 Overview
+
+This software has the capability to utilize 74HC595 shift registers.
+
+Each register contains 8 digital outputs, and four can be daisy-chained
+together for a total of 32 extra output pins.
+
+Each register (or chain of registers) require only three GPIO pins.
+
+=head2 Usage
 
 We'll get right into the code:
 
@@ -279,16 +304,14 @@ We'll get right into the code:
         $pin->write(HIGH);
     }
 
-=head2 Board: Get the GPIO layout
-
-    my $revision = $pi->gpio_layout;
-
-=head2 LCD: Initialize
+=head1 LCD TOUCH SCREENS
 
 Typical 16-pin, 2-4 row and 16-20 column LCD screens work here. You can use
 4-bit or 8-bit mode (4-bit requires 6 GPIO pins, 8-bit requires 10). If you
 need a higher rate of data transmission to the LCD, use 8-bit mode. Typically,
 4-bit has always worked perfectly for me.
+
+=head2 Initialize
 
 Before an LCD can be used, it must be initialized. This may look like a lot,
 but you only need to do it once. Essentially, you're configuring all pins up
@@ -316,7 +339,7 @@ C<d4> through C<d7>. Look at LCD pin 4-7 as LCD pin 0-3 when in 4-bit mode.
 
     $lcd->init(%lcd_args);
 
-=head2 LCD: Display operations
+=head2 Display operations
 
 Now that we've initialized the LCD, we're ready to use it.
 
@@ -332,7 +355,7 @@ Now that we've initialized the LCD, we're ready to use it.
 
     $lcd->clear;
 
-=head2 LCD: Cursor operations
+=head2 Cursor operations
 
     # move the cursor to a position
 
@@ -348,7 +371,7 @@ Now that we've initialized the LCD, we're ready to use it.
 
     $lcd->cursor_blink(ON); # or OFF
 
-=head2 LCD: Output operations
+=head2 Output operations
 
 By default, output starts at col 0 and row 0 of the display. Use C<position()>
 to move it around before outputting.
@@ -357,7 +380,7 @@ to move it around before outputting.
 
     $lcd->print("My name is stevieb");
 
-=head2 LCD: Putting it all together
+=head2 Putting it all together
 
 Here's a trivial script that outputs information to specific LCD positions
 (we'll start right after an LCD C<init()>).
@@ -371,7 +394,12 @@ Here's a trivial script that outputs information to specific LCD positions
     $lcd->position(0, 1);
     $lcd->print("Perl $perl_ver...");
 
-=head2 BMP180 barometric sensor
+=head1 BAROMETRIC PRESSURE SENSORS
+
+Built in is support for the BMP085 and BMP180 barometric pressure and altimiter
+sensors, which also include a temperature sensor.
+
+=head2 Usage
 
 A full use-case example of using the barometric/temperature sensor:
 
@@ -383,7 +411,9 @@ A full use-case example of using the barometric/temperature sensor:
     my $c = $bmp->temp('c');
     my $p = $bmp->pressure; # kPa
 
-=head2 Util: Overview
+=head1 UTIL LIBRARY
+
+=head2 Overview
 
 The included L<RPi::WiringPi::Util> module contains a few helper-type methods
 for internal and external use. Most of these you won't need, but others are
@@ -399,7 +429,6 @@ It's worth having a look at...
 Steve Bertrand, E<lt>steveb@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
-
 Copyright (C) 2016 by Steve Bertrand
 
 This library is free software; you can redistribute it and/or modify

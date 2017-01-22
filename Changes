@@ -1,5 +1,8 @@
 Revision history for Perl extension RPi::WiringPi.
 
+2.36.6 UNREL
+        - updated FAQ, made section headers, fixed issue in sreg overview
+
 2.36.5  2017-01-22
         - added dpot(), returns a RPI::DigiPot::MCP4XXXX digital potentiometer
           object
