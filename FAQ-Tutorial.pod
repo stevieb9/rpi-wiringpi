@@ -217,6 +217,24 @@ documentation for full usage instructions.
 
     my $p = $adc->percent(0);
 
+=head2 Digital Potentiometer
+
+This functionality is brought in from L<RPi::DigiPot::MCP4XXXX>. Please refer to
+that documentation for full usage instructions.
+
+    my $cs = 18;     # GPIO pin connected to dpot CS pin
+    my $channel = 0; # SPI channel /dev/spidev0.0
+
+    my $dpot = $pi->dpot($cs, $channel);
+
+    # set to 50% output
+
+    $dpot->set(127);
+
+    # shutdown (sleep) the potentiometer
+
+    $dpot->shutdown;
+
 =head2 Shift Register: Utilization
 
 This software has the capability to add up to four 74HC595 shift registers.
