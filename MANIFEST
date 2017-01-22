@@ -1,5 +1,8 @@
 bin/pinmap
 Changes
+docs/breadboard/adc_basic_example_bb.jpg
+docs/fritzing/adc_basic_example.fzz
+docs/schematic/adc_basic_example_schem.jpg
 FAQ-Tutorial.pod
 lib/RPi/WiringPi.pm
 lib/RPi/WiringPi/BMP180.pm
@@ -24,6 +27,8 @@ t/25-sig_die.t
 t/30-sig_int.t
 t/35-pin_map.t
 t/40-interrupt_and_pud.t
+t/manifest.t
+t/pod-coverage.t
 test/00-setup.t
 test/01-setup_gpio.t
 test/02-setup_phys.t
@@ -33,7 +38,9 @@ test/15-interrupt_and_pull.pl
 test/20-read_and_mode.pl
 test/25-registered_pin_cleanup.pl
 test/30-check_registered_pins.pl
+test/adc.pl
 test/bmp.pl
 test/images/after.jpg
 test/images/before.jpg
 test/shift.pl
+test/spi.pl

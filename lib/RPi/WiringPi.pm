@@ -104,7 +104,7 @@ sub lcd {
     my $lcd = RPi::WiringPi::LCD->new;
     return $lcd;
 }
-sub bmp180 {
+sub bmp {
     my ($self, $base) = @_;
     return RPi::WiringPi::BMP180->new($base);
 }

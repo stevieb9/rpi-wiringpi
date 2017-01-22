@@ -1,6 +1,6 @@
 Revision history for Perl extension RPi::WiringPi.
 
-2.36.3 UNREL
+2.36.3  2017-01-22
         - pod fixes/updates
         - added BMP180 section to FAQ
         - added untracked files

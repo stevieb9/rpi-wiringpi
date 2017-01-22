@@ -8,7 +8,7 @@ my $pi = RPi::WiringPi->new;
 
 my $pin_base = 300;
 
-my $bmp = $pi->bmp180($pin_base);
+my $bmp = $pi->bmp($pin_base);
 
 say $bmp->temp;
 say $bmp->pressure;

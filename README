@@ -8,7 +8,9 @@ SYNOPSIS
 
         my $pi = RPi::WiringPi->new;
 
+        #
         # pin
+        #
 
         my $pin = $pi->pin(5);
         $pin->mode(OUTPUT);
@@ -18,8 +20,34 @@ SYNOPSIS
         my $mode = $pin->mode;
         my $state = $pin->read;
 
-        # Shift Register
+        #
+        # analog to digital converter
+        #
 
+        my $adc = $pi->adc;
+   
+        # read channel A0 on the ADC
+
+        my $v = $adc->volts(0);
+        my $p = $adc->percent(0);
+
+        #
+        # SPI
+        #
+
+        my $channel = 0; # SPI channel /dev/spidev0.0
+
+        my $spi = $pi->spi($channel);
+
+        my $buf = [0x01, 0x02];
+        my $len = scalar @$buf;
+
+        $spi->rw($buf, $len);
+
+        #
+        # shift register
+        #
+    
         my ($base, $num_pins, $data, $clk, $latch)
           = (100, 8, 5, 6, 13);
 
@@ -35,8 +63,10 @@ SYNOPSIS
             $pin->write(HIGH);
         }
 
+        #
         # BMP180 barometric pressure sensor
-
+        #
+    
         my $base = 300; 
 
         my $bmp = $pi->bmp($base);
@@ -45,7 +75,9 @@ SYNOPSIS
         my $celcius   = $bmp->temp('c');
         my $pressure  = $bmp->pressure; # kPa
 
+        #
         # LCD
+        #
 
         my $lcd = $pi->lcd;
 
@@ -74,9 +106,6 @@ DESCRIPTION
     wiringPi must be installed prior to installing/using this module
     (v2.36+).
 
-    For the system calls that require `root', we make a call to sudo so that
-    you don't have to run the entire script as the superuser.
-
     By default, we set up using the `GPIO' numbering scheme for pins. See
     `new()' method for information on how to change this.
 
@@ -96,7 +125,7 @@ DESCRIPTION
     the `pinmap' command that was installed by this module, or `wiringPi''s
     `gpio readall' command.
 
-OPERATIONAL METHODS
+METHODS
     See RPi::WiringPi::Util for utility/helper methods that are imported
     into an `RPi::WiringPi' object.
 
@@ -106,26 +135,24 @@ OPERATIONAL METHODS
 
     Parameters:
 
-    setup => $value
-            Optional. This option specifies which pin mapping (numbering
-            scheme) to use.
+        Optional. This option specifies which pin mapping (numbering scheme)
+        to use.
 
-                wpi:    wiringPi's numbering
-                phys:   physical pin numbering
-                gpio:   GPIO numbering
+            wpi:    wiringPi's numbering
+            phys:   physical pin numbering
+            gpio:   GPIO numbering
 
-            You can also specify `none' for testing purposes. This will
-            bypass running the setup routines.
+        You can also specify `none' for testing purposes. This will bypass
+        running the setup routines.
 
-            See wiringPi setup reference for the full details on the
-            differences.
+        See wiringPi setup reference for the full details on the
+        differences.
 
-            There's an excellent pin scheme map for reference at pinout.xyz.
-            You can also run the `pinmap' application that was included in
-            this distribution from the command line to get a printout of pin
-            mappings.
+        There's an excellent pin scheme map for reference at pinout.xyz. You
+        can also run the `pinmap' application that was included in this
+        distribution from the command line to get a printout of pin
+        mappings.
 
-    fatal_exit => $bool
             Optional: We trap all `die()' calls and clean up for safety
             reasons. If a call to `die()' is trapped, by default, we clean
             up, and then `exit()'. Set `fatal_exit' to false (`0') to
@@ -133,88 +160,99 @@ OPERATIONAL METHODS
             is for unit testing purposes only.
 
   pin($pin_num)
-    Returns a RPi::WiringPi::Pin object, mapped to a specified GPIO pin,
-    which you can then perform operations on.
+            Returns a RPi::WiringPi::Pin object, mapped to a specified GPIO
+            pin, which you can then perform operations on.
 
-    Parameters:
+            Parameters:
 
-    $pin_num
-            Mandatory: The pin number to attach to.
+                Mandatory: The pin number to attach to.
 
   lcd()
-    Returns a RPi::WiringPi::LCD object, which allows you to fully
-    manipulate LCD displays connected to your Raspberry Pi.
+                Returns a RPi::WiringPi::LCD object, which allows you to
+                fully manipulate LCD displays connected to your Raspberry
+                Pi.
 
   interrupt($pin, $edge, $callback)
-    Returns a RPi::WiringPi::Interrupt object, which allows you to act when
-    certain events occur (eg: a button press). This functionality is better
-    used through the RPi::WiringPi::Pin object you created with `pin()'.
+                Returns a RPi::WiringPi::Interrupt object, which allows you
+                to act when certain events occur (eg: a button press). This
+                functionality is better used through the RPi::WiringPi::Pin
+                object you created with `pin()'.
 
-  gpio_layout()
-    Returns the current GPIO layout scheme.
+  spi($channel, $speed);
+                Creates a new RPi::SPI object which allows you to
+                communicate on the Serial Peripheral Interface (SPI) bus
+                with attached devices.
 
-  pwm_range($range)
-    Changes the range of Pulse Width Modulation (PWM). The default is `0'
-    through `1023'.
-
-    Parameters:
-
-        $range
-
-    Mandatory: An integer specifying the high-end of the range. The range
-    always starts at `0'. Eg: if `$range' is `359', if you incremented PWM
-    by `1' every second, you'd rotate a step motor one complete rotation in
-    exactly one minute.
+                See the linked documentation for full documentation on
+                usage, or the RPi::WiringPi::FAQ-Tutorial for usage
+                examples.
 
   shift_register($base, $num_pins, $data, $clk, $latch)
-    Allows you to access the output pins of up to four 74HC595 shift
-    registers, for a total of eight new output pins per register.
+                Allows you to access the output pins of up to four 74HC595
+                shift registers in series, for a total of eight new output
+                pins per register. Numerous chains of four registers are
+                permitted, each chain uses three GPIO pins.
 
-    Parameters:
+                Parameters:
 
-        $base
+                    Mandatory: Integer, represents the number at which you
+                    want to start referencing the new output pins attached
+                    to the register(s). For example, if you use `100' here,
+                    output pin `0' of the register will be `100', output `1'
+                    will be `101' etc.
 
-    Mandatory: Integer, represents the number at which you want to start
-    referencing the new output pins attached to the register(s). For
-    example, if you use `100' here, output pin `0' of the register will be
-    `100', output `1' will be `101' etc.
+                        Mandatory: Integer, the number of output pins on the
+                        registers you want to use. Each register has eight
+                        outputs, so if you have a single register in use,
+                        the maximum number of additional pins would be
+                        eight.
 
-        $num_pins
+                            Mandatory: Integer, the GPIO pin number attached
+                            to the `DS' pin (14) on the shift register.
 
-    Mandatory: Integer, the number of output pins on the registers you want
-    to use. Each register has eight outputs, so if you have a single
-    register in use, the maximum number of additional pins would be eight.
+                                Mandatory: Integer, the GPIO pin number
+                                attached to the `SHCP' pin (11) on the shift
+                                register.
 
-        $data
+                                    Mandatory: Integer, the GPIO pin number
+                                    attached to the `STCP' pin (12) on the
+                                    shift register.
 
-    Mandatory: Integer, the GPIO pin number attached to the `DS' pin (14) on
-    the shift register.
+  adc()
+                                    Returns a RPi::ADC::ADS object, which
+                                    allows you to read the four analog input
+                                    channels on an Adafruit ADS1xxx analog
+                                    to digital converter.
 
-        $clk
+                                    Parameters:
 
-    Mandatory: Integer, the GPIO pin number attached to the `SHCP' pin (11)
-    on the shift register.
-
-        $latch
-
-    Mandatory: Integer, the GPIO pin number attached to the `STCP' pin (12)
-    on the shift register.
+                                    The default (no parameters) is almost
+                                    always enough, but please do review the
+                                    documentation in the link above for
+                                    further information, and have a look at
+                                    the ADC tutorial section in this
+                                    distribution.
 
   bmp()
-    Returns a RPi::WiringPi::BMP180 object, which allows you to return the
-    current temperature in farenheit or celcius, along with the ability to
-    retrieve the barometric pressure in kPa.
+                                    Returns a RPi::WiringPi::BMP180 object,
+                                    which allows you to return the current
+                                    temperature in farenheit or celcius,
+                                    along with the ability to retrieve the
+                                    barometric pressure in kPa.
 
 RUNNING TESTS
-    Please see RUNNING TESTS in the FAQ.
+                                    Please see RUNNING TESTS in the FAQ.
 
 AUTHOR
-    Steve Bertrand, <steveb@cpan.org>
+                                    Steve Bertrand, <steveb@cpan.org>
 
 COPYRIGHT AND LICENSE
-    Copyright (C) 2016 by Steve Bertrand
+                                    Copyright (C) 2016 by Steve Bertrand
 
-    This library is free software; you can redistribute it and/or modify it
-    under the same terms as Perl itself, either Perl version 5.18.2 or, at
-    your option, any later version of Perl 5 you may have available.
+                                    This library is free software; you can
+                                    redistribute it and/or modify it under
+                                    the same terms as Perl itself, either
+                                    Perl version 5.18.2 or, at your option,
+                                    any later version of Perl 5 you may have
+                                    available.
 
