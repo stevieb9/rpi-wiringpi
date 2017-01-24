@@ -2,6 +2,8 @@ Revision history for Perl extension RPi::WiringPi.
 
 2.36.6 UNREL
         - updated FAQ, made section headers, fixed issue in sreg overview
+        - added breadboard diagram and fritzing project for dual 74HC595 shift
+          register connections
 
 2.36.5  2017-01-22
         - added dpot(), returns a RPI::DigiPot::MCP4XXXX digital potentiometer
@@ -14,7 +16,6 @@ Revision history for Perl extension RPi::WiringPi.
         - pod fixes/updates
         - added BMP180 section to FAQ
         - added untracked files
-          user doesn't have to run the entire script as such
         - removed the ability to use SYS (GPIO_SYS) mode. It was implemented to
           avoid having to be root
         - moved gpio_layout() from core to Util
