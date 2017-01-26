@@ -213,6 +213,13 @@ usage instructions.
 
     $spi->rw($buf, $len);
 
+    # do a read-only call. Send in the number of bytes you want back as dummy
+    # bytes (ie. 0)
+
+    my $dummy = [0x00, 0x00, 0x00];
+
+    my @read_buf = $spi->rw($dummy, 3);
+
 =head1 ANALOG TO DIGITAL CONVERTERS (ADC)
 
 =head2 Initialization and reading input

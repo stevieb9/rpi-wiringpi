@@ -190,7 +190,7 @@ various items
     my $buf = [0x01, 0x02];
     my $len = scalar @$buf;
 
-    $spi->rw($buf, $len);
+    my @read_bytes = $spi->rw($buf, $len);
 
     #
     # digital potentiometer
