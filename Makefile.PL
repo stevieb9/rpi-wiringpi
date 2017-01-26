@@ -28,8 +28,8 @@ WriteMakefile(
     PREREQ_PM         => {
         'RPi::ADC::ADS'             => 1.01,
         'RPi::DigiPot::MCP4XXXX'    => 2.36.1,
-        'RPi::SPI'                  => 2.36.1,
+        'RPi::SPI'                  => 2.36.4,
         'RPi::WiringPi::Constant'   => 0.02,
-        'WiringPi::API'             => 2.36.3,
+        'WiringPi::API'             => 2.36.4,
     },
 );
