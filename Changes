@@ -5,6 +5,8 @@ Revision history for Perl extension RPi::WiringPi.
         - added breadboard diagram and fritzing project for dual 74HC595 shift
           register connections
         - prereq version bumps: WiringPi::API v2.36.4, RPi::SPI v 2.36.4
+        - renamed error() to _error(), as it is literally an internal method,
+          so that pod-coverage.t would stop complaining
 
 2.36.5  2017-01-22
         - added dpot(), returns a RPI::DigiPot::MCP4XXXX digital potentiometer

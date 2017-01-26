@@ -1,8 +1,13 @@
 bin/pinmap
 Changes
 docs/breadboard/adc_basic_example_bb.jpg
+docs/breadboard/dpot_adc_bb.jpg
+docs/breadboard/two_74595_shift_registers_bb.jpg
 docs/fritzing/adc_basic_example.fzz
+docs/fritzing/dpot_adc.fzz
+docs/fritzing/two_74595_shift_registers.fzz
 docs/schematic/adc_basic_example_schem.jpg
+docs/schematic/dpot_adc_schem.jpg
 FAQ-Tutorial.pod
 lib/RPi/WiringPi.pm
 lib/RPi/WiringPi/BMP180.pm

@@ -19,7 +19,7 @@ our $VERSION = '2.36.6';
 my $fatal_exit = 1;
 
 BEGIN {
-    sub error {
+    sub _error {
         my $err = shift;
         print "\ndie() caught... ".  __PACKAGE__ ." is cleaning up\n",
         RPi::WiringPi::Util::cleanup();
@@ -28,8 +28,8 @@ BEGIN {
         exit if $fatal_exit;
     }
 
-    $SIG{__DIE__} = \&error;
-    $SIG{INT} = \&error;
+    $SIG{__DIE__} = \&_error;
+    $SIG{INT} = \&_error;
 };
 
 # core
@@ -423,6 +423,8 @@ this distribution.
 Returns a L<RPi::WiringPi::BMP180> object, which allows you to return the
 current temperature in farenheit or celcius, along with the ability to retrieve
 the barometric pressure in kPa.
+
+=head1 INTERNAL PUBLIC METHODS
 
 =head1 RUNNING TESTS
 
