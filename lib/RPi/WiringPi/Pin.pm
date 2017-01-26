@@ -10,7 +10,7 @@ use parent 'RPi::WiringPi::Util';
 use RPi::WiringPi::Constant qw(:all);
 use RPi::WiringPi::Interrupt;
 
-our $VERSION = '2.36.6';
+our $VERSION = '2.36.7';
 
 sub new {
     my ($class, $pin) = @_;
