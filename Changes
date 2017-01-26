@@ -1,12 +1,22 @@
 Revision history for Perl extension RPi::WiringPi.
 
-2.36.6 UNREL
-        - updated FAQ, made section headers, fixed issue in sreg overview
+2.36.6  2017-01-26
+        - * Notice * some functionality will be removed and/or hidden from the
+          next release, due to being incompatible or just plain me desiring to
+          rewrite them. Soft PWM is going as it doesn't work properly at this
+          level, and I'm seriously considering getting rid of all setup modes
+          less GPIO (as its a headache to maintain). I'll beef up the
+          translation tables though, so you can do such trickery as:
+          $ENV{RPI_PIN_MAP} = 'wpi'; or some such, and we'll translate the pin
+          numbers on the fly for you. Feedback welcome.
+
+        - updated FAQ, made section headers, fixed issue in shiftreg overview
         - added breadboard diagram and fritzing project for dual 74HC595 shift
-          register connections
+          register connections, and other various schematics
         - prereq version bumps: WiringPi::API v2.36.4, RPi::SPI v 2.36.4
-        - renamed error() to _error(), as it is literally an internal method,
-          so that pod-coverage.t would stop complaining
+        - renamed error() to _error(), as it is literally an internal method
+          that traps $SIG collapses for cleanup, so that pod-coverage.t would
+          stop complaining
 
 2.36.5  2017-01-22
         - added dpot(), returns a RPI::DigiPot::MCP4XXXX digital potentiometer
