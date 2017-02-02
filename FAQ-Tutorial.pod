@@ -446,6 +446,21 @@ A full use-case example of using the barometric/temperature sensor:
     my $c = $bmp->temp('c');
     my $p = $bmp->pressure; # kPa
 
+=head1 HYGROMETER SENSORS
+
+We provide access to the C<DHT11> temperature/humidity sensors through the
+L<RPi::DHT11> distribution.
+
+=head2 Usage
+
+    my $sensor_pin = 21;
+
+    my $env = $pi->hygrometer($sensor_pin);
+
+    my $humidity  = $env->humidity;
+    my $temp      = $env->temp; # celcius
+    my $farenheit = $env->temp('f');
+
 =head1 UTIL LIBRARY
 
 =head2 Overview
@@ -464,7 +479,8 @@ It's worth having a look at...
 Steve Bertrand, E<lt>steveb@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
-Copyright (C) 2016 by Steve Bertrand
+
+Copyright (C) 2017 by Steve Bertrand
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.18.2 or,
