@@ -47,6 +47,24 @@ SYNOPSIS
         my @read_bytes = $spi->rw($buf, $len);
     
         #
+        # digital to analog converter (DAC)
+        #
+    
+        my $dac_cs_pin = $pi->pin(29);
+        my $spi_chan = 0;
+    
+        my $dac = $pi->dac(
+            model   => 'MCP4922',
+            channel => $spi_chan,
+            cs      => $dac_cs_pin
+        );
+    
+        my ($dacA, $dacB) = (0, 0);
+    
+        $dac->set($dacA, 4095); # 100% output
+        $dac->set($dacB, 0);    # 0% output
+    
+        #
         # digital potentiometer
         #
     
@@ -127,8 +145,8 @@ DESCRIPTION
     wiringPi <http://wiringpi.com> must be installed prior to
     installing/using this module (v2.36+).
 
-    By default, we set up using the GPIO numbering scheme for pins. See
-    new() method for information on how to change this.
+    We always and only use the GPIO pin numbering scheme. These are the pin
+    numbers that are printed on the Pi board itself.
 
     This module is essentially a 'manager' for the sub-modules (ie.
     components). You can use the component modules directly, but retrieving
@@ -136,7 +154,7 @@ DESCRIPTION
     registry of pins and other data. We also trap $SIG{__DIE__} and
     $SIG{INT}, so that in the event of a crash, we can reset the Pi back to
     default settings, so components are not left in an inconsistent state.
-    Component moduls do none of these things.
+    Component modules do none of these things.
 
     There are a basic set of constants that can be imported. See
     RPi::WiringPi::Constant.
@@ -158,26 +176,6 @@ METHODS
     numbering scheme to GPIO (Broadcom (BCM) GPIO scheme).
 
     Parameters:
-
-        setup => $value
-
-    Optional. This option specifies which pin mapping (numbering scheme) to
-    use.
-
-        wpi:    wiringPi's numbering
-        phys:   physical pin numbering
-        gpio:   GPIO numbering
-
-    You can also specify none for testing purposes. This will bypass
-    running the setup routines.
-
-    See wiringPi setup reference <http://wiringpi.com/reference/setup> for
-    the full details on the differences.
-
-    There's an excellent pin scheme map for reference at pinout.xyz
-    <https://pinout.xyz/pinout/wiringpi>. You can also run the pinmap
-    application that was included in this distribution from the command
-    line to get a printout of pin mappings.
 
         fatal_exit => $bool
 
@@ -274,11 +272,20 @@ METHODS
     review the documentation in the link above for further information, and
     have a look at the ADC tutorial section in this distribution.
 
+ dac()
+
+    Returns a RPi::DAC::MCP4922 object (supports all 49x2 series DACs).
+    These chips provide analog output signals from the Pi's digital output.
+    Please see the documentation of that module for further information on
+    both the configuration and use of the DAC object.
+
  bmp()
 
-    Returns a RPi::WiringPi::BMP180 object, which allows you to return the
-    current temperature in farenheit or celcius, along with the ability to
-    retrieve the barometric pressure in kPa.
+    Returns a RPi::BMP180 object, which allows you to return the current
+    temperature in farenheit or celcius, along with the ability to retrieve
+    the barometric pressure in kPa.
+
+INTERNAL PUBLIC METHODS
 
 RUNNING TESTS
 

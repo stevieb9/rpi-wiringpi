@@ -6,10 +6,10 @@ use warnings;
 use parent 'RPi::WiringPi::Util';
 
 use RPi::ADC::ADS;
+use RPi::BMP180;
 use RPi::DigiPot::MCP4XXXX;
 use RPi::SPI;
 use RPi::WiringPi::Constant qw(:all);
-use RPi::WiringPi::BMP180;
 use RPi::WiringPi::Interrupt;
 use RPi::WiringPi::LCD;
 use RPi::WiringPi::Pin;
@@ -117,7 +117,7 @@ sub lcd {
 }
 sub bmp {
     my ($self, $base) = @_;
-    return RPi::WiringPi::BMP180->new($base);
+    return RPi::BMP180->new($base);
 }
 sub interrupt {
     my $self = shift;
@@ -431,7 +431,7 @@ configuration and use of the DAC object.
 
 =head2 bmp()
 
-Returns a L<RPi::WiringPi::BMP180> object, which allows you to return the
+Returns a L<RPi::BMP180> object, which allows you to return the
 current temperature in farenheit or celcius, along with the ability to retrieve
 the barometric pressure in kPa.
 
