@@ -28,6 +28,10 @@ L<RPi::WiringPi::Constant> module.
     EDGE_RISING  -  a state when a pin goes from LOW to HIGH
     EDGE_BOTH    -  both of the above states
     DPOT         -  digital potentiometer
+    ADC          -  analog to digital converter (in)
+    DAC          -  digital to analog converter (out)
+    IC           -  integrated circuit
+
 
 =head1 SETUP
 
@@ -241,6 +245,8 @@ documentation for full usage instructions.
 
 =head1 DIGITAL TO ANALOG CONVERTERS (DAC)
 
+=head2 Configuration, initialization and setting analog output levels
+
 This functionality is brought in from L<RPi::DAC::MCP4922>. Please refer to that
 documentation for full configuration and usage instructions.
 
@@ -424,8 +430,9 @@ Here's a trivial script that outputs information to specific LCD positions
 
 =head1 BAROMETRIC PRESSURE SENSORS
 
-Built in is support for the BMP085 and BMP180 barometric pressure and altimiter
-sensors, which also include a temperature sensor.
+There's support for the BMP085 and BMP180 barometric pressure and altimiter
+sensors, which also include a temperature sensor. This functionality is
+provided by the L<RPi::BMP180> distribution.
 
 =head2 Usage
 
