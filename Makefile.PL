@@ -30,6 +30,7 @@ WriteMakefile(
         'RPi::BMP180'               => 2.36.1,
         'RPi::DAC::MCP4922'         => 0.01,
         'RPi::DigiPot::MCP4XXXX'    => 2.36.1,
+        'RPi::DHT11'                => 1.02,
         'RPi::SPI'                  => 2.36.4,
         'RPi::WiringPi::Constant'   => 0.02,
         'WiringPi::API'             => 2.36.4,

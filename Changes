@@ -11,6 +11,8 @@ Revision history for Perl extension RPi::WiringPi.
           RPi::BMP180 (closes #15)
         - updated copyright year from 2016 to 2017
         - added in support for RPi::DHT11 hygrometers (closes #17)
+        - POD cleanup/fixes related to the work done in this release, as well as
+          unrelated fixes
 
 2.36.6  2017-01-26
         - * Notice * some functionality will be removed and/or hidden from the

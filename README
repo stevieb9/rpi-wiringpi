@@ -184,8 +184,9 @@ METHODS
 
  new(%args)
 
-    Returns a new RPi::WiringPi object. By default, we set the pin
-    numbering scheme to GPIO (Broadcom (BCM) GPIO scheme).
+    Returns a new RPi::WiringPi object. We exclusively use the GPIO
+    (Broadcom (BCM) GPIO) pin numbering scheme. These pin numbers are
+    printed on the Pi's board itself.
 
     Parameters:
 
