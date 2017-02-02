@@ -119,6 +119,11 @@ sub bmp {
     my ($self, $base) = @_;
     return RPi::BMP180->new($base);
 }
+sub hygrometer {
+    my ($self, $pin) = @_;
+    my $sensor = RPi::DHT11->new($pin);
+    return $sensor;
+}
 sub interrupt {
     my $self = shift;
     my $interrupt = RPi::WiringPi::Interrupt->new;
@@ -262,6 +267,18 @@ various items
     my $farenheit = $bmp->temp;
     my $celcius   = $bmp->temp('c');
     my $pressure  = $bmp->pressure; # kPa
+
+    #
+    # DHT11 temperature/humidity sensor
+    #
+
+    my $sensor_pin = 21;
+
+    my $env = $pi->hygrometer($sensor_pin);
+
+    my $humidity  = $env->humidity;
+    my $temp      = $env->temp; # celcius
+    my $farenheit = $env->temp('f');
 
     #
     # LCD
@@ -435,6 +452,11 @@ Returns a L<RPi::BMP180> object, which allows you to return the
 current temperature in farenheit or celcius, along with the ability to retrieve
 the barometric pressure in kPa.
 
+=head2 hygrometer($pin)
+
+Returns a L<RPi::DHT11> temperature/humidity sensor object, allows you to fetch
+the temperature (celcius or farenheit) as well as the current humidity level.
+
 =head1 INTERNAL PUBLIC METHODS
 
 =head1 RUNNING TESTS
@@ -448,7 +470,7 @@ Steve Bertrand, E<lt>steveb@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2016 by Steve Bertrand
+Copyright (C) 2017 by Steve Bertrand
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.18.2 or,

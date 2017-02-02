@@ -7,6 +7,10 @@ Revision history for Perl extension RPi::WiringPi.
           (closes #16)
         - added in support for RPi::DAC::MCP4922 digital to analog converters,
           and added dac()
+        - finally dumped RPi::WiringPi::BMP180 as a standalone distribution,
+          RPi::BMP180 (closes #15)
+        - updated copyright year from 2016 to 2017
+        - added in support for RPi::DHT11 hygrometers (closes #17)
 
 2.36.6  2017-01-26
         - * Notice * some functionality will be removed and/or hidden from the
