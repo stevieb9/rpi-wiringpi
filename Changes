@@ -1,5 +1,13 @@
 Revision history for Perl extension RPi::WiringPi.
 
+2.36.7 UNREL
+        - undocumented the ability to use the various wiringPi setup routines.
+          The functionality is still present, we're just not going to advertise
+          that it's there. The officially supported pin mapping scheme is GPIO
+          (closes #16)
+        - added in support for RPi::DAC::MCP4922 digital to analog converters,
+          and added dac()
+
 2.36.6  2017-01-26
         - * Notice * some functionality will be removed and/or hidden from the
           next release, due to being incompatible or just plain me desiring to

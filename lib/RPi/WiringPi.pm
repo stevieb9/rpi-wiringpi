@@ -86,6 +86,11 @@ sub adc {
     my $adc = RPi::ADC::ADS->new(%args);
     return $adc;
 }
+sub dac {
+    my ($self, %args) = @_;
+    my $dac = RPi::DAC::MCP49XX->new(%args);
+    return $dac;
+}
 sub dpot {
     my ($self, $cs, $channel) = @_;
     my $dpot = RPi::DigiPot::MCP4XXXX->new($cs, $channel);
@@ -193,6 +198,24 @@ various items
     my @read_bytes = $spi->rw($buf, $len);
 
     #
+    # digital to analog converter (DAC)
+    #
+
+    my $dac_cs_pin = $pi->pin(29);
+    my $spi_chan = 0;
+
+    my $dac = $pi->dac(
+        model   => 'MCP4922',
+        channel => $spi_chan,
+        cs      => $dac_cs_pin
+    );
+
+    my ($dacA, $dacB) = (0, 0);
+
+    $dac->set($dacA, 4095); # 100% output
+    $dac->set($dacB, 0);    # 0% output
+
+    #
     # digital potentiometer
     #
 
@@ -274,15 +297,15 @@ module.
 L<wiringPi|http://wiringpi.com> must be installed prior to installing/using
 this module (v2.36+).
 
-By default, we set up using the C<GPIO> numbering scheme for pins. See C<new()>
-method for information on how to change this.
+We always and only use the C<GPIO> pin numbering scheme. These are the pin
+numbers that are printed on the Pi board itself.
 
 This module is essentially a 'manager' for the sub-modules (ie. components).
 You can use the component modules directly, but retrieving components through
 this module instead has many benefits. We maintain a registry of pins and other
 data. We also trap C<$SIG{__DIE__}> and C<$SIG{INT}>, so that in the event of a
 crash, we can reset the Pi back to default settings, so components are not left
-in an inconsistent state. Component moduls do none of these things.
+in an inconsistent state. Component modules do none of these things.
 
 There are a basic set of constants that can be imported. See
 L<RPi::WiringPi::Constant>.
@@ -304,25 +327,6 @@ Returns a new C<RPi::WiringPi> object. By default, we set the pin numbering
 scheme to C<GPIO> (Broadcom (BCM) GPIO scheme).
 
 Parameters:
-
-    setup => $value
-
-Optional. This option specifies which pin mapping (numbering scheme) to use.
-
-    wpi:    wiringPi's numbering
-    phys:   physical pin numbering
-    gpio:   GPIO numbering
-
-You can also specify C<none> for testing purposes. This will bypass running
-the setup routines.
-
-See L<wiringPi setup reference|http://wiringpi.com/reference/setup> for
-the full details on the differences.
-
-There's an excellent pin scheme map for reference at
-L<pinout.xyz|https://pinout.xyz/pinout/wiringpi>. You can also run the C<pinmap>
-application that was included in this distribution from the command line to get
-a printout of pin mappings.
 
     fatal_exit => $bool
 
@@ -417,6 +421,13 @@ the documentation in the link above for further information, and have a
 look at the 
 L<ADC tutorial section|RPi::WiringPi::FAQ/ANALOG TO DIGITAL CONVERTERS> in
 this distribution.
+
+=head2 dac()
+
+Returns a L<RPi::DAC::MCP4922> object (supports all 49x2 series DACs). These
+chips provide analog output signals from the Pi's digital output. Please
+see the documentation of that module for further information on both the
+configuration and use of the DAC object.
 
 =head2 bmp()
 
