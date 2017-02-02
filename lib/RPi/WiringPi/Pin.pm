@@ -115,7 +115,7 @@ RPi::WiringPi::Pin - Access and manipulate Raspberry Pi GPIO pins
 
     my $pin = RPi::WiringPi::Pin->new(5);
 
-    $pin->setup;
+    $pin->setup_gpio;
 
     $pin->mode(INPUT);
     $pin->write(LOW);

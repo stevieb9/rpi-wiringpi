@@ -230,9 +230,7 @@ C<1023>.
 
 Parameters:
 
-=over 8
-=item   $range
-=back
+    $range
 
 Mandatory: An integer specifying the high-end of the range. The range always
 starts at C<0>. Eg: if C<$range> is C<359>, if you incremented PWM by C<1>

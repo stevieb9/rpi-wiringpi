@@ -340,8 +340,9 @@ an C<RPi::WiringPi> object.
 
 =head2 new(%args)
 
-Returns a new C<RPi::WiringPi> object. By default, we set the pin numbering
-scheme to C<GPIO> (Broadcom (BCM) GPIO scheme).
+Returns a new C<RPi::WiringPi> object. We exclusively use the C<GPIO>
+(Broadcom (BCM) GPIO) pin numbering scheme. These pin numbers are printed on the
+Pi's board itself.
 
 Parameters:
 
