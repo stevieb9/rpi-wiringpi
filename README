@@ -113,6 +113,18 @@ SYNOPSIS
         my $pressure  = $bmp->pressure; # kPa
     
         #
+        # DHT11 temperature/humidity sensor
+        #
+    
+        my $sensor_pin = 21;
+    
+        my $env = $pi->hygrometer($sensor_pin);
+    
+        my $humidity  = $env->humidity;
+        my $temp      = $env->temp; # celcius
+        my $farenheit = $env->temp('f');
+    
+        #
         # LCD
         #
     
@@ -285,6 +297,12 @@ METHODS
     temperature in farenheit or celcius, along with the ability to retrieve
     the barometric pressure in kPa.
 
+ hygrometer($pin)
+
+    Returns a RPi::DHT11 temperature/humidity sensor object, allows you to
+    fetch the temperature (celcius or farenheit) as well as the current
+    humidity level.
+
 INTERNAL PUBLIC METHODS
 
 RUNNING TESTS
@@ -297,7 +315,7 @@ AUTHOR
 
 COPYRIGHT AND LICENSE
 
-    Copyright (C) 2016 by Steve Bertrand
+    Copyright (C) 2017 by Steve Bertrand
 
     This library is free software; you can redistribute it and/or modify it
     under the same terms as Perl itself, either Perl version 5.18.2 or, at
