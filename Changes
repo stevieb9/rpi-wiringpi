@@ -1,6 +1,6 @@
 Revision history for Perl extension RPi::WiringPi.
 
-2.36.7 UNREL
+2.36.7  2017-02-02
         - undocumented the ability to use the various wiringPi setup routines.
           The functionality is still present, we're just not going to advertise
           that it's there. The officially supported pin mapping scheme is GPIO
