@@ -27,6 +27,7 @@ WriteMakefile(
     LICENSE => 'perl_5',
     PREREQ_PM         => {
         'RPi::ADC::ADS'             => 1.01,
+        'RPi::DAC::MCP4922'         => 0.01,
         'RPi::DigiPot::MCP4XXXX'    => 2.36.1,
         'RPi::SPI'                  => 2.36.4,
         'RPi::WiringPi::Constant'   => 0.02,

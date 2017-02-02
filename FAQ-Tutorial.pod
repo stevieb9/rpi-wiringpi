@@ -239,6 +239,27 @@ documentation for full usage instructions.
 
     my $p = $adc->percent(0);
 
+=head1 DIGITAL TO ANALOG CONVERTERS (DAC)
+
+This functionality is brought in from L<RPi::DAC::MCP4922>. Please refer to that
+documentation for full configuration and usage instructions.
+
+    # prepare and fetch a new DAC object
+
+    my $dac_cs_pin = $pi->pin(29);
+    my $spi_chan = 0;
+
+    my $dac = $pi->dac(
+        model   => 'MCP4922',
+        channel => $spi_chan,
+        cs      => $dac_cs_pin
+    );
+
+    my ($dacA, $dacB) = (0, 0);
+
+    $dac->set($dacA, 4095); # 100% output
+    $dac->set($dacB, 0);    # 0% output
+
 =head1 DIGITAL POTENTIOMETERS
 
 =head2 Initialization and usage
