@@ -1,5 +1,9 @@
 Revision history for Perl extension RPi::WiringPi.
 
+2.36.8  2017-02-22
+        - we now require EUMM 6.72 to ensure multi-decimal version numbers of
+          prereqs don't break things
+
 2.36.7  2017-02-02
         - undocumented the ability to use the various wiringPi setup routines.
           The functionality is still present, we're just not going to advertise
