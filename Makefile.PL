@@ -25,14 +25,17 @@ WriteMakefile(
     },
     MIN_PERL_VERSION   => 5.006,
     LICENSE => 'perl_5',
+    CONFIGURE_REQUIRES => {
+        'ExtUtils::MakeMaker' => 6.72,
+    },
     PREREQ_PM         => {
         'RPi::ADC::ADS'             => 1.01,
         'RPi::BMP180'               => 2.36.2,
-        'RPi::DAC::MCP4922'         => 0.01,
-        'RPi::DigiPot::MCP4XXXX'    => 2.36.1,
+        'RPi::DAC::MCP4922'         => 2.36.3,
+        'RPi::DigiPot::MCP4XXXX'    => 2.36.2,
         'RPi::DHT11'                => 1.02,
         'RPi::SPI'                  => 2.36.4,
         'RPi::WiringPi::Constant'   => 0.02,
-        'WiringPi::API'             => 2.36.4,
+        'WiringPi::API'             => 2.36.6,
     },
 );
