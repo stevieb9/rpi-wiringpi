@@ -1,15 +1,17 @@
 use warnings;
 use strict;
 
-use Data::Dumper;
-use RPi::WiringPi;
+use lib '.';
+use lib 'test/build';
+
+use Child;
 
 my $continue = 1;
 $SIG{INT} = sub { $continue = 0; };
 
-my $pi = RPi::WiringPi->new(setup => 'gpio');
+my $lcd = Child->new(setup => 'gpio');
 
-my $lcd = $pi->lcd;
+$lcd->setup_gpio;
 
 my %args = (
     cols => 16,
@@ -32,7 +34,7 @@ $lcd->init(%args);
 $lcd->position(0, 0);
 $lcd->print("stevieb");
 
-print Dumper \%RPi::WiringPi::LCD::;
+$lcd->blah;
 
 while ($continue){
     $lcd->position(0, 1);
