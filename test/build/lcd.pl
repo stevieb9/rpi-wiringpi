@@ -37,6 +37,7 @@ print Dumper \%RPi::WiringPi::LCD::;
 while ($continue){
     $lcd->position(0, 1);
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
+    $min = "0$min" if length $min == 1;
     $lcd->print("$hour:$min");
     sleep 1;
 }
