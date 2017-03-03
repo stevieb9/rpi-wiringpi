@@ -1,5 +1,8 @@
 Revision history for Perl extension RPi::WiringPi.
 
+2.36.9 UNREL
+        - work on testing inheritance of sub modules
+
 2.36.8  2017-02-22
         - we now require EUMM 6.72 to ensure multi-decimal version numbers of
           prereqs don't break things

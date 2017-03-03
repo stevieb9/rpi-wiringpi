@@ -16,6 +16,12 @@ $SIG{INT} = sub { $continue = 0; };
 
 my $pi = RPi::WiringPi->new();#setup => 'gpio');
 
+# this is the button pin that when an edge-change
+# (interrupt) happens, we switch from XP to remaining
+# XP
+
+my $button = 22;
+
 # prepare and initialize the LCD
 
 my $lcd = $pi->lcd;
@@ -42,7 +48,7 @@ $lcd->init(%args);
 # interrupt handler to do something when
 # the button is pressed
 
-my $button_pin = $pi->pin(26);
+my $button_pin = $pi->pin($button);
 
 # we're going to interrupt when the pin
 # goes LOW (off), so we'll pull it HIGH
@@ -75,6 +81,7 @@ while ($continue){
         $sec,$min,$hour,$mday,$mon,
         $year,$wday,$yday,$isdst
     ) = localtime();
+
     $min = "0$min" if length $min == 1;
 
     # get my post and xp count from PM
@@ -83,7 +90,7 @@ while ($continue){
 
     # manually get xp needed for next level
 
-    $next = 12000 - $xp;
+    $next = 16000 - $xp;
     
     # set the LCD cursor to top row, first
     # column, and print my num of PM posts
