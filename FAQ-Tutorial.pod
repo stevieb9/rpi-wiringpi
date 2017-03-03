@@ -63,11 +63,9 @@ your default system installation intact.
 
 =head2 Create a Raspberry Pi object
 
-The first thing you need to do is call an appropriate setup method. We do
-that automatically. See L<new()|RPi::WiringPi/"new-args"> to see how to use
-non-default setup routines. By default, we use the GPIO pin numbering scheme.
-Run the included C<pinmap> program to get a printout of a chart containing the
-various pin numbers for the different mapping schemes.
+The first thing you need to do is call the C<setup()> method. We do
+that automatically. See L<new()|RPi::WiringPi/"new-args">. We use the GPIO pin
+numbering scheme.
 
     my $pi = RPi::WiringPi->new;
 
