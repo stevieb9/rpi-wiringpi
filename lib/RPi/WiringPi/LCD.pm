@@ -18,16 +18,14 @@ sub init {
         rows cols bits rs strb
         d0 d1 d2 d3 d4 d5 d6 d7
     );
-    
-    my @args;
+   
     for (@required_args){
         if (! defined $params{$_}) {
-            die "\n'$_' is a required param for Core::lcd_init()\n";
+            die "\n'$_' is a required param for ::LCD::lcd_init()\n";
         }
-        push @args, $params{$_};
     }
 
-    my $fd = $self->lcd_init(@args);
+    my $fd = $self->lcd_init(%params);
 
     $self->_fd($fd);
 }

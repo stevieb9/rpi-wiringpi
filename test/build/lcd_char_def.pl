@@ -30,14 +30,10 @@ my %args = (
 $lcd->init(%args);
 
 $lcd->position(0, 0);
-$lcd->print("stevieb");
 
-while ($continue){
-    $lcd->position(0, 1);
-    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
-    $min = "0$min" if length $min == 1;
-    $lcd->print("$hour:$min");
-    sleep 1;
-}
+my $def = [0x0,0xa,0x15,0x11,0xa,0x4,0x0];
 
+$lcd->char_def(0, $def);
+WiringPi::API::put_char(0, 0);
+sleep 3;
 $lcd->clear;
