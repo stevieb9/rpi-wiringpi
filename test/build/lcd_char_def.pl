@@ -27,13 +27,13 @@ my %args = (
     d7 => 0,
 );
 
-$lcd->init(%args);
+my $fd = $lcd->init(%args);
 
 $lcd->position(0, 0);
 
 my $def = [0x0,0xa,0x15,0x11,0xa,0x4,0x0];
 
 $lcd->char_def(0, $def);
-WiringPi::API::put_char(0, 0);
+WiringPi::API::lcd_put_char($fd, 0);
 sleep 3;
 $lcd->clear;

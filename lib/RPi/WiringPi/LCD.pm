@@ -28,6 +28,8 @@ sub init {
     my $fd = $self->lcd_init(%params);
 
     $self->_fd($fd);
+
+    return $self->_fd();
 }
 sub home {
     $_[0]->lcd_home($_[0]->_fd);
