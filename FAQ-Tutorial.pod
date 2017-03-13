@@ -226,8 +226,10 @@ usage instructions.
 
 =head2 Initialization and reading input
 
-This functionality is brought in from L<RPi::ADC::ADS>. Please refer to that
-documentation for full usage instructions.
+We provide access to both the ADS1x15 and MCP3008 ADCs.
+
+The default is to return an ADS1115 object from L<RPi::ADC::ADS>. Please review
+that documentation for full usage instructions.
 
     # fetch a new ADC object
 
@@ -240,6 +242,14 @@ documentation for full usage instructions.
     # fetch the percentage of input on pin A0
 
     my $p = $adc->percent(0);
+
+You can also request an MCP300x ADC from L<RPi::ADC::MCP3008>. Again, for full
+details, see that documentation.
+
+    my $adc = $pi->adc(model => 'MCP3008', channel => 0);
+
+    my $raw = $adc->raw(0);
+    my $percent = $adc->percent(0);
 
 =head1 DIGITAL TO ANALOG CONVERTERS (DAC)
 

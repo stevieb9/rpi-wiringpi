@@ -34,6 +34,7 @@ WriteMakefile(
         'RPi::DAC::MCP4922'         => 2.3604,
         'RPi::DigiPot::MCP4XXXX'    => 2.3603,
         'RPi::DHT11'                => 1.02,
+        'RPi::ADC::MCP3008'         => 2.3603,
         'RPi::SPI'                  => 2.3606,
         'RPi::WiringPi::Constant'   => 0.02,
         'WiringPi::API'             => 2.3608,
