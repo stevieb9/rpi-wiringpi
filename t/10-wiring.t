@@ -35,22 +35,9 @@ my $pi = $mod->new(fatal_exit => 0);
     }
 }
 
+$pi->cleanup;
+
+is $pi->registered_pins, undef, "after cleanup, all pins unregistered";
+
 done_testing();
-
-__END__
-    $pi->unregister_pin($pin3);
-    is $pi->registered_pins, 2, "unregistered pin ok";
-
-    $pi->register_pin($pin3);
-    is $pi->registered_pins, 3, "registered pin ok";
-
-    my $ok = eval { $pi->pin(3); 1; };
-    ok ! $ok, "croak() if trying to pin() an existing pin";
-
-    $ok = eval { $pi->register_pin($pin3); 1; };
-    ok ! $ok, "croak() if trying to register an existing pin";
-
-}
-
-
 

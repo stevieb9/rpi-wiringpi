@@ -33,7 +33,10 @@ $lcd->position(0, 0);
 
 my $def = [0x0,0xa,0x15,0x11,0xa,0x4,0x0];
 
-$lcd->char_def(0, $def);
+#$lcd->char_def(0, $def);
+my $unsigned = pack "V0C*", @$def;
+WiringPi::API::testChar($def, 55);
+WiringPi::API::lcd_char_def($fd, 0, $def);
 WiringPi::API::lcd_put_char($fd, 0);
 sleep 3;
 $lcd->clear;

@@ -18,10 +18,15 @@ my $pi = $mod->new;
 {# pin
 
     my $pin = $pi->pin(5);
-    $pin->mode(1);
 
+    is $pin->mode, 0, "pin mode is INPUT by default";
     is $pin->read, 0, "pin status is LOW by default";
 
+    $pin->mode(1);
+
+    is $pin->mode, 1, "pin mode is OUTPUT ok";
+    
+    is $pin->read, 0, "pin status is LOW after going OUTPUT mode";
 
     if (! $ENV{NO_BOARD}){
 
@@ -34,6 +39,8 @@ my $pi = $mod->new;
         is $pin->read, 0, "pin status back to LOW after write(0)";
        
         $pin->mode(0);
+    
+        is $pin->mode, 0, "pin mode back to INPUT";
     }
 }
 

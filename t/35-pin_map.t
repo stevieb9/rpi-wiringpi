@@ -16,14 +16,14 @@ if (! $ENV{PI_BOARD}){
 {
     my $pi = RPi::WiringPi->new(setup => 'none');
 
-    is $pi->gpio_scheme, 'NULL', "gpio_scheme() returns NULL if not set";
-    is $pi->gpio_scheme('BCM'), 'BCM', "gpio_scheme() returns BCM if setup() is sys";
-    is $pi->gpio_scheme('GPIO'), 'GPIO', "gpio_scheme() returns GPIO if setup() is gpio";
-    is $pi->gpio_scheme('PHYS_GPIO'), 'PHYS_GPIO', "gpio_scheme() returns BCM if setup() is phys";
+    is $pi->pin_scheme, -1, "pin_scheme() returns NULL if not set";
+    is $pi->pin_scheme('BCM'), 'BCM', "pin_scheme() returns BCM if setup() is sys";
+    is $pi->pin_scheme('GPIO'), 'GPIO', "pin_scheme() returns GPIO if setup() is gpio";
+    is $pi->pin_scheme('PHYS_GPIO'), 'PHYS_GPIO', "pin_scheme() returns BCM if setup() is phys";
     is (
-        $pi->gpio_scheme('WPI'),
+        $pi->pin_scheme('WPI'),
         'WPI', 
-        "gpio_scheme() returns 'wiringPi' if setup() is wiringPi"
+        "pin_scheme() returns 'wiringPi' if setup() is wiringPi"
     );
 }
 

@@ -26,11 +26,13 @@ t/04-setup_uninit.t
 t/05-pin.t
 t/10-wiring.t
 t/15-pwm.t
+t/15-pwm.t-norun
 t/20-cleanup.t
 t/25-sig_die.t
 t/30-sig_int.t
 t/35-pin_map.t
 t/40-interrupt_and_pud.t
+t/40-interrupt_and_pud.t-norun
 t/manifest.t
 t/pod-coverage.t
 test/00-setup.t
@@ -43,6 +45,7 @@ test/20-read_and_mode.pl
 test/25-registered_pin_cleanup.pl
 test/30-check_registered_pins.pl
 test/adc.pl
+test/baseline_setup.pl
 test/bmp.pl
 test/images/after.jpg
 test/images/before.jpg
