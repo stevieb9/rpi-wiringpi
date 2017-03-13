@@ -1,6 +1,6 @@
 Revision history for Perl extension RPi::WiringPi.
 
-2.3610 UNREL
+2.3610  2017-03-13
         - added in support in adc() to allow usage of the MCP3008 ADC from
           RPi::ADC::MCP3008 (closes #21)
         - fix typos in some module names we're including
