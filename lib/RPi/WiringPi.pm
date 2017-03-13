@@ -83,7 +83,15 @@ sub new {
 }
 sub adc {
     my ($self, %args) = @_;
-    my $adc = RPi::ADC::ADS->new(%args);
+
+    my $adc;
+
+    if (defined $args{model} && $args{model} = 'MCP3008'){
+        $adc = RPi::ADC::MCP3008->new($args{channel});
+    }
+    else {
+        $adc = RPi::ADC::ADS->new(%args);
+    }
     return $adc;
 }
 sub dac {
@@ -179,7 +187,7 @@ various items
     my $state = $pin->read;
 
     #
-    # analog to digital converter
+    # analog to digital converter (ADS1115)
     #
 
     my $adc = $pi->adc;
@@ -188,6 +196,13 @@ various items
 
     my $v = $adc->volts(0);
     my $p = $adc->percent(0);
+
+    # analog to digital converter (MCP3008)
+
+    my $adc = $pi->adc(model => 'MCP3008', channel => 0);
+
+    print $adc->raw(0);
+    print $adc->percent(0);
 
     #
     # SPI
@@ -429,6 +444,11 @@ shift register.
 
 =head2 adc()
 
+There are two different ADCs that you can select from. The default is the
+ADS1x15 series:
+
+=head3 ADS1115
+
 Returns a L<RPi::ADC::ADS> object, which allows you to read the four analog
 input channels on an Adafruit ADS1xxx analog to digital converter.
 
@@ -440,6 +460,23 @@ look at the
 L<ADC tutorial section|RPi::WiringPi::FAQ/ANALOG TO DIGITAL CONVERTERS> in
 this distribution.
 
+=head3 MCP3008
+
+You can also use an L<RPi::ADC::MCP3008> ADC.
+
+Parameters:
+
+    model => 'MCP3008'
+
+Mandatory, String. The exact quoted string above.
+
+    channel => $channel
+
+Mandatory, Integer. C<0> or C<1> for the Pi's onboard hardware CS/SS CE0 and CE1
+pins, or any GPIO number above C<1> in order to use an arbitrary GPIO pin for
+the CS pin, and we'll do the bit-banging of the SPI bus automatically.
+
+Parameters:
 =head2 dac()
 
 Returns a L<RPi::DAC::MCP4922> object (supports all 49x2 series DACs). These
