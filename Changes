@@ -3,6 +3,10 @@ Revision history for Perl extension RPi::WiringPi.
 2.3610 UNREL
         - added in support in adc() to allow usage of the MCP3008 ADC from
           RPi::ADC::MCP3008 (closes #21)
+        - fix typos in some module names we're including
+        - added unregister_pin() again, we can now unregister pins manually
+        - began process of rewriting unit tests in preparation for full blown
+          automation
 
 2.3609  2017-03-13
         - work on testing inheritance of sub modules

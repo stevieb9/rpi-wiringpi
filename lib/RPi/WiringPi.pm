@@ -6,7 +6,9 @@ use warnings;
 use parent 'RPi::WiringPi::Util';
 
 use RPi::ADC::ADS;
+use RPi::ADC::MCP3008;
 use RPi::BMP180;
+use RPi::DAC::MCP4922;
 use RPi::DigiPot::MCP4XXXX;
 use RPi::SPI;
 use RPi::WiringPi::Constant qw(:all);
@@ -86,7 +88,7 @@ sub adc {
 
     my $adc;
 
-    if (defined $args{model} && $args{model} = 'MCP3008'){
+    if (defined $args{model} && $args{model} eq 'MCP3008'){
         $adc = RPi::ADC::MCP3008->new($args{channel});
     }
     else {
@@ -96,7 +98,7 @@ sub adc {
 }
 sub dac {
     my ($self, %args) = @_;
-    my $dac = RPi::DAC::MCP49XX->new(%args);
+    my $dac = RPi::DAC::MCP4922->new(%args);
     return $dac;
 }
 sub dpot {

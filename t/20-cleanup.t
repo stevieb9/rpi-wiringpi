@@ -24,21 +24,21 @@ my $pi = $mod->new;
     my @pins = $pi->registered_pins;
 
     my $c = 1;
-    for (@pins){
+    for ($pin1, $pin2, $pin3){
         isa_ok $_, 'RPi::WiringPi::Pin';
         is $_->num, $c, "pin $c has correct num";
         $c++;
     }
 
     $pi->unregister_pin($pin3);
-    is $pi->registered_pins, 2, "unregistered pin ok";
+    is $pi->registered_pins, '1,2', "unregistered pin ok";
 
     $pi->register_pin($pin3);
-    is $pi->registered_pins, 3, "registered pin ok";
-
+    is $pi->registered_pins, '1,2,3', "registered pin ok";
+ 
     $pi->cleanup;
 
-    is $pi->registered_pins, 0, "cleanup() ok";
+    is $pi->registered_pins, undef, "cleanup() ok";
 }
 
 done_testing();

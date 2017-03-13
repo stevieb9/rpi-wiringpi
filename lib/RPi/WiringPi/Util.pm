@@ -106,6 +106,24 @@ sub register_pin {
         ? $gpio_num
         : "$ENV{RPI_PINS},$gpio_num";
 }
+sub unregister_pin {
+    my ($self, $pin) = @_;
+
+    my @pin_nums = split /,/, $self->registered_pins;
+
+    my @updated_list;
+
+    for my $pin_num (@pin_nums){
+        if ($pin->num == $pin_num){
+            $pin->mode(INPUT);
+        }
+        else {
+            push @updated_list, $pin_num;
+        }
+    }
+
+    $ENV{RPI_PINS} = join ",", @updated_list;
+}
 sub cleanup{
     my $pins = $ENV{RPI_PINS};
     for (split /,/, $pins){
