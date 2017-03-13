@@ -30,12 +30,12 @@ WriteMakefile(
     },
     PREREQ_PM         => {
         'RPi::ADC::ADS'             => 1.01,
-        'RPi::BMP180'               => '2.36.2',
-        'RPi::DAC::MCP4922'         => '2.36.3',
-        'RPi::DigiPot::MCP4XXXX'    => '2.36.2',
+        'RPi::BMP180'               => 2.3603,
+        'RPi::DAC::MCP4922'         => 2.3604,
+        'RPi::DigiPot::MCP4XXXX'    => 2.3603,
         'RPi::DHT11'                => 1.02,
-        'RPi::SPI'                  => '2.36.4',
+        'RPi::SPI'                  => 2.3606,
         'RPi::WiringPi::Constant'   => 0.02,
-        'WiringPi::API'             => '2.36.6',
+        'WiringPi::API'             => 2.3608,
     },
 );
