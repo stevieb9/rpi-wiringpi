@@ -478,7 +478,6 @@ Mandatory, Integer. C<0> or C<1> for the Pi's onboard hardware CS/SS CE0 and CE1
 pins, or any GPIO number above C<1> in order to use an arbitrary GPIO pin for
 the CS pin, and we'll do the bit-banging of the SPI bus automatically.
 
-Parameters:
 =head2 dac()
 
 Returns a L<RPi::DAC::MCP4922> object (supports all 49x2 series DACs). These

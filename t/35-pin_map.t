@@ -27,12 +27,4 @@ if (! $ENV{PI_BOARD}){
     );
 }
 
-SKIP: {
-    my $pi = RPi::WiringPi->new;
-    warn "t/35 gpio_map() test needs investigating...\n";
-    skip "FIXME: dont' know why this test fails", 1;
-    my $map = $pi->gpio_map('BCM');
-    print "$map->{40}\n";
-}
-
 done_testing();

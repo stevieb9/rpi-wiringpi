@@ -283,6 +283,18 @@ Parameters:
 
 Mandatory: An object instance of L<RPi::WiringPi::Pin> class.
 
+=head2 unregister_pin($pin_obj)
+
+Removes an already registered pin from the registry. This method shouldn't be
+used in the normal course of operation, but is available for convenience
+anyhow.
+
+Parameters:
+
+    $pin_obj
+
+Mandatory: An object instance of L<RPi::WiringPi::Pin> class.
+
 =head2 cleanup()
 
 Resets all registered pins back to default settings (off). It's important that
