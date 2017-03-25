@@ -4,6 +4,7 @@ use feature 'say';
 
 use RPi::WiringPi;
 use RPi::WiringPi::Constant qw(:all);
+use WiringPi::API qw(:all);
 
 my ($dac_cs_pin, $adc_cs_pin) = (12, 26);
 my $adc_shiftreg_in = 0;
@@ -37,8 +38,17 @@ print "\nShift Resgister...\n\n";
 
 my $sr_pin = $pi->pin(100);
 
-$sr_pin->write(HIGH);
+$sr_pin->write(1);
+say $adc->percent($adc_shiftreg_in);
+
+$sr_pin->write(0);
+say $adc->percent($adc_shiftreg_in);
+
+$sr_pin->write(1);
+say $adc->percent($adc_shiftreg_in);
+
+$sr_pin->write(0);
 
 say $adc->percent($adc_shiftreg_in);
 
-$pi->cleanup;
+#$pi->cleanup;
