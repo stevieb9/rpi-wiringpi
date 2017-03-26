@@ -7,7 +7,7 @@ use RPi::WiringPi::Constant qw(:all);
 use WiringPi::API qw(:all);
 
 my ($dac_cs_pin, $adc_cs_pin) = (12, 26);
-my $adc_shiftreg_in = 0;
+my $adc_shiftreg_in = 2;
 my $adc_dac_in = 1;
 
 my $pi = RPi::WiringPi->new;
@@ -36,19 +36,18 @@ my $sr = $pi->shift_register(100, 8, 21, 20, 16);
 
 print "\nShift Resgister...\n\n";
 
-my $sr_pin = $pi->pin(100);
+my $sr_pin = $pi->pin(101);
 
-$sr_pin->write(1);
-say $adc->percent($adc_shiftreg_in);
+$sr_pin->write(HIGH);
+say "adc H: " . $adc->percent($adc_shiftreg_in);
 
-$sr_pin->write(0);
-say $adc->percent($adc_shiftreg_in);
+$sr_pin->write(LOW);
+say "adc L: " . $adc->percent($adc_shiftreg_in);
 
-$sr_pin->write(1);
-say $adc->percent($adc_shiftreg_in);
+$sr_pin->write(HIGH);
+say "adc H: " . $adc->percent($adc_shiftreg_in);
 
-$sr_pin->write(0);
+$sr_pin->write(LOW);
+say "adc L: " . $adc->percent($adc_shiftreg_in);
 
-say $adc->percent($adc_shiftreg_in);
-
-#$pi->cleanup;
+$pi->cleanup;

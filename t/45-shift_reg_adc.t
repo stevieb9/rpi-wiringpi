@@ -19,23 +19,33 @@ my $sr = $pi->shift_register(400, 8, 21, 20, 16);
 
 my $sr_pin;
 
-$sr_pin = $pi->pin(400);
+$sr_pin = $pi->pin(401);
 
 $sr_pin->write(LOW);
+#print $adc->percent(2) . "\n\n";
+ok $adc->percent(2) < 2, "SR pin 1 low ok";
 
-say $adc->percent(0);
-ok $adc->percent(0) < 2, "SR pin 0 low ok";
 
 $sr_pin->write(HIGH);
-sleep 1;
-print $adc->percent(0) . "\n";
-
-ok $adc->percent(0) > 90, "SR pin 0 HIGH ok";
+#print $adc->percent(2) . "\n\n";
+ok $adc->percent(2) > 90, "SR pin 1 HIGH ok";
 
 $sr_pin->write(LOW);
+#print $adc->percent(2) . "\n\n";
+ok $adc->percent(2) < 2, "SR pin 1 low ok";
+
+$sr_pin->write(LOW);
+#print $adc->percent(2) . "\n\n";
+ok $adc->percent(2) < 2, "SR pin 1 low ok";
 
 
-#$sr_pin->write(LOW);
+$sr_pin->write(HIGH);
+#print $adc->percent(2) . "\n\n";
+ok $adc->percent(2) > 90, "SR pin 1 HIGH ok";
+
+$sr_pin->write(LOW);
+#print $adc->percent(2) . "\n\n";
+ok $adc->percent(2) < 2, "SR pin 1 low ok";
 
 $pi->cleanup;
 
