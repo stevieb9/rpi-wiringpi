@@ -4,7 +4,6 @@ use feature 'say';
 
 use RPi::WiringPi;
 use RPi::WiringPi::Constant qw(:all);
-use WiringPi::API qw(:all);
 
 my ($dac_cs_pin, $adc_cs_pin) = (12, 26);
 my $adc_shiftreg_in = 2;
