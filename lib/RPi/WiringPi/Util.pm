@@ -127,8 +127,8 @@ sub unregister_pin {
 sub cleanup{
     my $pins = $ENV{RPI_PINS};
     for (split /,/, $pins){
-        `sudo gpio -g mode $_ in`;
-        `sudo gpio -g mode $_ tri`;
+        `gpio -g mode $_ in`;
+        `gpio -g mode $_ tri`;
         delete $ENV{RPI_PINS};
     }
 }

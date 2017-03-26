@@ -64,7 +64,6 @@ sub pull {
         die "Core::pull_up_down requires either 0, 1 or 2 for direction";
     }
 
-    $self->mode(INPUT);
     $self->pull_up_down($self->num, $direction);
 }
 sub pwm {
@@ -88,10 +87,7 @@ sub num {
 }
 sub interrupt_set {
     my ($self, $edge, $callback) = @_;
-    #$self->set_interrupt($self->num, $edge, $callback);
-    my $int = RPi::WiringPi::Interrupt->new;
-    $int->set($self->num, $edge, $callback);
-    $self->{interrupt} = $int;
+    $self->set_interrupt($self->num, $edge, $callback);
 }
 sub _soft_pwm_enabled {
     my ($self, $enabled) = @_;

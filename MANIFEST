@@ -27,13 +27,15 @@ t/03-setup_phys.t
 t/04-setup_uninit.t
 t/05-pin.t
 t/10-register.t
-t/15-pwm.t-norun
+t/15-pwm.t
 t/20-cleanup.t
 t/25-sig_die.t
 t/35-pin_map.t
-t/40-interrupt_and_pud.t-norun
+t/40-interrupt_and_pud.t
+t/45-shift_reg_adc.t
 t/manifest.t
 t/pod-coverage.t
+t/README
 test/00-setup.t
 test/01-setup_gpio.t
 test/02-setup_phys.t
@@ -48,5 +50,6 @@ test/baseline_setup.pl
 test/bmp.pl
 test/images/after.jpg
 test/images/before.jpg
+test/int.pl
 test/shift.pl
 test/spi.pl
