@@ -9,6 +9,9 @@ Revision history for Perl extension RPi::WiringPi.
         - in pud(), we no longer set the pin to INPUT automatically
         - we now require WiringPi::API 2.3609 due to PUD/Interrupt fixes there
         - added proper interrupt and pud tests
+        - in Util::cleanup(), removed the use of sudo for decommissioning pins
+        - added t/README file, which specifies the GPIO pins in use for the
+          unit test suite
 
 2.3610  2017-03-13
         - added in support in adc() to allow usage of the MCP3008 ADC from
