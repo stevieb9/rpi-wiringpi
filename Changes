@@ -13,6 +13,9 @@ Revision history for Perl extension RPi::WiringPi.
         - added t/README file, which specifies the GPIO pins in use for the
           unit test suite
         - added unit test section to FAQ
+        - in Interrupt POD, specify that if the handler routine can't be found,
+          simply add the full package name to the callback 
+          (eg: 'main::callback)
 
 2.3610  2017-03-13
         - added in support in adc() to allow usage of the MCP3008 ADC from
