@@ -1,6 +1,6 @@
 Revision history for Perl extension RPi::WiringPi.
 
-2.3611 UNREL
+2.3611  2017-03-26
         - added fritzing and breadboard layout for the ADC/DAC test
           configuration for brewbuild CI
         - clean up Pin::set_interrupt() code to call API code directly
@@ -12,6 +12,7 @@ Revision history for Perl extension RPi::WiringPi.
         - in Util::cleanup(), removed the use of sudo for decommissioning pins
         - added t/README file, which specifies the GPIO pins in use for the
           unit test suite
+        - added unit test section to FAQ
 
 2.3610  2017-03-13
         - added in support in adc() to allow usage of the MCP3008 ADC from
