@@ -1,0 +1,2 @@
+- pin 27 is dedicated to the pud/interrupt tests
+- pin 21, 20, 16 are dedicated to the shift register

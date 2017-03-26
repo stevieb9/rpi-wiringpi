@@ -37,6 +37,6 @@ WriteMakefile(
         'RPi::ADC::MCP3008'         => 2.3603,
         'RPi::SPI'                  => 2.3606,
         'RPi::WiringPi::Constant'   => 0.02,
-        'WiringPi::API'             => 2.3608,
+        'WiringPi::API'             => 2.3609,
     },
 );
