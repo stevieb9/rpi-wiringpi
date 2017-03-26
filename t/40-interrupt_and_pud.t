@@ -36,11 +36,7 @@ BEGIN {
 
     sub handler {
         $c++;
-        if ($run){
-            open my $fh, '>', 't/interrupt.txt' or die $!;
-            print $fh $c;
-            close $fh or die $!;
-        }
+        $ENV{PI_INTERRUPT} = $c;
     }
 }
 
@@ -61,21 +57,21 @@ if (! $ENV{NO_BOARD}){
     $pin->pull(PUD_UP);
     $pin->pull(PUD_DOWN);
 
-    is _check(), 1, "1st interrupt ok";
+    is $ENV{PI_INTERRUPT}, 1, "1st interrupt ok";
 
     # trigger the interrupt
 
     $pin->pull(PUD_UP);
     $pin->pull(PUD_DOWN);
     
-    is _check(), 2, "2nd interrupt ok";
+    is $ENV{PI_INTERRUPT}, 2, "2nd interrupt ok";
 
     # trigger the interrupt
 
     $pin->pull(PUD_UP);
     $pin->pull(PUD_DOWN);
     
-    is _check(), 3, "3rd interrupt ok";
+    is $ENV{PI_INTERRUPT}, 3, "3rd interrupt ok";
     
 }
 
@@ -93,28 +89,15 @@ if (! $ENV{NO_BOARD}){
     $pin->pull(PUD_UP);
     $pin->pull(PUD_DOWN);
     
-    is _check(), 4, "4th interrupt ok, using interrupt object";
+    is $ENV{PI_INTERRUPT}, 4, "4th interrupt ok, using interrupt object";
 
     $pin->pull(PUD_UP);
     $pin->pull(PUD_DOWN);
     
-    is _check(), 5, "5th interrupt ok, using interrupt object";
+    is $ENV{PI_INTERRUPT}, 5, "5th interrupt ok, using interrupt object";
 
 }
 
 $pi->cleanup;
-
-unlink 't/interrupt.txt' or die $!;
-
-is -e 't/interrupt.txt', undef, "tmp file deleted ok";
-
-sub _check {
-    my $f = 't/interrupt.txt';
-    open my $fh, '<', $f or die $!;
-    local $/;
-    my $ret = <$fh>;
-    close $fh or die $!;
-    return $ret;
-}
 
 done_testing();
