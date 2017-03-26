@@ -116,7 +116,7 @@ RPi::WiringPi::Pin - Access and manipulate Raspberry Pi GPIO pins
     $pin->mode(INPUT);
     $pin->write(LOW);
 
-    $pin->set_interrupt(EDGE_RISING, 'pin5_interrupt_handler');
+    $pin->set_interrupt(EDGE_RISING, 'main::pin5_interrupt_handler');
 
     my $num = $pin->num;
     my $mode = $pin->mode;
@@ -206,7 +206,8 @@ C<EDGE_BOTH>.
 
 The string name of a Perl subroutine that you've already written within your
 code. This is the interrupt handler. When an interrupt is triggered, the code
-in this subroutine will run.
+in this subroutine will run. If you get errors when the handler is called,
+specify the full package name to the handler (eg: C<'main::callback'>).
 
 =head2 pwm($value)
 

@@ -173,6 +173,9 @@ obviously want to be doing other things while waiting for that button press.
         # do other stuff, perhaps turning on/off other pins
     }
 
+NOTE: If you receive errors about the handler callback not being found, simply
+specify the callback with the full package (eg. C<'main::handler'>).
+
 =head1 INTERRUPTS
 
 Although we've already used interrupts from within a pin object, you can use
@@ -193,6 +196,9 @@ them separately as well.
     sub callback {
         ...
     }
+
+NOTE: If you receive errors about the handler callback not being found, simply
+specify the callback with the full package (eg. C<'main::callback'>).
 
 =head1 SERIAL PERIPHERAL INTERFACE (SPI) BUS
 
