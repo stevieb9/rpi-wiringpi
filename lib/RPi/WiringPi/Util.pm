@@ -126,6 +126,8 @@ sub unregister_pin {
 }
 sub cleanup{
     my $pins = $ENV{RPI_PINS};
+    return if ! $ENV{RPI_PINS};
+
     for (split /,/, $pins){
         `gpio -g mode $_ in`;
         `gpio -g mode $_ tri`;

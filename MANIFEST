@@ -33,6 +33,7 @@ t/25-sig_die.t
 t/35-pin_map.t
 t/40-interrupt_and_pud.t
 t/45-shift_reg_adc.t
+t/55-dac.t
 t/manifest.t
 t/pod-coverage.t
 t/README
