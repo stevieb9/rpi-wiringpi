@@ -482,6 +482,22 @@ maps/translation hashes, manually export and unexport GPIO pins etc.
 
 It's worth having a look at...
 
+=head1 RUNNING TESTS
+
+First off, please review the C<t/README> file for the GPIO pins we use for the
+test physical configuration, and set up the Pi according to the
+L<unit test diagram|https://stevieb9.github.io/rpi-wiringpi/breadboard/brewbuild_test_platform_bb.jpg>.
+
+Before running the tests, you need to set a special environment variable so that
+we know we're on a Pi board. This ensures CPAN testers won't run the tests
+across all of its platforms:
+
+    export RPI_BOARD=1
+
+There are a couple of test files that require root privileges, but we handle
+this internally by re-running the file with C<sudo> enabled. This allows all
+tests but these couple to be run as a standard user.
+
 =head1 AUTHOR
 
 Steve Bertrand, E<lt>steveb@cpan.orgE<gt>
