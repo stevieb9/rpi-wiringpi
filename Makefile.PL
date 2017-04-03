@@ -14,12 +14,12 @@ WriteMakefile(
         'meta-spec' => { version => 2 },
         resources   => {
             bugtracker => {
-                web => 'https://github.com/stevieb9/p5-rpi-wiringpi/issues',
+                web => 'https://github.com/stevieb9/rpi-wiringpi/issues',
             },
             repository => {
                 type => 'git',
-                url => 'https://github.com/stevieb9/p5-rpi-wiringpi.git',
-                web => 'https://github.com/stevieb9/p5-rpi-wiringpi',
+                url => 'https://github.com/stevieb9/rpi-wiringpi.git',
+                web => 'https://github.com/stevieb9/rpi-wiringpi',
             },
         },
     },
