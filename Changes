@@ -6,6 +6,7 @@ Revision history for Perl extension RPi::WiringPi.
         - added DAC test file
         - add parent.pm as a prereq to make things 5.8.9 compliant
         - remove rogue "use feature 'say'" lines from tests for 5.8.9 compliance
+        - fixed git links in Makefile.PL. They were pointing to the old p5- repo
 
 2.3611  2017-03-26
         - added fritzing and breadboard layout for the ADC/DAC test
