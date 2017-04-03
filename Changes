@@ -4,6 +4,8 @@ Revision history for Perl extension RPi::WiringPi.
         - added check in cleanup() so we don't throw undef warnings if there
           weren't any pins registered during the program run
         - added DAC test file
+        - add parent.pm as a prereq to make things 5.8.9 compliant
+        - remove rogue "use feature 'say'" lines from tests for 5.8.9 compliance
 
 2.3611  2017-03-26
         - added fritzing and breadboard layout for the ADC/DAC test
