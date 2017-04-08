@@ -1,6 +1,5 @@
 use warnings;
 use strict;
-use feature 'say';
 
 use RPi::WiringPi;
 use RPi::WiringPi::Constant qw(:all);

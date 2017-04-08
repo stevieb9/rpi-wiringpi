@@ -37,15 +37,6 @@ t/55-dac.t
 t/manifest.t
 t/pod-coverage.t
 t/README
-test/00-setup.t
-test/01-setup_gpio.t
-test/02-setup_phys.t
-test/05-export.pl
-test/10-pwm.pl
-test/15-interrupt_and_pull.pl
-test/20-read_and_mode.pl
-test/25-registered_pin_cleanup.pl
-test/30-check_registered_pins.pl
 test/adc.pl
 test/baseline_setup.pl
 test/bmp.pl

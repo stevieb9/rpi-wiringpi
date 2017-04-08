@@ -14,12 +14,12 @@ WriteMakefile(
         'meta-spec' => { version => 2 },
         resources   => {
             bugtracker => {
-                web => 'https://github.com/stevieb9/p5-rpi-wiringpi/issues',
+                web => 'https://github.com/stevieb9/rpi-wiringpi/issues',
             },
             repository => {
                 type => 'git',
-                url => 'https://github.com/stevieb9/p5-rpi-wiringpi.git',
-                web => 'https://github.com/stevieb9/p5-rpi-wiringpi',
+                url => 'https://github.com/stevieb9/rpi-wiringpi.git',
+                web => 'https://github.com/stevieb9/rpi-wiringpi',
             },
         },
     },
@@ -29,6 +29,7 @@ WriteMakefile(
         'ExtUtils::MakeMaker' => 6.72,
     },
     PREREQ_PM         => {
+        parent                      => 0,
         'RPi::ADC::ADS'             => 1.01,
         'RPi::BMP180'               => 2.3603,
         'RPi::DAC::MCP4922'         => 2.3604,
