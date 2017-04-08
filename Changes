@@ -1,7 +1,6 @@
 Revision history for Perl extension RPi::WiringPi.
 
 2.3612 UNREL
-        - *** brief change to test CI **
         - added check in cleanup() so we don't throw undef warnings if there
           weren't any pins registered during the program run
         - added DAC test file
