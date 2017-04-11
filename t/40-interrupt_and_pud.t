@@ -46,7 +46,7 @@ my $pi = $mod->new;
 
 if (! $ENV{NO_BOARD}){
 
-    my $pin = $pi->pin(27);
+    my $pin = $pi->pin(18);
 
     $pin->interrupt_set(EDGE_RISING, 'main::handler');
 
@@ -81,9 +81,9 @@ $pi->cleanup;
 
 if (! $ENV{NO_BOARD}){
 
-    my $int = RPi::WiringPi->interrupt(27, EDGE_RISING, 'handler');
+    my $int = RPi::WiringPi->interrupt(18, EDGE_RISING, 'handler');
 
-    my $pin = $pi->pin(27);
+    my $pin = $pi->pin(18);
     $pin->pull(PUD_DOWN);
 
     $pin->pull(PUD_UP);

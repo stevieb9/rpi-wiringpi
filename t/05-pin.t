@@ -17,7 +17,7 @@ my $pi = $mod->new;
 
 {# pin
 
-    my $pin = $pi->pin(5);
+    my $pin = $pi->pin(18);
 
     is $pin->mode, 0, "pin mode is INPUT by default";
     is $pin->read, 0, "pin status is LOW by default";
@@ -43,5 +43,7 @@ my $pi = $mod->new;
         is $pin->mode, 0, "pin mode back to INPUT";
     }
 }
+
+$pi->cleanup;
 
 done_testing();

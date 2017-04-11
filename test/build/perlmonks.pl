@@ -20,7 +20,7 @@ my $pi = RPi::WiringPi->new();#setup => 'gpio');
 # (interrupt) happens, we switch from XP to remaining
 # XP
 
-my $button = 22;
+my $button = 24;
 
 # prepare and initialize the LCD
 
@@ -30,12 +30,12 @@ my %args = (
     cols => 16,
     rows => 2,
     bits => 4,
-    rs => 23,
-    strb => 16,
-    d0 => 5,
-    d1 => 6,
-    d2 => 13,
-    d3 => 19,
+    rs => 5,
+    strb => 6,
+    d0 => 4,
+    d1 => 17,
+    d2 => 27,
+    d3 => 22,
     d4 => 0,
     d5 => 0, 
     d6 => 0, 
