@@ -10,10 +10,10 @@ use RPi::ADC::MCP3008;
 use RPi::BMP180;
 use RPi::DAC::MCP4922;
 use RPi::DigiPot::MCP4XXXX;
+use RPi::LCD;
 use RPi::SPI;
 use RPi::WiringPi::Constant qw(:all);
 use RPi::WiringPi::Interrupt;
-use RPi::WiringPi::LCD;
 use RPi::WiringPi::Pin;
 
 our $VERSION = '2.3612';
@@ -122,7 +122,7 @@ sub pin {
 }
 sub lcd {
     my $self = shift;
-    my $lcd = RPi::WiringPi::LCD->new;
+    my $lcd = RPi::LCD->new;
     return $lcd;
 }
 sub bmp {
@@ -383,7 +383,7 @@ Mandatory: The pin number to attach to.
 
 =head2 lcd()
 
-Returns a L<RPi::WiringPi::LCD> object, which allows you to fully manipulate
+Returns a L<RPi::LCD> object, which allows you to fully manipulate
 LCD displays connected to your Raspberry Pi.
 
 =head2 interrupt($pin, $edge, $callback)
