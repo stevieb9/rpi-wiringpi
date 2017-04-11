@@ -4,6 +4,7 @@ ADC = MCP3008 Analog to Digital Converter
 DAC = MCP4922 Digital to Analog Converter
 SR  = 74HC595 Shift Register
 
+18  - NC (used for base pin and interrupt tests)
 9   - ADC 12 
 10  - ADC 11, DAC 5
 11  - ADC 13, DAC 4

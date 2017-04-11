@@ -13,7 +13,6 @@ docs/schematic/dpot_adc_schem.jpg
 FAQ-Tutorial.pod
 lib/RPi/WiringPi.pm
 lib/RPi/WiringPi/Interrupt.pm
-lib/RPi/WiringPi/LCD.pm
 lib/RPi/WiringPi/Pin.pm
 lib/RPi/WiringPi/Util.pm
 Makefile.PL
@@ -34,6 +33,7 @@ t/35-pin_map.t
 t/40-interrupt_and_pud.t
 t/45-shift_reg_adc.t
 t/55-dac.t
+t/60-lcd.t
 t/manifest.t
 t/pod-coverage.t
 t/README
@@ -42,6 +42,5 @@ test/baseline_setup.pl
 test/bmp.pl
 test/images/after.jpg
 test/images/before.jpg
-test/int.pl
 test/shift.pl
 test/spi.pl
