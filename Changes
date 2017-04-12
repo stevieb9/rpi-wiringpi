@@ -1,5 +1,8 @@
 Revision history for Perl extension RPi::WiringPi.
 
+2.3613 UNREL
+        - added t/60-lcd.t for LCD testing (requires setting env vars manually)
+
 2.3612  2017-04-11
         - added check in cleanup() so we don't throw undef warnings if there
           weren't any pins registered during the program run
@@ -10,7 +13,6 @@ Revision history for Perl extension RPi::WiringPi.
         - deleted RPi::WiringPi::LCD, and turned it into a standalone dist,
           RPi::LCD
         - we now require RPi::LCD v2.3601
-        - added t/60-lcd.t for LCD testing (requires setting env vars manually)
 
 2.3611  2017-03-26
         - added fritzing and breadboard layout for the ADC/DAC test
