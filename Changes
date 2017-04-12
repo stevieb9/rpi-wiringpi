@@ -11,6 +11,7 @@ Revision history for Perl extension RPi::WiringPi.
           RPi::LCD
         - we now require RPi::LCD v2.3601
         - added t/60-lcd.t for LCD testing (requires setting env vars manually)
+        - added Test::BrewBuild auto testing instructions in the FAQ
 
 2.3611  2017-03-26
         - added fritzing and breadboard layout for the ADC/DAC test
