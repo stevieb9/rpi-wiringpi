@@ -1,6 +1,7 @@
 Revision history for Perl extension RPi::WiringPi.
 
 2.3613 UNREL
+        - added Test::BrewBuild auto testing instructions in the FAQ
         - added t/60-lcd.t for LCD testing (requires setting env vars manually)
 
 2.3612  2017-04-11
