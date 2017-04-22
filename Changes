@@ -4,6 +4,7 @@ Revision history for Perl extension RPi::WiringPi.
         - added Test::BrewBuild auto testing instructions in the FAQ
         - added t/60-lcd.t for LCD testing (requires setting env vars manually)
 
+
 2.3612  2017-04-11
         - added check in cleanup() so we don't throw undef warnings if there
           weren't any pins registered during the program run
