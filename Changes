@@ -9,6 +9,10 @@ Revision history for Perl extension RPi::WiringPi.
         - removed all traces of software PWM (closes #7)
         - added a note in FAQ that explains that sudo is not required unless
           using PWM features (closes #26)
+        - removed standalone Interrupt object code and documentation
+          (Interrupt.pm)
+        - removed RPi::WiringPi::Pin, and made it standalone. We now require
+          RPi::Pin external distribution instead (closes #25)
 
 2.3612  2017-04-11
         - added check in cleanup() so we don't throw undef warnings if there
