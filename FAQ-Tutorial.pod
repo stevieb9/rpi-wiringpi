@@ -59,6 +59,9 @@ Now, you can do everything with the normal user account, using their personal
 installation of Perl, and you just need C<sudo> to run your scripts, leaving
 your default system installation intact.
 
+NOTE: Only when using PWM features do you need to use C<sudo>. All other aspects
+of this software work properly with a non-privileged user account.
+
 =head1 PI 
 
 =head2 Create a Raspberry Pi object

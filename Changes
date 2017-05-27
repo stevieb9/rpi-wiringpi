@@ -7,6 +7,8 @@ Revision history for Perl extension RPi::WiringPi.
         - added PI_BOARD check to t/55-dac.t (closes #24)
         - added GPSD::Parse support via gps()
         - removed all traces of software PWM (closes #7)
+        - added a note in FAQ that explains that sudo is not required unless
+          using PWM features (closes #26)
 
 2.3612  2017-04-11
         - added check in cleanup() so we don't throw undef warnings if there
