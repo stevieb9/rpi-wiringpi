@@ -352,6 +352,21 @@ We'll get right into the code:
         $pin->write(HIGH);
     }
 
+=head1 GPS
+
+Allows you to track your current position and various other information. C<gpsd>
+library must be installed and running. See the L<GPSD::Parse> documentation for
+full usage instructions.
+
+=head2 Usage
+
+    my gps = $pi->gps;
+
+    print $gps->tpv('lat')   ."\n"; # latitude
+    print $gps->tpv('lon')   ."\n"; # longitude
+    print $gps->tpv('speed') ."\n"; # current speed
+    print $gps->direction    ."\n"; # current heading
+
 =head1 LCD TOUCH SCREENS
 
 Typical 16-pin, 2-4 row and 16-20 column LCD screens work here. You can use

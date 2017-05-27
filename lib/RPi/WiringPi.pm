@@ -5,6 +5,7 @@ use warnings;
 
 use parent 'RPi::WiringPi::Util';
 
+use GPSD::Parse;
 use RPi::ADC::ADS;
 use RPi::ADC::MCP3008;
 use RPi::BMP180;
@@ -105,6 +106,11 @@ sub dpot {
     my ($self, $cs, $channel) = @_;
     my $dpot = RPi::DigiPot::MCP4XXXX->new($cs, $channel);
     return $dpot;
+}
+sub gps {
+    my ($self, %args) = @_;
+    my $gps = GPSD::Parse->new(%args);
+    return $gps;
 }
 sub pin {
     my ($self, $pin_num) = @_;
@@ -297,6 +303,15 @@ various items
     my $temp      = $env->temp; # celcius
     my $farenheit = $env->temp('f');
 
+    # GPS (requires gpsd to be installed and running
+
+    my $gps = $pi->gps;
+
+    print $gps->tpv('lat')   . "\n";
+    print $gps->tpv('lon')   . "\n";
+    print $gps->tpv('speed') . "\n";
+    print $gps->direction    . "\n";
+
     #
     # LCD
     #
@@ -407,6 +422,14 @@ digital potentiometer (only the MCP4XXXX versions are currently supported).
 
 See the linked documentation for full documentation on usage, or the
 L<RPi::WiringPi::FAQ-Tutorial> for usage examples.
+
+=head2 gps
+
+Returns a L<GPSD::Parse> object, allowing you to track your location.
+
+The GPS distribution requires C<gpsd> to be installed and running. All
+parameters for the GPS can be sent in here and we'll pass them along. Please see
+the link above for the full documentation on that module.
 
 =head2 shift_register($base, $num_pins, $data, $clk, $latch)
 
