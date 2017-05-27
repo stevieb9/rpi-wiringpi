@@ -138,16 +138,16 @@ sub display_xp {
     # this is the manager for the bottom LCD
     # row
 
-    # print XP for 0 and even number of button
+    # print XP for 1 and odd number of button
     # presses, and print XP remaining to next level
-    # on odd number of presses
+    # on 0 and even number of presses
 
     $lcd->position(0, 1);
     if ($button_presses % 2){
-        $lcd->print("r: $next      ");
+        $lcd->print("x: $xp     ");
     }
     else {
-        $lcd->print("x: $xp     ");
+        $lcd->print("r: $next      ");
     }
 }
 sub perlmonks {
