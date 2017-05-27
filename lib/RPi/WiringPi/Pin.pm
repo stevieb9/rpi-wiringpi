@@ -89,13 +89,6 @@ sub interrupt_set {
     my ($self, $edge, $callback) = @_;
     $self->set_interrupt($self->num, $edge, $callback);
 }
-sub _soft_pwm_enabled {
-    my ($self, $enabled) = @_;
-    $self->{soft_pwm_enabled} = $enabled if defined $enabled;
-    return defined $self->{soft_pwm_enabled}  && $self->{soft_pwm_enabled}
-        ? 1
-        : 0;
-}
 sub _vim{1;};
 1;
 __END__

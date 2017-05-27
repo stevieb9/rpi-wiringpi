@@ -5,6 +5,8 @@ Revision history for Perl extension RPi::WiringPi.
         - added t/60-lcd.t for LCD testing (requires setting env vars manually)
         - updated the Test::BrewBuild integration unit testing docs in FAQ
         - added PI_BOARD check to t/55-dac.t (closes #24)
+        - added GPSD::Parse support via gps()
+        - removed all traces of software PWM (closes #7)
 
 2.3612  2017-04-11
         - added check in cleanup() so we don't throw undef warnings if there
