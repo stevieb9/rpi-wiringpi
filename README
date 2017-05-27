@@ -215,25 +215,20 @@ METHODS
 
  pin($pin_num)
 
-    Returns a RPi::WiringPi::Pin object, mapped to a specified GPIO pin,
-    which you can then perform operations on.
+    Returns a RPi::Pin object, mapped to a specified GPIO pin, which you
+    can then perform operations on. See that documentation for full usage
+    details.
 
     Parameters:
 
         $pin_num
 
-    Mandatory: The pin number to attach to.
+    Mandatory, Integer: The pin number to attach to.
 
  lcd()
 
     Returns a RPi::LCD object, which allows you to fully manipulate LCD
     displays connected to your Raspberry Pi.
-
- interrupt($pin, $edge, $callback)
-
-    Returns a RPi::WiringPi::Interrupt object, which allows you to act when
-    certain events occur (eg: a button press). This functionality is better
-    used through the RPi::WiringPi::Pin object you created with pin().
 
  spi($channel, $speed);
 

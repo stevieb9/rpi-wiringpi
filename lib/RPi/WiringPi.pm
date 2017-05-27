@@ -12,10 +12,9 @@ use RPi::BMP180;
 use RPi::DAC::MCP4922;
 use RPi::DigiPot::MCP4XXXX;
 use RPi::LCD;
+use RPi::Pin;
 use RPi::SPI;
 use RPi::WiringPi::Constant qw(:all);
-use RPi::WiringPi::Interrupt;
-use RPi::WiringPi::Pin;
 
 our $VERSION = '2.3614';
 
@@ -122,7 +121,7 @@ sub pin {
         die "\npin $pin_num is already in use... can't create second object\n";
     }
 
-    my $pin = RPi::WiringPi::Pin->new($pin_num);
+    my $pin = RPi::Pin->new($pin_num);
     $self->register_pin($pin);
     return $pin;
 }
@@ -139,11 +138,6 @@ sub hygrometer {
     my ($self, $pin) = @_;
     my $sensor = RPi::DHT11->new($pin);
     return $sensor;
-}
-sub interrupt {
-    my $self = shift;
-    my $interrupt = RPi::WiringPi::Interrupt->new;
-    return $interrupt;
 }
 sub spi {
     my ($self, $chan, $speed) = @_;
@@ -387,25 +381,20 @@ your script. This is for unit testing purposes only.
 
 =head2 pin($pin_num)
 
-Returns a L<RPi::WiringPi::Pin> object, mapped to a specified GPIO pin, which
-you can then perform operations on.
+Returns a L<RPi::Pin> object, mapped to a specified GPIO pin, which
+you can then perform operations on. See that documentation for full usage
+details.
 
 Parameters:
 
     $pin_num
 
-Mandatory: The pin number to attach to.
+Mandatory, Integer: The pin number to attach to.
 
 =head2 lcd()
 
 Returns a L<RPi::LCD> object, which allows you to fully manipulate
 LCD displays connected to your Raspberry Pi.
-
-=head2 interrupt($pin, $edge, $callback)
-
-Returns a L<RPi::WiringPi::Interrupt> object, which allows you to act when
-certain events occur (eg: a button press). This functionality is better used
-through the L<RPi::WiringPi::Pin> object you created with C<pin()>.
 
 =head2 spi($channel, $speed);
 

@@ -82,9 +82,10 @@ The board revision is the same as the GPIO pin layout on the board:
 
 =head2 Creating and using a GPIO pin object
 
-The L<RPi::WiringPi::Pin> class provides you with objects that directly map to
-the Raspberry Pi's onboard GPIO pins. You generate a pin object through the
-main C<$pi> object we created above.
+The L<RPi::Pin> class provides you with objects that directly map to the
+Raspberry Pi's onboard GPIO pins. You generate a pin object through the main
+C<$pi> object we created above. See that documentation for full usage
+information.
 
     my $pin = $pi->pin(27);
 
@@ -178,30 +179,6 @@ obviously want to be doing other things while waiting for that button press.
 
 NOTE: If you receive errors about the handler callback not being found, simply
 specify the callback with the full package (eg. C<'main::handler'>).
-
-=head1 INTERRUPTS
-
-Although we've already used interrupts from within a pin object, you can use
-them separately as well.
-
-=head2 Configuring
-
-    my $interrupt = $pi->interrupt;
-
-    # set an EDGE_RISING interrupt on pin 27
-
-    # callback is the string name of your handler
-    # subroutine that'll be called when an interrupt
-    # has occurred
-
-    $interrupt->set(27, EDGE_RISING, 'callback');
-
-    sub callback {
-        ...
-    }
-
-NOTE: If you receive errors about the handler callback not being found, simply
-specify the callback with the full package (eg. C<'main::callback'>).
 
 =head1 SERIAL PERIPHERAL INTERFACE (SPI) BUS
 
