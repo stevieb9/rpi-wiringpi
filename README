@@ -326,12 +326,14 @@ METHODS
     pin for the CS pin, and we'll do the bit-banging of the SPI bus
     automatically.
 
- dac()
+ dac(model => 'MCP4922')
 
     Returns a RPi::DAC::MCP4922 object (supports all 49x2 series DACs).
     These chips provide analog output signals from the Pi's digital output.
     Please see the documentation of that module for further information on
     both the configuration and use of the DAC object.
+
+    Note that if the model parameter is not sent in, we default to MCP4922.
 
  bmp()
 

@@ -98,6 +98,7 @@ sub adc {
 }
 sub dac {
     my ($self, %args) = @_;
+    $args{model} = 'MCP4922' if ! defined $args{model};
     my $dac = RPi::DAC::MCP4922->new(%args);
     return $dac;
 }
@@ -490,12 +491,14 @@ Mandatory, Integer. C<0> or C<1> for the Pi's onboard hardware CS/SS CE0 and CE1
 pins, or any GPIO number above C<1> in order to use an arbitrary GPIO pin for
 the CS pin, and we'll do the bit-banging of the SPI bus automatically.
 
-=head2 dac()
+=head2 dac(model => 'MCP4922')
 
 Returns a L<RPi::DAC::MCP4922> object (supports all 49x2 series DACs). These
 chips provide analog output signals from the Pi's digital output. Please
 see the documentation of that module for further information on both the
 configuration and use of the DAC object.
+
+Note that if the C<model> parameter is not sent in, we default to C<MCP4922>.
 
 =head2 bmp()
 
