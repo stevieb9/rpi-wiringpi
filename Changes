@@ -13,6 +13,8 @@ Revision history for Perl extension RPi::WiringPi.
           (closes #30)
         - added more code to t/55-dac.t. We now thoroughly test both onboard
           DACs (closes #33)
+        - updated interrupt tests to conform to set_interrupt() as opposed to
+          the old interrupt_set()
 
 2.3613  2017-05-09
         - added Test::BrewBuild auto testing instructions in the FAQ
