@@ -131,8 +131,9 @@ sub cleanup{
     for (split /,/, $pins){
         `gpio -g mode $_ in`;
         `gpio -g mode $_ tri`;
-        delete $ENV{RPI_PINS};
     }
+
+    delete $ENV{RPI_PINS};
 }
 sub _vim{1;};
 1;
