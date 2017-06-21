@@ -48,7 +48,7 @@ if (! $ENV{NO_BOARD}){
 
     my $pin = $pi->pin(18);
 
-    $pin->interrupt_set(EDGE_RISING, 'main::handler');
+    $pin->set_interrupt(EDGE_RISING, 'main::handler');
 
     $pin->pull(PUD_DOWN);
 

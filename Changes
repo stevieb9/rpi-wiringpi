@@ -9,6 +9,10 @@ Revision history for Perl extension RPi::WiringPi.
           (Interrupt.pm)
         - removed RPi::WiringPi::Pin, and made it standalone. We now require
           RPi::Pin external distribution instead (closes #25)
+        - fixed issues with specific pins in test diagram for DAC (closes #29)
+          (closes #30)
+        - added more code to t/55-dac.t. We now thoroughly test both onboard
+          DACs (closes #33)
 
 2.3613  2017-05-09
         - added Test::BrewBuild auto testing instructions in the FAQ
