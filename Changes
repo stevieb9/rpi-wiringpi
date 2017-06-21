@@ -17,6 +17,8 @@ Revision history for Perl extension RPi::WiringPi.
         - added PI_BOARD check to t/55-dac.t (closes #24)
         - send in model => MCP4922 by default in dac() if it's not sent in, and
           update docs accordingly (closes #31)
+        - moved the removal of the pin env var to outside of the for() loop in
+          Util::cleanup (closes #32)
 
 2.3612  2017-04-11
         - added check in cleanup() so we don't throw undef warnings if there
