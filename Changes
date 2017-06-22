@@ -1,10 +1,10 @@
 Revision history for Perl extension RPi::WiringPi.
 
-2.3615 UNREL
+2.3615  2017-06-22
         - fixed issues with specific pins in test diagram for DAC (closes #29)
           (closes #30)
         - added more code to t/55-dac.t. We now thoroughly test both onboard
-          DACs (closes #33)
+          DACs. Updated diagram (closes #33)
         - updated interrupt tests to conform to set_interrupt() as opposed to
           the old interrupt_set()
         - added Perlbrew install instructions into the SETUP section of FAQ
