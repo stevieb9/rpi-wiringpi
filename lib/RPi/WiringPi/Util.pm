@@ -76,7 +76,7 @@ sub pin_scheme {
 sub pwm_range {
     my ($self, $range) = @_;
     if (defined $range){
-       $self->{pwm_range} = $range;
+        $self->{pwm_range} = $range;
         $self->pwm_set_range($range);
     }
     return defined $self->{pwm_range} ? $self->{pwm_range} : 1023;
@@ -90,7 +90,6 @@ sub unexport_pin {
     system "sudo", "gpio", "unexport", $self->pin_to_gpio($pin);
 }
 sub registered_pins {
-    my ($self, $env) = @_;
     return $ENV{RPI_PINS};
 }
 sub register_pin {
@@ -98,7 +97,8 @@ sub register_pin {
 
     my $gpio_num = $self->pin_to_gpio($pin->num);
 
-    if (defined $ENV{RPI_PINS} && grep {$gpio_num == $_} split /,/, $ENV{RPI_PINS}){
+    my @pi_env_pins = split /,/, $ENV{RPI_PINS};
+    if (defined $ENV{RPI_PINS} && grep {$gpio_num == $_} @pi_env_pins){
         die "\npin $pin is already in use... can't re-register it\n";
     }
 

@@ -147,7 +147,6 @@ sub spi {
 }
 sub shift_register {
     my ($self, $base, $num_pins, $data, $clk, $latch) = @_;
-
     $self->shift_reg_setup($base, $num_pins, $data, $clk, $latch);
 }
 
@@ -155,7 +154,8 @@ sub shift_register {
 
 sub _fatal_exit {
     my $self = shift;
-    $fatal_exit = $self->{fatal_exit} if defined $self->{fatal_exit};
+    $self->{fatal_exit} if defined $self->{fatal_exit};
+    return $self->{fatal_exit};
 }
 sub _setup {
     return $_[0]->{setup};
