@@ -47,16 +47,20 @@ As your normal, every day user, install L<perlbrew|http://perlbrew.pl>:
     \wget -O - https://install.perlbrew.pl | bash
     echo "source /home/pi/perl5/perlbrew/etc/bashrc" >> ~/.bashrc
 
+First thing to do is to install the appropriate `cpanm` version:
+
+    perlbrew install-cpanm
+
 Then, install an instance of Perl, and switch to it:
 
-    perlbrew install perl-5.24.0
-    perlbrew switch perl-5.24.0
+    perlbrew install perl-5.26.0
+    perlbrew switch perl-5.26.0
 
 To use C<sudo> to run your scripts within the appropriate Perl
 installation, you need to modify the C</etc/sudoers> file. Prepend the string
 value for the C<secure_path> directive to include the path to the new
 C<perlbrew> managed perl, followed by a colon. For example:
-C</home/pi/perl5/perlbrew/perls/perl-5.24.0/bin:>. Leave the existing part of
+C</home/pi/perl5/perlbrew/perls/perl-5.26.0/bin:>. Leave the existing part of
 the string in place.
 
 Now, you can do everything with the normal user account, using their personal
