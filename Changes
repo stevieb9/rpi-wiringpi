@@ -1,6 +1,7 @@
 Revision history for Perl extension RPi::WiringPi.
 
 2.3616 UNREL
+        - fix FAQ link in the Test portion of POD
 
 2.3615  2017-06-22
         - fixed issues with specific pins in test diagram for DAC (closes #29)
