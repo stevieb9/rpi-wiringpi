@@ -9,6 +9,10 @@ Revision history for Perl extension RPi::WiringPi.
           DACs. Updated diagram (closes #33)
         - updated interrupt tests to conform to set_interrupt() as opposed to
           the old interrupt_set()
+        - send in model => MCP4922 by default in dac() if it's not sent in, and
+          update docs accordingly (closes #31)
+        - moved the removal of the pin env var to outside of the for() loop in
+          Util::cleanup (closes #32)
         - added Perlbrew install instructions into the SETUP section of FAQ
         - removed erroneous LWP::Simple use statement in t/60-lcd.t that was
           breaking tests
@@ -32,10 +36,6 @@ Revision history for Perl extension RPi::WiringPi.
         - added t/60-lcd.t for LCD testing (requires setting env vars manually)
         - updated the Test::BrewBuild integration unit testing docs in FAQ
         - added PI_BOARD check to t/55-dac.t (closes #24)
-        - send in model => MCP4922 by default in dac() if it's not sent in, and
-          update docs accordingly (closes #31)
-        - moved the removal of the pin env var to outside of the for() loop in
-          Util::cleanup (closes #32)
 
 2.3612  2017-04-11
         - added check in cleanup() so we don't throw undef warnings if there
