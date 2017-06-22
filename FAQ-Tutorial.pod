@@ -42,8 +42,12 @@ software (or you want to use interrupts), you should do some pre-configuration
 of your system. Note that the system installed Perl does not use threads, which
 is required for interrupts to function.
 
-As your normal, every day user, install L<perlbrew|http://perlbrew.pl>, Then
-install an instance of Perl, and switch to it:
+As your normal, every day user, install L<perlbrew|http://perlbrew.pl>:
+
+    \wget -O - https://install.perlbrew.pl | bash
+    echo "source /home/pi/perl5/perlbrew/etc/bashrc" >> ~/.bashrc
+
+Then, install an instance of Perl, and switch to it:
 
     perlbrew install perl-5.24.0
     perlbrew switch perl-5.24.0
