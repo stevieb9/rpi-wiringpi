@@ -5,7 +5,6 @@ use lib '.';
 
 use RPi::WiringPi;
 use RPi::WiringPi::Constant qw(:all);
-use RPi::WiringPi::Interrupt;
 use Test::More;
 
 my $mod = 'RPi::WiringPi';
@@ -22,9 +21,10 @@ BEGIN {
         warn "\n*** PI_BOARD is not set! ***\n";
         $ENV{NO_BOARD} = 1;
         plan skip_all => "not on a pi board\n";
+        exit;
     }
 
-    if ($> != 0 && $ENV{PI_BOARD}){
+    if ($> != 0){
         print "enforcing sudo for Interrupt tests...\n";
         system('sudo', 'perl', $0);
         exit;
