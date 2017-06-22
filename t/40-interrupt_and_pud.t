@@ -9,12 +9,9 @@ use Test::More;
 
 my $mod = 'RPi::WiringPi';
 
-my $run;
-
 BEGIN {
     if ($> == 0){
         $ENV{PI_BOARD} = 1;
-        $run = 1;
     }
 
     if (! $ENV{PI_BOARD}){
