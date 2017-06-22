@@ -516,7 +516,7 @@ the temperature (celcius or farenheit) as well as the current humidity level.
 =head1 RUNNING TESTS
 
 Please see L<RUNNING TESTS|RPi::WiringPi::FAQ/RUNNING-TESTS> in the
-L<FAQ|RPi::WiringPi::FAQ-Tutorial>.
+L<FAQ|RPi::WiringPi::FAQ>.
 
 =head1 AUTHOR
 
