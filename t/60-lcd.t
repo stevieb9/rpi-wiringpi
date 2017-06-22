@@ -1,7 +1,6 @@
 use warnings;
 use strict;
 
-use LWP::Simple;
 use RPi::WiringPi;
 use RPi::WiringPi::Constant qw(:all);
 use Test::More;
