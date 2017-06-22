@@ -1,14 +1,6 @@
 Revision history for Perl extension RPi::WiringPi.
 
-2.3614  2017-05-27
-        - added GPSD::Parse support via gps()
-        - removed all traces of software PWM (closes #7)
-        - added a note in FAQ that explains that sudo is not required unless
-          using PWM features (closes #26)
-        - removed standalone Interrupt object code and documentation
-          (Interrupt.pm)
-        - removed RPi::WiringPi::Pin, and made it standalone. We now require
-          RPi::Pin external distribution instead (closes #25)
+2.3615 UNREL
         - fixed issues with specific pins in test diagram for DAC (closes #29)
           (closes #30)
         - added more code to t/55-dac.t. We now thoroughly test both onboard
@@ -22,6 +14,16 @@ Revision history for Perl extension RPi::WiringPi.
           breaking the tests within if we're not set up correctly. Same with
           t/15-pwm.t
         - minor code cleanup/tidying
+
+2.3614  2017-05-27
+        - added GPSD::Parse support via gps()
+        - removed all traces of software PWM (closes #7)
+        - added a note in FAQ that explains that sudo is not required unless
+          using PWM features (closes #26)
+        - removed standalone Interrupt object code and documentation
+          (Interrupt.pm)
+        - removed RPi::WiringPi::Pin, and made it standalone. We now require
+          RPi::Pin external distribution instead (closes #25)
 
 2.3613  2017-05-09
         - added Test::BrewBuild auto testing instructions in the FAQ
