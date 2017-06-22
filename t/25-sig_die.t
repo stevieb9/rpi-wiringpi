@@ -20,6 +20,6 @@ is $pi->registered_pins, '5', "pin registered ok";
 
 eval { die "intentional die()"; };
 
-is $pin->mode, 0, "pin reset to INPUT after die()";
+is $pin->mode, INPUT, "pin reset to INPUT after die()";
 
 done_testing();
