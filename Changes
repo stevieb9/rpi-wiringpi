@@ -15,6 +15,9 @@ Revision history for Perl extension RPi::WiringPi.
           DACs (closes #33)
         - updated interrupt tests to conform to set_interrupt() as opposed to
           the old interrupt_set()
+        - added Perlbrew install instructions into the SETUP section of FAQ
+        - removed erroneous LWP::Simple use statement in t/60-lcd.t that was
+          breaking tests
 
 2.3613  2017-05-09
         - added Test::BrewBuild auto testing instructions in the FAQ
