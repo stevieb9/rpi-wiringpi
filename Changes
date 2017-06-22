@@ -18,6 +18,8 @@ Revision history for Perl extension RPi::WiringPi.
         - added Perlbrew install instructions into the SETUP section of FAQ
         - removed erroneous LWP::Simple use statement in t/60-lcd.t that was
           breaking tests
+        - sudo run t/40-interrupt_and_pwd.t were setting PI_BOARD recklessly,
+          breaking the tests within if we're not set up correctly
 
 2.3613  2017-05-09
         - added Test::BrewBuild auto testing instructions in the FAQ

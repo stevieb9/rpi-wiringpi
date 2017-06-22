@@ -24,7 +24,7 @@ BEGIN {
         plan skip_all => "not on a pi board\n";
     }
 
-    if ($> != 0){
+    if ($> != 0 && $ENV{PI_BOARD}){
         print "enforcing sudo for Interrupt tests...\n";
         system('sudo', 'perl', $0);
         exit;
