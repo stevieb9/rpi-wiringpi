@@ -155,6 +155,7 @@ sub shift_register {
 sub _fatal_exit {
     my $self = shift;
     $self->{fatal_exit} = shift if @_;
+    $fatal_exit = $self->{fatal_exit} if defined $self->{fatal_exit};
     return $self->{fatal_exit};
 }
 sub _setup {
