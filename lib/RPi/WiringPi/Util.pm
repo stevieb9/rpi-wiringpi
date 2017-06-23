@@ -97,9 +97,11 @@ sub register_pin {
 
     my $gpio_num = $self->pin_to_gpio($pin->num);
 
-    my @pi_env_pins = split /,/, $ENV{RPI_PINS};
-    if (defined $ENV{RPI_PINS} && grep {$gpio_num == $_} @pi_env_pins){
-        die "\npin $pin is already in use... can't re-register it\n";
+    if (defined $ENV{RPI_PINS}){
+        my @pi_env_pins = split /,/, $ENV{RPI_PINS};
+        if (grep {$gpio_num == $_} @pi_env_pins){
+            die "\npin $pin is already in use... can't re-register it\n";
+        }
     }
 
     $ENV{RPI_PINS} = ! defined $ENV{RPI_PINS}
