@@ -13,6 +13,9 @@ Revision history for Perl extension RPi::WiringPi.
           back to default, causing failure of a basic read if the I2C bus hadn't
           been reset before another t/65-i2c.t test run (removed workaround from
           the test as well)
+        - bump ver of RPi::WiringPi::Constant prereq after adding ALT mode tag
+        - bump ver of WiringPi::API to 2.36.12 due to updates in that module
+        - bump ver of RPi::Pin to 2.3602
 
 2.3615  2017-06-22
         - fixed issues with specific pins in test diagram for DAC (closes #29)

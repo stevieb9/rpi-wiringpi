@@ -39,9 +39,9 @@ WriteMakefile(
         'RPi::DHT11'                => 1.02,
         'RPi::I2C'                  => 2.3602,
         'RPi::LCD'                  => 2.3601,
-        'RPi::Pin'                  => 2.3601,
+        'RPi::Pin'                  => 2.3602,
         'RPi::SPI'                  => 2.3606,
-        'RPi::WiringPi::Constant'   => 0.02,
-        'WiringPi::API'             => 2.3609,
+        'RPi::WiringPi::Constant'   => 1.00,
+        'WiringPi::API'             => 2.3612,
     },
 );
