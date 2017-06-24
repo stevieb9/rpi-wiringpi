@@ -4,6 +4,7 @@ Revision history for Perl extension RPi::WiringPi.
         - fix FAQ link in the Test portion of POD
         - clean up the way _fatal_exit() works. There's more to do here
         - tidy how the RPI_PINS env var is worked on in certain Util:: methods
+        - incorporated RPi::I2C; updated POD and FAQ
 
 2.3615  2017-06-22
         - fixed issues with specific pins in test diagram for DAC (closes #29)

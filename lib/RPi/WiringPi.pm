@@ -11,6 +11,7 @@ use RPi::ADC::MCP3008;
 use RPi::BMP180;
 use RPi::DAC::MCP4922;
 use RPi::DigiPot::MCP4XXXX;
+use RPi::I2C;
 use RPi::LCD;
 use RPi::Pin;
 use RPi::SPI;
@@ -126,6 +127,10 @@ sub pin {
     $self->register_pin($pin);
     return $pin;
 }
+sub i2c {
+    my ($self, $addr, $i2c_device) = @_;
+    return RPi::I2C->new($addr, $i2c_device);
+}
 sub lcd {
     my $self = shift;
     my $lcd = RPi::LCD->new;
@@ -207,6 +212,22 @@ various items
 
     print $adc->raw(0);
     print $adc->percent(0);
+
+    #
+    # I2C
+    #
+
+    my $device_addr = 0x7c;
+
+    my $i2c_device = $pi->i2c($device_addr);
+
+    my $register = 0x0A;
+
+    $i2c_device->write_block([55, 29, 255], $register);
+
+    my $byte = $i2c_device->read;
+
+    my @bytes = $i2c_device->read_block;
 
     #
     # SPI
@@ -397,6 +418,14 @@ Mandatory, Integer: The pin number to attach to.
 
 Returns a L<RPi::LCD> object, which allows you to fully manipulate
 LCD displays connected to your Raspberry Pi.
+
+=head2 i2c($addr, [$device])
+
+Creates a new L<RPi::I2C> device object which allows you to communicate with
+the devices on an I2C bus.
+
+See the linked documentation for full documentation on usage, or the
+L<RPi::WiringPi::FAQ-Tutorial> for usage examples.
 
 =head2 spi($channel, $speed);
 
