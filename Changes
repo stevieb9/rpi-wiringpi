@@ -9,6 +9,10 @@ Revision history for Perl extension RPi::WiringPi.
           examples/arduino.ino for details
         - added a copy of the arduino.ino sketch for testing RPi::I2C, in
           docs/sketch
+        - fixed bug in arduino.ino that wasn't resetting the register variable
+          back to default, causing failure of a basic read if the I2C bus hadn't
+          been reset before another t/65-i2c.t test run (removed workaround from
+          the test as well)
 
 2.3615  2017-06-22
         - fixed issues with specific pins in test diagram for DAC (closes #29)

@@ -1,5 +1,4 @@
 /*
- * examples/arduino.ino
  *
  * Copyright (c) 2017 by Steve Bertrand
  *
@@ -36,7 +35,7 @@
 
 #define EEPROM_READ 99
 
-int8_t reg;
+int8_t reg = 0;
 
 void eeprom_read (byte* buf, int count){
 
@@ -115,6 +114,9 @@ void send_data (){
             break;
         }
     }
+
+    // reset the register back to default
+    reg = 0;
 }
 
 int read_analog (int pin){
