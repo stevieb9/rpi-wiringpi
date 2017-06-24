@@ -51,7 +51,7 @@ void eeprom_read_byte (byte* data){
     EEPROM.get(0, *data);
 }
 
-void eeprom_save (byte buf[], int len){
+void eeprom_save (byte buf[], uint16_t len){
 
     uint16_t addr = 0;
 
@@ -119,7 +119,7 @@ void send_data (){
     reg = 0;
 }
 
-int read_analog (uint_8 pin){
+int read_analog (int pin){
     int val = analogRead(pin);
 
     uint8_t buf[2];
@@ -132,7 +132,7 @@ int read_analog (uint_8 pin){
     Wire.write(buf, 2);
 }
 
-void receive_data (uint8_t num_bytes){
+void receive_data (int num_bytes){
 
     byte data = 0;
 
