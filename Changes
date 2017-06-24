@@ -1,6 +1,6 @@
 Revision history for Perl extension RPi::WiringPi.
 
-2.3616 UNREL
+2.3616  2017-06-24
         - fix FAQ link in the Test portion of POD
         - clean up the way _fatal_exit() works. There's more to do here
         - tidy how the RPI_PINS env var is worked on in certain Util:: methods
