@@ -51,4 +51,6 @@ $lcd->clear;
 
 is 1, 1, "ok";
 
+$pi->cleanup;
+
 done_testing();

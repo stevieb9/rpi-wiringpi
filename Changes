@@ -16,6 +16,10 @@ Revision history for Perl extension RPi::WiringPi.
         - bump ver of RPi::WiringPi::Constant prereq after adding ALT mode tag
         - bump ver of WiringPi::API to 2.36.12 due to updates in that module
         - bump ver of RPi::Pin to 2.3602
+        - added t/70-mode_alt.t to test the various ALT pin modes
+        - fix shift register tests. The pins were outside of the $pi object
+          scope, so they weren't being reset to INPUT, which broke a later
+          test file
 
 2.3615  2017-06-22
         - fixed issues with specific pins in test diagram for DAC (closes #29)

@@ -37,6 +37,8 @@ if (! $ENV{PI_BOARD}){
         $pi->pin_scheme('WPI'),
         'WPI', 
         "pin_scheme() returns 'wiringPi' if setup() is wiringPi";
+
+    $pi->cleanup;
 }
 
 done_testing();

@@ -43,4 +43,6 @@ my $pi = $mod->new;
     is $pi->registered_pins, undef, "cleanup() ok";
 }
 
+$pi->cleanup;
+
 done_testing();

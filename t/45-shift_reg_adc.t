@@ -20,6 +20,12 @@ my $adc = $pi->adc(
     channel => $adc_pin
 );
 
+my @pins_in_use;
+
+for (21, 20, 16){
+    push @pins_in_use, $pi->pin($_);
+}
+
 my $sr = $pi->shift_register(400, 8, 21, 20, 16);
 
 my $sr_pin;

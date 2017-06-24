@@ -107,6 +107,8 @@ sub register_pin {
     $ENV{RPI_PINS} = ! defined $ENV{RPI_PINS}
         ? $gpio_num
         : "$ENV{RPI_PINS},$gpio_num";
+
+    $self->{pins_in_use}{$gpio_num} = $pin->mode_alt;
 }
 sub unregister_pin {
     my ($self, $pin) = @_;

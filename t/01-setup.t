@@ -16,6 +16,8 @@ if (! $ENV{PI_BOARD}){
     is $pi->pin_scheme, 1, "default setup is setup(), pinmap is GPIO";
     my $pin = $pi->pin(6);
     is $pin->num, 6, "pins exported properly";
+
+    $pi->cleanup;
 }
 
 done_testing();
