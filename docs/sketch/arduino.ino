@@ -5,8 +5,13 @@
  *
  * This file is part of the RPi::I2C Perl 5 distribution.
  *
- * This Arduino sketch handles all of the tests for the example files within
- * the examples directory in this distribution.
+ * This Arduino sketch provides several pseudo registers for testing the various
+ * read and write functions within the RPi::I2C distribution. Each function has
+ * its own dedicated register.
+ *
+ * In essence, each 'register' performs its own dedicated functionality when
+ * addressed by its register address. The list of register addresses are listed
+ * below as #define statements under the "pseudo registers" comment.
  *
  */
 
@@ -15,6 +20,8 @@
 
 #define EEPROM_SIZE 4
 #define SLAVE_ADDR 0x04
+
+// pseudo registers
 
 #define READ        0
 #define READ_BYTE   5
@@ -138,14 +145,14 @@ void receive_data (int num_bytes){
             case WRITE: {
                 Serial.println("write()");
                 data = reg;
-                eeprom_save_byte(data);
+                eeprom_save_byte(&data);
                 break;
             }
             case WRITE_BYTE: {
                 Serial.println("write_byte()");
                 data = Wire.read();
 
-                eeprom_save_byte(data);
+                eeprom_save_byte(&data);
 
                 break;
             }
