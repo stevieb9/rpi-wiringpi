@@ -64,7 +64,7 @@ void eeprom_save (byte buf[], int len){
     }
 }
 
-void eeprom_save_byte (byte* data){
+void eeprom_save_byte (byte data){
     Serial.println("eeprom_save_byte()");
     EEPROM.put(0, data);
 }
@@ -145,14 +145,14 @@ void receive_data (int num_bytes){
             case WRITE: {
                 Serial.println("write()");
                 data = reg;
-                eeprom_save_byte(&data);
+                eeprom_save_byte(data);
                 break;
             }
             case WRITE_BYTE: {
                 Serial.println("write_byte()");
                 data = Wire.read();
 
-                eeprom_save_byte(&data);
+                eeprom_save_byte(data);
 
                 break;
             }
