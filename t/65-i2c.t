@@ -31,9 +31,16 @@ my $uno = $pi->i2c(ARDUINO_ADDR);
 isa_ok $uno, 'RPi::I2C';
 
 { # read()
-#FIXME: read() isn't working right
+
+    # this isn't normally needed, but when running tests repeatedly,
+    # we have to set the register on the bus back to 0.
+
+    # This happens because the bus isn't reset if we're too quick
+    # on repeatedly running tests, and read() does not set the register
+
+    $uno->write_byte(0, 0x00);
+    
     is $uno->read, 0, "I2C read() ok";
-    sleep 1;
 }
 
 { # read_byte()
