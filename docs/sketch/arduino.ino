@@ -1,4 +1,5 @@
 /*
+ * examples/arduino.ino
  *
  * Copyright (c) 2017 by Steve Bertrand
  *
@@ -35,13 +36,13 @@
 
 #define EEPROM_READ 99
 
-uint8_t reg = 0;
+int8_t reg;
 
 void eeprom_read (byte* buf, int count){
 
     uint16_t addr = 0;
 
-    for (uint8_t i=0; i<count; i++){
+    for (int8_t i=0; i<count; i++){
         EEPROM.get(addr, buf[i]);
         addr += sizeof(byte);
     }
@@ -51,21 +52,21 @@ void eeprom_read_byte (byte* data){
     EEPROM.get(0, *data);
 }
 
-void eeprom_save (byte buf[], uint16_t len){
+void eeprom_save (byte buf[], int len){
 
     uint16_t addr = 0;
 
     Serial.println("eeprom_save()");
 
-    for (uint8_t i=0; i<len; i++){
+    for (int8_t i=0; i<len; i++){
         EEPROM.put(addr, buf[i]);
         addr += sizeof(byte);
     }
 }
 
-void eeprom_save_byte (byte *data){
+void eeprom_save_byte (byte data){
     Serial.println("eeprom_save_byte()");
-    EEPROM.put(0, *data);
+    EEPROM.put(0, data);
 }
 
 void send_data (){
@@ -114,9 +115,6 @@ void send_data (){
             break;
         }
     }
-
-    // reset the register back to default
-    reg = 0;
 }
 
 int read_analog (int pin){
@@ -147,14 +145,14 @@ void receive_data (int num_bytes){
             case WRITE: {
                 Serial.println("write()");
                 data = reg;
-                eeprom_save_byte(&data);
+                eeprom_save_byte(data);
                 break;
             }
             case WRITE_BYTE: {
                 Serial.println("write_byte()");
                 data = Wire.read();
 
-                eeprom_save_byte(&data);
+                eeprom_save_byte(data);
 
                 break;
             }
