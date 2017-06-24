@@ -7,6 +7,8 @@ Revision history for Perl extension RPi::WiringPi.
         - incorporated RPi::I2C; updated POD and FAQ
         - added t/65-i2c.t for the I2C stuff. Requires an Arduino. See
           examples/arduino.ino for details
+        - added a copy of the arduino.ino sketch for testing RPi::I2C, in
+          docs/sketch
 
 2.3615  2017-06-22
         - fixed issues with specific pins in test diagram for DAC (closes #29)
