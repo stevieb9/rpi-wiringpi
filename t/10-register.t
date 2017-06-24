@@ -17,15 +17,16 @@ my $pi = $mod->new(fatal_exit => 0);
 
 {# register, unregister
 
-    my $pin1 = $pi->pin(1);
-    my $pin2 = $pi->pin(2);
-    my $pin3 = $pi->pin(3);
+    my $pin26 = $pi->pin(26);
+    my $pin12 = $pi->pin(12);
+    my $pin18 = $pi->pin(18);
 
     my %pin_map = (
-        1 => $pin1,
-        2 => $pin2,
-        3 => $pin3,
+        26 => $pin26,
+        12 => $pin12,
+        18 => $pin18,
     );
+
 
     my $pins = $pi->registered_pins;
     is ((split /,/, $pins), 3, "proper num of pins registered");
