@@ -32,6 +32,7 @@ t/40-interrupt_and_pud.t
 t/45-shift_reg_adc.t
 t/55-dac.t
 t/60-lcd.t
+t/65-i2c.t
 t/manifest.t
 t/pod-coverage.t
 t/README
