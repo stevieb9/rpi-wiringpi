@@ -1,6 +1,8 @@
 Revision history for Perl extension RPi::WiringPi.
 
 2.3617 UNREL
+        - fix wire colour for the DAC CS pin in the diagram (lt blue from
+          orange)
 
 2.3616  2017-06-24
         - fix FAQ link in the Test portion of POD
