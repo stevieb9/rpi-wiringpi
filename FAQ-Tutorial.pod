@@ -188,6 +188,42 @@ obviously want to be doing other things while waiting for that button press.
 NOTE: If you receive errors about the handler callback not being found, simply
 specify the callback with the full package (eg. C<'main::handler'>).
 
+=head1 I2C BUS
+
+Allows you to read and write to devices on the I2C bus using the external
+L<RPi::I2C> distribution. Please refer to that documentation for full usage
+instructions.
+
+=head2 Instantiation and communication
+
+    my $device_addr = 0x04;
+
+    my $device = $pi->i2c($device_addr);
+
+    # read a single byte at the default register address
+
+    print $device->read;
+
+    # read a single byte at a specified register
+
+    print $device->read_byte(0x15);
+
+    # read a block of five bytes (register param optional, not shown)
+
+    my @bytes = $device->read_block(5);
+
+    # write a byte
+
+    $device->write(255);
+
+    # write a byte to a register location
+
+    $device->write_byte(255, 0x0A);
+
+    # write a block of bytes (register param left out again)
+
+    $device->write_block([1, 2, 3, 4]);
+
 =head1 SERIAL PERIPHERAL INTERFACE (SPI) BUS
 
 =head2 Set up and communication
