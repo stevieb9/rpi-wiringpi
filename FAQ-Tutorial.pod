@@ -535,15 +535,32 @@ First off, please review the C<t/README> file for the GPIO pins we use for the
 test physical configuration, and set up the Pi according to the
 L<unit test diagram|https://stevieb9.github.io/rpi-wiringpi/breadboard/brewbuild_test_platform_bb.jpg>.
 
+=head3 Base information
+
 Before running the tests, you need to set a special environment variable so that
 we know we're on a Pi board. This ensures CPAN testers won't run the tests
 across all of its platforms:
 
     export RPI_BOARD=1
 
+Personally, I set all the environment variables in my C</etc/environment> file.
+
 There are a couple of test files that require root privileges, but we handle
 this internally by re-running the file with C<sudo> enabled. This allows all
 tests but these couple to be run as a standard user.
+
+=head3 Arduino/I2C
+
+For testing the L<RPi::I2C> module, we have a dedicated Arduino sketch in the
+C<docs/sketch> directory that we test against. Install the sketch, hook up the
+I2C between the Pi and the Arduino, and connect a ground pin on the Arduino to
+the ground bus on the Pi.
+
+You then set the following environment variable:
+
+    export RPI_ARDUINO=1
+
+These tests skip by default.
 
 =head2 Automated with L<Test::BrewBuild>
 

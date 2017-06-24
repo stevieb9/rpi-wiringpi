@@ -20,6 +20,9 @@ Revision history for Perl extension RPi::WiringPi.
         - fix shift register tests. The pins were outside of the $pi object
           scope, so they weren't being reset to INPUT, which broke a later
           test file
+        - added I2C/Arduino testing information to the FAQ, and updated the
+          diagrams with the Arduino wiring
+
 
 2.3615  2017-06-22
         - fixed issues with specific pins in test diagram for DAC (closes #29)
