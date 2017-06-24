@@ -35,13 +35,13 @@
 
 #define EEPROM_READ 99
 
-int8_t reg = 0;
+uint8_t reg = 0;
 
 void eeprom_read (byte* buf, int count){
 
     uint16_t addr = 0;
 
-    for (int8_t i=0; i<count; i++){
+    for (uint8_t i=0; i<count; i++){
         EEPROM.get(addr, buf[i]);
         addr += sizeof(byte);
     }
@@ -57,7 +57,7 @@ void eeprom_save (byte buf[], int len){
 
     Serial.println("eeprom_save()");
 
-    for (int8_t i=0; i<len; i++){
+    for (uint8_t i=0; i<len; i++){
         EEPROM.put(addr, buf[i]);
         addr += sizeof(byte);
     }
@@ -119,7 +119,7 @@ void send_data (){
     reg = 0;
 }
 
-int read_analog (int pin){
+int read_analog (uint_8 pin){
     int val = analogRead(pin);
 
     uint8_t buf[2];
@@ -132,7 +132,7 @@ int read_analog (int pin){
     Wire.write(buf, 2);
 }
 
-void receive_data (int num_bytes){
+void receive_data (uint8_t num_bytes){
 
     byte data = 0;
 
