@@ -14,6 +14,7 @@ if (! $ENV{PI_BOARD}){
 {
     my $pi = RPi::WiringPi->new(setup => 'wpi');
     is $pi->pin_scheme, 0, "setup is setup_wpi(), pinmap is WPI";
+    $pi->cleanup;
 }
 
 done_testing();

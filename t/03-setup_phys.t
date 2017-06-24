@@ -14,6 +14,7 @@ if (! $ENV{PI_BOARD}){
 {
     my $pi = RPi::WiringPi->new(setup => 'phys');
     is $pi->pin_scheme, 3, "setup is setup_phys(), pinmap is PHYS";
+    $pi->cleanup;
 }
 
 done_testing();
