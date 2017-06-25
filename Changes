@@ -27,7 +27,7 @@ Revision history for Perl extension RPi::WiringPi.
           test file
         - added I2C/Arduino testing information to the FAQ, and updated the
           diagrams with the Arduino wiring
-
+        - bump ver of RPi::LCD to 2.3602 due to a bug fix
 
 2.3615  2017-06-22
         - fixed issues with specific pins in test diagram for DAC (closes #29)
