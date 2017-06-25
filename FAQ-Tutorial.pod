@@ -604,7 +604,7 @@ numbers that the LCD is connected to:
 To make it work. I set this one in C</etc/environment> as well. You then need to
 restart the dispatcher with the C<--rpi> or the equivalent C<-R> flag:
 
-    bbdispatch -t localhost -r https://github.com/stevieb9/rpi-wiringpi -a --rpi
+    bbdispatch -t localhost -r https://stevieb9/rpi-wiringpi -a --rpi
 
 The C<--rpi> flag is rather hidden (but it *is* documented subtly), as this is
 a feature that most likely I'll be the only consumer of.
