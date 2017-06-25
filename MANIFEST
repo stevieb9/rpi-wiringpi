@@ -40,6 +40,7 @@ t/README
 test/adc.pl
 test/baseline_setup.pl
 test/bmp.pl
+test/i2c.pl
 test/images/after.jpg
 test/images/before.jpg
 test/shift.pl
