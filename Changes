@@ -5,6 +5,8 @@ Revision history for Perl extension RPi::WiringPi.
           orange)
         - added the tester flag to bbdispatch in the FAQs automated test section
         - bump ver of RPi::LCD to 2.3603 due to a bug fix
+        - added new tests to t/60-lcd.t to verify that RPi::LCD dies() properly
+          if too many LCD objects are initialized (closes #35)
 
 2.3616  2017-06-24
         - fix FAQ link in the Test portion of POD
