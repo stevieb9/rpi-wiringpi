@@ -5,6 +5,10 @@ use RPi::WiringPi;
 use RPi::WiringPi::Constant qw(:all);
 use Test::More;
 
+$SIG{__DIE__} = sub {
+    like shift, qr/Maximum number of LCD/, "initializing too many LCDs error ok";
+};
+
 if (! $ENV{PI_BOARD}){
     warn "\n*** PI_BOARD is not set! ***\n";
     plan skip_all => "not on a pi board\n";
@@ -50,6 +54,17 @@ sleep 2;
 $lcd->clear;
 
 is 1, 1, "ok";
+
+
+my $ok = eval {
+    while (1){
+        $lcd->init(%args);
+        $lcd->position(0, 0);
+    }
+    1;
+};
+
+is $ok, undef, "initializing too many LCD objects dies ok";
 
 $pi->cleanup;
 
