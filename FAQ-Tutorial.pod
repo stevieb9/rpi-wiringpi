@@ -581,7 +581,7 @@ repository commit checksum differs from the remote. To bypass this check and
 execute a test run every cycle regardless if the checksums differ or not, send
 in the C<--csum|-c> flag to C<bbtester>:
 
-    bbtester start -a --c
+    bbtester start -a -c
 
 Next, run a C<bbdispatch> run against the local tester in C<--auto> mode. The
 C<-a> flag with no parameters runs continuously, sleeping for a default of 60
