@@ -19,6 +19,8 @@ my $pi = $mod->new;
 
     my $pin = $pi->pin(18);
 
+    isa_ok $pin, 'RPi::Pin';
+
     is $pin->mode, 0, "pin mode is INPUT by default";
     is $pin->read, 0, "pin status is LOW by default";
 
