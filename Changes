@@ -3,14 +3,14 @@ Revision history for Perl extension RPi::WiringPi.
 2.3618 UNREL
 
 2.3617  2017-06-28
-        - fix wire colour for the DAC CS pin in the diagram (lt blue from
+        - fix wire colour for the DAC CS pin in the diagram (light blue from
           orange)
         - added the tester flag to bbdispatch in the FAQs automated test section
         - bump ver of RPi::LCD to 2.3603 due to a bug fix
         - added new tests to t/60-lcd.t to verify that RPi::LCD dies() properly
           if too many LCD objects are initialized (closes #35)
         - bump prereq of RPi::DHT11 from v1.02 to v1.03
-        - bump prerew of RPi::I2C from v2.3602 to v2.3603
+        - bump prereq of RPi::I2C from v2.3602 to v2.3603
 
 2.3616  2017-06-24
         - fix FAQ link in the Test portion of POD
