@@ -70,6 +70,28 @@ SYNOPSIS
         my @read_bytes = $spi->rw($buf, $len);
     
         #
+        # Serial
+        #
+    
+        my $dev  = "/dev/ttyAMA0";
+        my $baud = 115200;
+    
+        my $ser = $pi->serial($dev, $baud);
+    
+        $ser->putc(5);
+    
+        my $char = $ser->getc;
+    
+        $ser->puts("hello, world!");
+    
+        my $num_bytes = 12;
+        my $str  = $ser->gets($num_bytes);
+    
+        $ser->flush;
+    
+        my $bytes_available = $ser->avail;
+    
+        #
         # digital to analog converter (DAC)
         #
     
@@ -254,7 +276,15 @@ METHODS
     See the linked documentation for full documentation on usage, or the
     RPi::WiringPi::FAQ-Tutorial for usage examples.
 
- spi($channel, $speed);
+ serial($device, $baud)
+
+    Creates a new RPi::Serial object which allows basic read/write access
+    to a serial bus.
+
+    See the linked documentation for full documentation on usage, or the
+    RPi::WiringPi::FAQ-Tutorial for usage examples.
+
+ spi($channel, $speed)
 
     Creates a new RPi::SPI object which allows you to communicate on the
     Serial Peripheral Interface (SPI) bus with attached devices.

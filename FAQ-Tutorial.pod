@@ -224,6 +224,30 @@ instructions.
 
     $device->write_block([1, 2, 3, 4]);
 
+=head1 SERIAL BUS
+
+Allows you to perform basic read and write operations on a standard serial
+interface using the L<RPi::Serial> library. See that documentation for full
+usage information.
+
+    my $dev  = "/dev/ttyAMA0";
+    my $baud = 115200;
+
+    my $ser = $pi->serial($dev, $baud);
+
+    $ser->putc(5);
+
+    my $char = $ser->getc;
+
+    $ser->puts("hello, world!");
+
+    my $num_bytes = 12;
+    my $str  = $ser->gets($num_bytes);
+
+    $ser->flush;
+
+    my $bytes_available = $ser->avail;
+
 =head1 SERIAL PERIPHERAL INTERFACE (SPI) BUS
 
 =head2 Set up and communication

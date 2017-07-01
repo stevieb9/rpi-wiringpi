@@ -14,6 +14,7 @@ use RPi::DigiPot::MCP4XXXX;
 use RPi::I2C;
 use RPi::LCD;
 use RPi::Pin;
+use RPi::Serial;
 use RPi::SPI;
 use RPi::WiringPi::Constant qw(:all);
 
@@ -126,6 +127,10 @@ sub pin {
     my $pin = RPi::Pin->new($pin_num);
     $self->register_pin($pin);
     return $pin;
+}
+sub serial {
+    my ($self, $device, $baud) = @_;
+    return RPi::Serial->new($device, $baud);
 }
 sub i2c {
     my ($self, $addr, $i2c_device) = @_;
@@ -241,6 +246,28 @@ various items
     my $len = scalar @$buf;
 
     my @read_bytes = $spi->rw($buf, $len);
+
+    #
+    # Serial
+    #
+
+    my $dev  = "/dev/ttyAMA0";
+    my $baud = 115200;
+
+    my $ser = $pi->serial($dev, $baud);
+
+    $ser->putc(5);
+
+    my $char = $ser->getc;
+
+    $ser->puts("hello, world!");
+
+    my $num_bytes = 12;
+    my $str  = $ser->gets($num_bytes);
+
+    $ser->flush;
+
+    my $bytes_available = $ser->avail;
 
     #
     # digital to analog converter (DAC)
@@ -427,7 +454,15 @@ the devices on an I2C bus.
 See the linked documentation for full documentation on usage, or the
 L<RPi::WiringPi::FAQ-Tutorial> for usage examples.
 
-=head2 spi($channel, $speed);
+=head2 serial($device, $baud)
+
+Creates a new L<RPi::Serial> object which allows basic read/write access to a
+serial bus.
+
+See the linked documentation for full documentation on usage, or the
+L<RPi::WiringPi::FAQ-Tutorial> for usage examples.
+
+=head2 spi($channel, $speed)
 
 Creates a new L<RPi::SPI> object which allows you to communicate on the Serial
 Peripheral Interface (SPI) bus with attached devices.
