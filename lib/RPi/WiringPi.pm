@@ -18,7 +18,7 @@ use RPi::Serial;
 use RPi::SPI;
 use RPi::WiringPi::Constant qw(:all);
 
-our $VERSION = '2.3618';
+our $VERSION = '2.3619';
 
 my $fatal_exit = 1;
 

@@ -1,5 +1,7 @@
 Revision history for Perl extension RPi::WiringPi.
 
+2.3619 UNREL
+
 2.3618  2017-07-01
         - incorporated RPi::Serial
         - bumped remaining prereqs specific to RPi:: that needed it to encompass
