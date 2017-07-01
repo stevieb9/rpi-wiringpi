@@ -14,9 +14,9 @@ if (! $ENV{PI_BOARD}){
 }
 
 my $pi = $mod->new(fatal_exit => 0);
-my $pin = $pi->pin(5);
+my $pin = $pi->pin(21);
 $pin->mode(OUTPUT);
-is $pi->registered_pins, '5', "pin registered ok";
+is $pi->registered_pins, '21', "pin registered ok";
 
 eval { die "intentional die()"; };
 
