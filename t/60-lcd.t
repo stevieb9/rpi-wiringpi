@@ -22,6 +22,8 @@ if (! $ENV{PI_LCD_TEST}){
 my $continue = 1;
 $SIG{INT} = sub { $continue = 0; };
 
+print "$ENV{PIN_SCHEME}\n";
+
 my $pi = RPi::WiringPi->new;
 my $lcd = $pi->lcd;
 
