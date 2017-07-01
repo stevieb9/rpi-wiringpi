@@ -586,6 +586,15 @@ You then set the following environment variable:
 
 These tests skip by default.
 
+=head3 Serial Port Testing
+
+To test the serial port L<RPi::Serial> library, you must have a loopback
+between the Tx and Rx pins, and:
+
+    export RPI_SERIAL=1
+
+These tests will skip by default otherwise.
+
 =head2 Automated with L<Test::BrewBuild>
 
 L<Test::BrewBuild> has some special features specifically to facilitate the
