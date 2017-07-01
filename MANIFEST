@@ -34,6 +34,7 @@ t/55-dac.t
 t/60-lcd.t
 t/65-i2c.t
 t/70-alt_modes.t
+t/75-serial.t
 t/manifest.t
 t/pod-coverage.t
 t/README
