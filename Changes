@@ -1,6 +1,8 @@
 Revision history for Perl extension RPi::WiringPi.
 
-2.3618 UNREL
+2.3618  2017-07-01
+        - incorporated RPi::Serial
+        - bumped remaining prereqs specific to RPi:: that needed it
 
 2.3617  2017-06-28
         - fix wire colour for the DAC CS pin in the diagram (light blue from
