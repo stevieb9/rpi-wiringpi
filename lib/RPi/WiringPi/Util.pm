@@ -90,41 +90,16 @@ sub unexport_pin {
     system "sudo", "gpio", "unexport", $self->pin_to_gpio($pin);
 }
 sub registered_pins {
-    return $ENV{RPI_PINS};
+    return $self->_pin_registration;
 }
 sub register_pin {
     my ($self, $pin) = @_;
-
     my $gpio_num = $self->pin_to_gpio($pin->num);
-
-    if (defined $ENV{RPI_PINS}){
-        my @pi_env_pins = split /,/, $ENV{RPI_PINS};
-        if (grep {$gpio_num == $_} @pi_env_pins){
-            die "\npin $pin is already in use... can't re-register it\n";
-        }
-    }
-
-    $ENV{RPI_PINS} = ! defined $ENV{RPI_PINS}
-        ? $gpio_num
-        : "$ENV{RPI_PINS},$gpio_num";
+    $self->_pin_registration($pin, $pin->get_alt, $pin->read);
 }
 sub unregister_pin {
     my ($self, $pin) = @_;
-
-    my @pin_nums = split /,/, $self->registered_pins;
-
-    my @updated_list;
-
-    for my $pin_num (@pin_nums){
-        if ($pin->num == $pin_num){
-            $pin->mode(INPUT);
-        }
-        else {
-            push @updated_list, $pin_num;
-        }
-    }
-
-    $ENV{RPI_PINS} = join ",", @updated_list;
+    $self->_pin_registration($pin);
 }
 sub cleanup{
     my $pins = $ENV{RPI_PINS};
@@ -136,6 +111,45 @@ sub cleanup{
     }
 
     delete $ENV{RPI_PINS};
+}
+sub _pin_registration {
+    # manages the registration duties for pins
+
+    my ($self, $pin, $alt, $state) = @_;
+
+    my $json = $ENV{RPI_PINS};
+    my $perl = decode_json $json;
+
+    if (! defined $pin){
+        return keys %{ $perl };
+    }
+
+    if (! defined $alt){
+        if (defined $perl->{$self->pin_to_gpio($pin->num)}){
+            $pin->mode_alt($alt);
+            $pin->write($state);
+            delete $perl->{$self->pin_to_gpio($pin->num)};
+            return;
+        }
+    }
+
+    die "_pin_data() requires both \$alt and \$state params\n"
+      if ! defined $state;
+
+    if (defined $perl->{$self->pin_to_gpio($pin->num)}){
+        my $gpio_pin_num = $self->pin_to_gpio($pin->num);
+        die "pin $gpio_pin_num is already in use, can't continue...\n";
+    }
+
+    $perl->{$self->pin_to_gpio($pin->num)}{alt} = $alt;
+    $perl->{$self->pin_to_gpio($pin->num)}{state} = $state;
+
+    my @registered_pins = keys %{ $perl };
+
+    $json = encode_json $perl;
+    $ENV{RPI_PINS} = $json;
+
+    return \@registered_pins;
 }
 sub _vim{1;};
 1;
