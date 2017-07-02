@@ -29,7 +29,8 @@ my $pi = $mod->new(fatal_exit => 0);
 
 
     my $pins = $pi->registered_pins;
-    is ((split /,/, $pins), 3, "proper num of pins registered");
+    
+    is @$pins, 3, "proper num of pins registered";
 
     for (keys %pin_map){
         is $pin_map{$_}->num, $_, "\$pin$_ has proper num()";
@@ -38,7 +39,7 @@ my $pi = $mod->new(fatal_exit => 0);
 
 $pi->cleanup;
 
-is $pi->registered_pins, undef, "after cleanup, all pins unregistered";
+is @{ $pi->registered_pins }, 0, "after cleanup, all pins unregistered";
 
 done_testing();
 
