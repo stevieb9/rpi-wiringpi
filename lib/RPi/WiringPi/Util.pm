@@ -121,7 +121,8 @@ sub _pin_registration {
     my $perl = defined $json ? decode_json $json : {};
 
     if (! defined $pin){
-        return keys %{ $perl };
+        my @registered_pins = keys %{ $perl };
+        return \@registered_pins;
     }
 
     if (! defined $alt){
@@ -289,8 +290,8 @@ Pin number must be the C<GPIO> pin number representation.
 
 =head2 registered_pins()
 
-Returns a list of comma-separated pin numbers in GPIO scheme that have been used
-in your program run.
+Returns an array reference where each element is the GPIO pin number of each
+currently registerd pin.
 
 =head2 register_pin($pin_obj)
 

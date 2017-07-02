@@ -120,7 +120,7 @@ sub pin {
     my $pins_in_use = $self->registered_pins;
     my $gpio = $self->pin_to_gpio($pin_num);
 
-    if (defined $ENV{RPI_PINS} && grep {$gpio == $_} split /,/, $pins_in_use){
+    if (grep {$gpio == $_} @{ $self->registered_pins }){
         die "\npin $pin_num is already in use... can't create second object\n";
     }
 
