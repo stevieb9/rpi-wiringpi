@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use parent 'WiringPi::API';
-
+use JSON;
 use RPi::WiringPi::Constant qw(:all);
 
 our $VERSION = '2.3619';
@@ -90,7 +90,7 @@ sub unexport_pin {
     system "sudo", "gpio", "unexport", $self->pin_to_gpio($pin);
 }
 sub registered_pins {
-    return $self->_pin_registration;
+    return $_[0]->_pin_registration;
 }
 sub register_pin {
     my ($self, $pin) = @_;
@@ -118,7 +118,7 @@ sub _pin_registration {
     my ($self, $pin, $alt, $state) = @_;
 
     my $json = $ENV{RPI_PINS};
-    my $perl = decode_json $json;
+    my $perl = defined $json ? decode_json $json : {};
 
     if (! defined $pin){
         return keys %{ $perl };
@@ -126,8 +126,8 @@ sub _pin_registration {
 
     if (! defined $alt){
         if (defined $perl->{$self->pin_to_gpio($pin->num)}){
-            $pin->mode_alt($alt);
-            $pin->write($state);
+            $pin->mode_alt($perl->{$pin->num}{alt});
+            $pin->write($perl->{$pin->num}{state});
             delete $perl->{$self->pin_to_gpio($pin->num)};
             return;
         }
@@ -147,6 +147,7 @@ sub _pin_registration {
     my @registered_pins = keys %{ $perl };
 
     $json = encode_json $perl;
+    
     $ENV{RPI_PINS} = $json;
 
     return \@registered_pins;
