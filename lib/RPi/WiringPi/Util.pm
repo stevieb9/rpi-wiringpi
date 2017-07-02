@@ -94,7 +94,6 @@ sub registered_pins {
 }
 sub register_pin {
     my ($self, $pin) = @_;
-    my $gpio_num = $self->pin_to_gpio($pin->num);
     $self->_pin_registration($pin, $pin->get_alt, $pin->read);
 }
 sub unregister_pin {
