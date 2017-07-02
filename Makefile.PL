@@ -29,8 +29,9 @@ WriteMakefile(
         'ExtUtils::MakeMaker' => 6.72,
     },
     PREREQ_PM         => {
-        parent                      => 0,
+        'parent'                      => 0,
         'GPSD::Parse'               => 1.01,
+        'JSON'                      => 0,
         'RPi::ADC::ADS'             => 1.01,
         'RPi::ADC::MCP3008'         => 2.3604,
         'RPi::BMP180'               => 2.3604,
