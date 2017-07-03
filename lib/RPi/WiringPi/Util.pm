@@ -318,8 +318,8 @@ Mandatory: An object instance of L<RPi::WiringPi::Pin> class.
 
 =head2 cleanup()
 
-Resets all registered pins back to default settings (off). It's important that
-this method be called in each application.
+Resets all registered pins back to default settings as they were before your
+program started. It's important that this method be called in each application.
 
 =head1 ENVIRONMENT VARIABLES
 
