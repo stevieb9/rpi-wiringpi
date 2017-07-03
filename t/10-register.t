@@ -4,6 +4,7 @@ use warnings;
 use Data::Dumper;
 use RPi::WiringPi;
 use Test::More;
+use WiringPi::API qw(:perl);
 
 my $mod = 'RPi::WiringPi';
 
@@ -15,27 +16,26 @@ if (! $ENV{PI_BOARD}){
 
 my $pi = $mod->new(fatal_exit => 0);
 
-{# register, unregister
+my $pin26 = $pi->pin(26);
+my $pin12 = $pi->pin(12);
+my $pin18 = $pi->pin(18);
 
-    my $pin26 = $pi->pin(26);
-    my $pin12 = $pi->pin(12);
-    my $pin18 = $pi->pin(18);
-
-    my %pin_map = (
-        26 => $pin26,
-        12 => $pin12,
-        18 => $pin18,
-    );
+my %pin_map = (
+    26 => $pin26,
+    12 => $pin12,
+    18 => $pin18,
+);
 
 
-    my $pins = $pi->registered_pins;
-    
-    is @$pins, 3, "proper num of pins registered";
+my $pins = $pi->registered_pins;
 
-    for (keys %pin_map){
-        is $pin_map{$_}->num, $_, "\$pin$_ has proper num()";
-    }
+is @$pins, 3, "proper num of pins registered";
+
+for (keys %pin_map){
+    is $pin_map{$_}->num, $_, "\$pin$_ has proper num()";
 }
+
+print $pin26->mode_alt;
 
 $pi->cleanup;
 
