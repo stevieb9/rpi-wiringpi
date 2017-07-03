@@ -91,7 +91,7 @@ sub adc {
     my $adc;
 
     if (defined $args{model} && $args{model} eq 'MCP3008'){
-        $self->register($self->pin($args{channel});
+        $self->register($self->pin($args{channel}));
         $adc = RPi::ADC::MCP3008->new($args{channel});
     }
     else {
@@ -102,7 +102,7 @@ sub adc {
 }
 sub dac {
     my ($self, %args) = @_;
-    $self->register_pin($args{cs}));
+    $self->register_pin($args{cs});
     $self->register_pin($args{shdn}) if exists $args{shdn};
     $args{model} = 'MCP4922' if ! defined $args{model};
     my $dac = RPi::DAC::MCP4922->new(%args);
