@@ -1,15 +1,24 @@
 Revision history for Perl extension RPi::WiringPi.
 
 2.3619 UNREL
+        - hid all of the setup() tests. Somewhere in the last commits we broke
+          it, but that's actually ok
+        - all external devices/sensors that require GPIO pins have all of those
+          pins registered prior to returning the object
+        - registered pins are still stored in $ENV{RPI_PINS}, but we store them
+          within a JSON hash now, along with each pin's state and alt mode
+        - in cleanup, we now use WiringPi::API directly to reset all registered
+          pins back to the way they were as the program first started up
+        - significantly beefed up the testing regime. On each test file, we
+          check that all pins are back to their default (pre-test) state and
+          mode. Added t/RPiTest.pm to handle the work
+        - addded new DEVELOPMENT section to FAQ; added blurb about registering
+          pins if adding new subs
 
 2.3618  2017-07-01
         - incorporated RPi::Serial
         - bumped remaining prereqs specific to RPi:: that needed it to encompass
           all known bug fixes and feature adds
-        - hid all of the setup() tests. Somewhere in the last commits we broke
-          it, but that's actually ok
-        - all external devices/sensors that require GPIO pins have all of those
-          pins registered prior to returning the object
 
 2.3617  2017-06-28
         - fix wire colour for the DAC CS pin in the diagram (light blue from
