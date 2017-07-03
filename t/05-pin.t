@@ -3,7 +3,7 @@ use warnings;
 
 use lib 't/';
 
-use RPi::Test qw(check_pin_status);
+use RPiTest qw(check_pin_status);
 use RPi::WiringPi;
 use RPi::WiringPi::Constant qw(:all);
 use Test::More;

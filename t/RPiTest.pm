@@ -41,12 +41,14 @@ sub default_pin_config {
                'alt' => 0
              },
       '17' => {
-                'state' => 0,
+                # hot due to LCD
+                'state' => 1,
                 'alt' => 0
               },
       '15' => {
+                # alt 4 (ALT0) when Serial bluetooth disabled
                 'state' => 1,
-                'alt' => 2
+                'alt' => 4
               },
       '23' => {
                 'state' => 0,
@@ -69,7 +71,8 @@ sub default_pin_config {
                'alt' => 0
              },
       '27' => {
-                'state' => 0,
+                # hot due to LCD
+                'state' => 1,
                 'alt' => 0
               },
       '16' => {
@@ -81,8 +84,9 @@ sub default_pin_config {
                 'alt' => 0
               },
       '22' => {
+                # hot due to LCD
                 'alt' => 0,
-                'state' => 0
+                'state' => 1
               },
       '26' => {
                 'state' => 0,
@@ -113,8 +117,9 @@ sub default_pin_config {
                 'state' => 0
               },
       '14' => {
+                # alt 4 (ALT0) when Serial bluetooth disabled
                 'state' => 1,
-                'alt' => 2
+                'alt' => 4
               },
       '11' => {
                 'alt' => 4,
