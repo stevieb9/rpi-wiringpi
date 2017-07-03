@@ -1,7 +1,9 @@
 use strict;
 use warnings;
 
-use Data::Dumper;
+use lib '.';
+
+use RPiTest qw(check_pin_status);
 use RPi::WiringPi;
 use Test::More;
 
@@ -26,16 +28,15 @@ if ($> != 0){
 
 my $pi = $mod->new;
 
-{# pwm
+my $adc_in = 7;
 
-    my $adc_in = 7;
+if (! $ENV{NO_BOARD}) {
+    my $pin = $pi->pin(18);
+    $pin->mode(2);
+    is $pin->mode, 2, "pin mode set to PWM ok, and we can read it";
+    $pi->cleanup;
 
-    if (! $ENV{NO_BOARD}) {
-        my $pin = $pi->pin(18);
-        $pin->mode(2);
-        is $pin->mode, 2, "pin mode set to PWM ok, and we can read it";
-        $pi->cleanup;
-    }
+    check_pin_status();
 }
 
 done_testing();

@@ -1,6 +1,9 @@
 use strict;
 use warnings;
 
+use lib '.';
+
+use RPiTest qw(check_pin_status);
 use RPi::WiringPi;
 use RPi::WiringPi::Constant qw(:all);
 use Test::More;
@@ -44,5 +47,7 @@ $s->puts("hello, world!");
 is $s->gets(13), "hello, world!", "puts() and gets() ok";
 
 $pi->cleanup;
+
+check_pin_status();
 
 done_testing();

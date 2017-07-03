@@ -1,6 +1,9 @@
 use warnings;
 use strict;
 
+use lib '.';
+
+use RPiTest qw(check_pin_status);
 use RPi::WiringPi;
 use RPi::WiringPi::Constant qw(:all);
 use Test::More;
@@ -59,5 +62,7 @@ $sr_pin->write(LOW);
 ok $adc->percent(2) < 2, "SR pin 1 low ok";
 
 $pi->cleanup;
+
+check_pin_status();
 
 done_testing();
