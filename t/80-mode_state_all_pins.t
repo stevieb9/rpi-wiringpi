@@ -20,17 +20,16 @@ my $conf;
 
 my $config = default_pin_config();
 
-{ # alt modes
-
-    for (@gpio_pins){
-        is get_alt($_), $config->{$_}{alt}, "pin $_ set back to default mode ok";
-        is read_pin($_), $config->{$_}{state}, "pin $_ set back to default state ok";
-    }
+for (@gpio_pins){
+    is get_alt($_), $config->{$_}{alt}, "pin $_ set back to default mode ok";
+    is read_pin($_), $config->{$_}{state}, "pin $_ set back to default state ok";
 }
 
 done_testing();
 
 sub default_pin_config {
+    # default pin configurations
+
     return {
       '3' => {
                'alt' => 4,
