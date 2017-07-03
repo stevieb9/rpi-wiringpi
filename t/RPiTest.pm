@@ -4,10 +4,11 @@ use warnings;
 use strict;
 
 use Exporter;
-our @ISA = qw(import);
+our @ISA = qw(Exporter);
 
 our @EXPORT_OK = qw(check_pin_status);
 
+use Test::More;
 use WiringPi::API qw(:perl);
 
 sub check_pin_status {
