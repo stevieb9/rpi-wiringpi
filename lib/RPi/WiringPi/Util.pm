@@ -101,12 +101,13 @@ sub unregister_pin {
     $self->_pin_registration($pin);
 }
 sub cleanup{
-    my $pins = $ENV{RPI_PINS};
     return if ! $ENV{RPI_PINS};
 
-    for (split /,/, $pins){
-        `gpio -g mode $_ in`;
-        `gpio -g mode $_ tri`;
+    my $pins = decode_json $ENV{RPI_PINS};
+
+    for my $pin (keys %{ $pins }){
+        WiringPi::API::pin_mode_alt($pin, $pins->{$pin}{alt});
+        WiringPi::API::write_pin($pin, $pins->{$pin}{state});
     }
 
     delete $ENV{RPI_PINS};
