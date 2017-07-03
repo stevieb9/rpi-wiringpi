@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use lib '.';
+use lib 't/';
 
 use RPi::Test qw(check_pin_status);
 use RPi::WiringPi;

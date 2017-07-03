@@ -1,7 +1,7 @@
 use warnings;
 use strict;
 
-use lib '.';
+use lib 't/';
 
 use RPiTest qw(check_pin_status);
 use Test::More;
