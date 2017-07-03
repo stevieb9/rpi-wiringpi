@@ -1,6 +1,9 @@
 use strict;
 use warnings;
 
+use lib '.';
+
+use RPiTest qw(check_pin_status);
 use RPi::WiringPi;
 use RPi::WiringPi::Constant qw(:all);
 use Test::More;
@@ -78,5 +81,7 @@ sub _eeprom {
 }
 
 $pi->cleanup;
+
+check_pin_status();
 
 done_testing();

@@ -1,10 +1,11 @@
 use strict;
 use warnings;
 
-use Data::Dumper;
+use lib '.';
+
+use RPiTest qw(check_pin_status);
 use RPi::WiringPi;
 use Test::More;
-use WiringPi::API qw(:perl);
 
 my $mod = 'RPi::WiringPi';
 
@@ -40,6 +41,8 @@ print $pin26->mode_alt;
 $pi->cleanup;
 
 is @{ $pi->registered_pins }, 0, "after cleanup, all pins unregistered";
+
+check_pin_status();
 
 done_testing();
 
