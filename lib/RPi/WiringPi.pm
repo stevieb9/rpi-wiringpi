@@ -91,21 +91,26 @@ sub adc {
     my $adc;
 
     if (defined $args{model} && $args{model} eq 'MCP3008'){
+        $self->register($self->pin($args{channel});
         $adc = RPi::ADC::MCP3008->new($args{channel});
     }
     else {
+        # ADSxxxx ADCs don't require any pins
         $adc = RPi::ADC::ADS->new(%args);
     }
     return $adc;
 }
 sub dac {
     my ($self, %args) = @_;
+    $self->register_pin($args{cs}));
+    $self->register_pin($args{shdn}) if exists $args{shdn};
     $args{model} = 'MCP4922' if ! defined $args{model};
     my $dac = RPi::DAC::MCP4922->new(%args);
     return $dac;
 }
 sub dpot {
     my ($self, $cs, $channel) = @_;
+    $self->register($self->pin($cs));
     my $dpot = RPi::DigiPot::MCP4XXXX->new($cs, $channel);
     return $dpot;
 }
@@ -160,6 +165,7 @@ sub bmp {
 }
 sub hygrometer {
     my ($self, $pin) = @_;
+    $self->register_pin($pin);
     my $sensor = RPi::DHT11->new($pin);
     return $sensor;
 }
@@ -170,6 +176,10 @@ sub spi {
 }
 sub shift_register {
     my ($self, $base, $num_pins, $data, $clk, $latch) = @_;
+
+    for ($data, $clk, $latch){
+        $self->register_pin($_);
+    }
     $self->shift_reg_setup($base, $num_pins, $data, $clk, $latch);
 }
 

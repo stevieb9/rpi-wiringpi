@@ -8,6 +8,8 @@ Revision history for Perl extension RPi::WiringPi.
           all known bug fixes and feature adds
         - hid all of the setup() tests. Somewhere in the last commits we broke
           it, but that's actually ok
+        - all external devices/sensors that require GPIO pins have all of those
+          pins registered prior to returning the object
 
 2.3617  2017-06-28
         - fix wire colour for the DAC CS pin in the diagram (light blue from
