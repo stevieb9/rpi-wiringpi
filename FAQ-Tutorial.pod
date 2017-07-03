@@ -432,8 +432,6 @@ NOTE: When in 4-bit mode, although you're setting C<d0> through C<d3> pins
 up and leaving C<d4> through C<d7> as C<0>, the wiring must connect to LCD pins
 C<d4> through C<d7>. Look at LCD pin 4-7 as LCD pin 0-3 when in 4-bit mode.
 
-    my $lcd = $pi->lcd;
-
     my %lcd_args = (
         rows  => 2,     # number of display rows, 2 or 4
         cols  => 16,    # number of display columns 16 or 20
@@ -448,7 +446,7 @@ C<d4> through C<d7>. Look at LCD pin 4-7 as LCD pin 0-3 when in 4-bit mode.
         d7    => 11     # GPIO pins
     );
 
-    $lcd->init(%lcd_args);
+    my $lcd = $pi->lcd(%lcd_args);
 
 =head2 Display operations
 

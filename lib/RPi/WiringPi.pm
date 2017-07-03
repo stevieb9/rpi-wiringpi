@@ -137,8 +137,21 @@ sub i2c {
     return RPi::I2C->new($addr, $i2c_device);
 }
 sub lcd {
-    my $self = shift;
+    my ($self, %args) = @_;
+
+    # pre-register all pins so we can clean them up
+    # accordingly upon cleanup
+
+    for (qw(rs strb d0 d1 d2 d3 d4 d5 d6 d7)){
+        if (! exists $args{$_} || $args{$_} !~ /^\d+$/){
+            die "lcd() requires pin configuration within a hash\n";
+        }
+        next if $args{$_} == 0;
+        $self->register_pin($self->pin($args{$_}));
+    }
+
     my $lcd = RPi::LCD->new;
+    $lcd->init(%args);
     return $lcd;
 }
 sub bmp {
@@ -360,9 +373,7 @@ various items
     # LCD
     #
 
-    my $lcd = $pi->lcd;
-
-    $lcd->init(...);
+    my $lcd = $pi->lcd(...);
 
     # first column, first row
     
@@ -441,10 +452,13 @@ Parameters:
 
 Mandatory, Integer: The pin number to attach to.
 
-=head2 lcd()
+=head2 lcd(...)
 
 Returns a L<RPi::LCD> object, which allows you to fully manipulate
 LCD displays connected to your Raspberry Pi.
+
+Please see the linked documentation for information regarding the parameters
+required.
 
 =head2 i2c($addr, [$device])
 
