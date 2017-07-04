@@ -16,6 +16,7 @@ Revision history for Perl extension RPi::WiringPi.
           pins if adding new subs
         - all pins are now reset to default with cleanup(), as well as on any
           crash (closes #34)
+        - fix typo in GPS section in SYNOPSIS (closes #37)
 
 2.3618  2017-07-01
         - incorporated RPi::Serial
