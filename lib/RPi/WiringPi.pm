@@ -408,7 +408,7 @@ This is the root module for the C<RPi::WiringPi> system. It interfaces to a
 Raspberry Pi board, its accessories and its GPIO pins via the
 L<wiringPi|http://wiringpi.com> library through the Perl wrapper
 L<WiringPi::API|https://metacpan.org/pod/WiringPi::API>
-module.
+module, and various other custom device specific  modules.
 
 L<wiringPi|http://wiringpi.com> must be installed prior to installing/using
 this module (v2.36+).
