@@ -35,8 +35,6 @@ for (keys %pin_map){
     is $pin_map{$_}->num, $_, "\$pin$_ has proper num()";
 }
 
-print $pin26->get_alt;
-
 $pi->cleanup;
 
 is @{ $pi->registered_pins }, 0, "after cleanup, all pins unregistered";

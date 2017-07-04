@@ -23,12 +23,6 @@ my $adc = $pi->adc(
     channel => $adc_pin
 );
 
-my @pins_in_use;
-
-for (21, 20, 16){
-    push @pins_in_use, $pi->pin($_);
-}
-
 my $sr = $pi->shift_register(400, 8, 21, 20, 16);
 
 my $sr_pin;
@@ -52,7 +46,6 @@ $sr_pin->write(LOW);
 #print $adc->percent(2) . "\n\n";
 ok $adc->percent(2) < 2, "SR pin 1 low ok";
 
-
 $sr_pin->write(HIGH);
 #print $adc->percent(2) . "\n\n";
 ok $adc->percent(2) > 90, "SR pin 1 HIGH ok";
@@ -63,6 +56,7 @@ ok $adc->percent(2) < 2, "SR pin 1 low ok";
 
 $pi->cleanup;
 
+select(undef, undef, undef, 0.2);
 check_pin_status();
 
 done_testing();

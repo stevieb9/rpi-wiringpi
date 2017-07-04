@@ -14,6 +14,8 @@ Revision history for Perl extension RPi::WiringPi.
           mode. Added t/RPiTest.pm to handle the work
         - addded new DEVELOPMENT section to FAQ; added blurb about registering
           pins if adding new subs
+        - all pins are now reset to default with cleanup(), as well as on any
+          crash (closes #34)
 
 2.3618  2017-07-01
         - incorporated RPi::Serial
