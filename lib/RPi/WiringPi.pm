@@ -372,7 +372,7 @@ various items
     my $temp      = $env->temp; # celcius
     my $farenheit = $env->temp('f');
 
-    # GPS (requires gpsd to be installed and running
+    # GPS (requires gpsd to be installed and running)
 
     my $gps = $pi->gps;
 
