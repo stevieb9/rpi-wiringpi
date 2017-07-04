@@ -109,7 +109,7 @@ sub cleanup{
         WiringPi::API::pin_mode_alt($pin, $pins->{$pin}{alt});
         WiringPi::API::write_pin($pin, $pins->{$pin}{state});
     }
-
+    print "before cleanup: $ENV{RPI_PINS}\n";
     delete $ENV{RPI_PINS};
 }
 sub _pin_registration {
@@ -130,6 +130,7 @@ sub _pin_registration {
             $pin->mode_alt($perl->{$pin->num}{alt});
             $pin->write($perl->{$pin->num}{state});
             delete $perl->{$self->pin_to_gpio($pin->num)};
+            $ENV{RPI_PINS} = encode_json $perl;
             return;
         }
     }
@@ -137,7 +138,7 @@ sub _pin_registration {
     die "_pin_data() requires both \$alt and \$state params\n"
       if ! defined $state;
 
-    if (defined $perl->{$self->pin_to_gpio($pin->num)}){
+    if (exists $perl->{$self->pin_to_gpio($pin->num)}){
         my $gpio_pin_num = $self->pin_to_gpio($pin->num);
         die "pin $gpio_pin_num is already in use, can't continue...\n";
     }

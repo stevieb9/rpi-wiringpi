@@ -27,7 +27,6 @@ my %pin_map = (
     18 => $pin18,
 );
 
-
 my $pins = $pi->registered_pins;
 
 is @$pins, 3, "proper num of pins registered";
@@ -36,7 +35,7 @@ for (keys %pin_map){
     is $pin_map{$_}->num, $_, "\$pin$_ has proper num()";
 }
 
-print $pin26->mode_alt;
+print $pin26->get_alt;
 
 $pi->cleanup;
 
