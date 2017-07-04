@@ -175,7 +175,7 @@ used independently.
 
 Returns the GPIO layout which indicates the board revision number.
 
-=head2 pin_scheme()
+=head2 pin_scheme([$scheme])
 
 Returns the current pin mapping in use. Returns C<0> for C<wiringPi> scheme,
 C<1> for GPIO, C<2> for System GPIO, C<3> for physical board and C<-1> if a
@@ -225,7 +225,7 @@ For C<'GPIO'> scheme:
         ...
     };
 
-=head2 pin_to_gpio($pin, $scheme)
+=head2 pin_to_gpio($pin, [$scheme])
 
 Dynamically converts the specified pin from the specified scheme
 (C<RPI_MODE_WPI> (wiringPi), or C<RPI_MODE_PHYS> (physical board numbering

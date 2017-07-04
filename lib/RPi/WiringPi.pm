@@ -437,7 +437,7 @@ command.
 See L<RPi::WiringPi::Util> for utility/helper methods that are imported into
 an C<RPi::WiringPi> object.
 
-=head2 new(%args)
+=head2 new([%args])
 
 Returns a new C<RPi::WiringPi> object. We exclusively use the C<GPIO>
 (Broadcom (BCM) GPIO) pin numbering scheme. These pin numbers are printed on the
