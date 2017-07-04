@@ -200,7 +200,8 @@ SYNOPSIS
 DESCRIPTION
     This is the root module for the `RPi::WiringPi' system. It interfaces to
     a Raspberry Pi board, its accessories and its GPIO pins via the wiringPi
-    library through the Perl wrapper WiringPi::API module.
+    library through the Perl wrapper WiringPi::API module, and various other
+    custom device specific modules.
 
     wiringPi must be installed prior to installing/using this module
     (v2.36+).
