@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use lib '.';
+use lib 't/';
 
 use RPiTest qw(check_pin_status);
 use RPi::WiringPi;
@@ -38,6 +38,6 @@ my $pi = $mod->new;
 
 $pi->cleanup;
 
-check_pin_status():
+check_pin_status();
 
 done_testing();

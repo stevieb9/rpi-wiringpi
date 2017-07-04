@@ -27,7 +27,7 @@ eval { die "intentional die()"; };
 
 is $pin->mode, INPUT, "pin reset to INPUT after die()";
 
-# $pi->cleanup;
+$pi->cleanup;
 
 check_pin_status();
 

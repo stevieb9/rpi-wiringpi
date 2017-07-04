@@ -25,10 +25,7 @@ if (! $ENV{PI_LCD_TEST}){
 my $continue = 1;
 $SIG{INT} = sub { $continue = 0; };
 
-print "$ENV{PIN_SCHEME}\n";
-
 my $pi = RPi::WiringPi->new;
-my $lcd = $pi->lcd;
 
 my %args = (
     cols => 16,
@@ -46,7 +43,7 @@ my %args = (
     d7 => 0,
 );
 
-$lcd->init(%args);
+my $lcd = $pi->lcd(%args);
 
 $lcd->position(0, 0);
 $lcd->print("hello, world!"); 

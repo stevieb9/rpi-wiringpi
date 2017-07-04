@@ -94,7 +94,7 @@ sub registered_pins {
 }
 sub register_pin {
     my ($self, $pin) = @_;
-    $self->_pin_registration($pin, $pin->get_alt, $pin->read);
+    $self->_pin_registration($pin, $pin->mode_alt, $pin->read);
 }
 sub unregister_pin {
     my ($self, $pin) = @_;
@@ -109,7 +109,6 @@ sub cleanup{
         WiringPi::API::pin_mode_alt($pin, $pins->{$pin}{alt});
         WiringPi::API::write_pin($pin, $pins->{$pin}{state});
     }
-    print "before cleanup: $ENV{RPI_PINS}\n";
     delete $ENV{RPI_PINS};
 }
 sub _pin_registration {

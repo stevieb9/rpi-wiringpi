@@ -26,7 +26,6 @@ BEGIN {
     sub _error {
         my $err = shift;
         print "\ndie() caught... ".  __PACKAGE__ ." is cleaning up\n",
-        print "*** $ENV{RPI_PINS}\n";
         RPi::WiringPi::Util::cleanup();
         print "\ncleaned up, exiting...\n";
         print "\noriginal error: $err\n";
@@ -91,8 +90,8 @@ sub adc {
     my $adc;
 
     if (defined $args{model} && $args{model} eq 'MCP3008'){
-        $self->register($self->pin($args{channel}));
-        $adc = RPi::ADC::MCP3008->new($args{channel});
+        my $pin = $self->pin($args{channel});
+        $adc = RPi::ADC::MCP3008->new($pin->num);
     }
     else {
         # ADSxxxx ADCs don't require any pins
@@ -102,8 +101,8 @@ sub adc {
 }
 sub dac {
     my ($self, %args) = @_;
-    $self->register_pin($args{cs});
-    $self->register_pin($args{shdn}) if exists $args{shdn};
+    my $cs_pin = $self->pin($args{cs});
+    my $shdn_pin = $self->pin($args{shdn}) if defined $args{shdn};
     $args{model} = 'MCP4922' if ! defined $args{model};
     my $dac = RPi::DAC::MCP4922->new(%args);
     return $dac;
@@ -152,7 +151,7 @@ sub lcd {
             die "lcd() requires pin configuration within a hash\n";
         }
         next if $args{$_} == 0;
-        $self->register_pin($self->pin($args{$_}));
+        my $pin = $self->pin($args{$_});
     }
 
     my $lcd = RPi::LCD->new;
@@ -177,10 +176,13 @@ sub spi {
 sub shift_register {
     my ($self, $base, $num_pins, $data, $clk, $latch) = @_;
 
+    my @pin_nums;
+
     for ($data, $clk, $latch){
-        $self->register_pin($_);
+        my $pin = $self->pin($_);
+        push @pin_nums, $pin->num;
     }
-    $self->shift_reg_setup($base, $num_pins, $data, $clk, $latch);
+    $self->shift_reg_setup($base, $num_pins, @pin_nums);
 }
 
 # private
