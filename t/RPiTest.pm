@@ -31,7 +31,7 @@ sub check_pin_status {
 sub default_pin_config {
     # default pin configurations
 
-    return {
+    my $pin_conf = {
       '3' => {
                'alt' => 4,
                'state' => 1
@@ -84,9 +84,8 @@ sub default_pin_config {
                 'alt' => 0
               },
       '22' => {
-                # hot due to LCD
                 'alt' => 0,
-                'state' => 1
+                'state' => 0
               },
 #FIXME: removed due to inherent flipping
 #      '26' => {
@@ -155,4 +154,32 @@ sub default_pin_config {
                 'state' => 0
             },
     };
+
+    if ($ENV{BB_RPI_LCD}){
+
+        # if we're in BrewBuild testing with LCD, we
+        # need to set some pins up appropriately
+
+        $pin_conf->{4}{alt} = 1;
+        $pin_conf->{4}{state} = 0;
+
+        $pin_conf->{5}{alt} = 1;
+        $pin_conf->{5}{state} = 0;
+
+        $pin_conf->{6}{alt} = 1;
+        $pin_conf->{6}{state} = 0;
+
+        $pin_conf->{22}{alt} = 1;
+        $pin_conf->{22}{state} = 0;
+
+        $pin_conf->{27}{alt} = 1;
+        $pin_conf->{27}{state} = 0;
+
+        $pin_conf->{17}{alt} = 1;
+        $pin_conf->{17}{state} = 0;
+
+
+    }
+
+    return $pin_conf;
 }

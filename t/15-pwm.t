@@ -39,4 +39,6 @@ if (! $ENV{NO_BOARD}) {
     check_pin_status();
 }
 
+$pi->cleanup;
+
 done_testing();
