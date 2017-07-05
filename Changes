@@ -1,7 +1,9 @@
 Revision history for Perl extension RPi::WiringPi.
 
 2.3620 UNREL
-        -
+        - worked around issue where bbdispatch/brewbuild was causing havoc on
+          pin cleanup due to the LCD. After trial and headache, I just disabled
+          those pins from being checked (closes #41)
 
 2.3619  2017-07-04
         - hid all of the setup() tests. Somewhere in the last commits we broke
