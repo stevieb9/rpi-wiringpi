@@ -640,6 +640,17 @@ restart the dispatcher with the C<--rpi> or the equivalent C<-R> flag:
 The C<--rpi> flag is rather hidden (but it *is* documented subtly), as this is
 a feature that most likely I'll be the only consumer of.
 
+=head2 Testing Environment Variable List
+
+Here's the contents of my C</etc/environment> file, setting the various testing
+environment variables for the full test platform.
+
+    PI_BOARD=1                  # It's a Pi
+    RPI_ARDUINO=1               # Arduino I2C connected
+    RPI_SERIAL=1                # Serial enabled, and loopback
+    BB_RPI_LCD=5,6,4,17,27,22   # Auto-testing LCD enabled
+    RELEASE_TESTING=1           # Author tests (POD, manifest etc)
+
 =head1 DEVELOPMENT
 
 Section that describes some particulars when developing or adding new external
