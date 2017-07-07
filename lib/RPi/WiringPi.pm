@@ -11,6 +11,7 @@ use RPi::ADC::MCP3008;
 use RPi::BMP180;
 use RPi::DAC::MCP4922;
 use RPi::DigiPot::MCP4XXXX;
+use RPi::HCSR04;
 use RPi::I2C;
 use RPi::LCD;
 use RPi::Pin;
@@ -122,6 +123,13 @@ sub gps {
     my ($self, %args) = @_;
     my $gps = GPSD::Parse->new(%args);
     return $gps;
+}
+sub hcsr04 {
+    my ($self, $t, $e) = @_;
+    # we don't use the pin objects; we generate them simply for registration
+    my $trig_pin = $self->pin($t);
+    my $echo_pin = $self->pin($e);
+    return RPi::HCSR04->new($t, $e);
 }
 sub hygrometer {
     my ($self, $pin) = @_;
@@ -405,6 +413,19 @@ various items
 
     $pi->cleanup;
 
+    #
+    # ultrasonic distance sensor
+    #
+
+    my $trig_pin = 23;
+    my $echo_pin = 24;
+
+    my $ruler = $pi->hcsr04($trig_pin, $echo_pin);
+
+    my $inches = $sensor->inch;
+    my $cm     = $sensor->cm;
+    my $raw    = $sensor->raw;
+
 =head1 DESCRIPTION
 
 This is the root module for the C<RPi::WiringPi> system. It interfaces to a
@@ -604,6 +625,21 @@ the barometric pressure in kPa.
 
 Returns a L<RPi::DHT11> temperature/humidity sensor object, allows you to fetch
 the temperature (celcius or farenheit) as well as the current humidity level.
+
+=head2 hcsr04($trig, $echo)
+
+Returns a L<RPi::HCSR04> ultrasonic distance measurement sensor object, allowing
+you to retrieve the distance from the sensor in inches, centimetres or raw data.
+
+Parameters:
+
+    $trig
+
+The trigger pin number, in GPIO numbering scheme.
+
+    $echo
+
+The echo pin number, in GPIO numbering scheme.
 
 =head1 INTERNAL PUBLIC METHODS
 

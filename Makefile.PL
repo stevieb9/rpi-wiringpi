@@ -38,6 +38,7 @@ WriteMakefile(
         'RPi::DAC::MCP4922'         => 2.3605,
         'RPi::DigiPot::MCP4XXXX'    => 2.3604,
         'RPi::DHT11'                => 1.03,
+        'RPi::HCSR04'               => 2.3601,
         'RPi::I2C'                  => 2.3604,
         'RPi::LCD'                  => 2.3603,
         'RPi::Pin'                  => 2.3603,

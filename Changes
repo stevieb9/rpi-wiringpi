@@ -7,7 +7,8 @@ Revision history for Perl extension RPi::WiringPi.
         - added new FAQ test section for the list of env vars with descriptions
         - fix issue where in dac(), we weren't registering the CS pin correctly
         - alphabeticalized public methods within the code
-        -
+        - added full support for the HCSR04 ultrasonic distance measurement
+          sensor (closes #42)
 
 2.3619  2017-07-04
         - hid all of the setup() tests. Somewhere in the last commits we broke
