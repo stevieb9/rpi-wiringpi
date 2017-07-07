@@ -563,7 +563,7 @@ Before running the tests, you need to set a special environment variable so that
 we know we're on a Pi board. This ensures CPAN testers won't run the tests
 across all of its platforms:
 
-    export RPI_BOARD=1
+    export PI_BOARD=1
 
 Personally, I set all the environment variables in my C</etc/environment> file.
 

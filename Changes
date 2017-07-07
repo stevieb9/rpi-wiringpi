@@ -5,6 +5,9 @@ Revision history for Perl extension RPi::WiringPi.
           pin cleanup due to the LCD. After trial and headache, I just disabled
           those pins from being checked (closes #41)
         - added new FAQ test section for the list of env vars with descriptions
+        - fix issue where in dac(), we weren't registering the CS pin correctly
+        - alphabeticalized public methods within the code
+        -
 
 2.3619  2017-07-04
         - hid all of the setup() tests. Somewhere in the last commits we broke
