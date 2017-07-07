@@ -536,6 +536,22 @@ L<RPi::DHT11> distribution.
     my $temp      = $env->temp; # celcius
     my $farenheit = $env->temp('f');
 
+=head1 ULTRASONIC DISTANCE SENSOR
+
+We provide access to the C<HCSR04> ultrasonic distance measurement sensor
+through the L<RPi::HCSR04> distribution.
+
+=head2 Usage
+
+    my $trig_pin = 23;
+    my $echo_pin = 24;
+
+    my $ruler = $pi->hcsr04($trig_pin, $echo_pin);
+
+    my $inches = $sensor->inch;
+    my $cm     = $sensor->cm;
+    my $raw    = $sensor->raw;
+
 =head1 UTIL LIBRARY
 
 =head2 Overview
