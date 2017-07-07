@@ -98,8 +98,13 @@ sub adc {
     }
     return $adc;
 }
+sub bmp {
+    my ($self, $base) = @_;
+    return RPi::BMP180->new($base);
+}
 sub dac {
     my ($self, %args) = @_;
+    # we don't use the pin objects; we generate them simply for registration
     my $cs_pin = $self->pin($args{cs});
     my $shdn_pin = $self->pin($args{shdn}) if defined $args{shdn};
     $args{model} = 'MCP4922' if ! defined $args{model};
@@ -108,7 +113,8 @@ sub dac {
 }
 sub dpot {
     my ($self, $cs, $channel) = @_;
-    $self->register($self->pin($cs));
+    # we don't use the pin objects; we generate them simply for registration
+    my $cs_pin = $self->pin($cs);
     my $dpot = RPi::DigiPot::MCP4XXXX->new($cs, $channel);
     return $dpot;
 }
@@ -117,23 +123,11 @@ sub gps {
     my $gps = GPSD::Parse->new(%args);
     return $gps;
 }
-sub pin {
-    my ($self, $pin_num) = @_;
-
-    my $pins_in_use = $self->registered_pins;
-    my $gpio = $self->pin_to_gpio($pin_num);
-
-    if (grep {$gpio == $_} @{ $self->registered_pins }){
-        die "\npin $pin_num is already in use... can't create second object\n";
-    }
-
-    my $pin = RPi::Pin->new($pin_num);
+sub hygrometer {
+    my ($self, $pin) = @_;
     $self->register_pin($pin);
-    return $pin;
-}
-sub serial {
-    my ($self, $device, $baud) = @_;
-    return RPi::Serial->new($device, $baud);
+    my $sensor = RPi::DHT11->new($pin);
+    return $sensor;
 }
 sub i2c {
     my ($self, $addr, $i2c_device) = @_;
@@ -157,20 +151,25 @@ sub lcd {
     $lcd->init(%args);
     return $lcd;
 }
-sub bmp {
-    my ($self, $base) = @_;
-    return RPi::BMP180->new($base);
-}
-sub hygrometer {
-    my ($self, $pin) = @_;
+sub pin {
+    my ($self, $pin_num) = @_;
+
+    # we don't use the pin objects; we generate them simply for registration
+
+    my $pins_in_use = $self->registered_pins;
+    my $gpio = $self->pin_to_gpio($pin_num);
+
+    if (grep {$gpio == $_} @{ $self->registered_pins }){
+        die "\npin $pin_num is already in use... can't create second object\n";
+    }
+
+    my $pin = RPi::Pin->new($pin_num);
     $self->register_pin($pin);
-    my $sensor = RPi::DHT11->new($pin);
-    return $sensor;
+    return $pin;
 }
-sub spi {
-    my ($self, $chan, $speed) = @_;
-    my $spi = RPi::SPI->new($chan, $speed);
-    return $spi;
+sub serial {
+    my ($self, $device, $baud) = @_;
+    return RPi::Serial->new($device, $baud);
 }
 sub shift_register {
     my ($self, $base, $num_pins, $data, $clk, $latch) = @_;
@@ -182,6 +181,11 @@ sub shift_register {
         push @pin_nums, $pin->num;
     }
     $self->shift_reg_setup($base, $num_pins, @pin_nums);
+}
+sub spi {
+    my ($self, $chan, $speed) = @_;
+    my $spi = RPi::SPI->new($chan, $speed);
+    return $spi;
 }
 
 # private
