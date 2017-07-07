@@ -25,7 +25,6 @@ my $fatal_exit = 1;
 BEGIN {
     sub _error {
         my $err = shift;
-        print "\ndie() caught... ".  __PACKAGE__ ." is cleaning up\n",
         RPi::WiringPi::Util::cleanup();
         print "\ncleaned up, exiting...\n";
         print "\noriginal error: $err\n";
