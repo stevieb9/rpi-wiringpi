@@ -84,14 +84,14 @@ sub pwm_range {
 sub pwm_clock {
     my ($self, $divisor) = @_;
     if (defined $divisor){
-        $self->{pwm_divisor} = $divisor;
+        $self->{pwm_clock} = $divisor;
         $self->pwm_set_clock($divisor);
     }
     return defined $self->{pwm_clock} ? $self->{pwm_clock} : 32;
 }
 sub pwm_mode {
     my ($self, $mode) = @_;
-    if (defined $mode && ($mode ==0 || $mode == 1)){
+    if (defined $mode && ($mode == 0 || $mode == 1)){
         $self->{pwm_mode} = $mode;
         $self->pwm_set_mode($mode);
     }
