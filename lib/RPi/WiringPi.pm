@@ -35,8 +35,34 @@ BEGIN {
     $SIG{__DIE__} = \&_error;
     $SIG{INT} = \&_error;
 };
+
 # core
 
+sub servo {
+    my ($self, $pin_num) = @_;
+
+    if ($> != 0){
+        die "\n\nat this time, servo() requires PWM functionality, and PWM " .
+            "requires your script to be run as the 'root' user (sudo)\n\n";
+    }
+
+    $self->_pwm_in_use(1);
+
+    my $servo = $self->pin($pin_num);
+
+    $servo->mode(PWM_OUT);
+
+    $self->pwm_mode(PWM_MODE_MS);
+    $self->pwm_clock(192);
+    $self->pwm_range(2000);
+
+    return $servo;
+}
+sub _pwm_in_use {
+    my $self = shift;
+    $self->{pwm_in_use} = 1 if @_;
+    return $self->{pwm_in_use};
+}
 sub new {
     my ($self, %args) = @_;
     $self = bless {%args}, $self;

@@ -10,6 +10,13 @@ Revision history for Perl extension RPi::WiringPi.
         - added full support for the HCSR04 ultrasonic distance measurement
           sensor (closes #42)
         - Util now exposes pwm_mode() and pwm_clock()
+        - added test/sg90_servo.pl as a baseline test for controllerless servo
+          control
+        - added servo(), sets up PWM and returns a RPi::Pin object tied to the
+          PWM GPIO pin, after all frequency modifications are made to the PI
+          (closes #43)
+        - added _pwm_in_use(), sets a flag that we need to reset PWM frequencies
+          on the board back to default at cleanup()
 
 2.3619  2017-07-04
         - hid all of the setup() tests. Somewhere in the last commits we broke
