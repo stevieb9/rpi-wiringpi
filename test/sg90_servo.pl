@@ -13,7 +13,7 @@ use constant {
     PIN     => 18,
     DIVISOR => 192,
     RANGE   => 2000,
-    DELAY   => 0.01,
+    DELAY   => 0.001,
 };
 
 # set up a signal handler for CTRL-C
@@ -38,7 +38,7 @@ $pi->pwm_mode(PWM_MODE_MS);
 $pi->pwm_clock(DIVISOR);
 $pi->pwm_range(RANGE);
 
-# set the servo to left max
+# set the servo to centre
 
 $s->pwm(LEFT);
 
