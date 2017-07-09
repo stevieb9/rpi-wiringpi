@@ -35,31 +35,30 @@ use constant {
     DIVISOR => 192,
     RANGE   => 2000,
     DELAY   => 0.01,
-    ANALOG  => 3,
+    ANALOG  => 0,
     MAX_IN  => 0.32,
 };
 
 my $pi = $mod->new;
 
-my $adc_pin = 26;
-
-my $adc = $pi->adc(
-    model => 'MCP3008',
-    channel => $adc_pin
-);
+my $adc = $pi->adc;
 
 if (! $ENV{NO_BOARD}) {
 
     my $pin = $pi->pin(PIN);
+    $pin->mode(INPUT);
+    $pin->pull(LOW);
+
+    is $pin->mode, INPUT, "pin in INPUT ok";
+
     my $o; # analog input
-
-    $o = $adc->percent(ANALOG);
-
+   
+    $o = $adc->raw(ANALOG);
+    
     # double-check; same when we exit
 
-    is $o, '0.00', "before PWM hackery, output ok";
+    is $o, 0, "before PWM hackery, output ok";
     sleep 1;
-    is $o, '0.00', "before PWM hackery, output ok";
 
     $pin->mode(PWM_OUT);
 
@@ -75,9 +74,9 @@ if (! $ENV{NO_BOARD}) {
     for (LEFT .. RIGHT){
         # sweep all the way left to right
         $pin->pwm($_);
-        $o = $adc->percent(ANALOG);
+        $o = $adc->raw(ANALOG);
         print "* $o\n";
-        is $o >= 0 && $o < MAX_IN, 1, "output ok on cycle $_\n";
+#        is $o >= 0 && $o < MAX_IN, 1, "output ok on cycle $_\n";
         select(undef, undef, undef, DELAY);
     }
 
@@ -86,8 +85,8 @@ if (! $ENV{NO_BOARD}) {
     for (reverse LEFT .. RIGHT){
         # sweep all the way right to left
         $pin->pwm($_);
-        $o = $adc->percent(ANALOG);
-        is $o >= 0 && $o < MAX_IN, 1, "output ok on cycle $_\n";
+        $o = $adc->raw(ANALOG);
+#        is $o >= 0 && $o < MAX_IN, 1, "output ok on cycle $_\n";
         select(undef, undef, undef, DELAY);
     }
 
@@ -96,10 +95,12 @@ if (! $ENV{NO_BOARD}) {
     $pi->pwm_mode(PWM_MODE_BAL);
     $pi->pwm_clock(32);
     $pi->pwm_range(1023);
-    $pin->mode(INPUT); 
+    $pin->pwm(0);
+    $pin->mode(INPUT);
+    $pin->pull(PUD_DOWN);
 
     sleep 1;
-
+    
     # let's double-check
 
     $o = $adc->percent(ANALOG);
@@ -107,9 +108,11 @@ if (! $ENV{NO_BOARD}) {
     sleep 1;
     $o = $adc->percent(ANALOG);
     is $o, '0.00', "PWM pin cleaned up ok";
+
+    is $pin->mode, INPUT, "PWM pin back to INPUT ok";
 }
 
-check_pin_status();
+#check_pin_status();
 
 $pi->cleanup;
 
