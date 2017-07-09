@@ -40,11 +40,14 @@ t/manifest.t
 t/pod-coverage.t
 t/RPiTest.pm
 test/adc.pl
+test/alt_mode.pl
+test/api_servo.pl
 test/baseline_setup.pl
 test/bmp.pl
 test/i2c.pl
 test/images/after.jpg
 test/images/before.jpg
 test/registered_pins.pl
+test/sg90_servo.pl
 test/shift.pl
 test/spi.pl
