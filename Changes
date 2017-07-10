@@ -17,6 +17,8 @@ Revision history for Perl extension RPi::WiringPi.
           (closes #43)
         - added _pwm_in_use(), sets a flag that we need to reset PWM frequencies
           on the board back to default at cleanup()
+        - modified t/15-pwm.t. We now use an ADS1115 ADC to test the PWM
+          functionality (closes #46)
 
 2.3619  2017-07-04
         - hid all of the setup() tests. Somewhere in the last commits we broke
