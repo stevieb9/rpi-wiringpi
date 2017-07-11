@@ -42,9 +42,11 @@ my $pi = $mod->new;
 
 # pin specific interrupts
 
+my $pin = $pi->pin(18);
+
 if (! $ENV{NO_BOARD}){
 
-    my $pin = $pi->pin(18);
+    # EDGE_RISING
 
     $pin->set_interrupt(EDGE_RISING, 'main::handler');
 
