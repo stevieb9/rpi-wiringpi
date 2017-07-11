@@ -19,6 +19,8 @@ Revision history for Perl extension RPi::WiringPi.
           on the board back to default at cleanup()
         - modified t/15-pwm.t. We now use an ADS1115 ADC to test the PWM
           functionality (closes #46)
+        - added t/41 and t/42; we now test falling, rising and both for
+          interrupts
 
 2.3619  2017-07-04
         - hid all of the setup() tests. Somewhere in the last commits we broke
