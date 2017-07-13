@@ -57,21 +57,21 @@ if (! $ENV{NO_BOARD}){
     $pin->pull(PUD_UP);
     $pin->pull(PUD_DOWN);
 
-    is $ENV{PI_INTERRUPT}, 2, "1st interrupt ok";
+    is $ENV{PI_INTERRUPT}, 2, "both interrupt up/down == 2 ok";
 
     # trigger the interrupt
 
     $pin->pull(PUD_UP);
     $pin->pull(PUD_DOWN);
     
-    is $ENV{PI_INTERRUPT}, 4, "2nd interrupt ok";
+    is $ENV{PI_INTERRUPT}, 4, "both interrupt up/down x2 == 4 ok";
 
     # trigger the interrupt
 
     $pin->pull(PUD_UP);
     $pin->pull(PUD_DOWN);
     
-    is $ENV{PI_INTERRUPT}, 6, "3rd interrupt ok";
+    is $ENV{PI_INTERRUPT}, 6, "both interrupt up/down x3 == 6 ok";
     
 }
 
