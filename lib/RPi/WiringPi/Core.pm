@@ -1,4 +1,4 @@
-package RPi::WiringPi::Util;
+package RPi::WiringPi::Core;
 
 use strict;
 use warnings;
@@ -188,7 +188,7 @@ __END__
 
 =head1 NAME
 
-RPi::WiringPi::Util - Utility methods for RPi::WiringPi Raspberry Pi
+RPi::WiringPi::Core - Core methods for RPi::WiringPi Raspberry Pi
 interface
 
 =head1 DESCRIPTION
