@@ -41,10 +41,10 @@ WriteMakefile(
         'RPi::HCSR04'               => 2.3601,
         'RPi::I2C'                  => 2.3604,
         'RPi::LCD'                  => 2.3603,
-        'RPi::Pin'                  => 2.3603,
+        'RPi::Pin'                  => 2.3604,
         'RPi::Serial'               => 2.3602,
         'RPi::SPI'                  => 2.3607,
-        'RPi::WiringPi::Constant'   => 1.00,
-        'WiringPi::API'             => 2.3613,
+        'RPi::WiringPi::Constant'   => 1.01,
+        'WiringPi::API'             => 2.3614,
     },
 );
