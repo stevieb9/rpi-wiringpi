@@ -3,7 +3,7 @@ package RPi::WiringPi;
 use strict;
 use warnings;
 
-use parent 'RPi::WiringPi::Util';
+use parent 'RPi::WiringPi::Core';
 
 use GPSD::Parse;
 use RPi::ADC::ADS;
@@ -26,7 +26,7 @@ my $fatal_exit = 1;
 BEGIN {
     sub _error {
         my $err = shift;
-        RPi::WiringPi::Util::cleanup();
+        RPi::WiringPi::Core::cleanup();
         print "\ncleaned up, exiting...\n";
         print "\noriginal error: $err\n";
         exit if $fatal_exit;
@@ -495,8 +495,8 @@ command.
 
 =head1 METHODS
 
-See L<RPi::WiringPi::Util> for utility/helper methods that are imported into
-an C<RPi::WiringPi> object.
+See L<RPi::WiringPi::Core> for utility/helper/hardware-specific methods that are
+imported into an C<RPi::WiringPi> object.
 
 =head2 new([%args])
 

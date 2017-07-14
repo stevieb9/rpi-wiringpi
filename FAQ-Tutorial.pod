@@ -603,13 +603,14 @@ your program (or a crash), we reset everything back to default.
     $servo->pwm(50);  # all the way left
     $servo->pwm(250); # all the way right
 
-=head1 UTIL LIBRARY
+=head1 CORE/UTIL LIBRARY
 
 =head2 Overview
 
-The included L<RPi::WiringPi::Util> module contains a few helper-type methods
-for internal and external use. Most of these you won't need, but others are
-very helpful when writing your own scripts that go beyond trivial.
+The included L<RPi::WiringPi::Core> module contains a few helper-type methods
+along with some low-level operations for the hardware itself. for internal and
+external use. Most of these you won't need, but others are very helpful when
+writing your own scripts that go beyond trivial.
 
 You can transform pin numbers from one scheme to another, get full pin number
 maps/translation hashes, manually export and unexport GPIO pins etc.

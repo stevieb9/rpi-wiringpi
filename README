@@ -257,8 +257,8 @@ DESCRIPTION
 
 METHODS
 
-    See RPi::WiringPi::Util for utility/helper methods that are imported
-    into an RPi::WiringPi object.
+    See RPi::WiringPi::Core for utility/helper/hardware-specific methods
+    that are imported into an RPi::WiringPi object.
 
  new([%args])
 
