@@ -49,9 +49,8 @@ sub servo {
     $self->_pwm_in_use(1);
 
     my $servo = $self->pin($pin_num);
-
     $servo->mode(PWM_OUT);
-
+    
     $self->pwm_mode(PWM_MODE_MS);
     $self->pwm_clock(192);
     $self->pwm_range(2000);
@@ -60,7 +59,7 @@ sub servo {
 }
 sub _pwm_in_use {
     my $self = shift;
-    $self->{pwm_in_use} = 1 if @_;
+    $ENV{PWM_IN_USE} = 1 if @_;
     return $self->{pwm_in_use};
 }
 sub new {
