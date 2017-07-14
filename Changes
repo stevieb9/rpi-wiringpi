@@ -1,7 +1,7 @@
 Revision history for Perl extension RPi::WiringPi.
 
 2.3621 UNREL
-        - removed the test/images directory
+        - removed the test/images and images/ directory from the repo
 
 2.3620  2017-07-13
         - worked around issue where bbdispatch/brewbuild was causing havoc on
