@@ -451,6 +451,18 @@ various items
     my $cm     = $sensor->cm;
     my $raw    = $sensor->raw;
 
+    #
+    # servo
+    #
+
+    my $pin_num = 18;
+
+    my $servo = $pi->servo($pin_num);
+
+    $servo->pwm(150); # centre position
+    $servo->pwm(50);  # left position
+    $servo->pwm(250); # right position
+
 =head1 DESCRIPTION
 
 This is the root module for the C<RPi::WiringPi> system. It interfaces to a
@@ -665,6 +677,27 @@ The trigger pin number, in GPIO numbering scheme.
     $echo
 
 The echo pin number, in GPIO numbering scheme.
+
+=head2 servo($pin_num)
+
+This method configures PWM clock and divisor to operate a typical 50Hz servo,
+and returns a special L<RPi::Pin> object. These servos have a C<left> pulse of
+C<50>, a C<centre> pulse of C<150> and a C<right> pulse of C<250>. On exit of
+the program (or a crash), we automatically clean everything up properly.
+
+Parameters:
+
+    $pin_num
+
+Mandatory, Integer: The pin number (technically, this *must* be C<18> on the
+Raspberry Pi 3, as that's the only hardware PWM pin.
+
+Example:
+
+    my $servo = $pi->servo(18);
+
+    $servo->pwm(50);  # all the way left
+    $servo->pwm(250); # all the way right
 
 =head1 INTERNAL PUBLIC METHODS
 
