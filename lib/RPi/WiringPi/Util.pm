@@ -113,13 +113,19 @@ sub registered_pins {
 }
 sub register_pin {
     my ($self, $pin) = @_;
-    $self->_pin_registration($pin, $pin->mode_alt, $pin->read);
+    $self->_pin_registration($pin, $pin->mode_alt, $pin->read, $pin->mode);
 }
 sub unregister_pin {
     my ($self, $pin) = @_;
     $self->_pin_registration($pin);
 }
 sub cleanup{
+    if ($ENV{PWM_IN_USE}){
+        WiringPi::API::pwm_set_mode(PWM_MODE_BAL);
+        WiringPi::API::pwm_set_clock(32);
+        WiringPi::API::pwm_set_range(1023);
+    }
+
     return if ! $ENV{RPI_PINS};
 
     my $pins = decode_json $ENV{RPI_PINS};
@@ -127,13 +133,14 @@ sub cleanup{
     for my $pin (keys %{ $pins }){
         WiringPi::API::pin_mode_alt($pin, $pins->{$pin}{alt});
         WiringPi::API::write_pin($pin, $pins->{$pin}{state});
+        WiringPi::API::pin_mode($pin, $pins->{$pin}{mode});
     }
     delete $ENV{RPI_PINS};
 }
 sub _pin_registration {
     # manages the registration duties for pins
 
-    my ($self, $pin, $alt, $state) = @_;
+    my ($self, $pin, $alt, $state, $mode) = @_;
 
     my $json = $ENV{RPI_PINS};
     my $perl = defined $json ? decode_json $json : {};
@@ -147,6 +154,7 @@ sub _pin_registration {
         if (defined $perl->{$self->pin_to_gpio($pin->num)}){
             $pin->mode_alt($perl->{$pin->num}{alt});
             $pin->write($perl->{$pin->num}{state});
+            $pin->mode($perl->{$pin->num}{mode});
             delete $perl->{$self->pin_to_gpio($pin->num)};
             $ENV{RPI_PINS} = encode_json $perl;
             return;
@@ -163,6 +171,7 @@ sub _pin_registration {
 
     $perl->{$self->pin_to_gpio($pin->num)}{alt} = $alt;
     $perl->{$self->pin_to_gpio($pin->num)}{state} = $state;
+    $perl->{$self->pin_to_gpio($pin->num)}{mode} = $mode;
 
     my @registered_pins = keys %{ $perl };
 
