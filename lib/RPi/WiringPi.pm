@@ -233,7 +233,7 @@ sub _setup {
     return $_[0]->{setup};
 }
 
-sub _vim{1;};
+sub _vim{};
 1;
 __END__
 
