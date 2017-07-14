@@ -3,7 +3,7 @@ use strict;
 use feature 'say';
 
 use RPi::WiringPi;
-use RPi::WiringPi::Constant qw(:all);
+use RPi::Const qw(:all);
 
 my $c = 1;
 $SIG{INT} = sub {$c = 0;};

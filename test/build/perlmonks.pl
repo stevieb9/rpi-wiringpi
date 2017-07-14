@@ -3,7 +3,7 @@ use strict;
 
 use LWP::Simple;
 use RPi::WiringPi;
-use RPi::WiringPi::Constant qw(:all);
+use RPi::Const qw(:all);
 
 # catch a sigint. This allows us to
 # perform an emergency pin reset
