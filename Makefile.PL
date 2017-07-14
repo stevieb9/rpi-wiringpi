@@ -44,7 +44,7 @@ WriteMakefile(
         'RPi::Pin'                  => 2.3604,
         'RPi::Serial'               => 2.3602,
         'RPi::SPI'                  => 2.3607,
-        'RPi::WiringPi::Constant'   => 1.01,
+        'RPi::Const'                => 1.02,
         'WiringPi::API'             => 2.3614,
     },
 );

@@ -9,7 +9,7 @@ you well on your way with manipulating your Raspberry Pi with the
 L<RPi::WiringPi> and related distributions.
 
 In this document we use constants that are provided with the C<:all> tag in
-L<RPi::WiringPi::Constant> module.
+L<RPi::Const> module.
 
 =head1 GLOSSARY OF TERMS
 
@@ -183,7 +183,7 @@ pulses.
 The Raspberry Pi default is balanced mode.
 
 C<0> for Mark-Space or C<1> for balanced. If you're using
-C<RPi::WiringPi::Constant>, you can also use C<PWM_MODE_MS> or C<PWM_MODE_BAL>.
+C<RPi::Const>, you can also use C<PWM_MODE_MS> or C<PWM_MODE_BAL>.
 
 Example:
 

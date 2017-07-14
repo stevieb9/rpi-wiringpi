@@ -17,7 +17,7 @@ use RPi::LCD;
 use RPi::Pin;
 use RPi::Serial;
 use RPi::SPI;
-use RPi::WiringPi::Constant qw(:all);
+use RPi::Const qw(:all);
 
 our $VERSION = '2.3621';
 
@@ -245,7 +245,7 @@ various items
 =head1 SYNOPSIS
 
     use RPi::WiringPi;
-    use RPi::WiringPi::Constant qw(:all);
+    use RPi::Const qw(:all);
 
     my $pi = RPi::WiringPi->new;
 
@@ -485,7 +485,7 @@ crash, we can reset the Pi back to default settings, so components are not left
 in an inconsistent state. Component modules do none of these things.
 
 There are a basic set of constants that can be imported. See
-L<RPi::WiringPi::Constant>.
+L<RPi::Const>.
 
 It's handy to have access to a pin mapping conversion chart. There's an
 excellent pin scheme map for reference at

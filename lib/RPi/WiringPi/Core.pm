@@ -5,7 +5,7 @@ use warnings;
 
 use parent 'WiringPi::API';
 use JSON;
-use RPi::WiringPi::Constant qw(:all);
+use RPi::Const qw(:all);
 
 our $VERSION = '2.3621';
 
@@ -210,7 +210,7 @@ C<1> for GPIO, C<2> for System GPIO, C<3> for physical board and C<-1> if a
 scheme has not yet been configured (ie. one of the C<setup*()> methods has
 not yet been called).
 
-If using L<RPi::WiringPi::Constant>, these map out to:
+If using L<RPi::Const>, these map out to:
 
     0  => RPI_MODE_WPI
     1  => RPI_MODE_GPIO
@@ -319,7 +319,7 @@ Parameters:
     $mode
 
 Mandatory, Integer: C<0> for Mark-Space mode, or C<1> for Balanced mode.
-Note: If using L<RPi::WiringPi::Constant>, you can use C<PWM_MODE_MS> or
+Note: If using L<RPi::Const>, you can use C<PWM_MODE_MS> or
 C<PWM_MODE_BAL>.
 
 =head2 pwm_clock($divisor)

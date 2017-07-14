@@ -3,7 +3,7 @@ use warnings;
 use strict;
 
 use RPi::WiringPi;
-use RPi::WiringPi::Constant qw(:all);
+use RPi::Const qw(:all);
 use Time::HiRes qw(usleep);
 
 if (! @ARGV){
