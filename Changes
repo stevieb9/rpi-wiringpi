@@ -22,7 +22,9 @@ Revision history for Perl extension RPi::WiringPi.
         - added t/41 and t/42; we now test falling, rising and both for
           interrupts
         - added t/90-servo.t to test the actual PWM cleanup() routine
-
+        - removed sudo requirements for the interrupt tests, as root isn't
+          needed for PUD or interrupts
+           
 2.3619  2017-07-04
         - hid all of the setup() tests. Somewhere in the last commits we broke
           it, but that's actually ok

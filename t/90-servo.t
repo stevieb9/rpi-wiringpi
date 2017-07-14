@@ -48,7 +48,6 @@ if (! $ENV{NO_BOARD}) {
     my $servo = $pi->servo(18);
     my $o;
 
-    die;
     $servo->pwm(LEFT);
 
     for (LEFT .. RIGHT){
@@ -79,4 +78,5 @@ if (! $ENV{NO_BOARD}) {
     check_pin_status();
 
 }
+
 done_testing();
