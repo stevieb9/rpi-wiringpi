@@ -586,6 +586,23 @@ through the L<RPi::HCSR04> distribution.
     my $cm     = $sensor->cm;
     my $raw    = $sensor->raw;
 
+=head1 SERVO
+
+=head2 Description
+
+This method configures PWM clock and divisor to operate a typical 50Hz servo,
+and returns a special L<RPi::Pin> object. These servos have a C<left> pulse of
+C<50>, a C<centre> pulse of C<150> and a C<right> pulse of C<250>. On exit of
+your program (or a crash), we reset everything back to default.
+
+=head2 Example
+
+    my $servo = $pi->servo(18);
+
+    $servo->pwm(150); # centre position
+    $servo->pwm(50);  # all the way left
+    $servo->pwm(250); # all the way right
+
 =head1 UTIL LIBRARY
 
 =head2 Overview

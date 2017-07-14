@@ -211,6 +211,18 @@ SYNOPSIS
         my $inches = $sensor->inch;
         my $cm     = $sensor->cm;
         my $raw    = $sensor->raw;
+    
+        #
+        # servo
+        #
+    
+        my $pin_num = 18;
+    
+        my $servo = $pi->servo($pin_num);
+    
+        $servo->pwm(150); # centre position
+        $servo->pwm(50);  # left position
+        $servo->pwm(250); # right position
 
 DESCRIPTION
 
@@ -431,6 +443,28 @@ METHODS
         $echo
 
     The echo pin number, in GPIO numbering scheme.
+
+ servo($pin_num)
+
+    This method configures PWM clock and divisor to operate a typical 50Hz
+    servo, and returns a special RPi::Pin object. These servos have a left
+    pulse of 50, a centre pulse of 150 and a right pulse of 250. On exit of
+    the program (or a crash), we automatically clean everything up
+    properly.
+
+    Parameters:
+
+        $pin_num
+
+    Mandatory, Integer: The pin number (technically, this *must* be 18 on
+    the Raspberry Pi 3, as that's the only hardware PWM pin.
+
+    Example:
+
+        my $servo = $pi->servo(18);
+    
+        $servo->pwm(50);  # all the way left
+        $servo->pwm(250); # all the way right
 
 INTERNAL PUBLIC METHODS
 
