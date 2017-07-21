@@ -5,6 +5,7 @@ Revision history for Perl extension RPi::WiringPi.
         - renamed Util.pm to Core.pm
         - we now use RPi::Const in replacement of RPi::WiringPi::Constant
           (closes #52)
+        - updated diagrams with the ADS1115 ADC
 
 2.3620  2017-07-13
         - worked around issue where bbdispatch/brewbuild was causing havoc on
