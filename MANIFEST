@@ -6,7 +6,6 @@ docs/breadboard/dpot_adc_bb.jpg
 docs/breadboard/two_74595_shift_registers_bb.jpg
 docs/fritzing/adc_basic_example.fzz
 docs/fritzing/brewbuild_test_platform.fzz
-docs/fritzing/buildout_phase_1.fzz
 docs/fritzing/dpot_adc.fzz
 docs/fritzing/two_74595_shift_registers.fzz
 docs/schematic/adc_basic_example_schem.jpg
@@ -25,7 +24,7 @@ t/03-setup_phys.t.norun
 t/04-setup_uninit.t.norun
 t/05-pin.t
 t/10-register.t
-t/15-pwm_adc_ads1115.t
+t/15-pwm_spi_adc.t
 t/20-cleanup.t
 t/25-sig_die.t
 t/35-pin_map.t
