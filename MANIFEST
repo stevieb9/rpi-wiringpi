@@ -10,6 +10,7 @@ docs/fritzing/dpot_adc.fzz
 docs/fritzing/two_74595_shift_registers.fzz
 docs/schematic/adc_basic_example_schem.jpg
 docs/schematic/dpot_adc_schem.jpg
+docs/sketch/arduino.ino
 FAQ-Tutorial.pod
 lib/RPi/WiringPi.pm
 lib/RPi/WiringPi/Core.pm
