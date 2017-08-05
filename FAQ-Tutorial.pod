@@ -661,6 +661,16 @@ between the Tx and Rx pins, and:
 
 These tests will skip by default otherwise.
 
+=head3 HCSR04 Ultrasonic Testing
+
+For this test, please see the documentation for L<RPi::HCSR04>, and check the
+test files for the pins that are needed. After confirmed and connected, set
+
+    export RPI_HCSR04=1
+
+These tests only occur in automated mode when building on a Perl that doesn't
+have prerequisites installed.
+
 =head2 Automated with L<Test::BrewBuild>
 
 L<Test::BrewBuild> has some special features specifically to facilitate the
@@ -716,6 +726,7 @@ environment variables for the full test platform.
     PI_BOARD=1                  # It's a Pi
     RPI_ARDUINO=1               # Arduino I2C connected
     RPI_SERIAL=1                # Serial enabled, and loopback
+    RPI_HCSR04=1                # sonic distance sensor
     BB_RPI_LCD=5,6,4,17,27,22   # Auto-testing LCD enabled
     RELEASE_TESTING=1           # Author tests (POD, manifest etc)
 
