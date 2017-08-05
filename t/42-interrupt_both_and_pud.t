@@ -42,23 +42,30 @@ if (! $ENV{NO_BOARD}){
 
     # trigger the interrupt
 
+    select(undef, undef, undef, 0.01);
     $pin->pull(PUD_UP);
+    select(undef, undef, undef, 0.01);
     $pin->pull(PUD_DOWN);
+    select(undef, undef, undef, 0.01);
 
     is $ENV{PI_INTERRUPT}, 2, "both interrupt up/down == 2 ok";
 
     # trigger the interrupt
 
     $pin->pull(PUD_UP);
+    select(undef, undef, undef, 0.01);
     $pin->pull(PUD_DOWN);
-    
+    select(undef, undef, undef, 0.01);
+
     is $ENV{PI_INTERRUPT}, 4, "both interrupt up/down x2 == 4 ok";
 
     # trigger the interrupt
 
     $pin->pull(PUD_UP);
+    select(undef, undef, undef, 0.01);
     $pin->pull(PUD_DOWN);
-    
+    select(undef, undef, undef, 0.01);
+
     is $ENV{PI_INTERRUPT}, 6, "both interrupt up/down x3 == 6 ok";
     
 }
