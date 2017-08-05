@@ -31,7 +31,7 @@ t/25-sig_die.t
 t/35-pin_map.t
 t/40-interrupt_rising_and_pud.t
 t/41-interrupt_falling_and_pud.t
-t/42-interrupt_both_and_pud.t
+t/42-interrupt_both_and_pud.t-norun
 t/45-shift_reg_adc.t
 t/55-dac.t
 t/60-lcd.t
