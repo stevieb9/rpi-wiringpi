@@ -11,8 +11,8 @@ Revision history for Perl extension RPi::WiringPi.
         - updated FAQ unit test section with a blurb about the HCSR04
           ultra-sonic distance sensor
         - removed assignment of pin objects where it wasn't really necessary, we
-          were just using them for registration purposes; these calls are now
-          void
+          were just using them for registration purposes; we just make the calls
+          in void context
 
 2.3620  2017-07-13
         - worked around issue where bbdispatch/brewbuild was causing havoc on
