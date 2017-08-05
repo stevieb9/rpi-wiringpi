@@ -64,7 +64,7 @@ sub pin_map {
 }
 sub pin_scheme {
     my ($self, $scheme) = @_;
-    
+
     if (defined $scheme){
         $ENV{RPI_PIN_MODE} = $scheme;
     }
@@ -121,6 +121,7 @@ sub unregister_pin {
 }
 sub cleanup{
     if ($ENV{PWM_IN_USE}){
+        #FIXME: aack! magic numbers... yuck!
         WiringPi::API::pwm_set_mode(PWM_MODE_BAL);
         WiringPi::API::pwm_set_clock(32);
         WiringPi::API::pwm_set_range(1023);
@@ -161,7 +162,7 @@ sub _pin_registration {
         }
     }
 
-    die "_pin_data() requires both \$alt and \$state params\n"
+    die "_pin_registration() requires both \$alt and \$state params\n"
       if ! defined $state;
 
     if (exists $perl->{$self->pin_to_gpio($pin->num)}){
