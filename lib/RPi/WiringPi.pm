@@ -125,8 +125,7 @@ sub adc {
     return $adc;
 }
 sub bmp {
-    my ($self, $base) = @_;
-    return RPi::BMP180->new($base);
+    return RPi::BMP180->new($_[1]);
 }
 sub dac {
     my ($self, %args) = @_;
