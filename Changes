@@ -9,7 +9,7 @@ Revision history for Perl extension RPi::WiringPi.
         - renamed the PWM test to show it also includes SPI
         - re-enabled t/42 for interrupt both
         - updated FAQ unit test section with a blurb about the HCSR04
-          ultra-sonic distance sensor
+          ultra-sonic distance sensor (and how it requires an env var)
         - removed assignment of pin objects where it wasn't really necessary, we
           were just using them for registration purposes; we just make the calls
           in void context
