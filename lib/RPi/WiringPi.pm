@@ -129,17 +129,15 @@ sub bmp {
 }
 sub dac {
     my ($self, %args) = @_;
-    # we don't use the pin objects; we generate them simply for registration
-    my $cs_pin = $self->pin($args{cs});
-    my $shdn_pin = $self->pin($args{shdn}) if defined $args{shdn};
+    $self->pin($args{cs});
+    $self->pin($args{shdn}) if defined $args{shdn};
     $args{model} = 'MCP4922' if ! defined $args{model};
     my $dac = RPi::DAC::MCP4922->new(%args);
     return $dac;
 }
 sub dpot {
     my ($self, $cs, $channel) = @_;
-    # we don't use the pin objects; we generate them simply for registration
-    my $cs_pin = $self->pin($cs);
+    $self->pin($cs);
     my $dpot = RPi::DigiPot::MCP4XXXX->new($cs, $channel);
     return $dpot;
 }
@@ -150,9 +148,8 @@ sub gps {
 }
 sub hcsr04 {
     my ($self, $t, $e) = @_;
-    # we don't use the pin objects; we generate them simply for registration
-    my $trig_pin = $self->pin($t);
-    my $echo_pin = $self->pin($e);
+    $self->pin($t);
+    $self->pin($e);
     return RPi::HCSR04->new($t, $e);
 }
 sub hygrometer {
@@ -186,9 +183,7 @@ sub lcd {
 sub pin {
     my ($self, $pin_num) = @_;
 
-    # we don't use the pin objects; we generate them simply for registration
-
-    my $pins_in_use = $self->registered_pins;
+    $self->registered_pins;
     my $gpio = $self->pin_to_gpio($pin_num);
 
     if (grep {$gpio == $_} @{ $self->registered_pins }){
