@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2017 by Steve Bertrand
  *
- * This file is part of the RPi::I2C Perl 5 distribution.
+ * This file is part of the RPi::WiringPi Perl 5 distribution.
  *
  * This Arduino sketch provides several pseudo registers for testing the various
  * read and write functions within the RPi::I2C distribution. Each function has
