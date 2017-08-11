@@ -111,7 +111,7 @@ void send_data (){
         }
         case READ_A1: {
             Serial.println("Analog 1");
-            read_analog(A0);
+            read_analog(A1);
             break;
         }
     }
@@ -132,8 +132,6 @@ int read_analog (int pin){
 
 void receive_data (int num_bytes){
 
-    byte data = 0;
-
     while(Wire.available()){
 
         // save the register value for use later
@@ -144,13 +142,13 @@ void receive_data (int num_bytes){
 
             case WRITE: {
                 Serial.println("write()");
-                data = reg;
+                byte data = reg;
                 eeprom_save_byte(data);
                 break;
             }
             case WRITE_BYTE: {
                 Serial.println("write_byte()");
-                data = Wire.read();
+                byte data = Wire.read();
 
                 eeprom_save_byte(data);
 
@@ -162,7 +160,6 @@ void receive_data (int num_bytes){
 
                 for (byte i=0; i<EEPROM_SIZE; i++){
                     buf[i] = Wire.read();
-                    data += buf[i];
                 }
 
                 eeprom_save(buf, EEPROM_SIZE);
