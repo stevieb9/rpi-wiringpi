@@ -8,6 +8,7 @@ docs/fritzing/adc_basic_example.fzz
 docs/fritzing/brewbuild_test_platform.fzz
 docs/fritzing/dpot_adc.fzz
 docs/fritzing/two_74595_shift_registers.fzz
+docs/pics/bb_hardware_test_platform.jpg
 docs/schematic/adc_basic_example_schem.jpg
 docs/schematic/dpot_adc_schem.jpg
 docs/sketch/arduino.ino
