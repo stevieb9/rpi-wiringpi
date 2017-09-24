@@ -173,7 +173,7 @@ sub lcd {
             die "lcd() requires pin configuration within a hash\n";
         }
         next if $args{$_} == 0;
-        my $pin = $self->pin($args{$_});
+        $self->pin($args{$_});
     }
 
     my $lcd = RPi::LCD->new;
