@@ -15,6 +15,12 @@ if (! $ENV{PI_BOARD}){
     plan skip_all => "not on a pi board\n";
 }
 
+if ($> != 0){
+    print "enforcing sudo for PWM tests...\n";
+    system('sudo', 'perl', $0);
+    exit;
+}
+
 my $pi = $mod->new;
 
 my $pin26 = $pi->pin(26);
