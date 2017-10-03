@@ -1,5 +1,8 @@
 Revision history for Perl extension RPi::WiringPi.
 
+2.3622 UNREL
+        -
+
 2.3621  2017-10-03
         - removed the test/images and images/ directory from the repo
         - renamed Util.pm to Core.pm
