@@ -739,10 +739,10 @@ add things as I think of them.
 =head2 Pins
 
 Any time you accept a pin number to pass along to an external module for use,
-you *must* call C<$self->register_pin($pin_num)> in order to have the cleanup
-functionality tidy things up properly. Neglecting to do this will prevent the
-cleanup regimen from knowing about these pins, and therefore will be left in an
-inconsistent state, possibly causing damage on a different run.
+you *must* call C<$self-E<gt>>register_pin($pin_num)> in order to have the
+cleanup functionality tidy things up properly. Neglecting to do this will
+prevent the cleanup regimen from knowing about these pins, and therefore will be
+left in an inconsistent state, possibly causing damage on a different run.
 
 =head1 AUTHOR
 
