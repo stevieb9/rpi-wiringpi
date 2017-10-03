@@ -18,6 +18,7 @@ Revision history for Perl extension RPi::WiringPi.
         - dac() POD now lists the mandatory parameters and some of the optional
           ones (fixes #54)
         - alphabeticalized the subs both in code and POD (closes #53)
+        - bumped prereq of RPi::ADC::ADS from 1.01 to 1.02
 
 2.3620  2017-07-13
         - worked around issue where bbdispatch/brewbuild was causing havoc on
