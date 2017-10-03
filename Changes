@@ -15,6 +15,9 @@ Revision history for Perl extension RPi::WiringPi.
           in void context
         - fix issue in t/80-mode_state_all_pins.t where we were calling a setup
           routine before checking if we're on a Pi board
+        - dac() POD now lists the mandatory parameters and some of the optional
+          ones (fixes #54)
+        - alphabeticalized the subs both in code and POD (closes #53)
 
 2.3620  2017-07-13
         - worked around issue where bbdispatch/brewbuild was causing havoc on
