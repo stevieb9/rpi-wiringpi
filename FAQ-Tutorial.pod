@@ -671,6 +671,14 @@ test files for the pins that are needed. After confirmed and connected, set
 These tests only occur in automated mode when building on a Perl that doesn't
 have prerequisites installed.
 
+=head3 LCD Testing
+
+In order to perform the L<RPi::LCD> test, a 2 row by 16 column or 4 row by 20
+column LCD must be connected and operable. Then, set the following environment
+variable to a true value:
+
+    export RPI_LCD=1
+
 =head2 Automated with L<Test::BrewBuild>
 
 L<Test::BrewBuild> has some special features specifically to facilitate the
@@ -725,6 +733,7 @@ environment variables for the full test platform.
 
     PI_BOARD=1                  # It's a Pi
     RPI_ARDUINO=1               # Arduino I2C connected
+    RPI_LCD=1                   # LCD is connected
     RPI_SERIAL=1                # Serial enabled, and loopback
     RPI_HCSR04=1                # sonic distance sensor
     BB_RPI_LCD=5,6,4,17,27,22   # Auto-testing LCD enabled

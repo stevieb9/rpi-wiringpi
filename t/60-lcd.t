@@ -17,7 +17,7 @@ if (! $ENV{PI_BOARD}){
     plan skip_all => "not on a pi board\n";
 }
 
-if (! $ENV{PI_LCD_TEST}){
+if (! $ENV{RPI_LCD}){
     warn "\n*** PI_LCD_TEST is not set***\n";
     plan skip_all => "skipping LCD tests\n";
 }
