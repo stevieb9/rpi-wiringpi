@@ -306,7 +306,7 @@ various items
     # Serial
     #
 
-    my $dev  = "/dev/ttyAMA0";
+    my $dev  = "/dev/ttyS0";
     my $baud = 115200;
 
     my $ser = $pi->serial($dev, $baud);
@@ -647,6 +647,11 @@ serial bus.
 
 See the linked documentation for full documentation on usage, or the
 L<RPi::WiringPi::FAQ-Tutorial> for usage examples.
+
+NOTE: Bluetooth on the Pi overlays the serial pins (14, 15) on the Pi. To use
+serial, you must disable bluetooth in the C</boot/config.txt> file:
+
+    dtoverlay=pi3-disable-bt-overlay
 
 =head2 servo($pin_num)
 
