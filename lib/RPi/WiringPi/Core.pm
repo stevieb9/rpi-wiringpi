@@ -366,7 +366,7 @@ Parameters:
 
     $pin_obj
 
-Mandatory: An object instance of L<RPi::WiringPi::Pin> class.
+Mandatory: An object instance of L<RPi::Pin> class.
 
 =head2 unregister_pin($pin_obj)
 
@@ -378,7 +378,7 @@ Parameters:
 
     $pin_obj
 
-Mandatory: An object instance of L<RPi::WiringPi::Pin> class.
+Mandatory: An object instance of L<RPi::Pin> class.
 
 =head2 cleanup()
 
