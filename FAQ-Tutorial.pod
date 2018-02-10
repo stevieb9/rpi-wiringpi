@@ -228,6 +228,11 @@ Allows you to read and write to devices on the I2C bus using the external
 L<RPi::I2C> distribution. Please refer to that documentation for full usage
 instructions.
 
+Aruino note: The Arduino may not be able to keep up with the I2C bus speed of
+the Pi. If this is the case, lower the I2C bus speed on the Pi:
+
+    dtparam=i2c_arm_baudrate=10000
+
 =head2 Instantiation and communication
 
     my $device_addr = 0x04;

@@ -615,6 +615,11 @@ the devices on an I2C bus.
 See the linked documentation for full documentation on usage, or the
 L<RPi::WiringPi::FAQ-Tutorial> for usage examples.
 
+Aruino note: If using I2C with an Arduino, the Pi may speak faster than the
+Arduino can. If this is the case, try lowering the I2C bus speed on the Pi:
+
+    dtparam=i2c_arm_baudrate=10000
+
 =head2 lcd(...)
 
 Returns a L<RPi::LCD> object, which allows you to fully manipulate
