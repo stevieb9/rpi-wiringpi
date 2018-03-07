@@ -522,7 +522,7 @@ Parameters:
 The default (no parameters) is almost always enough, but please do review
 the documentation in the link above for further information, and have a
 look at the
-L<ADC tutorial section|RPi::WiringPi::FAQ/ANALOG TO DIGITAL CONVERTERS> in
+L<ADC tutorial section|RPi::WiringPi::FAQ/ANALOG TO DIGITAL CONVERTERS (ADC)> in
 this distribution.
 
 =head3 MCP3008
@@ -577,7 +577,7 @@ Returns a L<RPi::DigiPot::MCP4XXXX> object, which allows you to manage a
 digital potentiometer (only the MCP4XXXX versions are currently supported).
 
 See the linked documentation for full documentation on usage, or the
-L<RPi::WiringPi::FAQ-Tutorial> for usage examples.
+L<RPi::WiringPi::FAQ> for usage examples.
 
 =head2 gps
 
@@ -613,7 +613,7 @@ Creates a new L<RPi::I2C> device object which allows you to communicate with
 the devices on an I2C bus.
 
 See the linked documentation for full documentation on usage, or the
-L<RPi::WiringPi::FAQ-Tutorial> for usage examples.
+L<RPi::WiringPi::FAQ> for usage examples.
 
 Aruino note: If using I2C with an Arduino, the Pi may speak faster than the
 Arduino can. If this is the case, try lowering the I2C bus speed on the Pi:
@@ -646,7 +646,7 @@ Creates a new L<RPi::Serial> object which allows basic read/write access to a
 serial bus.
 
 See the linked documentation for full documentation on usage, or the
-L<RPi::WiringPi::FAQ-Tutorial> for usage examples.
+L<RPi::WiringPi::FAQ> for usage examples.
 
 NOTE: Bluetooth on the Pi overlays the serial pins (14, 15) on the Pi. To use
 serial, you must disable bluetooth in the C</boot/config.txt> file:
@@ -716,11 +716,11 @@ Creates a new L<RPi::SPI> object which allows you to communicate on the Serial
 Peripheral Interface (SPI) bus with attached devices.
 
 See the linked documentation for full documentation on usage, or the
-L<RPi::WiringPi::FAQ-Tutorial> for usage examples.
+L<RPi::WiringPi::FAQ> for usage examples.
 
 =head1 RUNNING TESTS
 
-Please see L<RUNNING TESTS|RPi::WiringPi::FAQ/RUNNING-TESTS> in the
+Please see L<RUNNING TESTS|RPi::WiringPi::FAQ/RUNNING TESTS> in the
 L<FAQ|RPi::WiringPi::FAQ>.
 
 =head1 AUTHOR
