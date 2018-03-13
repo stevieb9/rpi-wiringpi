@@ -17,6 +17,7 @@ use RPi::LCD;
 use RPi::Pin;
 use RPi::Serial;
 use RPi::SPI;
+use RPi::StepperMotor;
 use RPi::Const qw(:all);
 
 our $VERSION = '2.3623';
@@ -213,7 +214,7 @@ sub stepper_motor {
     my ($self, %args) = @_;
 
     if (! exists $args{pins}){
-        croak "steppermotor() requires an arrayref of pins sent in\n";
+        die "steppermotor() requires an arrayref of pins sent in\n";
     }
 
     for (@{ $args{pins} }){
