@@ -70,6 +70,11 @@ your default system installation intact.
 NOTE: Only when using PWM features do you need to use C<sudo>. All other aspects
 of this software work properly with a non-privileged user account.
 
+NOTE: If you get errors about "Permission Denied" accessing C</dev/mem> or
+C</dev/gpiomem>, you need to add the C<pi> user to the C<gpio> group:
+
+    sudo adduser pi gpio
+
 =head1 PI 
 
 =head2 Create a Raspberry Pi object
