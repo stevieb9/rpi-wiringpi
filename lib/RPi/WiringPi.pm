@@ -209,6 +209,19 @@ sub spi {
     my $spi = RPi::SPI->new($chan, $speed);
     return $spi;
 }
+sub stepper_motor {
+    my ($self, %args) = @_;
+
+    if (! exists $args{pins}){
+        croak "steppermotor() requires an arrayref of pins sent in\n";
+    }
+
+    for (@{ $args{pins} }){
+        $self->pin($_);
+    }
+
+    return RPi::StepperMotor->new(%args);
+}
 
 # private
 
@@ -456,6 +469,17 @@ various items
     $servo->pwm(150); # centre position
     $servo->pwm(50);  # left position
     $servo->pwm(250); # right position
+
+    #
+    # stepper motor
+    #
+
+    my $sm = $pi->stepper_motor(
+        pins => [12, 16, 20, 21]
+    );
+
+    $sm->cw(180);   # turn clockwise 180 degrees
+    $sm->ccw(240);  # turn counter-clockwise 240 degrees
 
 =head1 DESCRIPTION
 
@@ -717,6 +741,34 @@ Peripheral Interface (SPI) bus with attached devices.
 
 See the linked documentation for full documentation on usage, or the
 L<RPi::WiringPi::FAQ> for usage examples.
+
+=head2 stepper_motor($pins)
+
+Creates a new L<RPi::StepperMotor> object which allows you to drive a
+28BYJ-48 stepper motor with a ULN2003 driver chip.
+
+See the linked documentation for full usage instructions and the optional
+parameters.
+
+Parameters:
+
+    pins => $aref
+
+Mandatory, Array Reference: The ULN2003 has four data pins, IN1, IN2, IN3 and
+IN4. Send in the GPIO pin numbers in the array reference which correlate to the
+driver pins in the listed order.
+
+    speed => 'half'|'full'
+
+Optional, String: By default we run in "half speed" mode. Essentially, in this
+mode we run through all eight steps. Send in 'full' to double the speed of the
+motor. We do this by skipping every other step.
+
+    delay => Float|Int
+
+Optional, Float or Int: By default, between each step, we delay by C<0.01>
+seconds. Send in a float or integer for the number of seconds to delay each step
+by. The smaller this number, the faster the motor will turn.
 
 =head1 RUNNING TESTS
 
