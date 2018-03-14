@@ -1,5 +1,8 @@
 Revision history for Perl extension RPi::WiringPi.
 
+2.3604 UNREL
+        -
+
 2.3623  2018-03-14
         - Pi day!
         - added support for the new RPi::StepperMotor distribution
