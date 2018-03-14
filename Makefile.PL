@@ -30,7 +30,7 @@ WriteMakefile(
     },
     PREREQ_PM         => {
         'parent'                      => 0,
-        'GPSD::Parse'               => 1.01,
+        'GPSD::Parse'               => 1.02,
         'JSON'                      => 0,
         'RPi::ADC::ADS'             => 1.02,
         'RPi::ADC::MCP3008'         => 2.3604,
@@ -45,7 +45,7 @@ WriteMakefile(
         'RPi::Pin'                  => 2.3604,
         'RPi::Serial'               => 2.3603,
         'RPi::SPI'                  => 2.3608,
-        'RPi::StepperMotor'         => 2.3603,
+        'RPi::StepperMotor'         => 2.3604,
         'WiringPi::API'             => 2.3614,
     },
 );
