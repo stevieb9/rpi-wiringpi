@@ -31,6 +31,8 @@ L<RPi::Const> module.
     ADC          -  analog to digital converter (in)
     DAC          -  digital to analog converter (out)
     IC           -  integrated circuit
+    GPS          -  Global Positioning System
+    TPV          -  Time-Position Velocity
 
 
 =head1 SETUP
@@ -463,10 +465,10 @@ full usage instructions.
 
     my gps = $pi->gps;
 
-    print $gps->tpv('lat')   ."\n"; # latitude
-    print $gps->tpv('lon')   ."\n"; # longitude
-    print $gps->tpv('speed') ."\n"; # current speed
-    print $gps->direction    ."\n"; # current heading
+    print $gps->lat   ."\n"; # latitude
+    print $gps->lon   ."\n"; # longitude
+    print $gps->speed ."\n"; # current speed
+    print $gps->track ."\n"; # current heading
 
 =head1 LCD TOUCH SCREENS
 
