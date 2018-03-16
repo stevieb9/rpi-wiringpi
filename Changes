@@ -1,7 +1,8 @@
 Revision history for Perl extension RPi::WiringPi.
 
 2.3604 UNREL
-        -
+        - added blurb in FAQ Testing section that describes setting up I2C and
+          serial properly
 
 2.3623  2018-03-14
         - Pi day!
