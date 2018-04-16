@@ -756,9 +756,10 @@ number of runs if desired.
 To use the LCD functionality which displays the last date/time that a test run
 succeeded, along with the last commit tested and it's result (PASS/FAIL), set
 up an environment variable that contains a comma-separated list of GPIO pin
-numbers that the LCD is connected to:
+numbers that the LCD is connected to (leave off the last two digits if all you
+have is a two row by 16 column LCD.
 
-    export BB_RPI_LCD=5,6,4,17,27,22
+    export BB_RPI_LCD=5,6,4,17,27,22,4,20
 
 ...which represents LCD pins:
 
@@ -775,15 +776,17 @@ a feature that most likely I'll be the only consumer of.
 =head2 Testing Environment Variable List
 
 Here's the contents of my C</etc/environment> file, setting the various testing
-environment variables for the full test platform.
+environment variables for the full test platform. For LCD, the last two digits
+(4, 20) are for four row, 20 column units. If you only have a two row by four
+column unit, leave those last two digits off.
 
-    PI_BOARD=1                  # It's a Pi
-    RPI_ARDUINO=1               # Arduino I2C connected
-    RPI_LCD=1                   # LCD is connected
-    RPI_SERIAL=1                # Serial enabled, and loopback
-    RPI_HCSR04=1                # sonic distance sensor
-    BB_RPI_LCD=5,6,4,17,27,22   # Auto-testing LCD enabled
-    RELEASE_TESTING=1           # Author tests (POD, manifest etc)
+    PI_BOARD=1
+    RPI_ARDUINO=1
+    RPI_LCD=1
+    RPI_SERIAL=1
+    RPI_HCSR04=1
+    BB_RPI_LCD=5,6,4,17,27,22,4,20
+    RELEASE_TESTING=1
 
 =head1 DEVELOPMENT
 
