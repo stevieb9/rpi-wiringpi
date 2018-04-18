@@ -9,6 +9,7 @@ use GPSD::Parse;
 use RPi::ADC::ADS;
 use RPi::ADC::MCP3008;
 use RPi::BMP180;
+use RPi::Const qw(:all);
 use RPi::DAC::MCP4922;
 use RPi::DigiPot::MCP4XXXX;
 use RPi::HCSR04;
@@ -18,7 +19,6 @@ use RPi::Pin;
 use RPi::Serial;
 use RPi::SPI;
 use RPi::StepperMotor;
-use RPi::Const qw(:all);
 
 our $VERSION = '2.3625';
 
@@ -774,6 +774,11 @@ by. The smaller this number, the faster the motor will turn.
 =head1 RUNNING TESTS
 
 Please see L<RUNNING TESTS|RPi::WiringPi::FAQ/RUNNING TESTS> in the
+L<FAQ|RPi::WiringPi::FAQ>.
+
+=head1 TROUBLESHOOTING
+
+Please read through the L<SETUP|RPi::WiringPi::FAQ/SETUP> section in the
 L<FAQ|RPi::WiringPi::FAQ>.
 
 =head1 AUTHOR
