@@ -8,6 +8,7 @@ Revision history for Perl extension RPi::WiringPi.
         - re-enabled "both" interrupt test file (closes #48)
         - servo() now accepts a configuration hash that allows sending in a
           non-default PWM clock speed and PWM range (closes #45)
+        - modified GPS examples to use the new GPSD::Parse methods
 
 2.3624  2018-03-27
         - added blurb in FAQ Testing section that describes setting up I2C and
