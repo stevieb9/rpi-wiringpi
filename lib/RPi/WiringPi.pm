@@ -681,7 +681,7 @@ serial, you must disable bluetooth in the C</boot/config.txt> file:
 
     dtoverlay=pi3-disable-bt-overlay
 
-=head2 servo($pin_num, %pwm_config)
+=head2 servo($pin_num)
 
 This method configures PWM clock and divisor to operate a typical 50Hz servo,
 and returns a special L<RPi::Pin> object. These servos have a C<left> pulse of
@@ -698,9 +698,11 @@ Raspberry Pi 3, as that's the only hardware PWM pin.
     %pwm_config
 
 Optional, Hash. This parameter should only be used if you know what you're
-doing. Keys are C<clock> with a value that coincides with the PWM clock speed.
-It defaults to C<192>. The other key is C<range>, the value being an integer
-that sets the range of the PWM. Defaults to C<2000>.
+doing and are having very specific issues.
+
+Keys are C<clock> with a value that coincides with the PWM clock speed. It
+defaults to C<192>. The other key is C<range>, the value being an integer that
+sets the range of the PWM. Defaults to C<2000>.
 
 Example:
 
