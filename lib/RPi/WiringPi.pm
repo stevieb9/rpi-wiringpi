@@ -176,12 +176,15 @@ sub serial {
     return RPi::Serial->new($device, $baud);
 }
 sub servo {
-    my ($self, $pin_num) = @_;
+    my ($self, $pin_num, %config) = @_;
 
     if ($> != 0){
         die "\n\nat this time, servo() requires PWM functionality, and PWM " .
             "requires your script to be run as the 'root' user (sudo)\n\n";
     }
+
+    $config{clock} = exists $config{clock} ? $config{clock} : 192;
+    $config{range} = exists $config{range} ? $config{range} : 2000;
 
     $self->_pwm_in_use(1);
 
@@ -189,8 +192,8 @@ sub servo {
     $servo->mode(PWM_OUT);
 
     $self->pwm_mode(PWM_MODE_MS);
-    $self->pwm_clock(192);
-    $self->pwm_range(2000);
+    $self->pwm_clock($config{clock});
+    $self->pwm_range($config{range});
 
     return $servo;
 }
@@ -678,7 +681,7 @@ serial, you must disable bluetooth in the C</boot/config.txt> file:
 
     dtoverlay=pi3-disable-bt-overlay
 
-=head2 servo($pin_num)
+=head2 servo($pin_num, %pwm_config)
 
 This method configures PWM clock and divisor to operate a typical 50Hz servo,
 and returns a special L<RPi::Pin> object. These servos have a C<left> pulse of
@@ -691,6 +694,13 @@ Parameters:
 
 Mandatory, Integer: The pin number (technically, this *must* be C<18> on the
 Raspberry Pi 3, as that's the only hardware PWM pin.
+
+    %pwm_config
+
+Optional, Hash. This parameter should only be used if you know what you're
+doing. Keys are C<clock> with a value that coincides with the PWM clock speed.
+It defaults to C<192>. The other key is C<range>, the value being an integer
+that sets the range of the PWM. Defaults to C<2000>.
 
 Example:
 
