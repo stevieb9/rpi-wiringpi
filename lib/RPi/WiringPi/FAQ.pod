@@ -128,7 +128,7 @@ the C<pi> user to the C<spi> group:
 
     sudo adduser pi spi
 
-=head1 Serial configuration
+=head2 Serial configuration
 
 In order to use GPIO pins 14 and 15 as a serial interface on the Raspberry Pi,
 you need to disable the built-in Bluetooth adaptor. This distribution will not
