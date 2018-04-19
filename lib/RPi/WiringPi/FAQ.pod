@@ -530,10 +530,10 @@ full usage instructions.
 
     my gps = $pi->gps;
 
-    print $gps->lat   ."\n"; # latitude
-    print $gps->lon   ."\n"; # longitude
-    print $gps->speed ."\n"; # current speed
-    print $gps->track ."\n"; # current heading
+    print $gps->lat;        # latitude
+    print $gps->lon;        # longitude
+    print $gps->speed;      # current speed
+    print $gps->direction;  # current heading
 
 =head1 LCD TOUCH SCREENS
 

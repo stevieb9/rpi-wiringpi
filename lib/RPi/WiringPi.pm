@@ -423,10 +423,10 @@ various items
 
     my $gps = $pi->gps;
 
-    print $gps->tpv('lat')   . "\n";
-    print $gps->tpv('lon')   . "\n";
-    print $gps->tpv('speed') . "\n";
-    print $gps->direction    . "\n";
+    print $gps->lat;
+    print $gps->lon;
+    print $gps->speed;
+    print $gps->direction;
 
     #
     # LCD
