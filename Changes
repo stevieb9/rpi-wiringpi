@@ -1,6 +1,6 @@
 Revision history for Perl extension RPi::WiringPi.
 
-2.3625 UNREL
+2.3625  2018-04-19
         - in FAQ, add the 4 row 20 col config to env vars (closes #65)
         - bumped prereq RPi::Pin to 2.3606
         - added I2C, Serial and SPI configuration details at the top of the FAQ
