@@ -6,6 +6,8 @@ Revision history for Perl extension RPi::WiringPi.
           (closes #68)
         - remove statement in POD where we claimed that the BCM pin numbers were
           printed on the physical board (fixes #67)
+        - correct typo in POD SYNOPSYS for dac() where we were sending in
+          incorrect parameters (fixes #66)
 
 2.3625  2018-04-19
         - in FAQ, add the 4 row 20 col config to env vars (closes #65)
