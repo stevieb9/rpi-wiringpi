@@ -354,7 +354,7 @@ various items
         cs      => $dac_cs_pin
     );
 
-    my ($dacA, $dacB) = (0, 0);
+    my ($dacA, $dacB) = (0, 1);
 
     $dac->set($dacA, 4095); # 100% output
     $dac->set($dacB, 0);    # 0% output
