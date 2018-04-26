@@ -4,6 +4,8 @@ Revision history for Perl extension RPi::WiringPi.
         - fix POD head level for SETUP's Serial configuration
         - provide more descriptive scenarios when to disable _fatal_exit()
           (closes #68)
+        - remove statement in POD where we claimed that the BCM pin numbers were
+          printed on the physical board (fixes #67)
 
 2.3625  2018-04-19
         - in FAQ, add the 4 row 20 col config to env vars (closes #65)
