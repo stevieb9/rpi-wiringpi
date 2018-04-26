@@ -2,6 +2,8 @@ Revision history for Perl extension RPi::WiringPi.
 
 2.3626 UNREL
         - fix POD head level for SETUP's Serial configuration
+        - provide more descriptive scenarios when to disable _fatal_exit()
+          (closes #68)
 
 2.3625  2018-04-19
         - in FAQ, add the 4 row 20 col config to env vars (closes #65)
