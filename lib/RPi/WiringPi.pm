@@ -533,7 +533,10 @@ Parameters:
 Optional: We trap all C<die()> calls and clean up for safety reasons. If a
 call to C<die()> is trapped, by default, we clean up, and then C<exit()>. Set
 C<fatal_exit> to false (C<0>) to perform the cleanup, and then continue running
-your script. This is for unit testing purposes only.
+your script.
+
+We recommend only disabling this feature if you're doing unit test work, want to
+allow other exit traps to catch, allowing the Pi to continue on working etc.
 
 =head2 adc()
 
