@@ -496,8 +496,7 @@ module, and various other custom device specific  modules.
 L<wiringPi|http://wiringpi.com> must be installed prior to installing/using
 this module (v2.36+).
 
-We always and only use the C<GPIO> pin numbering scheme. These are the pin
-numbers that are printed on the Pi board itself.
+We always and only use the C<GPIO> pin numbering scheme.
 
 This module is essentially a 'manager' for the sub-modules (ie. components).
 You can use the component modules directly, but retrieving components through
