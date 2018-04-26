@@ -626,16 +626,22 @@ Parameters:
 
     $trig
 
-The trigger pin number, in GPIO numbering scheme.
+Mandatory, Integer: The trigger pin number, in GPIO numbering scheme.
 
     $echo
 
-The echo pin number, in GPIO numbering scheme.
+Mandatory, Integer: The echo pin number, in GPIO numbering scheme.
 
 =head2 hygrometer($pin)
 
 Returns a L<RPi::DHT11> temperature/humidity sensor object, allows you to fetch
 the temperature (celcius or farenheit) as well as the current humidity level.
+
+Parameters:
+
+    $pin
+
+Mandatory, Integer: The GPIO pin the sensor is connected to.
 
 =head2 i2c($addr, [$device])
 
