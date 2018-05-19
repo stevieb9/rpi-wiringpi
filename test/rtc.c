@@ -1,33 +1,40 @@
-#include <stdio.h>
+#include <errno.h>
 #include <fcntl.h>
-#include <linux/i2c-dev.h>
 #include <linux/i2c.h>
+#include <linux/i2c-dev.h>
+#include <stdio.h>
+#include <stdint.h>
+
+#define RTC_ADDR    0x68
+
+#define RTC_SEC     0x00
+#define RTC_MIN     0x01
+#define RTC_HOUR    0x02
+#define RTC_DAY     0x03    // day of week (1-7)
+#define RTC_DATE    0x04 // day of month (1-31)
+#define RTC_MONTH   0x05
+#define RTC_YEAR    0x06
+
+#define RTC_AM_PM   0x20
+#define RTC_12_24   0x40
 
 int deviceI2CAddress = 0x68;
 
-int dec2bcd(int k){
-   return((k/10)*16+(k%10));
+int dec2bcd(int num){
+   return((num/10) * 16 + (num%10));
 }
 
-setHour(int deviceHandle, int hours){
-    char buf[2];
-    buf[0] = 2;
-    buf[1] = dec2bcd(hours);
-
-    int x = write(deviceHandle, buf, 2);
-
-    printf("buf: %d, %d\n", buf[0], buf[1]);
-    printf("err: %d\n", x);
+int setRegister(int fd, int reg, uint8_t value, char* name){
+    char buf[2] = {reg, dec2bcd(value)};
+    if ((write(fd, buf, sizeof(buf))) != 2){
+        printf("Could not write the %s: %s\n", name, strerror(errno));
+        return -1;
+    }
+    return 0;
 }
 
 int main (void)
 {
-
-    int deviceI2CAddress = 0x68;
-	// print infos
-	printf("Raspberry Pi RTC DS1307 Sample\n");
-	printf("========================================\n");
-  
 	int deviceHandle;
 	int readBytes;
 	char buffer[7];
@@ -37,17 +44,19 @@ int main (void)
   
 	// open device on /dev/i2c-1
 	if ((deviceHandle = open("/dev/i2c-1", O_RDWR)) < 0) {
-		printf("Error: Couldn't open device! %d\n", deviceHandle);
-		return 1;
+        printf("Couldn't open the device: %s\n", strerror(errno));
+		return -1;
 	}
 
 	// connect to DS1307 as i2c slave
-	if (ioctl(deviceHandle, I2C_SLAVE_FORCE, deviceI2CAddress) < 0) {
-		printf("Error: Couldn't find device on address!\n");
-		return 1;
+	if (ioctl(deviceHandle, I2C_SLAVE_FORCE, RTC_ADDR) < 0) {
+        printf("Couldn't find device at addr %d: %s\n", RTC_ADDR, strerror(errno));
+		return -1;
 	}  
   
-    setHour(deviceHandle, 11);        
+    setRegister(deviceHandle, RTC_SEC, 1, "sec");        
+    setRegister(deviceHandle, RTC_MIN, 1, "min");        
+    setRegister(deviceHandle, RTC_HOUR, 3, "hour");        
 
     // begin transmission and request acknowledgement
 	readBytes = write(deviceHandle, buffer, 1);
