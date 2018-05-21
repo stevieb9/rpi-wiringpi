@@ -10,6 +10,8 @@ my $rtc = $pi->i2c(0x68);
 
 # read current sec, min, hr
 
+$DB::single = 1;
+
 my @time = $rtc->read_block(3);
 
 say $_ for @time;

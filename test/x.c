@@ -26,7 +26,8 @@ int dec2bcd(int num){
    return((num/10) * 16 + (num%10));
 }
 
-int setRegister(int fd, int reg, uint8_t value, char* name){
+int setRegister(int fd, int reg, int value, char* name){
+    printf("setting hour to: %d\n", value);
     char buf[2] = {reg, dec2bcd(value)};
     if ((write(fd, buf, sizeof(buf))) != 2){
         printf("Could not write the %s: %s\n", name, strerror(errno));
@@ -42,10 +43,6 @@ int setDec(int fd, int reg, uint8_t value, char* name){
         return -1;
     }
     return 0;
-}
-
-int getRegister(int want, int dt[7]){
-    return dt[want];
 }
 
 int main (void)
@@ -69,11 +66,10 @@ int main (void)
 		return -1;
 	}  
  
-    setRegister(deviceHandle, RTC_SEC, 10, "sec");        
-    setRegister(deviceHandle, RTC_MIN, 11, "min");        
 //    setRegister(deviceHandle, RTC_HOUR, 9, "hour");        
-    setRegister(deviceHandle, RTC_HOUR, 9 | 0b01000000, "12_24");        
-    printf("is 12: %d\n", 9 & 0b01000000);
+    setRegister(deviceHandle, RTC_HOUR, 9, "12_24");        
+    setRegister(deviceHandle, RTC_HOUR, (9 | 0b01000000), "12_24"); // 73 (9 + 64)
+    printf("is 12: %d\n", (9 | 0b01000000) >> 6); // get the single 12/24 hr bit
 
     // begin transmission and request acknowledgement
 
@@ -88,30 +84,19 @@ int main (void)
 			printf("Error: Received no data!");
 		}
 		else {
-
-            /*
-			// get data
-			dt.sec   = buffer[0]; // 0-59
-		    dt.min   = buffer[1]; // 0-59
-			dt.hour  = buffer[2]; // 1-23
-			dt.day   = buffer[3]; // 1-7
-			dt.mday  = buffer[4]; // 1-28/29/30/31
-			dt.month = buffer[5]; // 1-12
-			dt.year  = buffer[6]; // 0-99
-            */
-
             int hour = bcd2dec(buffer[2]);
+//            int hour = bcd2dec(buffer[2]);
             printf("hour: %d\n", hour);
 
-            if (hour >= 12){
+            if (hour > 12){
                 hour = (hour - 12) | 0b01100000;
             }
             else {
                 hour = hour & 0b11011111;
             }
-            printf("%d:%d:%d\n", hour, bcd2dec(buffer[1]), bcd2dec(buffer[0]));
+            printf("%d\n", hour);
 
-            printf("12/24: %d\n", hour & 0b10111111);
+            printf("12/24: %d\n", hour & 0b01000000);
 		}
 	}	
 
