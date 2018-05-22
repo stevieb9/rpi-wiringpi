@@ -29,8 +29,8 @@
 
 // sub register RTC_HOUR
 
-#define RTC_AM_PM   0x04
-#define RTC_12_24   0x05
+#define RTC_AM_PM       0x05
+#define RTC_12_24       0x06
 
 int bitCount (unsigned int value, int set);
 int bitMask  (unsigned int bits, int lsb);
@@ -73,11 +73,11 @@ int bitMask (unsigned int bits, int lsb){
 int bitGet (const unsigned int data, int msb, const int lsb){
  
     _checkMSB(msb);
-    msb++; // we count from 1
- 
+    msb++; // we count from one
+
     _checkLSB(msb, lsb);
  
-    return (data & ((1 << msb) -1)) >> lsb;
+    return (data & (1 << msb) -1) >> lsb;
 }
  
 int bitSet (unsigned int data, int lsb, int bits, int value){
@@ -185,7 +185,7 @@ int getFh (){
 int setRegister(int fd, int reg, int value, char* name){
 
     char buf[2] = {reg, dec2bcd(value)};
-
+    printf("value: %d, buf data: %d\n", value, buf[1]);
     if ((write(fd, buf, sizeof(buf))) != 2){
         printf("Could not write the %s: %s\n", name, strerror(errno));
         // croak here
@@ -211,17 +211,56 @@ int getRegister (int fd, int reg){
     return bcd2dec(buf[0]);
 }
 
+int getRegisterBCD (int fd, int reg){
+    return dec2bcd(getRegister(fd, reg));
+}
+
 int getRegisterBit (int fd, int reg, int bit){
-    int regData = getRegister(fd, reg);
-    printf("hour data: %d\n", regData);
+    int regData = getRegisterBCD(fd, reg);
     return bitGet(regData, bit, bit);
+}
+
+int getRegisterBits (int fd, int reg, int msb, int lsb){
+    return bitGet(getRegisterBCD(fd, reg), msb, lsb);
+}
+
+void enableRegisterBit (int fd, int reg, int bit){
+    printf("reg status: %d\n", getRegister(fd, reg));
+    int data = bitOn(getRegister(fd, reg), bit);
+    printf("reg: %d, data: %d\n", reg, data);
+    setRegister(fd, reg, data, "enabling bit");
+}
+
+int getHour (int fd){
+   
+    int hour;
+
+    if ((getRegisterBit(fd, RTC_HOUR, RTC_12_24)) == 0){
+        // 24 hr clock
+        hour = getRegister(fd, RTC_HOUR);
+        printf("hour in 24 clock: %d\n", hour);
+    }
+    else {
+        // 12 hr clock
+        hour = getRegisterBits(fd, RTC_HOUR, 4, 0);
+    }
+
+    return hour;
+}
+
+void set12 (int fd){
+}
+void setam (int fd){
 }
 
 int main (void){
 
     int fd = getFh();
 
-//    setRegister(fd, RTC_HOUR, 23, "hour");
+    setRegister(fd, RTC_HOUR, 4, "hour");
+    setRegister(fd, RTC_YEAR, 4, "year");
+    //enableRegisterBit(fd, RTC_HOUR, RTC_12_24);
+    enableRegisterBit(fd, RTC_HOUR, RTC_AM_PM);
 
     printf("elem %d: %d\n", 0, getRegister(fd, RTC_SEC));
     printf("elem %d: %d\n", 1, getRegister(fd, RTC_MIN));
@@ -231,9 +270,13 @@ int main (void){
     printf("elem %d: %d\n", 5, getRegister(fd, RTC_MONTH));
     printf("elem %d: %d\n", 6, getRegister(fd, RTC_YEAR));
 
-    printf("reg %d, bit: am/pm, value: %d\n", RTC_HOUR, getRegisterBit(fd, RTC_HOUR, RTC_AM_PM));
-    printf("reg %d, bit: 12/24, value: %d\n", RTC_HOUR, getRegisterBit(fd, RTC_HOUR, RTC_12_24));
+    printf("reg %d, bit am/pm: %d, value: %d\n", RTC_HOUR, RTC_AM_PM, getRegisterBit(fd, RTC_HOUR, RTC_AM_PM));
+    printf("reg %d, bit 24: %d, value: %d\n", RTC_HOUR, RTC_12_24, getRegisterBit(fd, RTC_HOUR, RTC_12_24));
 
+    printf("reg %d, value: %d\n", RTC_HOUR, getRegisterBits(fd, RTC_HOUR, 6, 0));
+
+    printf("getHour(): %d\n", getHour(fd));
+    printf("bcd2dec: %d\n", bcd2dec(getRegisterBits(fd, RTC_HOUR, 6, 0)));
     close(fd);
 
     return 0;
