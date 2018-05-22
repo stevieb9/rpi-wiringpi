@@ -2,8 +2,11 @@
 #include <fcntl.h>
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
-#include <stdio.h>
+#include <sys/ioctl.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
 
 #define RTC_ADDR    0x68
 
@@ -29,6 +32,7 @@ int establishI2C (int fd){
 
     if (write(fd, buf, 1) != 1){
 		printf("Error: Received no ACK-Bit, couldn't established connection!");
+        close(fd);
         // croak here
         return -1;
     }
@@ -48,6 +52,7 @@ int getFh (){
 
 	if (ioctl(fd, I2C_SLAVE_FORCE, RTC_ADDR) < 0) {
         printf("Couldn't find device at addr %d: %s\n", RTC_ADDR, strerror(errno));
+        close(fd);
         // croak here
 		return -1;
 	}  
