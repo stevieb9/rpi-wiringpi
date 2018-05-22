@@ -35,12 +35,20 @@
 
 int  _establishI2C (int fd);
 
-int bcd2dec (int num){
-  return (((num & 0xF0) >> 4) * 10) + (num & 0x0F);
-}
+int getHour (int fd){
+   
+    int hour;
 
-int dec2bcd(int num){
-   return((num/10) * 16 + (num%10));
+    if ((getRegisterBit(fd, RTC_HOUR, RTC_12_24)) == 0){
+        // 24 hr clock
+        hour = getRegister(fd, RTC_HOUR);
+    }
+    else {
+        // 12 hr clock
+        hour = getRegisterBits(fd, RTC_HOUR, 4, 0);
+    }
+
+    return bcd2dec(hour);
 }
 
 int getFh (){
@@ -65,16 +73,14 @@ int getFh (){
     return fd;
 }
 
-int setRegister(int fd, int reg, int value, char* name){
+void disableRegisterBit (int fd, int reg, int bit){
+    int data = bitOff(getRegister(fd, reg), bit);
+    setRegister(fd, reg, data, "disabling bit");
+}
 
-    char buf[2] = {reg, value};
-    if ((write(fd, buf, sizeof(buf))) != 2){
-        printf("Could not write the %s: %s\n", name, strerror(errno));
-        // croak here
-        return -1;
-    }
-
-    return 0;
+void enableRegisterBit (int fd, int reg, int bit){
+    int data = bitOn(getRegister(fd, reg), bit);
+    setRegister(fd, reg, data, "enabling bit");
 }
 
 int getRegister (int fd, int reg){
@@ -102,30 +108,24 @@ int getRegisterBits (int fd, int reg, int msb, int lsb){
     return bitGet(getRegister(fd, reg), msb, lsb);
 }
 
-void enableRegisterBit (int fd, int reg, int bit){
-    int data = bitOn(getRegister(fd, reg), bit);
-    setRegister(fd, reg, data, "enabling bit");
-}
+int setRegister(int fd, int reg, int value, char* name){
 
-void disableRegisterBit (int fd, int reg, int bit){
-    int data = bitOff(getRegister(fd, reg), bit);
-    setRegister(fd, reg, data, "disabling bit");
-}
-
-int getHour (int fd){
-   
-    int hour;
-
-    if ((getRegisterBit(fd, RTC_HOUR, RTC_12_24)) == 0){
-        // 24 hr clock
-        hour = getRegister(fd, RTC_HOUR);
-    }
-    else {
-        // 12 hr clock
-        hour = getRegisterBits(fd, RTC_HOUR, 4, 0);
+    char buf[2] = {reg, value};
+    if ((write(fd, buf, sizeof(buf))) != 2){
+        printf("Could not write the %s: %s\n", name, strerror(errno));
+        // croak here
+        return -1;
     }
 
-    return bcd2dec(hour);
+    return 0;
+}
+
+int bcd2dec (int num){
+  return (((num & 0xF0) >> 4) * 10) + (num & 0x0F);
+}
+
+int dec2bcd(int num){
+   return((num/10) * 16 + (num%10));
 }
 
 int _establishI2C (int fd){
