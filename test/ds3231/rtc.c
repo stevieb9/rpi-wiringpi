@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "bit.h"
 
 #define RTC_ADDR    0x68
 
@@ -32,111 +33,7 @@
 #define RTC_AM_PM       0x05
 #define RTC_12_24       0x06
 
-int bitCount (unsigned int value, int set);
-int bitMask  (unsigned int bits, int lsb);
-int bitGet   (const unsigned int data, int msb, const int lsb);
-int bitSet   (unsigned int data, int lsb, int bits, int value);
-int bitTog   (unsigned int data, int bit);
-int bitOn    (unsigned int data, int bit);
-int bitOff   (unsigned int data, int bit);
- 
-void _checkMSB   (int msb);
-void _checkLSB   (int msb, int lsb);
-void _checkValue (int value);
- 
-// definitions
- 
-int bitCount (unsigned int value, int set){
- 
-    unsigned int bit_count;
-    unsigned int c = 0;
- 
-    if (set){
-        while (value != 0){
-            c++;
-            value &= value - 1;
-        }
-        bit_count = c;
-    }
-    else {
-        int zeros = __builtin_clz(value);
-        bit_count = (sizeof(int) * 8) - zeros;
-    }
- 
-    return bit_count;
-}
- 
-int bitMask (unsigned int bits, int lsb){
-    return ((1 << bits) - 1) << lsb;
-}
- 
-int bitGet (const unsigned int data, int msb, const int lsb){
- 
-    _checkMSB(msb);
-    msb++; // we count from one
-
-    _checkLSB(msb, lsb);
- 
-    return (data & (1 << msb) -1) >> lsb;
-}
- 
-int bitSet (unsigned int data, int lsb, int bits, int value){
- 
-    _checkValue(value);
- 
-    unsigned int value_bits = bitCount(value, 0);
- 
-    if (value_bits != bits){
-        value_bits = bits;
-    }
- 
-    unsigned int mask = ((1 << value_bits) - 1) << lsb;
- 
-    data = (data & ~(mask)) | (value << lsb);
- 
-    return data;
-}
- 
-int bitTog (unsigned int data, int bit){
-    return data ^= 1 << bit;
-}
- 
-int bitOn (unsigned int data, int bit){
-    return data |= 1 << bit;
-}
- 
-int bitOff (unsigned int data, int bit){
-    return data &= ~(1 << bit);
-}
- 
-void _checkMSB (int msb){
-    if (msb < 0){
-        // croak here, and in all other functions that exit()
-        printf("\nbit_get() $msb param must be greater than zero\n\n");
-        exit(-1);
-    }
-}
- 
-void _checkLSB (int msb, int lsb){
-    if (lsb < 0){
-        // croak("\nbit_get() $lsb param can not be negative\n\n");
-        printf("\nbit_get() $lsb param can not be negative\n\n");
-        exit(-1);
-    }
- 
-    if (lsb + 1 > (msb)){
-        // croak("\nbit_get() $lsb param must be less than or equal to $msb\n\n");
-        printf("\nbit_get() $lsb param must be less than or equal to $msb\n\n");
-    }
-}
- 
-void _checkValue (int value){
-    if (value < 0){
-        // croak("\nbit_set() $value param must be zero or greater\n\n");
-        printf("\nbit_set() $value param must be zero or greater\n\n");
-        exit(-1);
-    }
-}
+int  _establishI2C (int fd);
 
 int bcd2dec (int num){
   return (((num & 0xF0) >> 4) * 10) + (num & 0x0F);
@@ -144,20 +41,6 @@ int bcd2dec (int num){
 
 int dec2bcd(int num){
    return((num/10) * 16 + (num%10));
-}
-
-int establishI2C (int fd){
-
-    int buf[1] = { 0x00 };
-
-    if (write(fd, buf, 1) != 1){
-		printf("Error: Received no ACK-Bit, couldn't established connection!");
-        close(fd);
-        // croak here
-        return -1;
-    }
-
-    return 0;
 }
 
 int getFh (){
@@ -177,7 +60,7 @@ int getFh (){
 		return -1;
 	}  
 
-    int established = establishI2C(fd);
+    int established = _establishI2C(fd);
 
     return fd;
 }
@@ -185,7 +68,6 @@ int getFh (){
 int setRegister(int fd, int reg, int value, char* name){
 
     char buf[2] = {reg, value};
-    printf("value: %d, buf data: %d\n", value, buf[1]);
     if ((write(fd, buf, sizeof(buf))) != 2){
         printf("Could not write the %s: %s\n", name, strerror(errno));
         // croak here
@@ -221,9 +103,7 @@ int getRegisterBits (int fd, int reg, int msb, int lsb){
 }
 
 void enableRegisterBit (int fd, int reg, int bit){
-    printf("reg status: %d\n", getRegister(fd, reg));
     int data = bitOn(getRegister(fd, reg), bit);
-    printf("reg: %d, data: %d\n", reg, data);
     setRegister(fd, reg, data, "enabling bit");
 }
 
@@ -238,20 +118,28 @@ int getHour (int fd){
 
     if ((getRegisterBit(fd, RTC_HOUR, RTC_12_24)) == 0){
         // 24 hr clock
-        hour = bcd2dec(getRegister(fd, RTC_HOUR));
-        printf("hour in 24 clock: %d\n", hour);
+        hour = getRegister(fd, RTC_HOUR);
     }
     else {
         // 12 hr clock
-        hour = bcd2dec(getRegisterBits(fd, RTC_HOUR, 4, 0));
+        hour = getRegisterBits(fd, RTC_HOUR, 4, 0);
     }
 
-    return hour;
+    return bcd2dec(hour);
 }
 
-void set12 (int fd){
-}
-void setam (int fd){
+int _establishI2C (int fd){
+
+    int buf[1] = { 0x00 };
+
+    if (write(fd, buf, 1) != 1){
+		printf("Error: Received no ACK-Bit, couldn't established connection!");
+        close(fd);
+        // croak here
+        return -1;
+    }
+
+    return 0;
 }
 
 int main (void){
@@ -277,7 +165,7 @@ int main (void){
     printf("reg %d, value: %d\n", RTC_HOUR, getRegisterBits(fd, RTC_HOUR, 6, 0));
 
     printf("getHour(): %d\n", getHour(fd));
-    printf("bcd2dec: %d\n", bcd2dec(getRegisterBits(fd, RTC_HOUR, 6, 0)));
+    
     close(fd);
 
     return 0;
