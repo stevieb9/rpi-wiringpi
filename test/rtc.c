@@ -184,25 +184,25 @@ int setRegister(int fd, int reg, int value, char* name){
     return 0;
 }
 
-int getRegister (int fd, int reg, int byte){
+int getRegister (int fd, int reg){
 
-    char buf[7];
+    char buf[1];
     buf[0] = reg;
 
     write(fd, buf, 1); // set the register pointer
 
-    if ((read(fd, buf, 7)) != 7){
+    if ((read(fd, buf, 1)) != 1){
         printf("Could not read register %d: %s\n", reg, strerror(errno));
         // croak here
         return -1;
     }
 
-    return bcd2dec(buf[byte]);
+    return bcd2dec(buf[0]);
 }
 
-int getRegisterBit (int fd, int reg, int byte, int bit){
+int getRegisterBit (int fd, int reg, int bit){
 
-    int regData = getRegister(fd, reg, byte);
+    int regData = getRegister(fd, reg);
     return bitGet(regData, bit, bit);
 }
 
@@ -210,15 +210,17 @@ int main (void){
 
     int fd = getFh();
 
-    printf("elem %d: %d\n", 0, getRegister(fd, RTC_REG_DT, RTC_SEC));
-    printf("elem %d: %d\n", 1, getRegister(fd, RTC_REG_DT, RTC_MIN));
-    printf("elem %d: %d\n", 2, getRegister(fd, RTC_REG_DT, RTC_HOUR));
-    printf("elem %d: %d\n", 3, getRegister(fd, RTC_REG_DT, RTC_WDAY));
-    printf("elem %d: %d\n", 4, getRegister(fd, RTC_REG_DT, RTC_MDAY));
-    printf("elem %d: %d\n", 5, getRegister(fd, RTC_REG_DT, RTC_MONTH));
-    printf("elem %d: %d\n", 6, getRegister(fd, RTC_REG_DT, RTC_YEAR));
+    printf("elem %d: %d\n", 0, getRegister(fd, RTC_SEC));
+    printf("elem %d: %d\n", 1, getRegister(fd, RTC_MIN));
+    printf("elem %d: %d\n", 2, getRegister(fd, RTC_HOUR));
+    printf("elem %d: %d\n", 3, getRegister(fd, RTC_WDAY));
+    printf("elem %d: %d\n", 4, getRegister(fd, RTC_MDAY));
+    printf("elem %d: %d\n", 5, getRegister(fd, RTC_MONTH));
+    printf("elem %d: %d\n", 6, getRegister(fd, RTC_YEAR));
 
-    printf("reg %d, bit %d:\n", RTC_HOUR, getRegisterBit(fd, RTC_HOUR, 6));
+    printf("reg %d, bit: %d\n", RTC_HOUR, getRegisterBit(fd, RTC_HOUR, 6));
+
+    printf("bit get: %d\n", bitGet(32, 6, 6));
 
     close(fd);
 
