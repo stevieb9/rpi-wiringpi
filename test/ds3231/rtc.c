@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "rtc.h"
 #include "bit.h"
 
 #define RTC_ADDR    0x68
@@ -32,8 +33,6 @@
 
 #define RTC_AM_PM       0x05
 #define RTC_12_24       0x06
-
-int  _establishI2C (int fd);
 
 int getHour (int fd){
    
