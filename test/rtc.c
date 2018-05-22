@@ -15,12 +15,8 @@
 #define RTC_MONTH   0x05
 #define RTC_YEAR    0x06
 
-#define RTC_AM_PM   0x20
-#define RTC_12_24   0x40
-
-int bcd2dec (int bcdByte)
-{
-  return (((bcdByte & 0xF0) >> 4) * 10) + (bcdByte & 0x0F);
+int bcd2dec (int num){
+  return (((num & 0xF0) >> 4) * 10) + (num & 0x0F);
 }
 
 int dec2bcd(int num){
@@ -28,66 +24,81 @@ int dec2bcd(int num){
 }
 
 int establishI2C (int fd){
+
     int buf[1] = { 0x00 };
+
     if (write(fd, buf, 1) != 1){
 		printf("Error: Received no ACK-Bit, couldn't established connection!");
+        // croak here
         return -1;
     }
+
     return 0;
 }
 
 int getFh (){
+
     int fd;
 
     if ((fd = open("/dev/i2c-1", O_RDWR)) < 0) {
         printf("Couldn't open the device: %s\n", strerror(errno));
+        // croak here
 		return -1;
 	}
 
 	if (ioctl(fd, I2C_SLAVE_FORCE, RTC_ADDR) < 0) {
         printf("Couldn't find device at addr %d: %s\n", RTC_ADDR, strerror(errno));
+        // croak here
 		return -1;
 	}  
 
     int established = establishI2C(fd);
+
     return fd;
 }
 
-int setRegister(int fd, int reg, int value, char* name){
+int setDateTimeRegister(int fd, int reg, int value, char* name){
 
     char buf[2] = {reg, dec2bcd(value)};
+
     if ((write(fd, buf, sizeof(buf))) != 2){
         printf("Could not write the %s: %s\n", name, strerror(errno));
+        // croak here
         return -1;
     }
 
     return 0;
 }
 
-int getElement (int fd, int element){
+int getDateTimeRegister (int fd, int element){
 
-    char time[7];
-    time[0] = 0x00;
-    write(fd, time, 1);
-    read(fd, time, 7);
+    char buf[7];
+    buf[0] = RTC_SEC; // first element of date/time register
 
-    printf("%d:%d:%d\n",bcd2dec(time[2]),bcd2dec(time[1]),bcd2dec(time[0]));
+    write(fd, buf, 1); // set the register pointer
 
-    return bcd2dec(time[element]);
+    if ((read(fd, buf, 7)) != 7){
+        printf("Could not read the date/time register: %s\n", strerror(errno));
+        // croak here
+        return -1;
+    }
+
+    return bcd2dec(buf[element]);
 }
 
 int main (void){
 
     int fd = getFh();
 
-    printf("elem %d: %d\n", 0, getElement(fd, 0));
-    printf("elem %d: %d\n", 1, getElement(fd, 1));
-    printf("elem %d: %d\n", 2, getElement(fd, 2));
-    printf("elem %d: %d\n", 3, getElement(fd, 3));
-    printf("elem %d: %d\n", 4, getElement(fd, 4));
-    printf("elem %d: %d\n", 5, getElement(fd, 5));
-    printf("elem %d: %d\n", 6, getElement(fd, 6));
+    printf("elem %d: %d\n", 0, getDateTimeRegister(fd, 0));
+    printf("elem %d: %d\n", 1, getDateTimeRegister(fd, 1));
+    printf("elem %d: %d\n", 2, getDateTimeRegister(fd, 2));
+    printf("elem %d: %d\n", 3, getDateTimeRegister(fd, 3));
+    printf("elem %d: %d\n", 4, getDateTimeRegister(fd, 4));
+    printf("elem %d: %d\n", 5, getDateTimeRegister(fd, 5));
+    printf("elem %d: %d\n", 6, getDateTimeRegister(fd, 6));
     
     close(fd);
-	return 0;
+
+    return 0;
 }
