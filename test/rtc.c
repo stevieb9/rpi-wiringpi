@@ -11,7 +11,11 @@
 
 #define RTC_ADDR    0x68
 
+// top-level registers
+
 #define RTC_REG_DT  0x00
+
+// sub-level registers
 
 #define RTC_SEC     0x00
 #define RTC_MIN     0x01
@@ -20,6 +24,13 @@
 #define RTC_MDAY    0x04 // day of month (1-31)
 #define RTC_MONTH   0x05
 #define RTC_YEAR    0x06
+
+// sub-level register bits
+
+// sub register RTC_HOUR
+
+#define RTC_AM_PM   0x04
+#define RTC_12_24   0x05
 
 int bitCount (unsigned int value, int set);
 int bitMask  (unsigned int bits, int lsb);
@@ -201,14 +212,16 @@ int getRegister (int fd, int reg){
 }
 
 int getRegisterBit (int fd, int reg, int bit){
-
     int regData = getRegister(fd, reg);
+    printf("hour data: %d\n", regData);
     return bitGet(regData, bit, bit);
 }
 
 int main (void){
 
     int fd = getFh();
+
+//    setRegister(fd, RTC_HOUR, 23, "hour");
 
     printf("elem %d: %d\n", 0, getRegister(fd, RTC_SEC));
     printf("elem %d: %d\n", 1, getRegister(fd, RTC_MIN));
@@ -218,9 +231,8 @@ int main (void){
     printf("elem %d: %d\n", 5, getRegister(fd, RTC_MONTH));
     printf("elem %d: %d\n", 6, getRegister(fd, RTC_YEAR));
 
-    printf("reg %d, bit: %d\n", RTC_HOUR, getRegisterBit(fd, RTC_HOUR, 6));
-
-    printf("bit get: %d\n", bitGet(32, 6, 6));
+    printf("reg %d, bit: am/pm, value: %d\n", RTC_HOUR, getRegisterBit(fd, RTC_HOUR, RTC_AM_PM));
+    printf("reg %d, bit: 12/24, value: %d\n", RTC_HOUR, getRegisterBit(fd, RTC_HOUR, RTC_12_24));
 
     close(fd);
 
