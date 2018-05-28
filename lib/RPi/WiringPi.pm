@@ -16,6 +16,7 @@ use RPi::HCSR04;
 use RPi::I2C;
 use RPi::LCD;
 use RPi::Pin;
+use RPi::RTC::DS3231;
 use RPi::Serial;
 use RPi::SPI;
 use RPi::StepperMotor;
@@ -170,6 +171,10 @@ sub pin {
     my $pin = RPi::Pin->new($pin_num);
     $self->register_pin($pin);
     return $pin;
+}
+sub rtc {
+    my ($self, $rtc_addr) = @_;
+    return RPi::RTC::DS3231->new($rtc_addr);
 }
 sub serial {
     my ($self, $device, $baud) = @_;
@@ -450,6 +455,27 @@ various items
     $pi->cleanup;
 
     #
+    # real time clock
+    #
+
+    my $rtc = $pi->rtc;
+
+    my $dt_string = $rtc->date_time;
+    my %dt_hash   = $rtc->dt_hash;
+
+    # set an individual attribute
+
+    $rtc->hour(22);
+
+    # set 12/24 hour clock
+
+    $rtc->clock_hours(12);
+
+    # get AM or PM while in 12-hour clock mode
+
+    my $meridien = $rtc->am_pm;
+
+    #
     # ultrasonic distance sensor
     #
 
@@ -675,6 +701,21 @@ Parameters:
     $pin_num
 
 Mandatory, Integer: The pin number to attach to.
+
+=head2 rtc([$i2c_addr])
+
+Creates a new L<RPi::RTC::DS3231> object which provides access to the C<DS3231>
+or C<DS1307> real-time clock modules.
+
+See the linked documentation for full documentation on usage, or the
+L<RPi::WiringPi::FAQ> for some usage examples.
+
+Parameters:
+
+    $i2c_addr
+
+Optional, Integer: The I2C address of the RTC module. Defaults to C<0x68> for
+the C<DS3231> unit.
 
 =head2 serial($device, $baud)
 

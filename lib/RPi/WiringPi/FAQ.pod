@@ -33,6 +33,7 @@ L<RPi::Const> module.
     IC           -  integrated circuit
     GPS          -  Global Positioning System
     TPV          -  Time-Position Velocity
+    RTC          -  Real-Time Clock (RTC)
 
 
 =head1 SETUP
@@ -672,6 +673,20 @@ through the L<RPi::HCSR04> distribution.
     my $cm     = $sensor->cm;
     my $raw    = $sensor->raw;
 
+=head1 REAL-TIME CLOCK
+
+We provide access to the C<DS3231> and C<DS1307> real-time clock modules (RTC)
+via the L<RPi::RTC::DS3231> distribution. Please see its documentation for full
+usage instructions.
+
+    my $rtc = $pi->rtc;
+
+    my $dt_string = $rtc->date_time;
+
+    $rtc->clock_hours(12);
+
+    my $meridien = $rtc->am_pm;
+
 =head1 SERVO
 
 =head2 Description
@@ -790,6 +805,13 @@ variable to a true value:
 
     export RPI_LCD=1
 
+=head3 RTC Testing
+
+To test the L<RPi::RTC::DS3231> distribution, you must set the following
+environment variable:
+
+    export RPI_RTC=1
+
 =head2 Automated with L<Test::BrewBuild>
 
 L<Test::BrewBuild> has some special features specifically to facilitate the
@@ -851,6 +873,7 @@ column unit, leave those last two digits off.
     RPI_SERIAL=1
     RPI_HCSR04=1
     BB_RPI_LCD=5,6,4,17,27,22,4,20
+    RPI_RTC=1
     RELEASE_TESTING=1
 
 =head1 DEVELOPMENT
