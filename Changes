@@ -10,6 +10,8 @@ Revision history for Perl extension RPi::WiringPi.
           incorrect parameters (fixes #66)
         - correct some method's Parameter section to follow my normal standard.
           (closes #69)
+        - added rtc() in support for the RPi::RTC::DS3231 distribution
+          (closes #70)
 
 2.3625  2018-04-19
         - in FAQ, add the 4 row 20 col config to env vars (closes #65)
