@@ -840,7 +840,7 @@ C<-a> flag with no parameters runs continuously, sleeping for a default of 60
 seconds between runs. Simply send in an integer value that represents a certain
 number of runs if desired.
 
-    bbdispatch -t localhost -r https://github.com/stevieb9/rpi-wiringpi -a
+    bbdispatch -t localhost -r stevieb9/rpi-wiringpi -a
 
 To use the LCD functionality which displays the last date/time that a test run
 succeeded, along with the last commit tested and it's result (PASS/FAIL), set
@@ -857,7 +857,7 @@ have is a two row by 16 column LCD.
 To make it work. I set this one in C</etc/environment> as well. You then need to
 restart the dispatcher with the C<--rpi> or the equivalent C<-R> flag:
 
-    bbdispatch -t localhost -r https://stevieb9/rpi-wiringpi -a --rpi
+    bbdispatch -t localhost -r stevieb9/rpi-wiringpi -a --rpi
 
 The C<--rpi> flag is rather hidden (but it *is* documented subtly), as this is
 a feature that most likely I'll be the only consumer of.
