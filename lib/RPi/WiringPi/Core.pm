@@ -257,7 +257,7 @@ For C<'GPIO'> scheme:
 =head2 pin_to_gpio($pin, [$scheme])
 
 Dynamically converts the specified pin from the specified scheme
-(C<RPI_MODE_WPI> (wiringPi), or C<RPI_MODE_PHYS> (physical board numbering
+C<RPI_MODE_WPI> (wiringPi), or C<RPI_MODE_PHYS> (physical board numbering
 scheme) to the GPIO number format.
 
 If C<$scheme> is not sent in, we'll attempt to fetch the scheme currently in
@@ -329,9 +329,9 @@ The PWM clock can be set to control the PWM pulse widths. The PWM clock is
 derived from a 19.2MHz clock. You can set any divider.
 
 For example, say you wanted to drive a DC motor with PWM at about 1kHz, and
-control the speed in 1/1024 increments from 0/1024 (stopped) through to
-1024/1024 (full on). In that case you might set the clock divider to be 16, and
-the RANGE to 1024. The pulse repetition frequency will be
+control the speed in 1/1024 increments from 0/1023 (stopped) through to
+1023/1023 (full on). In that case you might set the clock divider to be 16, and
+the RANGE to 1023. The pulse repetition frequency will be
 1.2MHz/1024 = 1171.875Hz.
 
 Parameters:
