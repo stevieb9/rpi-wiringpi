@@ -25,13 +25,13 @@ WriteMakefile(
             },
         },
     },
-    MIN_PERL_VERSION   => 5.006,
+    MIN_PERL_VERSION   => 5.010,
     LICENSE => 'perl_5',
     CONFIGURE_REQUIRES => {
         'ExtUtils::MakeMaker' => 6.72,
     },
     PREREQ_PM         => {
-        'parent'                      => 0,
+        'parent'                    => 0,
         'GPSD::Parse'               => 1.02,
         'JSON'                      => 0,
         'RPi::ADC::ADS'             => 1.02,
