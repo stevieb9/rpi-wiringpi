@@ -37,6 +37,7 @@ t/45-shift_reg_adc.t
 t/55-dac.t
 t/60-lcd.t
 t/65-i2c.t
+t/67-rtc.t
 t/70-alt_modes.t
 t/75-serial.t
 t/80-mode_state_all_pins.t
@@ -54,6 +55,7 @@ test/baseline_setup.pl
 test/bmp.pl
 test/i2c.pl
 test/registered_pins.pl
+test/rtc.pl
 test/sg90_servo.pl
 test/shift.pl
 test/spi.pl

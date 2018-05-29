@@ -30,6 +30,8 @@ my $rtc = $pi->rtc;
 
 { # min()
 
+    is $rtc->sec(0), 0, "set seconds back to 0 ok";
+
     for (0..59){
         is $rtc->min($_), $_, "setting min to '$_' result is ok";
         is $rtc->min, $_, "...and reading is also '$_'"
