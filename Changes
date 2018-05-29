@@ -14,6 +14,8 @@ Revision history for Perl extension RPi::WiringPi.
           (closes #70)
         - added pwm_defaults constants to RPi::Const, and removed PWM magic
           numbers from Core (closes #72)
+        - added DS3231 RTC connections in the unit test physical diagram
+          (closes #71)
 
 2.3625  2018-04-19
         - in FAQ, add the 4 row 20 col config to env vars (closes #65)
