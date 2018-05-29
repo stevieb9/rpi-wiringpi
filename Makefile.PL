@@ -42,7 +42,7 @@ WriteMakefile(
         'RPi::DigiPot::MCP4XXXX'    => 2.3604,
         'RPi::DHT11'                => 1.03,
         'RPi::HCSR04'               => 2.3604,
-        'RPi::I2C'                  => 2.3605,
+        'RPi::I2C'                  => 2.3606,
         'RPi::LCD'                  => 2.3603,
         'RPi::Pin'                  => 2.3606,
         'RPi::RTC::DS3231'          => 0.01,
