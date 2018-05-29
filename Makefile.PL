@@ -36,7 +36,7 @@ WriteMakefile(
         'JSON'                      => 0,
         'RPi::ADC::ADS'             => 1.02,
         'RPi::ADC::MCP3008'         => 2.3604,
-        'RPi::Const'                => 1.02,
+        'RPi::Const'                => 1.03,
         'RPi::BMP180'               => 2.3604,
         'RPi::DAC::MCP4922'         => 2.3605,
         'RPi::DigiPot::MCP4XXXX'    => 2.3604,
