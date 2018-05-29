@@ -59,7 +59,7 @@ sub new {
                 $self->pin_scheme(RPI_MODE_GPIO);
             }
             else {
-                if ($self->_setup =~ /^w/) {
+                if ($self->_setup =~ /^w/i) {
                     $self->SUPER::setup();
                     $self->pin_scheme(RPI_MODE_WPI);
                 }
@@ -70,9 +70,6 @@ sub new {
                 elsif ($self->_setup =~ /^p/) {
                     $self->SUPER::setup_phys();
                     $self->pin_scheme(RPI_MODE_PHYS);
-                }
-                elsif ($self->_setup =~ /^W/){
-                    $self->pin_scheme(RPI_MODE_WPI);
                 }
                 else {
                     $self->pin_scheme(RPI_MODE_UNINIT);
@@ -90,17 +87,14 @@ sub new {
 sub adc {
     my ($self, %args) = @_;
 
-    my $adc;
-
     if (defined $args{model} && $args{model} eq 'MCP3008'){
         my $pin = $self->pin($args{channel});
-        $adc = RPi::ADC::MCP3008->new($pin->num);
+        return RPi::ADC::MCP3008->new($pin->num);
     }
     else {
         # ADSxxxx ADCs don't require any pins
-        $adc = RPi::ADC::ADS->new(%args);
+        return RPi::ADC::ADS->new(%args);
     }
-    return $adc;
 }
 sub bmp {
     return RPi::BMP180->new($_[1]);
@@ -110,31 +104,26 @@ sub dac {
     $self->pin($args{cs});
     $self->pin($args{shdn}) if defined $args{shdn};
     $args{model} = 'MCP4922' if ! defined $args{model};
-    my $dac = RPi::DAC::MCP4922->new(%args);
-    return $dac;
+    return RPi::DAC::MCP4922->new(%args);
 }
 sub dpot {
     my ($self, $cs, $channel) = @_;
     $self->pin($cs);
-    my $dpot = RPi::DigiPot::MCP4XXXX->new($cs, $channel);
-    return $dpot;
+    return RPi::DigiPot::MCP4XXXX->new($cs, $channel);
 }
 sub gps {
     my ($self, %args) = @_;
-    my $gps = GPSD::Parse->new(%args);
-    return $gps;
+    return GPSD::Parse->new(%args);
 }
 sub hcsr04 {
     my ($self, $t, $e) = @_;
-    $self->pin($t);
-    $self->pin($e);
+    $self->pin($_) for ($t, $e);
     return RPi::HCSR04->new($t, $e);
 }
 sub hygrometer {
     my ($self, $pin) = @_;
     $self->register_pin($pin);
-    my $sensor = RPi::DHT11->new($pin);
-    return $sensor;
+    return RPi::DHT11->new($pin);
 }
 sub i2c {
     my ($self, $addr, $i2c_device) = @_;
@@ -243,7 +232,6 @@ sub _fatal_exit {
 sub _pwm_in_use {
     my $self = shift;
     $ENV{PWM_IN_USE} = 1 if @_;
-    return $self->{pwm_in_use};
 }
 sub _setup {
     return $_[0]->{setup};
