@@ -536,8 +536,7 @@ imported into an C<RPi::WiringPi> object.
 =head2 new([%args])
 
 Returns a new C<RPi::WiringPi> object. We exclusively use the C<GPIO>
-(Broadcom (BCM) GPIO) pin numbering scheme. These pin numbers are printed on the
-Pi's board itself.
+(Broadcom (BCM) GPIO) pin numbering scheme.
 
 Parameters:
 
@@ -549,9 +548,11 @@ C<fatal_exit> to false (C<0>) to perform the cleanup, and then continue running
 your script.
 
 We recommend only disabling this feature if you're doing unit test work, want to
-allow other exit traps to catch, allowing the Pi to continue on working etc.
+allow other exit traps to catch, allow the Pi to continue on working after a
+fatal error etc. If disabled, you will be responsible for doing your own cleanup
+of the Pi hardware configuration on exit.
 
-=head2 adc()
+=head2 adc
 
 There are two different ADCs that you can select from. The default is the
 ADS1x15 series:
@@ -585,13 +586,13 @@ Mandatory, Integer. C<0> or C<1> for the Pi's onboard hardware CS/SS CE0 and CE1
 pins, or any GPIO number above C<1> in order to use an arbitrary GPIO pin for
 the CS pin, and we'll do the bit-banging of the SPI bus automatically.
 
-=head2 bmp()
+=head2 bmp
 
 Returns a L<RPi::BMP180> object, which allows you to return the
 current temperature in farenheit or celcius, along with the ability to retrieve
 the barometric pressure in kPa.
 
-=head2 dac(model => 'MCP4922')
+=head2 dac
 
 Returns a L<RPi::DAC::MCP4922> object (supports all 49x2 series DACs). These
 chips provide analog output signals from the Pi's digital output. Please
@@ -608,7 +609,7 @@ Optional, String. The model of the DAC you're using. Defaults to C<MCP4922>.
 
 Mandatory, Bool. The SPI channel to use.
 
-    cs => Integer
+    cs => $pin
 
 Mandatory, Integer. A valid GPIO pin that the DAC's Chip Select is connected to.
 
@@ -690,7 +691,7 @@ Parameters:
 
 Mandatory, Integer: The pin number to attach to.
 
-=head2 rtc([$i2c_addr])
+=head2 rtc
 
 Creates a new L<RPi::RTC::DS3231> object which provides access to the C<DS3231>
 or C<DS1307> real-time clock modules.

@@ -5,6 +5,7 @@ Revision history for Perl extension RPi::WiringPi.
         - added t/64-i2c_exceptions.t to catch a particular panic, and test
           fixed exceptions in that dist
         - bumped prereq of RPi::I2C to 2.3606 that includes above fixes/changes
+        - cleanup and slight modifications/updates to POD
 
 2.3626  2018-05-29
         - fix POD head level for SETUP's Serial configuration
