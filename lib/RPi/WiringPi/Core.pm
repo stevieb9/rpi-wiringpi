@@ -88,13 +88,11 @@ sub pwm_clock {
         $self->{pwm_clock} = $divisor;
         $self->pwm_set_clock($divisor);
     }
-    #FIXME: add const
-    return defined $self->{pwm_clock} ? $self->{pwm_clock} : 32;
+    return defined $self->{pwm_clock} ? $self->{pwm_clock} : PWM_DEFAULT_CLOCK;
 }
 sub pwm_mode {
     my ($self, $mode) = @_;
-    #FIXME: below is balanced / mark-space. Add const
-    if (defined $mode && ($mode == 0 || $mode == 1)){
+    if (defined $mode && ($mode == 0 || $mode == PWM_DEFAULT_MODE)){
         $self->{pwm_mode} = $mode;
         $self->pwm_set_mode($mode);
     }
@@ -124,10 +122,9 @@ sub unregister_pin {
 }
 sub cleanup{
     if ($ENV{PWM_IN_USE}){
-        #FIXME: aack! magic numbers... yuck!
-        WiringPi::API::pwm_set_mode(PWM_MODE_BAL);
-        WiringPi::API::pwm_set_clock(32);
-        WiringPi::API::pwm_set_range(1023);
+        WiringPi::API::pwm_set_mode(PWM_DEFAULT_MODE);
+        WiringPi::API::pwm_set_clock(PWM_DEFAULT_CLOCK);
+        WiringPi::API::pwm_set_range(PWM_DEFAULT_RANGE);
     }
 
     return if ! $ENV{RPI_PINS};
