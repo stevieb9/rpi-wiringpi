@@ -79,6 +79,7 @@ sub pwm_range {
         $self->{pwm_range} = $range;
         $self->pwm_set_range($range);
     }
+    #FIXME: add const
     return defined $self->{pwm_range} ? $self->{pwm_range} : 1023;
 }
 sub pwm_clock {
@@ -87,10 +88,12 @@ sub pwm_clock {
         $self->{pwm_clock} = $divisor;
         $self->pwm_set_clock($divisor);
     }
+    #FIXME: add const
     return defined $self->{pwm_clock} ? $self->{pwm_clock} : 32;
 }
 sub pwm_mode {
     my ($self, $mode) = @_;
+    #FIXME: below is balanced / mark-space. Add const
     if (defined $mode && ($mode == 0 || $mode == 1)){
         $self->{pwm_mode} = $mode;
         $self->pwm_set_mode($mode);
