@@ -679,6 +679,8 @@ We provide access to the C<DS3231> and C<DS1307> real-time clock modules (RTC)
 via the L<RPi::RTC::DS3231> distribution. Please see its documentation for full
 usage instructions.
 
+=head2 Usage
+
     my $rtc = $pi->rtc;
 
     my $dt_string = $rtc->date_time;

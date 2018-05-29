@@ -1,7 +1,7 @@
 Revision history for Perl extension RPi::WiringPi.
 
 2.3627 UNREL
-        -
+        - added "Usage" section for RTC in FAQ
 
 2.3626  2018-05-29
         - fix POD head level for SETUP's Serial configuration
