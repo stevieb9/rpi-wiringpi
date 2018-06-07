@@ -1,7 +1,9 @@
 Revision history for Perl extension RPi::WiringPi.
 
 2.3628 UNREL
-        -
+        - added support for the MCP23017 GPIO expander chip via the
+          RPi::GPIOExpander::MCP23017 distribution (closes #73)
+        - bumped version of RPi::Const prereq to 1.04
 
 2.3627  2018-05-29
         - added "Usage" section for RTC in FAQ
