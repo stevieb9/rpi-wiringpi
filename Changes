@@ -4,6 +4,11 @@ Revision history for Perl extension RPi::WiringPi.
         - fix GPIO Expander example in FAQ not rendering as code (closes #76)
         - fix erroneous apostrophe in test section in FAQ (closes #79)
         - update unit test pins in use in t/README file (closes #77)
+        - added io_led() and pwr_led() to modify the two LED status' for visual
+          identification of which Pi hardware board we're currently working on
+          (closes #75)
+        - added label() to provide the facility to add a name/label to your Pi
+          object
 
 2.3628  2018-06-07
         - added support for the MCP23017 GPIO expander chip via the
