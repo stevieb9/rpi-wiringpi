@@ -897,7 +897,7 @@ number of runs if desired.
     bbdispatch -t localhost -r stevieb9/rpi-wiringpi -a
 
 To use the LCD functionality which displays the last date/time that a test run
-succeeded, along with the last commit tested and it's result (PASS/FAIL), set
+succeeded, along with the last commit tested and its result (PASS/FAIL), set
 up an environment variable that contains a comma-separated list of GPIO pin
 numbers that the LCD is connected to (leave off the last two digits if all you
 have is a two row by 16 column LCD.
