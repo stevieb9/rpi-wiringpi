@@ -702,39 +702,39 @@ usage information.
 
 =head2 Usage
 
-my $i2c_addr = 0x20;            # default
+    my $i2c_addr = 0x20;            # default
 
-my $exp = $pi->expander($addr); # param not required if using the default
+    my $exp = $pi->expander($i2c_addr); # param not required if using default
 
-# pins are INPUT by default. Turn the first pin to OUTPUT
+    # pins are INPUT by default. Turn the first pin to OUTPUT
 
-$exp->mode(0, 0); # or MCP23017_OUTPUT if using RPi::Const
+    $exp->mode(0, 0); # or MCP23017_OUTPUT if using RPi::Const
 
-# turn the pin on (HIGH)
+    # turn the pin on (HIGH)
 
-$exp->write(0, 1); # or HIGH
+    $exp->write(0, 1); # or HIGH
 
-# read the pin's status (HIGH or LOW)
+    # read the pin's status (HIGH or LOW)
 
-$exp->read(6);
+    $exp->read(6);
 
-# turn the first bank (0) of pins (0-7) to OUTPUT, and make them live (HIGH)
+    # turn the first bank (0) of pins (0-7) to OUTPUT, and make them live (HIGH)
 
-$exp->mode_bank(0, 0);  # bank A, OUTPUT
-$exp->write_bank(0, 1); # bank A, HIGH
+    $exp->mode_bank(0, 0);  # bank A, OUTPUT
+    $exp->write_bank(0, 1); # bank A, HIGH
 
-# enable internal pullup resistors on the entire bank A (0)
+    # enable internal pullup resistors on the entire bank A (0)
 
-$exp->pullup_bank(0, 1); # bank A, pullup enabled
+    $exp->pullup_bank(0, 1); # bank A, pullup enabled
 
-# put all 16 pins as OUTPUT, and put them on (HIGH)
+    # put all 16 pins as OUTPUT, and put them on (HIGH)
 
-$exp->mode_all(0);  # or OUTPUT
-$exp->write_all(1); # or HIGH
+    $exp->mode_all(0);  # or OUTPUT
+    $exp->write_all(1); # or HIGH
 
-# cleanup all pins and reset them to default before exiting your program
+    # cleanup all pins and reset them to default before exiting your program
 
-$exp->cleanup;
+    $exp->cleanup;
 
 =head1 SERVO
 
