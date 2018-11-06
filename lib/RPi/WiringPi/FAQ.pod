@@ -959,6 +959,10 @@ column unit, leave those last two digits off.
 
     PI_BOARD=1
     RPI_ARDUINO=1
+    RPI_ADC=1
+    RPI_MCP3008=1
+    RPI_MCP4922=1
+    RPI_SHIFTREG=1
     RPI_LCD=1
     RPI_SERIAL=1
     RPI_HCSR04=1

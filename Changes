@@ -1,7 +1,8 @@
 Revision history for Perl extension RPi::WiringPi.
 
 2.3630 UNREL
-        -
+        - update test files to exit if test file specific env vars aren't set
+          before checking for PI_BOARD
 
 2.3629  2018-10-03
         - added io_led() and pwr_led() to modify the two LED status' for visual
