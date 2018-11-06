@@ -895,12 +895,34 @@ environment variable:
 
     export RPI_RTC=1
 
-=head2 MCP23017 GPIO Expander Testing
+=head3 MCP23017 GPIO Expander Testing
 
 To test the L<RPi::GPIOExpander::MCP23017> distribution, set the following
 environment variable:
 
     export RPI_MCP23017=1
+
+=head3 PWM/SPI Testing
+
+In order to run tests for PWM and SPI, the following environment variable is
+required to be set:
+
+    export RPI_ADC=1
+
+=head3 Shift Register Testing
+
+To test the shift register functionality, the following environment variables
+need to be set:
+
+    export RPI_SHIFTREG=1
+    export RPI_MCP3008=1
+
+=head3 Digital Potentiometer Testing
+
+To test the functionality of the L<RPi::DAC::MCP4299>, set the following
+environment variable:
+
+    export RPI_MCP4922=1
 
 =head2 Automated with L<Test::BrewBuild>
 
