@@ -16,15 +16,14 @@ if ($> == 0){
     $ENV{RPI_SERIAL} = 1;
 }
 
-if (! $ENV{PI_BOARD}){
-    warn "\n*** PI_BOARD is not set! ***\n";
-    $ENV{NO_BOARD} = 1;
-    plan skip_all => "not on a pi board\n";
+if (! $ENV{RPI_SERIAL}){
+    plan skip_all => "RPI_SERIAL environment variable not set\n";
     exit;
 }
 
-if (! $ENV{RPI_SERIAL}){
-    plan skip_all => "RPI_SERIAL not set; Not running RPI::Serial tests\n";
+if (! $ENV{PI_BOARD}){
+    $ENV{NO_BOARD} = 1;
+    plan skip_all => "Not on a Pi board\n";
     exit;
 }
 

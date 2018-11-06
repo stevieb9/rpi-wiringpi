@@ -15,9 +15,8 @@ if ($> == 0){
 }
 
 if (! $ENV{PI_BOARD}){
-    warn "\n*** PI_BOARD is not set! ***\n";
     $ENV{NO_BOARD} = 1;
-    plan skip_all => "not on a pi board\n";
+    plan skip_all => "Not on a Pi board\n";
     exit;
 }
 
