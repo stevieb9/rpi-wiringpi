@@ -954,7 +954,7 @@ a feature that most likely I'll be the only consumer of.
 
 Here's the contents of my C</etc/environment> file, setting the various testing
 environment variables for the full test platform. For LCD, the last two digits
-(4, 20) are for four row, 20 column units. If you only have a two row by four
+(4, 20) are for four row, 20 column units. If you only have a two row by 16
 column unit, leave those last two digits off.
 
     PI_BOARD=1
