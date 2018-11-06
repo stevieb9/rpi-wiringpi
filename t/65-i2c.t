@@ -16,13 +16,11 @@ my $mod = 'RPi::WiringPi';
 BEGIN {
     if (! $ENV{RPI_ARDUINO}){
         plan skip_all => "RPI_ARDUINO environment variable not set\n";
-        exit;
     }
 
     if (! $ENV{PI_BOARD}){
         $ENV{NO_BOARD} = 1;
         plan skip_all => "Not on a Pi board\n";
-        exit;
     }
 }
 
