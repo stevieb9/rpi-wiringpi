@@ -10,18 +10,15 @@ use Test::More;
 
 if (! $ENV{RPI_SHIFTREG}){
     plan skip_all => "RPI_SHIFTREG environment variable not set\n";
-    exit;
 }
 
 if (! $ENV{RPI_MCP3008}){
     plan skip_all => "RPI_MCP3008 environment variable not set\n";
-    exit;
 }
 
 if (! $ENV{PI_BOARD}){
     $ENV{NO_BOARD} = 1;
     plan skip_all => "Not on a Pi board\n";
-    exit;
 }
 
 my $adc_pin = 26;

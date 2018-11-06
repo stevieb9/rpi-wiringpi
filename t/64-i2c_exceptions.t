@@ -17,7 +17,6 @@ BEGIN {
     if (! $ENV{PI_BOARD}){
         $ENV{NO_BOARD} = 1;
         plan skip_all => "Not on a Pi board\n";
-        exit;
     }
 }
 

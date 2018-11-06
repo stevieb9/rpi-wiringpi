@@ -18,13 +18,11 @@ if ($> == 0){
 
 if (! $ENV{RPI_SERIAL}){
     plan skip_all => "RPI_SERIAL environment variable not set\n";
-    exit;
 }
 
 if (! $ENV{PI_BOARD}){
     $ENV{NO_BOARD} = 1;
     plan skip_all => "Not on a Pi board\n";
-    exit;
 }
 
 if ($> != 0){
