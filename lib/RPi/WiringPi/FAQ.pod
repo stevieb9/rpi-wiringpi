@@ -919,7 +919,7 @@ need to be set:
 
 =head3 Digital Potentiometer Testing
 
-To test the functionality of the L<RPi::DAC::MCP4299>, set the following
+To test the functionality of the L<RPi::DAC::MCP4922>, set the following
 environment variable:
 
     export RPI_MCP4922=1
