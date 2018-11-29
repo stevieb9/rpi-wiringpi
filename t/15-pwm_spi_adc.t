@@ -11,6 +11,7 @@ my $mod = 'RPi::WiringPi';
 
 if ($> == 0){
     $ENV{PI_BOARD} = 1;
+    $ENV{RPI_ADC} = 1;
 }
 
 if (! $ENV{RPI_ADC}){
