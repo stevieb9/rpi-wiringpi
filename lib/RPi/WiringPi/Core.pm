@@ -285,7 +285,8 @@ back to default state.
 
 =head2 identify($seconds)
 
-This method wraps the L<io_led> and L<pwr_led> methods.
+This method wraps the L<io_led()|/io_led($tweak)> and
+L<pwr_led()|/pwr_led($tweak)> methods.
 
 Parameters:
 

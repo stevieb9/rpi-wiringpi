@@ -1,4 +1,5 @@
-use strict; use warnings;
+use warnings;
+use strict;
  
 use Test::More;
  
