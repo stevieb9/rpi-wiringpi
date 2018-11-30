@@ -8,6 +8,16 @@ Revision history for Perl extension RPi::WiringPi.
         - change a markdown format to POD format in FAQ (fixes #81)
         - fix wire colour for the latch pin on the shift register in the test
           platform diagrams (fixes #80)
+        - replace Markdown notation in FAQ to POD (fixes #81)
+        - in t/15 test file, we now set RPI_ADC=1 if we've successfully reached
+          the sudo load
+        - pinmap binary now uses "/usr/bin/env perl" as the shebang line instead
+          of "/usr/bin/perl"
+        - added new identify() method in Core (closes #82)
+        - added new binary "pidentify" that gets installed with the distribution
+        - implemented a hard-wired and soldered (ie. more permanent) unit test
+          platform, replacing the breadboard. Tickets open to add further
+          sensors and ICs very soon
 
 2.3629  2018-10-03
         - added io_led() and pwr_led() to modify the two LED status' for visual
