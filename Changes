@@ -18,6 +18,9 @@ Revision history for Perl extension RPi::WiringPi.
         - implemented a hard-wired and soldered (ie. more permanent) unit test
           platform, replacing the breadboard. Tickets open to add further
           sensors and ICs very soon
+        - removed "-T" (taint mode) in stock test files
+        - fix issue in Core.pm POD where we had broken links to internal
+          headings
 
 2.3629  2018-10-03
         - added io_led() and pwr_led() to modify the two LED status' for visual
