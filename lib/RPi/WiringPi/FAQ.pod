@@ -161,29 +161,51 @@ The board revision is the same as the GPIO pin layout on the board:
 
 =head2 Identifying which Raspberry Pi hardware you're working on
 
-We've got a couple of methods that are helpers that allow you to physically see
-which Raspberry Pi board you're currently working on.
-
-WARNING: These methods call system command line commands using C<sudo>
+WARNING: This methods call system command line commands using C<sudo>
 internally!
 
-    # turn off the red power LED
+In addition to the following methods, we also install a pre-written command-line
+script C<pidentify> that can be used.
 
-    $pi->pwr_led(1);
+    pidentify [20]
 
-    # turn the green disk IO activity light on full-time
+The C<20> is optional. By default, we stay in "identify" state for 5 seconds.
+The argument specifies that we'll stay in "identify" state for 20 seconds.
+
+While in "identify" state, the green disk I/O LED will stay on completely, and
+the red power LED will remain off completely.
+
+Turn the green activity LED on full-time, and turn off the red power LED for
+the default 5 seconds:
+
+    $pi->identify;
+
+Send in an integer as the number of seconds to hold the leds in identify mode:
+
+    $pi->identify(10);
+
+The above C<identify()> method sleeps the duration. If you wish to enable or
+disable the above LEDs indefinitely without sleeping in the meantime:
+
+=head3 Disk I/O LED toggling
+
+Turn the disk I/O LED on permanently:
 
     $pi->io_led(1);
 
-    sleep 10;
+Return it to default state of acting as disk I/O indicator:
 
-    # restore the red power LED back to normal operation
+    $pi->io_led(0); # or just $pi->io_led;
 
-    $pi->pwr_led;
+=head3 Power LED toggling
 
-    # restore the green disk IO activity LED back to normal operation
+Turn the power LED off permanently:
 
-    $pi->io_led;
+    $pi->pwr_led(1);
+
+Turn it back to indicate power:
+
+    $pi->pwr_led(0); # or just $pi->pwr_led;
 
 =head2 Setting a label/name for your Pi object
 
