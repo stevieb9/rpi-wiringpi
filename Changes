@@ -23,6 +23,8 @@ Revision history for Perl extension RPi::WiringPi.
         - removed the "setup" test files. They were disabled ages ago, and since
           we don't overtly advertise the various setup methods, we're no longer
           testing them
+        - re-enabled the check_pin_status() test function in t/RPiTest.pm
+          (closes #88)
 
 2.3629  2018-10-03
         - added io_led() and pwr_led() to modify the two LED status' for visual
