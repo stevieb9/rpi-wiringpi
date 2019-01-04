@@ -1,6 +1,8 @@
 Revision history for Perl extension RPi::WiringPi.
 
-2.3630 UNREL
+2.3630  2019-01-04
+        - added new identify() method in Core (closes #82)
+        - added new binary "pidentify" that gets installed with the distribution
         - update test files to exit if test file specific env vars aren't set
           before checking for PI_BOARD
         - added missing ICs and sensors to the test section in POD, and added
@@ -12,8 +14,6 @@ Revision history for Perl extension RPi::WiringPi.
           successfully reached the sudo load
         - pinmap binary now uses "/usr/bin/env perl" as the shebang line instead
           of "/usr/bin/perl"
-        - added new identify() method in Core (closes #82)
-        - added new binary "pidentify" that gets installed with the distribution
         - implemented a hard-wired and soldered (ie. more permanent) unit test
           platform, replacing the breadboard. Tickets open to add further
           sensors and ICs very soon
