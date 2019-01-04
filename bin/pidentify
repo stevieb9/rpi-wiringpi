@@ -6,7 +6,9 @@ use strict;
 use Getopt::Long;
 use RPi::WiringPi;
 
-_help() if $ARGV[0] eq '-h' || $ARGV[0] eq '--help';
+if (@ARGV) {
+    _help() if $ARGV[0] eq '-h' || $ARGV[0] eq '--help';
+}
 
 my $pi = RPi::WiringPi->new;
 
