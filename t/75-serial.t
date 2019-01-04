@@ -25,10 +25,14 @@ my $s = $pi->serial("/dev/ttyS0", 115200);
 
 isa_ok $s, 'RPi::Serial';
 
-$s->putc(254);
-is $s->getc, 254, "putc() and getc() ok";
+for (0..255) {
+    $s->putc($_);
+    is $s->getc, $_, "putc() and getc() $_ ok";
+}
 
 $s->puts("hello, world!");
+
+# for troubleshooting extra char in string
 
 #my $res = $s->gets(13);
 #if( !is $res, "hello, world!", "puts() and gets() ok") {
