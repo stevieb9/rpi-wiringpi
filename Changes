@@ -25,6 +25,9 @@ Revision history for Perl extension RPi::WiringPi.
           testing them
         - re-enabled the check_pin_status() test function in t/RPiTest.pm
           (closes #88)
+        - removed the sudo requirement for t/75-serial.t tests
+        - t/75-serial.t puts()/gets() test updated due to non-printable char
+          (fixes #89)
 
 2.3629  2018-10-03
         - added io_led() and pwr_led() to modify the two LED status' for visual
