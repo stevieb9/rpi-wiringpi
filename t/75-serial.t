@@ -10,12 +10,6 @@ use Test::More;
 
 my $mod = 'RPi::WiringPi';
 
-
-if ($> == 0){
-    $ENV{PI_BOARD} = 1;
-    $ENV{RPI_SERIAL} = 1;
-}
-
 if (! $ENV{RPI_SERIAL}){
     plan skip_all => "RPI_SERIAL environment variable not set\n";
 }
@@ -23,12 +17,6 @@ if (! $ENV{RPI_SERIAL}){
 if (! $ENV{PI_BOARD}){
     $ENV{NO_BOARD} = 1;
     plan skip_all => "Not on a Pi board\n";
-}
-
-if ($> != 0){
-    print "enforcing sudo for Serial tests...\n";
-    system('sudo', 'perl', $0);
-    exit;
 }
 
 my $pi = $mod->new;
