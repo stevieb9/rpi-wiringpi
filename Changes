@@ -1,5 +1,8 @@
 Revision history for Perl extension RPi::WiringPi.
 
+2.3631 UNREL
+        -
+
 2.3630  2019-01-04
         - added new identify() method in Core (closes #82)
         - added new binary "pidentify" that gets installed with the distribution
