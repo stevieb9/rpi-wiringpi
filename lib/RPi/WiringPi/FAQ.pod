@@ -72,6 +72,12 @@ C<perlbrew> managed perl, followed by a colon. For example:
 C</home/pi/perl5/perlbrew/perls/perl-5.26.0/bin:>. Leave the existing part of
 the string in place.
 
+Test that it looks correctly:
+
+    sudo echo $PATH
+
+...your new path should be the first entry in the environment variable.
+
 Now, you can do everything with the normal user account, using their personal
 installation of Perl, and you just need C<sudo> to run your scripts, leaving
 your default system installation intact.
