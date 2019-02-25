@@ -971,6 +971,17 @@ WARNING: Note that seemingly from perlbrew 0.86, the output of its <c>exec</c>
 command doesn't display the perl version if only a single instance of perl is
 installed. Simply ensure you've got more than one Perl instance installed.
 
+=head3 Installing Test::BrewBuild
+
+On the Raspberry Pi, we have to install an SSL development library before the
+L<Net::SSLeay> dependency can be installed:
+
+    sudo apt-get install libssl-dev
+
+Now you can carry on installing L<Test::BrewBuild> in the normal way:
+
+    cpanm Test::BrewBuild
+
 First, on the Pi you're running, you need to set the C<PI_BOARD> environment
 variable to ensure all tests run. I set this to C<1> in C</etc/environment>.
 

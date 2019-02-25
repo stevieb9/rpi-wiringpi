@@ -9,6 +9,8 @@ Revision history for Perl extension RPi::WiringPi.
         - removed most of SYNOPSIS and replaced with a link to the FAQ
           (closes #92)
         - added RPi::Pin's pwm_range() to the FAQ (closes #91);
+        - added section in auto-test section of FAQ for Test::BrewBuild install
+          (work on #95)
 
 2.3630  2019-01-04
         - added new identify() method in Core (closes #82)
