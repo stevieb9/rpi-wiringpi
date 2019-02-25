@@ -6,6 +6,8 @@ Revision history for Perl extension RPi::WiringPi.
           version numbers to be displayed (closes #96)
         - in FAQ's perlbrew setup, add the task of doing a reboot after install
           (closes #93)
+        - removed most of SYNOPSIS and replaced with a link to the FAQ
+          (closes #92)
 
 2.3630  2019-01-04
         - added new identify() method in Core (closes #82)
