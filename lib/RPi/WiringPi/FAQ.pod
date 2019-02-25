@@ -49,6 +49,7 @@ As your normal, every day user, install L<perlbrew|http://perlbrew.pl>:
 
     \wget -O - https://install.perlbrew.pl | bash
     echo "source /home/pi/perl5/perlbrew/etc/bashrc" >> ~/.bashrc
+    sudo reboot
 
 First thing to do is to install the appropriate C<cpanm> version:
 
