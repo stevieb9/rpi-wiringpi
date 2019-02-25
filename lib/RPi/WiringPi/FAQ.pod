@@ -57,8 +57,8 @@ First thing to do is to install the appropriate C<cpanm> version:
 
 Then, install an instance of Perl, and switch to it:
 
-    perlbrew install perl-5.26.0
-    perlbrew switch perl-5.26.0
+    perlbrew install perl-5.28.1
+    perlbrew switch perl-5.28.1
 
 =head2 sudo configuration
 

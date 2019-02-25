@@ -1,6 +1,7 @@
 Revision history for Perl extension RPi::WiringPi.
 
-2.3631 UNREL
+2.3631 2019-02-25
+        - no functional changes -- all changes are documentation
         - added section on the automated testing section of FAQ that on modern
           perlbrews (>0.86), you must have more than one perl installed for the
           version numbers to be displayed (closes #96)
@@ -12,6 +13,7 @@ Revision history for Perl extension RPi::WiringPi.
         - added section in auto-test section of FAQ for Test::BrewBuild install
           (work on #95)
         - added piece on how to ensure sudo $PATH is set correctly (closes #95)
+        - various minor FAQ/POD updates
 
 2.3630  2019-01-04
         - added new identify() method in Core (closes #82)
