@@ -323,6 +323,20 @@ Example:
 
     $pi->pwm_mode(0);
 
+=head3 PWM Range
+
+The PWM range is the numeric range in which PWM will go from off to on full.
+The parameter always uses C<0> as its reference, so whatever you send in will
+become the new top-end of the PWM range:
+
+The default is C<1023>.
+
+Examples:
+
+    $pi->pwm_range(511);  # range is now 0-511
+
+    $pi->pwm_range(1023); # back to the default
+
 =head2 Interrupt usage
 
 Built in is the ability to have Perl code you define executed when a pin's edge
