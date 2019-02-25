@@ -1,7 +1,9 @@
 Revision history for Perl extension RPi::WiringPi.
 
 2.3631 UNREL
-        -
+        - added section on the automated testing section of FAQ that on modern
+          perlbrews (>0.86), you must have more than one perl installed for the
+          version numbers to be displayed (closes #96)
 
 2.3630  2019-01-04
         - added new identify() method in Core (closes #82)
