@@ -1,5 +1,8 @@
 Revision history for Perl extension RPi::WiringPi.
 
+2.3632 UNREL
+        -
+
 2.3631  2019-02-25
         - no functional changes -- all changes are documentation
         - added section on the automated testing section of FAQ that on modern
