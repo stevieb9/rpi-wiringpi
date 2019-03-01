@@ -10,5 +10,6 @@ my $pin_base = 300;
 
 my $bmp = $pi->bmp($pin_base);
 
-say $bmp->temp;
+say $bmp->temp . " F";
+say $bmp->temp('c') . " C";
 say $bmp->pressure;
