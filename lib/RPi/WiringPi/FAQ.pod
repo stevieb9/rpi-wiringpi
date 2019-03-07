@@ -962,6 +962,16 @@ need to be set:
 
 =head3 Digital Potentiometer Testing
 
+Set the following environment variable:
+
+    export RPI_DIGIPOT=1
+
+We also need the ADS1115 connected and enabled:
+
+    export RPI_ADC=1
+
+=head3 Digital to Analog Converter Testing
+
 To test the functionality of the L<RPi::DAC::MCP4922>, set the following
 environment variable:
 
@@ -1041,11 +1051,12 @@ column unit, leave those last two digits off.
     RPI_ARDUINO=1
     RPI_ADC=1
     RPI_MCP3008=1
+    RPI_DIGIPOT=1
     RPI_MCP4922=1
     RPI_SHIFTREG=1
     RPI_LCD=1
     RPI_SERIAL=1
-    RPI_HCSR04=1
+    RPI_HCSR04=0
     BB_RPI_LCD=5,6,4,17,27,22,4,20
     RPI_RTC=1
     RPI_MCP23017=1
