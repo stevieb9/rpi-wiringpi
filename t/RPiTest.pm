@@ -72,8 +72,8 @@ sub default_pin_config {
                 'state' => 0
               },
       '13' => {
-                'state' => 0,
-                'alt' => 0
+                'state' => 1, # due to the dpot test (t/50)
+                'alt' => 1    # "" ""
               },
       '1' => {
                'state' => 1,
