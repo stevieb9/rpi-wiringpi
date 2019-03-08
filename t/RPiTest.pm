@@ -12,17 +12,14 @@ use Test::More;
 use WiringPi::API qw(:perl);
 
 sub check_pin_status {
-#    ok 1==1;
-#    return;
+
     setup_gpio();
 
-    # removed pins 4, 5, 6, 17, 22, 27 because of LCD
+    # pins 4, 5, 6, 17, 22, 27 removed because of LCD
 
     my @gpio_pins = qw(
         2 3 14 15 18 23 24 10 9 25 11 8 7 0 1 13 19 16 20 21
     );
-
-    my $conf;
 
     my $config = default_pin_config();
 
@@ -72,8 +69,8 @@ sub default_pin_config {
                 'state' => 0
               },
       '13' => {
-                'state' => 1, # due to the dpot test (t/50)
-                'alt' => 1    # "" ""
+                'state' => 1, # state: HIGH:   due to the dpot test (t/50)
+                'alt' => 1    # mode:  OUTPUT: due to the dpot test (t/50)
               },
       '1' => {
                'state' => 1,

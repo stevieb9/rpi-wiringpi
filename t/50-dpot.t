@@ -22,7 +22,6 @@ if (! $ENV{PI_BOARD}){
     plan skip_all => "Not on a Pi board\n";
 }
 
-
 use constant {
     DPOT_CS => 13,
     DPOT_CH => 0,
