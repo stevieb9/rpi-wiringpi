@@ -69,8 +69,8 @@ sub default_pin_config {
                 'state' => 0
               },
       '13' => {
-                'state' => 1, # state: HIGH:   due to the dpot test (t/50)
-                'alt' => 1    # mode:  OUTPUT: due to the dpot test (t/50)
+                'state' => 0, # state: HIGH:   due to the dpot test (t/50)
+                'alt' => 0    # mode:  OUTPUT: due to the dpot test (t/50)
               },
       '1' => {
                'state' => 1,
