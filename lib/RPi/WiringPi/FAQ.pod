@@ -913,6 +913,14 @@ C</boot/config.txt> file (this disabled Bluetooth on the Serial interface):
 
     dtoverlay=pi3-disable-bt-overlay
 
+=head3 BMP Barometric Pressure Sensor Testing
+
+To test the temperature and barometric pressure from the BMPx80 sensors:
+
+    export RPI_BMP=1
+
+These tests skip by default.
+
 =head3 HCSR04 Ultrasonic Testing
 
 For this test, please see the documentation for L<RPi::HCSR04>, and check the
@@ -1050,6 +1058,7 @@ column unit, leave those last two digits off.
     PI_BOARD=1
     RPI_ARDUINO=1
     RPI_ADC=1
+    RPI_BMP=1
     RPI_MCP3008=1
     RPI_DIGIPOT=1
     RPI_MCP4922=1

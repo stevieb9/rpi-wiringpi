@@ -4,6 +4,7 @@ Revision history for Perl extension RPi::WiringPi.
         - added the digital potentiometer (MCP4xxxx) to the test platform (in
           this case, we're using the single pot MCP41010). (Closes #87)
         - correct markup error in FAQ (closes #100)
+        - added BMP180 to the test platform (closes #85)
 
 2.3631  2019-02-25
         - no functional changes -- all changes are documentation
