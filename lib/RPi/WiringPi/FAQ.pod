@@ -983,7 +983,7 @@ L<Test::BrewBuild> has some special features specifically to facilitate the
 automatic testing of this distribution while on a Raspberry Pi, with provisions
 that allow you to display the last test run results on an LCD if desired.
 
-WARNING: Note that seemingly from perlbrew 0.86, the output of its <c>exec</c>
+WARNING: Note that seemingly from perlbrew 0.86, the output of its C<exec>
 command doesn't display the perl version if only a single instance of perl is
 installed. Simply ensure you've got more than one Perl instance installed.
 
