@@ -12,6 +12,7 @@ WriteMakefile(
     DEFINE            => '',
     INC               => '-I.',
     EXE_FILES         => [ map "bin/$_", qw(pinmap pidentify) ],
+    test             => {TESTS => 't/oled/*.t t/*.t'},
     META_MERGE => {
         'meta-spec' => { version => 2 },
         resources   => {
