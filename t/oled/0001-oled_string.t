@@ -3,9 +3,9 @@ use warnings;
 
 use Test::More;
 
-use RPi::OLED::SSD1306::128_64;
+use RPi::WiringPi;
 
-my $s = RPi::OLED::SSD1306::128_64->new;
+my $s = RPi::WiringPi->oled;
 
 for (1..5) {
     $s->clear;

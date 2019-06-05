@@ -15,6 +15,7 @@ use RPi::DigiPot::MCP4XXXX;
 use RPi::HCSR04;
 use RPi::I2C;
 use RPi::LCD;
+use RPi::OLED::SSD1306::128_64;
 use RPi::Pin;
 use RPi::RTC::DS3231;
 use RPi::Serial;
@@ -154,6 +155,27 @@ sub lcd {
     my $lcd = RPi::LCD->new;
     $lcd->init(%args);
     return $lcd;
+}
+sub oled {
+    my ($self, $model, $i2c_addr) = @_;
+
+    $model //= '128x64';
+    $i2c_addr //= 0x3C;
+
+    my %models = (
+        '128x64'  => 1,
+        '128x32'  => 1,
+        '96x16'   => 1,
+    );
+
+    if (! exists $models{$model}){
+        die "oled() requires one of the following models sent in: " .
+              "128x64, 128x32 or 96x16\n";
+    }
+
+    if ($model eq '128x64'){
+        return RPi::OLED::SSD1306::128_64->new($i2c_addr);
+    }
 }
 sub pin {
     my ($self, $pin_num) = @_;

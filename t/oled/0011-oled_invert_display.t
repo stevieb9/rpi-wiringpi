@@ -2,10 +2,9 @@ use strict;
 use warnings;
 
 use Test::More;
+use RPi::WiringPi;
 
-use RPi::OLED::SSD1306::128_64;
-
-my $s = RPi::OLED::SSD1306::128_64->new;
+my $s = RPi::WiringPi->oled;
 
 $s->text_size(3);
 $s->string("hello", 1);
