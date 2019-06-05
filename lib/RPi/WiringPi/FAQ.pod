@@ -27,6 +27,7 @@ L<RPi::Const> module.
     EDGE_FALLING -  a state when a pin goes from HIGH to LOW
     EDGE_RISING  -  a state when a pin goes from LOW to HIGH
     EDGE_BOTH    -  both of the above states
+    OLED         -  Organic Light Emitting Diode
     DPOT         -  digital potentiometer
     ADC          -  analog to digital converter (in)
     DAC          -  digital to analog converter (out)
@@ -771,6 +772,26 @@ usage instructions.
 
     my $meridien = $rtc->am_pm;
 
+=head1 OLED DISPLAY
+
+We provide access to OLED displays. Currently, only the C<128x64> size is
+available, and is brought in by the L<RPi::OLED::SSD1306::128_64> distribution.
+Please see its documentation for full usage information.
+
+=head2 Usage
+
+    my $oled = $pi->oled('128x64');
+
+    $oled->string("hello, world!");
+    $oled->display;
+
+    $oled->clear;
+
+    $oled->rect(0, 0, 10, 10); # X, Y, width, height
+    $oled->display;
+
+    $oled->clear;
+
 =head1 GPIO EXPANDERS
 
 We provide access to the C<MCP23017> GPIO expander chip via the
@@ -931,6 +952,13 @@ test files for the pins that are needed. After confirmed and connected, set
 These tests only occur in automated mode when building on a Perl that doesn't
 have prerequisites installed.
 
+=head3 OLED Display Testing
+
+These tests use the L<RPi::OLED::SSD1306::128_64> distribution with a 128x64
+pixel I2C OLED display. To have these tests execute, set:
+
+    export RPI_OLED=1
+
 =head3 LCD Testing
 
 In order to perform the L<RPi::LCD> test, a 2 row by 16 column or 4 row by 20
@@ -1064,6 +1092,7 @@ column unit, leave those last two digits off.
     RPI_MCP4922=1
     RPI_SHIFTREG=1
     RPI_LCD=1
+    RPI_OLED=1
     RPI_SERIAL=1
     RPI_HCSR04=0
     BB_RPI_LCD=5,6,4,17,27,22,4,20
