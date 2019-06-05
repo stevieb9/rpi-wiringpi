@@ -46,6 +46,7 @@ WriteMakefile(
         'RPi::HCSR04'               => 2.3604,
         'RPi::I2C'                  => 2.3607,
         'RPi::LCD'                  => 2.3603,
+        'RPi::OLED::SSD1306::128_64'=> 2.3602,
         'RPi::Pin'                  => 2.3606,
         'RPi::RTC::DS3231'          => 0.01,
         'RPi::Serial'               => 2.3603,

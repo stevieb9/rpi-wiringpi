@@ -2,10 +2,9 @@ use strict;
 use warnings;
 
 use Test::More;
+use RPi::WiringPi;
 
-use RPi::OLED::SSD1306::128_64;
-
-my $s = RPi::OLED::SSD1306::128_64->new;
+my $s = RPi::WiringPi->oled;
 
 for (1..5){
     my $x = int(rand(128));
