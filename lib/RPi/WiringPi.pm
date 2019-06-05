@@ -479,6 +479,27 @@ LCD displays connected to your Raspberry Pi.
 Please see the linked documentation for information regarding the parameters
 required.
 
+=head2 oled([$model], [$i2c_addr])
+
+Returns a specific C<RPi::OLED::SSD1306> OLED display object, allowing you to
+display text, characters and shapes to the screen.
+
+Currently, only the C<128x64> size model is offered, see the
+L<RPi::OLED::SSD1306::128_64> documentation for full usage details.
+
+Parameters:
+
+    $model
+
+Optional, String: The screen size of the OLED you've got. Valid options are
+C<128x64>, C<128x32> and C<96x16>. Currently, only the C<128x64> option is
+valid, and it's the default if not sent in.
+
+    $i2c_addr
+
+Optional, Integer: The I2C address of your display. Defaults to C<0x3C> if not
+sent in.
+
 =head2 pin($pin_num)
 
 Returns a L<RPi::Pin> object, mapped to a specified GPIO pin, which
