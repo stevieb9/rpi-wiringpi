@@ -14,8 +14,8 @@ if (! $ENV{PI_BOARD}){
     plan skip_all => "Not on a Pi board\n";
 }
 
-is 0, 1, "FAIL";
-exit;
+plan skip_all => "nothing to do here yet";
+
 my $s = RPi::WiringPi->oled('128x64', 0x3C, 0);
 
 for (1..5) {
