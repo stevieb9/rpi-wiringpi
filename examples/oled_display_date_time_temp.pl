@@ -5,8 +5,18 @@ use strict;
 
 use 5.10.0;
 
+use File::Touch;
 use DateTime;
 use RPi::WiringPi;
+
+my $oled_lock = '/tmp/oled_in_use';
+touch $oled_lock;
+
+$SIG{INT} = sub { unlink $oled_lock or die $!; };
+
+# use "kill -15 procid" so we clean up!
+
+$SIG{TERM} = sub { print "$0: Terminated\n"; unlink $oled_lock or die $!; };
 
 my $pi = RPi::WiringPi->new;
 my $oled = RPi::WiringPi->oled('128x64', 0x3C, 0);
@@ -38,6 +48,7 @@ while (1){
 
     sleep 30;
 }
+
 sub str_format {
     my $str = shift;
 
@@ -50,4 +61,8 @@ sub str_format {
     $str .= " " x $to_add;
 
     return $str;
+}
+
+END {
+    unlink $oled_lock or die $!;
 }

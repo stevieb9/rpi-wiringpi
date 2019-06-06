@@ -36,10 +36,22 @@ sub check_pin_status {
 
     # pins 4, 5, 6, 17, 22, 27 removed because of LCD
 
-    my @gpio_pins = qw(
-        2 3 14 15 18 23 24 10 9 25 11 8 7 0 1 13 19 16 20 21
-    );
+    my $oled_locked = -e '/tmp/oled_in_use';
 
+    note "I2C locked due to external OLED software running; skipping pins 2 and 3";
+
+    my @gpio_pins;
+
+    if ($oled_locked) {
+        @gpio_pins = qw(
+            14 15 18 23 24 10 9 25 11 8 7 0 1 13 19 16 20 21
+        );
+    }
+    else {
+        @gpio_pins = qw(
+            2 3 14 15 18 23 24 10 9 25 11 8 7 0 1 13 19 16 20 21
+        );
+    }
     my $config = default_pin_config();
 
     for (@gpio_pins){
