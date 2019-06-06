@@ -51,6 +51,7 @@ t/oled/0000-oled_new.t
 t/oled/0001-oled_string.t
 t/oled/0002-oled_rect.t
 t/oled/0003-oled_dim.t
+t/oled/0004-oled_splash_screen.t
 t/oled/0011-oled_invert_display.t
 t/oled/0013-oled_pixel.t
 t/oled/0015-oled_char.t
