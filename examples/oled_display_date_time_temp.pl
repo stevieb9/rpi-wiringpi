@@ -14,14 +14,15 @@ touch $oled_lock;
 
 $SIG{INT} = sub { unlink $oled_lock or die $!; };
 
-# use "kill -15 procid" so we clean up!
+# use kill -15 procid && kill -9 procid to terminate the app
 
 $SIG{TERM} = sub { print "$0: Terminated\n"; unlink $oled_lock or die $!; };
 
 my $pi = RPi::WiringPi->new;
 my $oled = RPi::WiringPi->oled('128x64', 0x3C, 0);
-$oled->text_size(2);
 my $bmp = $pi->bmp(400);
+
+$oled->text_size(2);
 
 while (1){
 
@@ -36,7 +37,6 @@ while (1){
     my $Tc = sprintf('%.02f', $bmp->temp('c'));
     my $Tf = sprintf('%.02f', $bmp->temp);
     my $p = $bmp->pressure * 10;
-
 
     $oled->string(str_format($dt->ymd));
     $oled->string(str_format($dt->hour . ":" . $dt->minute));
