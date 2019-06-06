@@ -14,19 +14,10 @@ if (! $ENV{PI_BOARD}){
     plan skip_all => "Not on a Pi board\n";
 }
 
-plan skip_all => "nothing to do here yet";
 
 my $s = RPi::WiringPi->oled('128x64', 0x3C, 0);
 
-for (1..5) {
-    $s->clear;
-    my $size_r = $s->text_size($_);
-    is $size_r, 1, "return from text_size($_) ok";
-    my $string_r = $s->string("hello", 1);
-    is $string_r, 1, "return from string() ok";
-
-}
-$s->clear;
+ok 1;
 
 done_testing();
 
