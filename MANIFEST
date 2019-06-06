@@ -57,6 +57,7 @@ t/906-oled_pixel.t
 t/907-oled_char.t
 t/908-oled_vertical_line.t
 t/909-oled_horizontal_line.t
+t/920-oled_cleanup.t
 t/999-lcd.t
 t/README
 t/RPiTest.pm
@@ -67,7 +68,7 @@ test/baseline_setup.pl
 test/bmp.pl
 test/i2c.pl
 test/identify.pl
-test/oled_status.pl
+test/oled_display_date_time_temp.pl
 test/pot_adc.pl
 test/registered_pins.pl
 test/rtc.pl
