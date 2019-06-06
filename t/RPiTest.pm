@@ -6,11 +6,30 @@ use strict;
 use Exporter;
 our @ISA = qw(Exporter);
 
-our @EXPORT_OK = qw(check_pin_status);
+our @EXPORT_OK = qw(check_pin_status oled_available oled_unavailable);
 
 use Test::More;
 use WiringPi::API qw(:perl);
 
+my $oled_lock = '/tmp/oled_unavailable.rpi-wiringpi';
+
+sub oled_available {
+    my ($available) = @_;
+
+    if ($available) {
+        if (-e $oled_lock) {
+            unlink $oled_lock or die $!;
+        }
+    }
+
+    return -e $oled_lock ? 0 : 1;
+}
+sub oled_unavailable {
+    open my $wfh, '>', $oled_lock or die $!;
+    close $wfh;
+
+    return -e $oled_lock ? 1 : 0;
+}
 sub check_pin_status {
 
     setup_gpio();

@@ -17,12 +17,8 @@ if (! $ENV{PI_BOARD}){
     plan skip_all => "Not on a Pi board\n";
 }
 
-oled_unavailable();
-is oled_available(), 0, "oled unavailable for use ok";
-
-my $s = RPi::WiringPi->oled('128x64', 0x3C, 0);
-
-is ref $s, 'RPi::OLED::SSD1306::128_64', "oled() returns an object of proper class";
+is oled_available(1), 1, "oled still unavailable for use";
+is oled_unavailable(), 1, "oled lock removed, it's now available";
 
 done_testing();
 
