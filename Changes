@@ -5,6 +5,10 @@ Revision history for Perl extension RPi::WiringPi.
           this case, we're using the single pot MCP41010). (Closes #87)
         - correct markup error in FAQ (closes #100)
         - added BMP180 to the test platform (closes #85)
+        - OLED displays are now available
+        - reorganized all test files so that when unit testing with
+          Test::BrewBuild, the LCD will retain the test results for the majority
+          of the test run
 
 2.3631  2019-02-25
         - no functional changes -- all changes are documentation

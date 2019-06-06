@@ -15,7 +15,7 @@ if (! $ENV{PI_BOARD}){
 
 my $s = RPi::WiringPi->oled('128x64', 0x3C, 0);
 
-for (1..5) {
+for (1..3) {
 
     $s->clear;
     my $x = $_ * 2;
@@ -25,7 +25,7 @@ for (1..5) {
     $s->display;
 }
 
-for (1..10) {
+for (1..3) {
 
     $s->clear;
     my $x = 50;
