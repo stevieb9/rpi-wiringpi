@@ -67,6 +67,7 @@ test/baseline_setup.pl
 test/bmp.pl
 test/i2c.pl
 test/identify.pl
+test/oled_status.pl
 test/pot_adc.pl
 test/registered_pins.pl
 test/rtc.pl
