@@ -959,6 +959,13 @@ pixel I2C OLED display. To have these tests execute, set:
 
     export RPI_OLED=1
 
+There's a functional script that will display aspects of the system (time, date,
+temperature and barometric pressure sensor) on an available OLED. While the OLED
+tests are running, the script automatically disables itself. To operate this
+functionality:
+
+    perl test/oled_display_date_time_temp.pl &
+
 =head3 LCD Testing
 
 In order to perform the L<RPi::LCD> test, a 2 row by 16 column or 4 row by 20
