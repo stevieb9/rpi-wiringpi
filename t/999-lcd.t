@@ -67,6 +67,9 @@ my $ok = eval {
 
 is $ok, undef, "initializing too many LCD objects dies ok";
 
+$lcd->position(0, 0);
+$lcd->print("Resuming test run...");
+
 $pi->cleanup;
 
 check_pin_status();
