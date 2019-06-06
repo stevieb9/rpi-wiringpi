@@ -39,7 +39,13 @@ while (1){
     my $p = $bmp->pressure * 10;
 
     $oled->string(str_format($dt->ymd));
-    $oled->string(str_format($dt->hour . ":" . $dt->minute));
+
+    my $min = $dt->minute;
+    if (length($min) == 1){
+        $min = "0$min";
+    }
+
+    $oled->string(str_format($dt->hour . ":" . $min));
 
     $oled->string(str_format($Tc . " C"));
     $oled->string(str_format($p . " hPa", 1));

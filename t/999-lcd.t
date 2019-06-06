@@ -27,8 +27,8 @@ $SIG{INT} = sub { $continue = 0; };
 my $pi = RPi::WiringPi->new;
 
 my %args = (
-    cols => 16,
-    rows => 2,
+    cols => 20,
+    rows => 4,
     bits => 4,
     rs => 5,
     strb => 6,
@@ -55,7 +55,6 @@ sleep 2;
 $lcd->clear;
 
 is 1, 1, "ok";
-
 
 my $ok = eval {
     while (1){
