@@ -10,24 +10,34 @@ use RPi::WiringPi;
 
 my $pi = RPi::WiringPi->new;
 my $oled = RPi::WiringPi->oled('128x64', 0x3C, 0);
+$oled->text_size(2);
 my $bmp = $pi->bmp(400);
 
-my $dt = DateTime->now(time_zone => 'local');
+while (1){
 
-my $Tc = sprintf('%.02f', $bmp->temp('c'));
-my $Tf = sprintf('%.02f', $bmp->temp);
-my $p = $bmp->pressure;
+    if (-e '/tmp/oled_unavailable.rpi-wiringpi'){
+        sleep 30;
+        next;
+    }
 
-$oled->text_size(2);
+    $oled->clear;
 
-$oled->string(str_format($dt->ymd));
-$oled->string(str_format($dt->hour . ":" . $dt->minute));
+    my $dt = DateTime->now(time_zone => 'local');
+    my $Tc = sprintf('%.02f', $bmp->temp('c'));
+    my $Tf = sprintf('%.02f', $bmp->temp);
+    my $p = $bmp->pressure * 10;
 
-$oled->string(str_format($Tc . " C"));
-$oled->string(str_format($p . "kPa", 1));
 
-$oled->display;
+    $oled->string(str_format($dt->ymd));
+    $oled->string(str_format($dt->hour . ":" . $dt->minute));
 
+    $oled->string(str_format($Tc . " C"));
+    $oled->string(str_format($p . " hPa", 1));
+
+    $oled->display;
+
+    sleep 30;
+}
 sub str_format {
     my $str = shift;
 

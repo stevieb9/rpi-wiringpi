@@ -17,8 +17,9 @@ if (! $ENV{PI_BOARD}){
     plan skip_all => "Not on a Pi board\n";
 }
 
-is oled_available(1), 1, "oled still unavailable for use";
-is oled_unavailable(), 1, "oled lock removed, it's now available";
+is oled_available(), 0, "oled still unavailable for use";
+is oled_available(1), 1, "oled now available";
+is -e '/tmp/oled_unavailable.rpi-wiringpi', undef, "oled lock file removed ok";
 
 done_testing();
 
