@@ -15,7 +15,7 @@ if (! $ENV{PI_BOARD}){
 
 plan skip_all => "nothing to do here yet";
 
-my $s = RPi::WiringPi->oled;
+my $s = RPi::WiringPi->oled('128x64', 0x3C, 0);
 
 done_testing();
 

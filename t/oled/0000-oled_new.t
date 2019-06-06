@@ -15,7 +15,7 @@ if (! $ENV{PI_BOARD}){
     plan skip_all => "Not on a Pi board\n";
 }
 
-my $s = RPi::WiringPi->oled('128x64', 0x3C);
+my $s = RPi::WiringPi->oled('128x64', 0x3C, 0);
 
 is ref $s, 'RPi::OLED::SSD1306::128_64', "oled() returns an object of proper class";
 

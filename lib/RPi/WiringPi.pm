@@ -157,7 +157,7 @@ sub lcd {
     return $lcd;
 }
 sub oled {
-    my ($self, $model, $i2c_addr) = @_;
+    my ($self, $model, $i2c_addr, $display_splash_page) = @_;
 
     $model //= '128x64';
     $i2c_addr //= 0x3C;
@@ -174,7 +174,7 @@ sub oled {
     }
 
     if ($model eq '128x64'){
-        return RPi::OLED::SSD1306::128_64->new($i2c_addr);
+        return RPi::OLED::SSD1306::128_64->new($i2c_addr, $display_splash_page);
     }
 }
 sub pin {

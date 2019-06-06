@@ -13,7 +13,7 @@ if (! $ENV{PI_BOARD}){
     plan skip_all => "Not on a Pi board\n";
 }
 
-my $s = RPi::WiringPi->oled;
+my $s = RPi::WiringPi->oled('128x64', 0x3C, 0);
 
 is $s->vertical_line(64, 0, 64), 1, "vertical_line() return ok";
 $s->display;
