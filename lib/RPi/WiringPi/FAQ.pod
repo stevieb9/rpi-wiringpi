@@ -964,7 +964,7 @@ temperature and barometric pressure sensor) on an available OLED. While the OLED
 tests are running, the script automatically disables itself. To operate this
 functionality:
 
-    perl test/oled_display_date_time_temp.pl &
+    perl examples/oled_display_date_time_temp.pl &
 
 =head3 LCD Testing
 
