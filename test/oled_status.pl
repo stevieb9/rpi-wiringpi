@@ -21,8 +21,7 @@ my $p = $bmp->pressure;
 $oled->text_size(2);
 
 $oled->string(str_format($dt->ymd));
-
-$oled->string(str_format($dt->hms(':')));
+$oled->string(str_format($dt->hour . ":" . $dt->minute));
 
 $oled->string(str_format($Tc . " C"));
 $oled->string(str_format($p . "kPa", 1));
