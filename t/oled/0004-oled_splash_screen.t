@@ -2,6 +2,7 @@ use strict;
 use warnings;
 
 use Test::More;
+
 use RPi::WiringPi;
 
 if (! $ENV{RPI_OLED}){
@@ -13,28 +14,19 @@ if (! $ENV{PI_BOARD}){
     plan skip_all => "Not on a Pi board\n";
 }
 
+is 0, 1, "FAIL";
+exit;
 my $s = RPi::WiringPi->oled('128x64', 0x3C, 0);
 
 for (1..5) {
-
     $s->clear;
-    my $x = $_ * 2;
-    my $y = $_ * 2;
+    my $size_r = $s->text_size($_);
+    is $size_r, 1, "return from text_size($_) ok";
+    my $string_r = $s->string("hello", 1);
+    is $string_r, 1, "return from string() ok";
 
-    is $s->char($x, $y, 5, $_), 1, "char() return ok";
-    $s->display;
 }
-
-for (1..10) {
-
-    $s->clear;
-    my $x = 50;
-    my $y = 15;
-
-    $s->char($x, $y, $_, 4);
-    $s->display;
-}
-#$s->clear;
+$s->clear;
 
 done_testing();
 
