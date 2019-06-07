@@ -3,8 +3,8 @@ use strict;
 use warnings;
 use Test::More;
 
-unless ( $ENV{RELEASE_TESTING} ) {
-    plan( skip_all => "Author tests not required for installation" );
+unless ( $ENV{RPI_RELEASE_TESTING} ) {
+    plan( skip_all => "Author test: RPI_RELEASE_TESTING not set" );
 }
 
 # Ensure a recent version of Test::Pod::Coverage
