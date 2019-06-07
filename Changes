@@ -9,6 +9,9 @@ Revision history for Perl extension RPi::WiringPi.
         - reorganized all test files so that when unit testing with
           Test::BrewBuild, the LCD will retain the test results for the majority
           of the test run
+        - added new testing env var "RPI_RELEASE_TESTING", so that we can
+          install other CPAN distributions without breaking things due to
+          "RELEASE_TESTING" always being set
 
 2.3631  2019-02-25
         - no functional changes -- all changes are documentation

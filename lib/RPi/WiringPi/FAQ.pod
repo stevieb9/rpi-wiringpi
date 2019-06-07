@@ -901,6 +901,16 @@ There are a couple of test files that require root privileges, but we handle
 this internally by re-running the file with C<sudo> enabled. This allows all
 tests but these couple to be run as a standard user.
 
+=head3 Author Testing
+
+To run the author tests (manifest, POD etc), set:
+
+    RPI_RELEASE_TESTING=1
+
+We use this instead of C<RELEASE_TESTING>, because that typically caused
+all sorts of grief when installing prerequisites from the CPAN. Other
+people's distribution's author tests often fail due to having it set.
+
 =head3 Arduino/I2C
 
 For testing the L<RPi::I2C> module, we have a dedicated Arduino sketch in the
@@ -1091,6 +1101,7 @@ environment variables for the full test platform. For LCD, the last two digits
 column unit, leave those last two digits off.
 
     PI_BOARD=1
+    RPI_RELEASE_TESTING=1
     RPI_ARDUINO=1
     RPI_ADC=1
     RPI_BMP=1
@@ -1105,7 +1116,7 @@ column unit, leave those last two digits off.
     BB_RPI_LCD=5,6,4,17,27,22,4,20
     RPI_RTC=1
     RPI_MCP23017=1
-    RELEASE_TESTING=1
+    RELEASE_TESTING=0
 
 =head1 DEVELOPMENT
 
