@@ -14,6 +14,8 @@ Revision history for Perl extension RPi::WiringPi.
           "RELEASE_TESTING" always being set
         - fully integrated the new RPi::SysInfo distribution as a parent to
           RPi::Core
+        - updated stepper motor FAQ with new GPIO expander functionality
+          (closes #102)
 
 2.3631  2019-02-25
         - no functional changes -- all changes are documentation

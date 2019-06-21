@@ -988,6 +988,18 @@ This method provides access to the L<RPi::StepperMotor> library to drive a
     $sm->cw(180);   # clockwise, 180 degrees
     $sm->ccw(240);  # counter-clockwise, 240 degrees
 
+You can also use the stepper motor with a GPIO expander IC, and use those pins
+instead of the GPIO on the Pi:
+
+    my $expander = $pi->expander;
+
+    my $sm = $pi->stepper_motor(
+        epander => $expander,
+        pins => [0, 1, 2, 3]    # first four GPIO expander pins
+    );
+
+    $sm->cw(180);
+
 =head1 CORE/UTIL LIBRARY
 
 =head2 Overview
