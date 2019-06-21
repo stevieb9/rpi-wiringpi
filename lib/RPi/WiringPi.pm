@@ -339,15 +339,7 @@ L<pinout.xyz|https://pinout.xyz/pinout/wiringpi>. You can also run the C<pinmap>
 command that was installed by this module, or C<wiringPi>'s C<gpio readall>
 command.
 
-=head1 METHODS
-
-=head2 NOTES
-
-See L<RPi::WiringPi::Core> for utility/helper/hardware-specific methods that are
-imported into an C<RPi::WiringPi> object.
-
-We also include in the Pi object several hardware-type methods brought in from
-L<RPi::SysInfo> (through C<RPi::Core> mentioned above).
+=head1 BASE METHODS
 
 =head2 new([%args])
 
@@ -676,6 +668,141 @@ motor. We do this by skipping every other step.
 Optional, Float or Int: By default, between each step, we delay by C<0.01>
 seconds. Send in a float or integer for the number of seconds to delay each step
 by. The smaller this number, the faster the motor will turn.
+
+=head2 CORE PI SYSTEM METHODS
+
+Core methods are inherited in and documented in L<RPi::WiringPi::Core>. See
+that documentation for full details of each one. I've included a basic
+description of them here.
+
+=head3 gpio_layout
+
+Returns the GPIO layout, which in essence is the Pi board revision number.
+
+=head3 io_led
+
+Turn the disk IO (green) LED on or off.
+
+=head3 pwr_led
+
+Turn the power (red) LED on or off.
+
+=head3 identify
+
+Toggles the power led off and disk IO led on which allows external physical
+identification of the Pi you're running on.
+
+=head3 label
+
+Sets an internal label/name to your L<RPi::WiringPi> Pi object.
+
+=head3 pin_scheme
+
+Returns the current pin mapping scheme in use within the object.
+
+=head3 pin_map
+
+Returns a hash reference mapping of the physical pin numbers to a pin scheme's
+pin numbers.
+
+=head3 pin_to_gpio
+
+Converts a pin number from any non-GPIO (BCM) scheme to GPIO (BCM) scheme.
+
+=head3 wpi_to_gpio
+
+Converts a wiringPi pin number to GPIO pin number.
+
+=head3 phys_to_gpio
+
+Converts a physical pin number to the GPIO pin number.
+
+=head3 pwm_range
+
+Set/get the PWM range.
+
+=head3 pwm_mode
+
+Set/get the PWM mode.
+
+=head3 pwm_clock
+
+Set/get the PWM clock.
+
+=head3 export_pin
+
+Exports a pin if running under the C<setup_sys()> initialization scheme.
+
+=head3 unexport_pin
+
+Un-exports a pin if running under the C<setup_sys()> initialization scheme.
+
+=head3 registered_pins
+
+Returns an array reference of all pin numbers currently registered in the
+system. Used primarily for cleanup functionality.
+
+=head3 register_pin
+
+Registers a pin with the system for error checking, and proper resetting in the
+cleanup routines.
+
+=head3 unregister_pin
+
+Removes an already registered pin.
+
+=head3 cleanup
+
+Cleans up the entire system, resetting all pins and devices back to the state
+we found them in when we initialized the system.
+
+=head2 ADDITIONAL PI SYSTEM METHODS
+
+We also include in the Pi object several hardware-type methods brought in from
+L<RPi::SysInfo>. They are loaded through L<RPi::WiringPi::Core> via
+inheritance. See the L<RPi::SysInfo> documentation for full method details.
+
+    my $mem_percent = $pi->mem_percent;
+    my $cpu_percent = $pi->cpu_percent;
+    my $cpu_temp    = $pi->core_temp;
+    my $gpio_info   = $pi->gpio_info;
+    my $raspi_conf  = $pi->raspi_config;
+    my $net_info    = $pi->network_info;
+    my $file_system = $pi->file_system;
+    my $hw_details  = $pi->pi_details;
+
+=head3 cpu_percent
+
+Returns the current CPU usage.
+
+=head3 mem_percent
+
+Returns the current memory usage.
+
+=head3 core_temp
+
+Returns the current temperature of the CPU core.
+
+=head3 gpio_info
+
+Returns the current status and configuration of one, many or all of the GPIO
+pins.
+
+=head3 raspi_config
+
+Returns a list of all configured parameters in the C</boot/config.txt> file.
+
+=head3 network_info
+
+Returns the network configuration of the Pi.
+
+=head3 file_system
+
+Returns current disk and mount information.
+
+=head3 pi_details
+
+Returns various information on both the hardware and OS aspects of the Pi.
 
 =head1 RUNNING TESTS
 
