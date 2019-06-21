@@ -247,6 +247,10 @@ used independently.
 
 =head1 METHODS
 
+Besides the methods listed below, we also make available through inheritance
+all methods provided by L<RPi::SysInfo>. Please see that documentation for
+usage details.
+
 =head2 gpio_layout()
 
 Returns the GPIO layout which indicates the board revision number.
