@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use parent 'WiringPi::API';
+use parent 'RPi::SysInfo';
 use JSON;
 use RPi::Const qw(:all);
 
