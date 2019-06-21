@@ -12,6 +12,8 @@ Revision history for Perl extension RPi::WiringPi.
         - added new testing env var "RPI_RELEASE_TESTING", so that we can
           install other CPAN distributions without breaking things due to
           "RELEASE_TESTING" always being set
+        - fully integrated the new RPi::SysInfo distribution as a parent to
+          RPi::Core
 
 2.3631  2019-02-25
         - no functional changes -- all changes are documentation

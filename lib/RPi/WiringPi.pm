@@ -285,6 +285,17 @@ Please see the L<FAQ|RPi::WiringPi::FAQ> for full usage details.
 
     my $pi = RPi::WiringPi->new;
 
+    # For the below handful of system methods, see RPi::SysInfo
+
+    my $mem_percent = $pi->mem_percent;
+    my $cpu_percent = $pi->cpu_percent;
+    my $cpu_temp    = $pi->core_temp;
+    my $gpio_info   = $pi->gpio_info;
+    my $raspi_conf  = $pi->raspi_config;
+    my $net_info    = $pi->network_info;
+    my $file_system = $pi->file_system;
+    my $hw_details  = $pi->pi_details;
+
     # pin
 
     my $pin = $pi->pin(5);
@@ -330,8 +341,13 @@ command.
 
 =head1 METHODS
 
+=head2 NOTES
+
 See L<RPi::WiringPi::Core> for utility/helper/hardware-specific methods that are
 imported into an C<RPi::WiringPi> object.
+
+We also include in the Pi object several hardware-type methods brought in from
+L<RPi::SysInfo> (through C<RPi::Core> mentioned above).
 
 =head2 new([%args])
 

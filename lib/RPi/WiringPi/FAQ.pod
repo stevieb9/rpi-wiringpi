@@ -223,7 +223,130 @@ identification within your scripts.
     $pi->label('pi-test-01');
     print $pi->label . "\n"; # pi-test-01
 
-=head1 PIN 
+=head2 System Information
+
+We inherit all functionality from the L<RPi::SysInfo> distribution, which
+provides the following functionality:
+
+=head3 CPU usage percent
+
+    my $cpu_percent = $pi->cpu_percent;
+    say "CPU utilization: $cpu_percent%";
+
+Example output:
+
+    CPU utilization: 3.80%
+
+=head3 Memory usage percent
+
+    my $mem_percent = $pi->mem_percent;
+    say "RAM utilization: $mem_percent%";
+
+Example output:
+
+    RAM utilization: 71.01%
+
+=head3 CPU core temperature
+
+    my $tC = $pi->core_temp;
+    my $tF = $pi->core_temp('f');
+
+    say "Core CPU temperature: $tC C : $tF F";
+
+Example output:
+
+    Core CPU temperature: 46.7 C : 116.06 F
+
+=head3 GPIO information
+
+Note: if you do not supply an array reference with pin numbers, by default,
+we'll return the information for *all* GPIO pins.
+
+    my $pin_21_info = $pi->gpio_info([21]);
+
+    my $multi_pin_info = $pi->gpio_info([2, 4, 6]);
+
+    say "Pin 21 info:";
+    say "$pin_21_info\n";
+
+    say "Multi-pin info:";
+    say $multi_pin_info;
+
+Example output:
+
+    Pin 21 info:
+    GPIO 21: level=0 fsel=0 func=INPUT
+
+    Multi-pin info:
+    GPIO 2: level=1 fsel=4 alt=0 func=SDA1
+    GPIO 4: level=0 fsel=1 func=OUTPUT
+    GPIO 6: level=0 fsel=1 func=OUTPUT
+
+=head3 Boot configuration settings
+
+    say $pi->raspi_config;
+
+Example output (significantly snipped for brevity):
+
+    arm_freq=1200
+    audio_pwm_mode=514
+    config_hdmi_boost=5
+    core_freq=250
+    desired_osc_freq=0x36ee80
+    ...
+    dtparam=i2c_arm=on
+    dtparam=spi=on
+    dtparam=audio=on
+    enable_uart=1
+    dtparam=i2c_arm_baudrate=10000
+    dtoverlay=pi3-disable-bt-overlay
+    dtoverlay=spi-bcm2835
+
+=head3 Network configuration information
+
+    say $pi->network_info;
+
+This method simply returns the information from the C<ifconfig> system call.
+
+=head3 File system information
+
+    say $pi->file_system;
+
+Example output:
+
+    Filesystem     1K-blocks    Used Available Use% Mounted on
+    /dev/root       61289372 3375520  55373576   6% /
+    devtmpfs          470116       0    470116   0% /dev
+    tmpfs             474724       0    474724   0% /dev/shm
+    tmpfs             474724   24140    450584   6% /run
+    tmpfs               5120       4      5116   1% /run/lock
+    tmpfs             474724       0    474724   0% /sys/fs/cgroup
+    /dev/mmcblk0p1     43234   22035     21199  51% /boot
+    tmpfs              94944       0     94944   0% /run/user/1000
+
+    Filename                                Type            Size    Used    Priority
+    /var/swap                               file            102396  0       -2
+
+=head3 Pi board and OS details
+
+    say $pi->pi_details;
+
+    Raspberry Pi 3 Model B Rev 1.2
+
+    PRETTY_NAME="Raspbian GNU/Linux 9 (stretch)"
+    NAME="Raspbian GNU/Linux"
+    VERSION_ID="9"
+    VERSION="9 (stretch)"
+
+    Linux pi-test 4.14.98-v7+ #1200 SMP Tue Feb 12 20:27:48 GMT 2019 armv7l GNU/Linux
+
+    Hardware        : BCM2835
+    Revision        : a22082
+    Serial          : 000000005d916dc3
+    Throttled flag  : throttled=0x50000
+    Camera          : supported=0 detected=0
+
+=head1 PIN
 
 =head2 Creating and using a GPIO pin object
 
