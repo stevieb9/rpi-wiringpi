@@ -1,20 +1,19 @@
 use warnings;
 use strict;
 
-use RPi::SysInfo qw(:all);
+use RPi::WiringPi;
 use Test::More;
 
 if (! $ENV{PI_BOARD}){
     plan skip_all => "Not on a Pi board";
 }
 
-my $sys = RPi::SysInfo->new;
+my $pi = RPi::WiringPi->new;
 
-like $sys->core_temp, qr/^\d+\.\d+$/, "core_temp() method return ok";
-like core_temp(), qr/^\d+\.\d+$/, "core_temp() function return ok";
+like $pi->core_temp, qr/^\d+\.\d+$/, "core_temp() method return ok";
 
-my $tC = core_temp();
-my $tF = core_temp('f');
+my $tC = $pi->core_temp();
+my $tF = $pi->core_temp('f');
 
 is $tF > $tC, 1, "f and c temps ok";
 
