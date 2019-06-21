@@ -50,8 +50,8 @@ WriteMakefile(
         'RPi::RTC::DS3231'          => 0.01,
         'RPi::Serial'               => 2.3603,
         'RPi::SPI'                  => 2.3609,
-        'RPi::StepperMotor'         => 2.3604,
-        'RPi::SysInfo'              => 0.02,
+        'RPi::StepperMotor'         => 2.3605,
+        'RPi::SysInfo'              => 1.00,
         'WiringPi::API'             => 2.3616,
     },
 );
