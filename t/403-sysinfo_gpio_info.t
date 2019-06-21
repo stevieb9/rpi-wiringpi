@@ -14,7 +14,7 @@ my $pi = RPi::WiringPi->new;
 like $pi->gpio_info(), qr/GPIO 53:/, "with no pins param, method return is ok";
 like $pi->gpio_info([20]), qr/^GPIO 20:/, "with 20 as a param, method return ok";
 
-$four_ret = $pi->gpio_info([2, 4, 6, 8]);
+my $four_ret = $pi->gpio_info([2, 4, 6, 8]);
 
 like $four_ret, qr/GPIO 2:/, "with 2,4,6,8 as a param, pin 2 method ok";
 like $four_ret, qr/GPIO 4:/, "with 2,4,6,8 as a param, pin 4 method ok";
