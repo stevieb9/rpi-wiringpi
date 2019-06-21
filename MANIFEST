@@ -61,6 +61,14 @@ t/330-mcp23017.t
 t/335-shift_reg_adc.t
 t/340-bmp.t
 t/345-dpot.t
+t/400-sysinfo_cpu_percent.t
+t/401-sysinfo_mem_percent.t
+t/402-sysinfo_core_temp.t
+t/403-sysinfo_gpio_info.t
+t/404-sysinfo_raspi_config.t
+t/405-sysinfo_network_info.t
+t/406-sysinfo_file_system.t
+t/407-sysinfo_pi_details.t
 t/500-pod_coverage.t
 t/505-pod_linkcheck.t
 t/510-manifest.t
