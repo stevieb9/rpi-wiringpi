@@ -1,6 +1,6 @@
 Revision history for Perl extension RPi::WiringPi.
 
-2.3632 UNREL
+2.3632  2019-06-22
         - added the digital potentiometer (MCP4xxxx) to the test platform (in
           this case, we're using the single pot MCP41010). (Closes #87)
         - correct markup error in FAQ (closes #100)
