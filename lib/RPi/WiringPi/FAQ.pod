@@ -994,7 +994,7 @@ instead of the GPIO on the Pi:
     my $expander = $pi->expander;
 
     my $sm = $pi->stepper_motor(
-        epander => $expander,
+        expander => $expander,
         pins => [0, 1, 2, 3]    # first four GPIO expander pins
     );
 
