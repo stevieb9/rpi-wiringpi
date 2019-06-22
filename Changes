@@ -16,7 +16,7 @@ Revision history for Perl extension RPi::WiringPi.
           install other CPAN distributions without breaking things due to
           "RELEASE_TESTING" always being set
         - fully integrated the new RPi::SysInfo distribution as a parent to
-          RPi::Core
+          RPi::WiringPi::Core
         - updated stepper motor FAQ with new GPIO expander functionality
           (closes #102)
 
