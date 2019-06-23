@@ -1,4 +1,6 @@
 #include <Wire.h>
+#include "Multi_BitBang.h"
+#include "Multi_OLED.h"
 
 #define SLAVE_ADDR 0x05
 
