@@ -9,37 +9,38 @@
 uint8_t pseudoRegister;
 
 void sendData (){
-    switch (pseudoRegister) {
-      
-    }
+  switch (pseudoRegister) {
+    /*** for read requests ***/
+  }
 }
 
 void receiveData (int numBytes){
 
-    uint8_t i2cBytes = numBytes - 1; // we shift off the pseudoRegister
-    uint8_t sysInfo[i2cBytes];
+  uint8_t i2cBytes = numBytes - 1; // we shift off the pseudoRegister
+  uint8_t sysInfo[i2cBytes];
     
-    while(Wire.available()){
+  while(Wire.available()){
 
-        // save the register value for use later
+    // save the register value for use later
 
-        pseudoRegister = Wire.read();
+    pseudoRegister = Wire.read();
         
-        switch (pseudoRegister) {
+    switch (pseudoRegister) {
 
-            case PROCESS_SYSINFO: {
-              for (int i=0; i<i2cBytes; i++){
-                sysInfo[i] = Wire.read();
-              }
-            }
+      case PROCESS_SYSINFO: {
+        for (uint8_t i=0; i<i2cBytes; i++){
+          sysInfo[i] = Wire.read();
         }
+      }
     }
+  }
 
   serialPrintSysInfo(sysInfo);
 }
 
 void serialPrintSysInfo(uint8_t *sysInfo){
-  Serial.print(F("\nCPU:  "));
+  Serial.println(F("System Info"));
+  Serial.print(F("CPU:  "));
   Serial.print(sysInfo[0]);
   Serial.println(F("%"));
   Serial.print(F("RAM:  "));
@@ -47,14 +48,14 @@ void serialPrintSysInfo(uint8_t *sysInfo){
   Serial.println(F("%"));
   Serial.print(F("TEMP: "));
   Serial.print(sysInfo[2]);
-  Serial.println(F("°F"));  
+  Serial.println(F("°F\n"));  
 }
 
 void setup() {
-    Serial.begin(9600);
-    Wire.begin(SLAVE_ADDR);
-    Wire.onReceive(receiveData);
-    Wire.onRequest(sendData);
+  Serial.begin(9600);
+  Wire.begin(SLAVE_ADDR);
+  Wire.onReceive(receiveData);
+  Wire.onRequest(sendData);
 }
 
 void loop() {
