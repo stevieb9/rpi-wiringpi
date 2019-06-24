@@ -5,18 +5,20 @@
 #include <stdio.h>
 
 #define PI_BYTES 3
+#define DEBUG 0
 
 #define RX 2
 #define TX 3
 
 #define OLED_I2C_ADDR 0x3C
-#define OLED_RESET     4 
+#define OLED_RESET 4 
 #define OLED_WIDTH 128 
 #define OLED_HEIGHT 64 
 
+// object instantiation
+
 SoftwareSerial pi(RX, TX);
 Adafruit_SSD1306 screen(OLED_WIDTH, OLED_HEIGHT, &Wire, OLED_RESET);
-uint8_t sysInfo[PI_BYTES];
 
 void displaySysInfo (uint8_t *sysInfo){
   
@@ -27,24 +29,28 @@ void displaySysInfo (uint8_t *sysInfo){
   sprintf(cTemp, "TEMP: %d F  ", sysInfo[2]);
 
   screen.clearDisplay();
+
+  /* CPU percent */
   
   screen.setCursor(0, 0);
   
   screen.print(F("CPU %: "));
   screen.print(sysInfo[0]);
-//  screen.println(F(" %"));
 
+  /* Memory percent */
+  
   screen.setCursor(0, 16);
   
   screen.print(F("RAM %: "));
   screen.print(sysInfo[1]);
-//  screen.println(F("%"));
 
+  /* CPU temperature */
+  
   screen.setCursor(0, 32);
   
   screen.print(F("TMP F: "));
   screen.print(sysInfo[2]);
-//  screen.println(F("F"));  
+
   screen.display();
 }
 
@@ -82,20 +88,23 @@ void setup() {
   screen.setCursor(0, 0);
 }
 
-uint8_t *processData (){
-
-}
-
-void loop() {
-  //uint8_t *sysInfo = processData();
+void processData (void){
+  
+  uint8_t sysInfo[PI_BYTES];
   
   if (pi.available() == PI_BYTES){
     for (uint8_t i=0; i<3; i++){
       sysInfo[i] = pi.read();
     }
-    serialPrintSysInfo(sysInfo);
-    displaySysInfo(sysInfo);
 
+    if (DEBUG){
+      serialPrintSysInfo(sysInfo);
+    }
+    
+    displaySysInfo(sysInfo);
   }
-  //delay(1000);
+}
+
+void loop() {
+  processData();
 }
