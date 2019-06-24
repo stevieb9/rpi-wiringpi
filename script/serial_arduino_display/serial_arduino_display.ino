@@ -1,13 +1,21 @@
 #include <SoftwareSerial.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 #include <stdio.h>
 
 #define PI_BYTES 3
 
-#define RX 6
-#define TX 7
+#define RX 2
+#define TX 3
+
+#define OLED_I2C_ADDR 0x3C
+#define OLED_RESET     4 
+#define OLED_WIDTH 128 
+#define OLED_HEIGHT 64 
 
 SoftwareSerial pi(RX, TX);
-
+Adafruit_SSD1306 screen(OLED_WIDTH, OLED_HEIGHT, &Wire, OLED_RESET);
 uint8_t sysInfo[PI_BYTES];
 
 void displaySysInfo (uint8_t *sysInfo){
@@ -18,7 +26,26 @@ void displaySysInfo (uint8_t *sysInfo){
   sprintf(mem, "RAM:  %d%%    ", sysInfo[1]);
   sprintf(cTemp, "TEMP: %d F  ", sysInfo[2]);
 
-  // draw on display here!
+  screen.clearDisplay();
+  
+  screen.setCursor(0, 0);
+  
+  screen.print(F("CPU %: "));
+  screen.print(sysInfo[0]);
+//  screen.println(F(" %"));
+
+  screen.setCursor(0, 16);
+  
+  screen.print(F("RAM %: "));
+  screen.print(sysInfo[1]);
+//  screen.println(F("%"));
+
+  screen.setCursor(0, 32);
+  
+  screen.print(F("TMP F: "));
+  screen.print(sysInfo[2]);
+//  screen.println(F("F"));  
+  screen.display();
 }
 
 void serialPrintSysInfo(uint8_t *sysInfo){
@@ -36,20 +63,39 @@ void serialPrintSysInfo(uint8_t *sysInfo){
 
 void setup() {
   Serial.begin(9600);
+
+  // Pi comms setup
+  
   pi.begin(9600);
+
+  // OLED display setup
+  
+  if(!screen.begin(SSD1306_SWITCHCAPVCC, OLED_I2C_ADDR)) {
+    Serial.println(F("I2C OLED attach failure..."));
+    for(;;);
+  }
+
+  screen.clearDisplay();
+
+  screen.setTextSize(2);
+  screen.setTextColor(WHITE);
+  screen.setCursor(0, 0);
 }
 
 uint8_t *processData (){
-  if (pi.available() == 3){
-    for (uint8_t i=0; i<3; i++){
-      sysInfo[i] = pi.read();
-    }
-  }
+
 }
 
 void loop() {
-  uint8_t *sysInfo = processData();
+  //uint8_t *sysInfo = processData();
+  
+  if (pi.available() == PI_BYTES){
+    for (uint8_t i=0; i<3; i++){
+      sysInfo[i] = pi.read();
+    }
+    serialPrintSysInfo(sysInfo);
+    displaySysInfo(sysInfo);
 
-  serialPrintSysInfo(sysInfo);
-  displaySysInfo(sysInfo);
+  }
+  //delay(1000);
 }
