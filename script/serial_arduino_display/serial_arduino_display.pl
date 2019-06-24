@@ -6,10 +6,6 @@ use feature 'say';
 
 use RPi::WiringPi;
 
-use constant {
-    PROCESS_SYSINFO => 35
-};
-
 my $pi = RPi::WiringPi->new;
 
 my $dev = '/dev/ttyS0';
