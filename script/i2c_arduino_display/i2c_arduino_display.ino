@@ -24,7 +24,9 @@
 #define RX 6
 #define TX 7
 
-SoftwareSerial pi(RX, TX);
+/* For using serial comms with the Pi */
+// SoftwareSerial pi(RX, TX);
+// uint8_t sysInfo[PI_BYTES];
 
 // I2C bit-bang bus info
 
@@ -40,7 +42,7 @@ uint8_t type_list[NUM_DISPLAYS] = {OLED_128x64};
 uint8_t flip_list[NUM_DISPLAYS] = {0};
 uint8_t invert_list[NUM_DISPLAYS] = {0};
 
-uint8_t sysInfo[PI_BYTES];
+// uint8_t sysInfo[PI_BYTES];
 
 uint8_t pseudoRegister;
 
@@ -53,20 +55,19 @@ void sendData (){
 void receiveData (int numBytes){
 
   uint8_t i2cBytes = numBytes - 1; // we shift off the pseudoRegister
-  uint8_t sysInfo[i2cBytes];
+  uint8_t i2cSysInfo[i2cBytes];
 
   while(Wire.available()){
 
     // save the register value for use later
 
     pseudoRegister = Wire.read();
-    Serial.println((String)"REG: " + pseudoRegister);
         
     switch (pseudoRegister) {
 
       case (PROCESS_SYSINFO):
         for (uint8_t i=0; i<i2cBytes; i++){
-          sysInfo[i] = Wire.read();
+          i2cSysInfo[i] = Wire.read();
         }
         break;
         
@@ -80,8 +81,8 @@ void receiveData (int numBytes){
     }
   }
   
-  displaySysInfo(sysInfo);
-  serialPrintSysInfo(sysInfo);
+  displaySysInfo(i2cSysInfo);
+  serialPrintSysInfo(i2cSysInfo);
 }
 
 void displaySysInfo (uint8_t *sysInfo){
@@ -112,7 +113,7 @@ void serialPrintSysInfo(uint8_t *sysInfo){
 
 void setup() {
   Serial.begin(9600);
-  pi.begin(9600);
+  // pi.begin(9600);
 
   Wire.begin(SLAVE_ADDR);
   Wire.onReceive(receiveData);
