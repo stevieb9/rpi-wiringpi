@@ -7,7 +7,9 @@ use feature 'say';
 use RPi::WiringPi;
 
 use constant {
-    PROCESS_SYSINFO => 35
+    PROCESS_SYSINFO => 35,
+    ENABLE_DISPLAY => 1,
+    DISABLE_DISPLAY => 0
 };
 
 my $pi = RPi::WiringPi->new;
@@ -24,6 +26,12 @@ while (1){
         35
     );
 
+    # disable/enable the display
+
+    # $arduino->write_byte(0x00, DISABLE_DISPLAY);
+    # sleep 1;
+    #$arduino->write(0x00, ENABLE_DISPLAY);
+    # sleep 1;  
     sleep 1;
 }
 

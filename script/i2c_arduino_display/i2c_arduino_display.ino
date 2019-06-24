@@ -8,8 +8,11 @@
 
 // pseudo registers
 
+#define DISABLE_DISPLAY 0
+#define ENABLE_DISPLAY  1
 #define PROCESS_SYSINFO 35
 
+#define I2C_BUS_0 0
 #define I2C_SHARED_SCL_PIN 9
 #define I2C_BUS_0_SDA_PIN 5
 
@@ -57,14 +60,23 @@ void receiveData (int numBytes){
     // save the register value for use later
 
     pseudoRegister = Wire.read();
+    Serial.println((String)"REG: " + pseudoRegister);
         
     switch (pseudoRegister) {
 
-      case PROCESS_SYSINFO: {
+      case (PROCESS_SYSINFO):
         for (uint8_t i=0; i<i2cBytes; i++){
           sysInfo[i] = Wire.read();
         }
-      }
+        break;
+        
+      case (DISABLE_DISPLAY):
+        Multi_OLEDPower(I2C_BUS_0, Wire.read());
+        break;
+      
+      case (ENABLE_DISPLAY):
+        Multi_OLEDPower(I2C_BUS_0, Wire.read());
+        break;
     }
   }
   
@@ -74,11 +86,11 @@ void receiveData (int numBytes){
 
 void displaySysInfo (uint8_t *sysInfo){
   
-  char cpu[15], mem[15], cTemp[15];
+  char cpu[16], mem[16], cTemp[16];
     
-  sprintf(cpu, "CPU: %d%%     ", sysInfo[0]);
-  sprintf(mem, "RAM: %d%%     ", sysInfo[1]);
-  sprintf(cTemp, "TEMP: %dF   ", sysInfo[2]);
+  sprintf(cpu, "CPU:  %d%%    ", sysInfo[0]);
+  sprintf(mem, "RAM:  %d%%    ", sysInfo[1]);
+  sprintf(cTemp, "TEMP: %d F  ", sysInfo[2]);
 
   Multi_OLEDWriteString(0, 0, 0, cpu, FONT_NORMAL, 0);
   Multi_OLEDWriteString(0, 0, 2, mem, FONT_NORMAL, 0);
@@ -110,12 +122,15 @@ void setup() {
   Multi_OLEDInit(bus_list, addr_list, type_list, flip_list, invert_list, NUM_DISPLAYS);
   
   Multi_OLEDFill(0, 0);
-  Multi_OLEDSetContrast(0, 20);
+  Multi_OLEDSetContrast(0, 255);
 
 }
 
 void loop() {
+  
 /*
+ * For interfacing with the Pi over serial
+ * 
   if (pi.available() == 3){
     for (uint8_t i=0; i<3; i++){
       sysInfo[i] = pi.read();
