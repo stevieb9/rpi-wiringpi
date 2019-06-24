@@ -14,9 +14,13 @@ my $baud = 9600;
 my $s = $pi->serial($dev, $baud);
 
 while (1){
-    $s->putc(int $pi->cpu_percent);
-    $s->putc(int $pi->mem_percent);
-    $s->putc(int $pi->core_temp('f'));
+    my $cpu = int $pi->cpu_percent;
+    my $mem = int $pi->mem_percent;
+    my $tmp = int $pi->core_temp('f');
+
+    $s->putc($cpu);
+    $s->putc($mem);
+    $s->putc($tmp);
 
     sleep 1;
 }
