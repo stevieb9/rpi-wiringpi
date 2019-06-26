@@ -10,6 +10,8 @@ use Test::More;
 
 my $mod = 'RPi::WiringPi';
 
+plan skip_all => "CURRENLTY MODIFYING SERIAL TESTS";
+
 if (! $ENV{RPI_SERIAL}){
     plan skip_all => "RPI_SERIAL environment variable not set\n";
 }

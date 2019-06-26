@@ -37,7 +37,15 @@ Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
 README
+script/i2c_arduino_display/i2c_arduino_display.ino
+script/i2c_arduino_display/i2c_arduino_display.pl
+script/i2c_arduino_display/Multi_BitBang.cpp
+script/i2c_arduino_display/Multi_BitBang.h
+script/i2c_arduino_display/Multi_OLED.cpp
+script/i2c_arduino_display/Multi_OLED.h
 script/oled_display_date_time_temp.pl
+script/serial_arduino_display/serial_arduino_display.ino
+script/serial_arduino_display/serial_arduino_display.pl
 t/00-load.t
 t/100-identification_and_label.t
 t/105-pin.t
