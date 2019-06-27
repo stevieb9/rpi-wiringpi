@@ -30,6 +30,7 @@ examples/spi.pl
 examples/stepper_motor.pl
 examples/sysinfo_faq_examples.pl
 examples/tripwire.pl
+expander.pl
 lib/RPi/WiringPi.pm
 lib/RPi/WiringPi/Core.pm
 lib/RPi/WiringPi/FAQ.pod
@@ -78,6 +79,7 @@ t/404-sysinfo_raspi_config.t
 t/405-sysinfo_network_info.t
 t/406-sysinfo_file_system.t
 t/407-sysinfo_pi_details.t
+t/450-stepper.t
 t/500-pod_coverage.t
 t/505-pod_linkcheck.t
 t/510-manifest.t
