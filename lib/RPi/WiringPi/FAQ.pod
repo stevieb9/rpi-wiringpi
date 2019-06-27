@@ -1165,6 +1165,14 @@ environment variable:
 
     export RPI_MCP4922=1
 
+=head3 Stepper Motor Testing
+
+The test for this uses three photo resistors, with a laser on the stepper.
+We measure the luminosity to determine if the motor is in each position
+properly. To run these tests, set the following environment variable:
+
+    export RPI_STEPPER=1
+
 =head2 Automated with L<Test::BrewBuild>
 
 L<Test::BrewBuild> has some special features specifically to facilitate the
@@ -1248,6 +1256,7 @@ column unit, leave those last two digits off.
     RPI_OLED=1
     RPI_SERIAL=1
     RPI_HCSR04=0
+    RPI_STEPPER=1
     BB_RPI_LCD=5,6,4,17,27,22,4,20
     RPI_RTC=1
     RPI_MCP23017=1
