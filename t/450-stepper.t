@@ -1,0 +1,96 @@
+use warnings;
+use strict;
+use feature 'say';
+
+use RPi::WiringPi;
+use Test::More;
+
+if (! $ENV{RPI_STEPPER}){
+    plan(skip_all => "RPI_STEPPER environment variable not set");
+}
+
+if (! $ENV{PI_BOARD}){
+    $ENV{NO_BOARD} = 1;
+    plan skip_all => "Not on a Pi board\n";
+}
+
+use constant {
+    DEBUG => 0
+};
+
+my $pi = RPi::WiringPi->new;
+
+my $expander = $pi->expander(0x21);
+
+my $adc = $pi->adc(addr => 0x49);
+
+my $s = $pi->stepper_motor(
+    pins => [0, 1, 2, 3],   # BANK A, pins 0-3 on expande
+    expander => $expander,
+    delay => 0.0,
+    speed => 'full'
+);
+
+my ($l, $c, $r) = (2, 1, 0);
+my ($high, $low) = (1850, 1400);
+
+# centre
+
+display('centre') if DEBUG;
+
+is $adc->raw($l) < $low, 1, "left is low";
+is $adc->raw($c) > $high, 1, "centre is high";
+is $adc->raw($r) < $low, 1, "right is low";
+
+# left
+
+$s->ccw(90);
+
+is $adc->raw($l) > $high, 1, "left is high";
+is $adc->raw($c) < $low, 1, "centre is low";
+is $adc->raw($r) < $low, 1, "right is low";
+display('left') if DEBUG;
+
+# centre
+
+$s->cw(90);
+
+is $adc->raw($l) < $low, 1, "left is low";
+is $adc->raw($c) > $high, 1, "centre is high";
+is $adc->raw($r) < $low, 1, "right is low";
+display('centre') if DEBUG;
+
+# right
+
+$s->cw(90);
+
+is $adc->raw($l) < $low, 1, "left is low";
+is $adc->raw($c) < $low, 1, "centre is low";
+is $adc->raw($r) > $high, 1, "right is high";
+display('right') if DEBUG;
+
+# centre
+
+$s->ccw(90);
+
+is $adc->raw($l) < $low, 1, "left is low";
+is $adc->raw($c) > $high, 1, "centre is high";
+is $adc->raw($r) < $low, 1, "right is low";
+display('centre') if DEBUG;
+
+
+sub display {
+    my ($position) = @_;
+    
+    say $position;
+    say "L: " . $adc->raw($l);
+    say "C: " . $adc->raw($c);
+    say "R: " . $adc->raw($r);
+    say "\n";
+}
+
+done_testing;
+
+$expander->cleanup;
+#$pi->cleanup;
+
