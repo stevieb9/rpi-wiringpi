@@ -29,8 +29,8 @@ examples/shift.pl
 examples/spi.pl
 examples/stepper_motor.pl
 examples/sysinfo_faq_examples.pl
+examples/test_suite_stepper.pl
 examples/tripwire.pl
-expander.pl
 lib/RPi/WiringPi.pm
 lib/RPi/WiringPi/Core.pm
 lib/RPi/WiringPi/FAQ.pod
