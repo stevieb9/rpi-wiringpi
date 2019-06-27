@@ -1262,6 +1262,27 @@ column unit, leave those last two digits off.
     RPI_MCP23017=1
     RELEASE_TESTING=0
 
+=head2 I2C Test Platform Connections
+
+The below list shows the I2C addresses in use on the Raspberry Pi in the
+hardware test platform:
+
+    0x04  Arduino Metro Mini
+    0x05  ATMega328-P IC (not always in I2C mode, so not always available)
+    0x20  GPIO Expander 1
+    0x21  GPIO Expander 2
+    0x3c  OLED (main case)
+    0x48  ADC ADS 1 (main case)
+    0x49  ADC ADS 2 (2nd case)
+    0x57  AT24C32 EEPROM (on same breakout board as RTC)
+    0x68  DS3231 RTC
+    0x77  BMP180 Barometric Pressure Sensor
+
+We also have a standalone ATMega328-P chip in use on the test platform. If in
+I2C mode, it'll show up on the Pi as address C<0x05>. If we're using it in
+serial mode, it holds an OLED display at address C<0x3c> on its own I2C bus,
+separate from the Pi.
+
 =head1 DEVELOPMENT
 
 Section that describes some particulars when developing or adding new external

@@ -1,7 +1,7 @@
 Revision history for Perl extension RPi::WiringPi.
 
 2.3633 UNREL
-        -
+        - added the test platform I2C address map listing (closes #103)
 
 2.3632  2019-06-22
         - added the digital potentiometer (MCP4xxxx) to the test platform (in
