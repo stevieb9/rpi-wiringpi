@@ -38,44 +38,44 @@ my ($high, $low) = (1850, 1400);
 
 display('centre') if DEBUG;
 
-is $adc->raw($l) < $low, 1, "left is low";
-is $adc->raw($c) > $high, 1, "centre is high";
-is $adc->raw($r) < $low, 1, "right is low";
+is $adc->raw($l) < $low, 1, "start: left is low";
+is $adc->raw($c) > $high, 1, "start: CENTRE is HIGH";
+is $adc->raw($r) < $low, 1, "start: right is low";
 
-# left
+# left (from centre)
 
 $s->ccw(90);
 
-is $adc->raw($l) > $high, 1, "left is high";
-is $adc->raw($c) < $low, 1, "centre is low";
-is $adc->raw($r) < $low, 1, "right is low";
+is $adc->raw($l) > $high, 1, "C->L: LEFT is HIGH";
+is $adc->raw($c) < $low, 1, "C->L: centre is low";
+is $adc->raw($r) < $low, 1, "C->L: right is low";
 display('left') if DEBUG;
 
-# centre
+# centre (from left)
 
 $s->cw(90);
 
-is $adc->raw($l) < $low, 1, "left is low";
-is $adc->raw($c) > $high, 1, "centre is high";
-is $adc->raw($r) < $low, 1, "right is low";
+is $adc->raw($l) < $low, 1, "L->C: left is low";
+is $adc->raw($c) > $high, 1, "L->C: CENTRE is HIGH";
+is $adc->raw($r) < $low, 1, "L->C: right is low";
 display('centre') if DEBUG;
 
-# right
+# right (from centre)
 
 $s->cw(90);
 
-is $adc->raw($l) < $low, 1, "left is low";
-is $adc->raw($c) < $low, 1, "centre is low";
-is $adc->raw($r) > $high, 1, "right is high";
+is $adc->raw($l) < $low, 1, "C->R: left is low";
+is $adc->raw($c) < $low, 1, "C->R: centre is low";
+is $adc->raw($r) > $high, 1, "C->R: RIGHT is HIGH";
 display('right') if DEBUG;
 
-# centre
+# centre (from right)
 
 $s->ccw(90);
 
-is $adc->raw($l) < $low, 1, "left is low";
-is $adc->raw($c) > $high, 1, "centre is high";
-is $adc->raw($r) < $low, 1, "right is low";
+is $adc->raw($l) < $low, 1, "R->C: left is low";
+is $adc->raw($c) > $high, 1, "R->C: CENTRE is HIGH";
+is $adc->raw($r) < $low, 1, "R->C: right is low";
 display('centre') if DEBUG;
 
 
