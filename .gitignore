@@ -1,3 +1,4 @@
+bblog/
 *.bs
 *.o
 Makefile
