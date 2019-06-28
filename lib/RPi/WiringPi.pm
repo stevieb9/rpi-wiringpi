@@ -12,6 +12,7 @@ use RPi::BMP180;
 use RPi::Const qw(:all);
 use RPi::DAC::MCP4922;
 use RPi::DigiPot::MCP4XXXX;
+use RPi::EEPROM::AT24C32;
 use RPi::GPIOExpander::MCP23017;
 use RPi::HCSR04;
 use RPi::I2C;
