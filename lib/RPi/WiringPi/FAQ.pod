@@ -915,6 +915,19 @@ Please see its documentation for full usage information.
 
     $oled->clear;
 
+=head1 EEPROM
+
+We provide access to the C<AT24C32/64> based EEPROM storage Integrated Circuits
+via the L<RPi::EEPROM::AT24C32> distribution. See there for full usage details.
+
+=head2 Usage
+
+    my $eeprom = $pi->eeprom;
+
+    $eeprom->write(500, 20); # write '20' to EEPROM memory address 500
+
+    my $value = $eeprom->read(500);
+
 =head1 GPIO EXPANDERS
 
 We provide access to the C<MCP23017> GPIO expander chip via the
@@ -1173,6 +1186,13 @@ properly. To run these tests, set the following environment variable:
 
     export RPI_STEPPER=1
 
+=head3 EEPROM Testing
+
+To test the functionality of the EEPROM code, set the following environment
+variable:
+
+    RPI_EEPROM=1
+
 =head2 Automated with L<Test::BrewBuild>
 
 L<Test::BrewBuild> has some special features specifically to facilitate the
@@ -1248,6 +1268,7 @@ column unit, leave those last two digits off.
     RPI_ARDUINO=1
     RPI_ADC=1
     RPI_BMP=1
+    RPI_EEPROM=1
     RPI_MCP3008=1
     RPI_DIGIPOT=1
     RPI_MCP4922=1

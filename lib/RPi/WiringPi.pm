@@ -434,6 +434,25 @@ digital potentiometer (only the MCP4XXXX versions are currently supported).
 See the linked documentation for full documentation on usage, or the
 L<RPi::WiringPi::FAQ> for usage examples.
 
+=head2 eeprom(%args)
+
+Returns a L<RPi::EEPROM::AT24C32> object, allowing you to read and write to the
+32Kb and 64Kb EEPROM chips.
+
+    my $eeprom = $pi->eeprom(
+        device  => '/dev/i2c-1', # optional, default
+        address => 0x57,         # optional, default
+        delay   => 1             # optional, default
+    );
+
+    # write the value 20 to EEPROM memory address 500
+
+    $eeprom->write(500, 20);
+
+    # read the value stored in EEPROM address 500
+
+    my $value = $eeprom->read(500);
+
 =head2 gps
 
 Returns a L<GPSD::Parse> object, allowing you to track your location.
