@@ -79,6 +79,9 @@ t/404-sysinfo_raspi_config.t
 t/405-sysinfo_network_info.t
 t/406-sysinfo_file_system.t
 t/407-sysinfo_pi_details.t
+t/420-eeprom_args.t
+t/421-eeprom_read_write_byte_croak.t
+t/422-eeprom_read_write_byte.t
 t/450-stepper.t
 t/500-pod_coverage.t
 t/505-pod_linkcheck.t
