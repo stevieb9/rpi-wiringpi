@@ -2,7 +2,9 @@
 
 use warnings;
 use strict;
+use feature 'say';
 
+use RPi::ADC::ADS;
 use RPi::GPIOExpander::MCP23017;
 use RPi::StepperMotor;
 
@@ -26,6 +28,7 @@ my $s = RPi::StepperMotor->new(
     speed => $speed
 );
 
+my $adc = RPi::ADC::ADS->new(addr => 0x49);
 
 if ($dir eq 'cw'){
     $s->cw($deg);
@@ -33,6 +36,10 @@ if ($dir eq 'cw'){
 else {
     $s->ccw($deg);
 }
+
+say "c: " . $adc->raw(1);
+say "r: " . $adc->raw(0);
+say "l: " . $adc->raw(2);
 
 $expander->cleanup;
 $s->cleanup;

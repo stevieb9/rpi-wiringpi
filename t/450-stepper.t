@@ -19,20 +19,18 @@ use constant {
 };
 
 my $pi = RPi::WiringPi->new;
-
 my $expander = $pi->expander(0x21);
-
 my $adc = $pi->adc(addr => 0x49);
 
 my $s = $pi->stepper_motor(
-    pins => [0, 1, 2, 3],   # BANK A, pins 0-3 on expande
+    pins => [0, 1, 2, 3],   # BANK A, pins 0-3 on expander
     expander => $expander,
     delay => 0.0,
     speed => 'full'
 );
 
 my ($l, $c, $r) = (2, 1, 0);
-my ($high, $low) = (1850, 1400);
+my ($high, $low) = (1850, 1650);
 
 # centre
 
