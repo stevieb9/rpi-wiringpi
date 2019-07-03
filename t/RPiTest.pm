@@ -25,7 +25,7 @@ sub running_test {
 
     my $test_file_num;
 
-    if ($test =~ |t/(\d+)|){
+    if ($test =~ m|t/(\d+)|){
         $test_file_num = $1;
     }
 

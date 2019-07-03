@@ -1,6 +1,9 @@
 use strict;
 use warnings;
 
+use lib 't/';
+
+use RPiTest qw(check_pin_status running_test);
 use Test::More;
 use RPi::WiringPi;
 
@@ -12,6 +15,8 @@ if (! $ENV{PI_BOARD}){
     $ENV{NO_BOARD} = 1;
     plan skip_all => "Not on a Pi board\n";
 }
+
+running_test(__FILE__);
 
 my $s = RPi::WiringPi->oled('128x64', 0x3C, 0);
 

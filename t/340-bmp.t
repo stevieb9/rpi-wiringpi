@@ -3,7 +3,7 @@ use strict;
 
 use lib 't/';
 
-use RPiTest qw(check_pin_status);
+use RPiTest qw(check_pin_status running_test);
 
 use RPi::WiringPi;
 use RPi::Const qw(:all);
@@ -21,6 +21,8 @@ if (! $ENV{PI_BOARD}){
 use constant {
     BMP_BASE => 100,
 };
+
+running_test(__FILE__);
 
 my $pi = RPi::WiringPi->new;
 my $bmp = $pi->bmp(BMP_BASE);

@@ -3,7 +3,7 @@ use warnings;
 
 use lib 't/';
 
-use RPiTest qw(check_pin_status);
+use RPiTest qw(check_pin_status running_test);
 use RPi::WiringPi;
 use RPi::Const qw(:all);
 use Test::More;
@@ -24,6 +24,8 @@ if ($> != 0){
     system('sudo', 'perl', $0);
     exit;
 }
+
+running_test(__FILE__);
 
 use constant {
     LEFT    => 60,

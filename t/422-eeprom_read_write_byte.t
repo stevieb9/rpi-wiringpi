@@ -1,8 +1,10 @@
 use strict;
 use warnings;
 
-use Test::More;
+use lib 't/';
 
+use RPiTest qw(check_pin_status running_test);
+use Test::More;
 use RPi::EEPROM::AT24C32;
 
 BEGIN {
@@ -15,6 +17,8 @@ BEGIN {
         plan skip_all => "Not on a Pi board\n";
     }
 }
+
+running_test(__FILE__);
 
 my $e = RPi::EEPROM::AT24C32->new(delay => 2);
 

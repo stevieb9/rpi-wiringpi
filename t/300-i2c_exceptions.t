@@ -1,11 +1,16 @@
 use strict;
 use warnings;
 
+use lib 't/';
+
+use RPiTest qw(check_pin_status running_test);
 use RPi::WiringPi;
 use RPi::Const qw(:all);
 use Test::More;
 
 use lib 't/';
+
+running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
 

@@ -3,9 +3,11 @@ use warnings;
 
 use lib 't/';
 
-use RPiTest qw(check_pin_status);
+use RPiTest qw(check_pin_status running_test);
 use RPi::WiringPi;
 use Test::More;
+
+running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
 
