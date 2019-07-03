@@ -3,7 +3,7 @@ use strict;
 
 use lib 't/';
 
-use RPiTest qw(check_pin_status);
+use RPiTest qw(check_pin_status running_test);
 
 use RPi::WiringPi;
 use RPi::Const qw(:all);
@@ -27,6 +27,8 @@ use constant {
     DPOT_CH => 0,
     ADC_CH => 1,
 };
+
+running_test(__FILE__);
 
 my $pi = RPi::WiringPi->new;
 

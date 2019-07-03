@@ -2,6 +2,9 @@ use warnings;
 use strict;
 use feature 'say';
 
+use lib 't/';
+
+use RPiTest qw(check_pin_status running_test);
 use RPi::WiringPi;
 use Test::More;
 
@@ -17,6 +20,8 @@ if (! $ENV{PI_BOARD}){
 use constant {
     DEBUG => 0
 };
+
+running_test(__FILE__);
 
 my $pi = RPi::WiringPi->new;
 my $expander = $pi->expander(0x21);

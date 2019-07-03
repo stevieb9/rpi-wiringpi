@@ -3,7 +3,7 @@ use warnings;
 
 use lib 't/';
 
-use RPiTest qw(check_pin_status);
+use RPiTest qw(check_pin_status running_test);
 use RPi::WiringPi;
 use RPi::Const qw(:all);
 use Test::More;
@@ -20,6 +20,8 @@ if (! $ENV{PI_BOARD}){
     $ENV{NO_BOARD} = 1;
     plan skip_all => "Not on a Pi board\n";
 }
+
+running_test(__FILE__);
 
 my $pi = $mod->new;
 

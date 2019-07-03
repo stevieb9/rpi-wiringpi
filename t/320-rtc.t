@@ -1,6 +1,9 @@
 use warnings;
 use strict;
 
+use lib 't/';
+
+use RPiTest qw(check_pin_status running_test);
 use RPi::WiringPi;
 use Test::More;
 
@@ -16,6 +19,8 @@ if (! $ENV{PI_BOARD}){
 }
 
 $SIG{__DIE__} = sub {};
+
+running_test(__FILE__);
 
 my $pi = RPi::WiringPi->new;
 my $rtc = $pi->rtc;

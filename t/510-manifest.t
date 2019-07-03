@@ -1,6 +1,10 @@
 use 5.006;
 use strict;
 use warnings;
+
+use lib 't/';
+
+use RPiTest qw(check_pin_status running_test);
 use Test::More;
 
 unless ( $ENV{RPI_RELEASE_TESTING} ) {
@@ -10,5 +14,7 @@ unless ( $ENV{RPI_RELEASE_TESTING} ) {
 my $min_tcm = 0.9;
 eval "use Test::CheckManifest $min_tcm";
 plan skip_all => "Test::CheckManifest $min_tcm required" if $@;
+
+running_test(__FILE__);
 
 ok_manifest();

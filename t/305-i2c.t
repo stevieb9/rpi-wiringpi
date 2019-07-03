@@ -3,13 +3,15 @@ use warnings;
 
 use lib 't/';
 
-use RPiTest qw(check_pin_status);
+use RPiTest qw(check_pin_status running_test);
 use RPi::WiringPi;
 use RPi::Const qw(:all);
 use Test::More;
 
 use constant ARDUINO_ADDR => 0x04;
 use constant MAX_BYTES => 4;
+
+running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
 

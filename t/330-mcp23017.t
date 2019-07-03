@@ -16,6 +16,9 @@ BEGIN {
     use_ok( 'RPi::GPIOExpander::MCP23017' ) || print "Bail out!\n";
 }
 
+use lib 't/';
+
+use RPiTest qw(check_pin_status running_test);
 use RPi::Const qw(:all);
 use RPi::WiringPi;
 
@@ -23,6 +26,8 @@ use constant {
     BANK_A => 0,
     BANK_B => 1,
 };
+
+running_test(__FILE__);
 
 my $pi = RPi::WiringPi->new(fatal_exit => 0);
 my $o = $pi->expander(0x20);
