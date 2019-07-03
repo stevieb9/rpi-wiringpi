@@ -231,6 +231,7 @@ sub _pin_registration {
         $shared_pi_info{pins}->{$self->pin_to_gpio($pin->num)}{alt} = $param{alt};
         $shared_pi_info{pins}->{$self->pin_to_gpio($pin->num)}{state} = $param{state};
         $shared_pi_info{pins}->{$self->pin_to_gpio($pin->num)}{mode} = $param{mode};
+        $shared_pi_info{pins}->{$self->pin_to_gpio($pin->num)}{comment} = $pin->comment;
     }
 
     my @registered_pins = keys %{ $shared_pi_info{pins} };

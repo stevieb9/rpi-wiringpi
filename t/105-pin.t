@@ -21,9 +21,13 @@ my $pi = $mod->new;
 
 {# pin
 
-    my $pin = $pi->pin(18);
+    my $pin = $pi->pin(18, "test");
 
     isa_ok $pin, 'RPi::Pin';
+
+    is $pin->comment, 'test', "comment sent in new ok";
+    $pin->comment("test2");
+    is $pin->comment('test2'), 'test2', "comment() sets and gets the comment ok";
 
     is $pin->mode, 0, "pin mode is INPUT by default";
     is $pin->read, 0, "pin status is LOW by default";
