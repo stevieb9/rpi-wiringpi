@@ -14,8 +14,8 @@ Revision history for Perl extension RPi::WiringPi.
           what purpose (closes #108)
         - added new metadata() in Core, returns a copy of the meta data stored
           within the shared memory space
-        - added clean_shared() in Core, with examples/metadata/pl. Used to
-          wipe out the shared metadata in the event of power loss while Pi is
+        - added clean_shared() in Core, (with binary 'pi-erase-metadata'). Used
+          to wipe out the shared metadata in the event of power loss while Pi is
           running
         - added pimetadata and pi-erase-metadata scripts
         - cleanup() no longer tries to set pin_mode(). pin_mode() gets its data
