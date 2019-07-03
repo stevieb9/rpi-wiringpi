@@ -4,7 +4,7 @@ use warnings;
 use lib 't/';
 
 use RPiTest qw(check_pin_status running_test);
-use RPi::EEPROM::AT24C32;
+use RPi::WiringPi;
 use Test::More;
 
 BEGIN {
@@ -20,7 +20,8 @@ BEGIN {
 
 running_test(__FILE__);
 
-my $e = RPi::EEPROM::AT24C32->new;
+my $pi = RPi::WiringPi->new;
+my $e = $pi->eeprom;
 
 is ref $e, 'RPi::EEPROM::AT24C32', "object is of proper class";
 is $e->{address}, 0x57, "default i2c address ok";

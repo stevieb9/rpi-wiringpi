@@ -4,7 +4,7 @@ use warnings;
 use lib 't/';
 
 use RPiTest qw(check_pin_status running_test);
-use RPi::EEPROM::AT24C32;
+use RPi::WiringPi;
 use Test::More;
 
 BEGIN {
@@ -16,11 +16,14 @@ BEGIN {
         $ENV{NO_BOARD} = 1;
         plan skip_all => "Not on a Pi board\n";
     }
+
+    $SIG{__DIE__} = sub { die shift; }; # bypass RPi::WiringPi's grab on die()
 }
 
 running_test(__FILE__);
 
-my $e = RPi::EEPROM::AT24C32->new;
+my $pi = RPi::WiringPi->new;
+my $e = $pi->eeprom;
 
 # read w/o addr
 
