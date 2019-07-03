@@ -23,7 +23,7 @@ while (1){
     $s->putc($cpu);
     $s->putc($mem);
     $s->putc($tmp);
-    $s->putc($test_num);
+#    $s->putc($test_num);
 
     sleep 1;
 }
