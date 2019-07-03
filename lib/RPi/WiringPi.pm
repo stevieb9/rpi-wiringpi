@@ -119,6 +119,10 @@ sub dpot {
     $self->pin($cs);
     return RPi::DigiPot::MCP4XXXX->new($cs, $channel);
 }
+sub eeprom {
+    my ($self, %args) = @_;
+    return RPi::EEPROM::AT24C32->new(%args);
+}
 sub expander {
     my ($self, $addr, $expander) = @_;
 
