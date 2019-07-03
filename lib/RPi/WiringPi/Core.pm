@@ -202,6 +202,9 @@ sub cleanup{
         delete $shared_pi_info{pins}->{$pin};
     }
 }
+sub clean_shared {
+    %shared_pi_info = ();
+}
 sub _pin_registration {
     # manages the registration duties for pins
 
@@ -515,10 +518,14 @@ Parameters:
 
 Mandatory: An object instance of L<RPi::Pin> class.
 
-=head2 cleanup()
+=head2 cleanup
 
 Resets all registered pins back to default settings as they were before your
 program started. It's important that this method be called in each application.
+
+=head2 clear_shared
+
+Overwrites the shared memory storage area.
 
 =head1 ENVIRONMENT VARIABLES
 
