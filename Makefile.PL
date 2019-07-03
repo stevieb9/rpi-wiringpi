@@ -11,7 +11,13 @@ WriteMakefile(
     LIBS              => [],
     DEFINE            => '',
     INC               => '-I.',
-    EXE_FILES         => [ map "bin/$_", qw(pinmap pidentify) ],
+    EXE_FILES         => [ map "bin/$_", qw(
+            pinmap 
+            pidentify 
+            pimetadata
+            pi-erase-metadata
+        ) 
+    ],
     META_MERGE => {
         'meta-spec' => { version => 2 },
         resources   => {

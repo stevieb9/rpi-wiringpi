@@ -44,9 +44,8 @@ for ($pin26, $pin12, $pin18){
     $c++;
 }
 
-print "$ENV{RPI_PINS}\n"; 
 $pi->unregister_pin($pin18);
-print "$ENV{RPI_PINS}\n";
+
 is ((grep {$_ == 26} @{ $pi->registered_pins }), 1, "after removing 18, pin 26 ok"); 
 is ((grep {$_ == 12} @{ $pi->registered_pins }), 1, "after removing 12, pin 26 ok"); 
 

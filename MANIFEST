@@ -1,4 +1,6 @@
+bin/pi-erase-metadata
 bin/pidentify
+bin/pimetadata
 bin/pinmap
 Changes
 docs/breadboard/adc_basic_example_bb.jpg
@@ -20,6 +22,7 @@ examples/baseline_setup.pl
 examples/bmp.pl
 examples/i2c.pl
 examples/identify.pl
+examples/metadata.pl
 examples/perlmonks.pl
 examples/pot_adc.pl
 examples/registered_pins.pl
@@ -55,6 +58,7 @@ t/107-alt_modes.t
 t/108-mode_state_all_pins.t
 t/109-pwm_hw_mods.t
 t/110-register.t
+t/111-multiple_objects.t
 t/115-pwm_spi_adc.t
 t/150-cleanup.t
 t/155-sig_die.t

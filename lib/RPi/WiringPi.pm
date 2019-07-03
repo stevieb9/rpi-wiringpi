@@ -187,7 +187,7 @@ sub oled {
 sub pin {
     my ($self, $pin_num, $comment) = @_;
 
-    $self->registered_pins;
+#    $self->registered_pins;
     my $gpio = $self->pin_to_gpio($pin_num);
 
     if (grep {$gpio == $_} @{ $self->registered_pins }){
@@ -195,6 +195,9 @@ sub pin {
     }
 
     my $pin = RPi::Pin->new($pin_num, $comment);
+
+    use Data::Dumper;
+    print Dumper $pin;
     $self->register_pin($pin);
 
     return $pin;
