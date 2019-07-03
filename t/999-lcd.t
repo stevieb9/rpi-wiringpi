@@ -3,6 +3,7 @@ use strict;
 
 use lib 't/';
 
+use Data::Dumper;
 use RPiTest qw(check_pin_status running_test);
 use RPi::WiringPi;
 use RPi::Const qw(:all);
@@ -44,7 +45,13 @@ my %args = (
     d7 => 0,
 );
 
+print "BEFORE lcd():\n";
+print Dumper $pi->metadata;
+
 my $lcd = $pi->lcd(%args);
+
+print "AFTER lcd():\n";
+print Dumper $pi->metadata;
 
 $lcd->position(0, 0);
 $lcd->print("hello, world!"); 
@@ -65,6 +72,8 @@ my $ok = eval {
     }
     1;
 };
+print "AFTER init():\n";
+print Dumper $pi->metadata;
 
 is $ok, undef, "initializing too many LCD objects dies ok";
 
@@ -75,5 +84,8 @@ $pi->cleanup;
 check_pin_status();
 
 running_test(-1);
+
+print "AFTER cleanup():\n";
+print Dumper $pi->metadata;
 
 done_testing();
