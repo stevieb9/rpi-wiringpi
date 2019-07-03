@@ -24,9 +24,9 @@ sub running_test {
     my $test_file_num;
 
     if ($test =~ /^(-\d+)$/){
-        $test_file_num = 1;
+        $test_file_num = $1;
     }
-    else ($test =~ m|t/(\d+)|){
+    elsif ($test =~ m|t/(\d+)|){
         $test_file_num = $1;
     }
 
