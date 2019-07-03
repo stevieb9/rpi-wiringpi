@@ -6,13 +6,35 @@ use strict;
 use Exporter;
 our @ISA = qw(Exporter);
 
-our @EXPORT_OK = qw(check_pin_status oled_available oled_unavailable);
+our @EXPORT_OK = qw(
+    running_test
+    check_pin_status 
+    oled_available 
+    oled_unavailable
+);
 
 use Test::More;
 use WiringPi::API qw(:perl);
 
 my $oled_lock = '/tmp/oled_unavailable.rpi-wiringpi';
 
+sub running_test {
+    (my $test) = @_;
+
+    print "test file: $test\n";
+
+    my $test_file_num;
+
+    if ($test =~ |t/(\d+)|){
+        $test_file_num = $1;
+    }
+
+    return 0 if ! defined $test_file_num;
+
+    open my $fh, '>', '/tmp/running_test.rpi-wiringpi';
+    print $fh $test_file_num;
+    close $fh;
+}
 sub oled_available {
     my ($available) = @_;
 
