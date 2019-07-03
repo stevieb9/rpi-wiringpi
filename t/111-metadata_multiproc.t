@@ -3,48 +3,73 @@ use warnings;
 
 use lib 't/';
 
+use Data::Dumper;
 use RPiTest qw(check_pin_status running_test);
 use RPi::WiringPi;
 use Test::More;
+use feature 'say';
 
-my $mod = 'RPi::WiringPi';
+use constant {
+    MAX_PROCS => 3
+};
 
-if (! $ENV{RPI_MULTIPLE}){
-    plan skip_all => "Not ready for multiple objects yet\n";
-}
+BEGIN {
 
-if (! $ENV{PI_BOARD}){
-    $ENV{NO_BOARD} = 1;
-    plan skip_all => "Not on a Pi board\n";
+    local $SIG{__DIE__} = sub {}; # mask RPi::WiringPi's die() handler
+
+    if (! $ENV{RPI_MULTIPLE}){
+        plan skip_all => "RPI_MULTIPLE environment variable not set\n";
+    }
+
+    if (! $ENV{PI_BOARD}){
+        $ENV{NO_BOARD} = 1;
+        plan skip_all => "Not on a Pi board\n";
+    }
+
+    my $load_pmfork_ok = eval {
+        require Parallel::ForkManager;
+        Parallel::ForkManager->import;
+        1;
+    };
+
+    if (! $load_pmfork_ok){
+        plan skip_all => "Parallel::ForkManager couldn't be loaded...";
+    }
 }
 
 running_test(__FILE__);
 
-my $pi = $mod->new(fatal_exit => 0);
+my $mod = 'RPi::WiringPi';
 
-my $pin26 = $pi->pin(26);
-my $pin12 = $pi->pin(12);
-my $pin18 = $pi->pin(18);
+my $fm = Parallel::ForkManager->new(MAX_PROCS);
 
-my %pin_map = (
-    26 => $pin26,
-    12 => $pin12,
-    18 => $pin18,
-);
+my $pi = RPi::WiringPi->new;
 
-my $pins = $pi->registered_pins;
 
-is @$pins, 3, "proper num of pins registered";
+my @procs = qw(26 12 18);
+my @pis;
 
-for (keys %pin_map){
-    is $pin_map{$_}->num, $_, "\$pin$_ has proper num()";
+for my $proc (@procs){
+       
+    $fm->start and next;
+
+    $pis[$proc] = RPi::WiringPi->new;
+
+    $pis[$proc]->pin($_);
+#    is exists $pi->metadata->{pins}{26}, 1, "proc 1 has set pin 26";
+#    is exists $pi->metadata->{pins}{12}, '', "proc 1 can't see pin 12";
+#    is exists $pi->metadata->{pins}{18}, '', "proc 1 can't see pin 18";
+   
+    print Dumper $pi->registered_pins;
+    $fm->finish;
 }
 
-$pi->cleanup;
+$fm->wait_all_children;
 
-is @{ $pi->registered_pins }, 0, "after cleanup, all pins unregistered";
+$pi->cleanup();
+$pi->clean_shared;
 
-check_pin_status();
+# check_pin_status();
 
 done_testing();
 
