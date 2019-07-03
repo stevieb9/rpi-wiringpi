@@ -17,6 +17,10 @@ Revision history for Perl extension RPi::WiringPi.
           wipe out the shared metadata in the event of power loss while Pi is
           running
         - added pimetadata and pi-erase-metadata scripts
+        - cleanup() no longer tries to set pin_mode(). pin_mode() gets its data
+          from mode_alt() which has values of 0-7, so if we're higher than mode
+          3, everything fails, because pin_mode() accepts only values 0-3. We
+          just glean the mode from the 'alt' status instead
 
 2.3632  2019-06-22
         - added the digital potentiometer (MCP4xxxx) to the test platform (in

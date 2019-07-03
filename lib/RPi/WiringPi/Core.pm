@@ -198,8 +198,7 @@ sub cleanup{
     for my $pin (keys %{ $shared_pi_info{pins} }){
         WiringPi::API::pin_mode_alt($pin, $shared_pi_info{pins}->{$pin}{alt});
         WiringPi::API::write_pin($pin, $shared_pi_info{pins}->{$pin}{state});
-        WiringPi::API::pin_mode($pin, $shared_pi_info{pins}->{$pin}{mode});
-
+        
         delete $shared_pi_info{pins}->{$pin};
     }
 }
