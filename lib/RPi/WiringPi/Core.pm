@@ -172,12 +172,12 @@ sub registered_pins {
 sub register_pin {
     my ($self, $pin, $comment) = @_;
     $self->_pin_registration(
-        $pin,
+        pin       => $pin,
         alt       => $pin->mode_alt,
         state     => $pin->read,
         mode      => $pin->mode,
         comment   => $comment,
-        operation => 'register',
+        operation => 'register'
     );
 }
 sub unregister_pin {
@@ -208,7 +208,9 @@ sub clean_shared {
 sub _pin_registration {
     # manages the registration duties for pins
 
-    my ($self, $pin, %param) = @_;
+    my ($self, %param) = @_;
+
+    my $pin = $param{pin};
 
     if (! defined $pin){
         my @registered_pins = keys %{ $shared_pi_info{pins} };
