@@ -185,7 +185,7 @@ sub oled {
     }
 }
 sub pin {
-    my ($self, $pin_num) = @_;
+    my ($self, $pin_num, $comment) = @_;
 
     $self->registered_pins;
     my $gpio = $self->pin_to_gpio($pin_num);
@@ -194,8 +194,9 @@ sub pin {
         die "\npin $pin_num is already in use... can't create second object\n";
     }
 
-    my $pin = RPi::Pin->new($pin_num);
+    my $pin = RPi::Pin->new($pin_num, $comment);
     $self->register_pin($pin);
+
     return $pin;
 }
 sub rtc {

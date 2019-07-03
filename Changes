@@ -7,6 +7,10 @@ Revision history for Perl extension RPi::WiringPi.
         - implemented IPC::Shareable so we can read and write object and other
           various information (pins, test info etc) between separate processes
           and objects (closes #107)
+        - updated RPi::Pin (and subsequently register_pin()) with the ability
+          to store a comment/description with each pin. This will allow all
+          objects across all processes to identify which pin is being used for
+          what purpose (closes #108)
 
 2.3632  2019-06-22
         - added the digital potentiometer (MCP4xxxx) to the test platform (in
