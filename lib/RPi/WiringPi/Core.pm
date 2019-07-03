@@ -53,6 +53,10 @@ sub label {
     $self->{label} = $label if defined $label;
     return $self->{label} // '';
 }
+sub metadata {
+    my %meta = %shared_pi_info;
+    return \%meta;
+}
 sub pin_to_gpio {
     my ($self, $pin, $scheme) = @_;
 
@@ -325,6 +329,15 @@ object.
 
 Return: The label/name you've previously set. If one has not been set, return
 will be the empty string.
+
+=head2 metadata
+
+During operation, we store several pieces of meta data of both the Pi object
+as well as operational status information in shared memory.
+
+Call this method to get a copy of this meta information.
+
+Return: Hash reference containing the meta data.
 
 =head2 pin_scheme([$scheme])
 

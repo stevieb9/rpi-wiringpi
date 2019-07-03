@@ -11,6 +11,8 @@ Revision history for Perl extension RPi::WiringPi.
           to store a comment/description with each pin. This will allow all
           objects across all processes to identify which pin is being used for
           what purpose (closes #108)
+        - added new metadata() in Core, returns a copy of the meta data stored
+          within the shared memory space
 
 2.3632  2019-06-22
         - added the digital potentiometer (MCP4xxxx) to the test platform (in
