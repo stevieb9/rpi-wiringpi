@@ -5,7 +5,7 @@ use lib 't/';
 
 use RPiTest qw(check_pin_status running_test);
 use Test::More;
-use RPi::EEPROM::AT24C32;
+use RPi::WiringPi;
 
 BEGIN {
     if (! $ENV{RPI_EEPROM}){
@@ -20,7 +20,8 @@ BEGIN {
 
 running_test(__FILE__);
 
-my $e = RPi::EEPROM::AT24C32->new(delay => 2);
+my $pi = RPi::WiringPi->new;
+my $e = $pi->eeprom(delay => 2);
 
 $e->write(100, 232);
 is $e->read(100), 232, "single address write/read ok";

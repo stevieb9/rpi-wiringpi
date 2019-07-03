@@ -3,7 +3,8 @@ Revision history for Perl extension RPi::WiringPi.
 2.3633 UNREL
         - added the test platform I2C address map listing (closes #103)
         - EEPROM: add the new RPi::EEPROM::AT24C32 distribution for EEPROM
-          access (closes #104)
+          access (closes #104), and tests pull the EEPROM object from a $pi
+          object (closes #105)
         - implemented IPC::Shareable so we can read and write object and other
           various information (pins, test info etc) between separate processes
           and objects (closes #107)
