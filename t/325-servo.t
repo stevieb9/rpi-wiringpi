@@ -8,8 +8,6 @@ use RPi::WiringPi;
 use RPi::Const qw(:all);
 use Test::More;
 
-running_test(__FILE__);
-
 my $mod = 'RPi::WiringPi';
 
 if ($> == 0){
@@ -25,6 +23,8 @@ if ($> != 0){
     system('sudo', 'perl', $0);
     exit;
 }
+
+running_test(__FILE__);
 
 use constant {
     LEFT    => 60,
