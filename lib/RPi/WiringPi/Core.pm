@@ -523,7 +523,7 @@ Mandatory: An object instance of L<RPi::Pin> class.
 Resets all registered pins back to default settings as they were before your
 program started. It's important that this method be called in each application.
 
-=head2 clear_shared
+=head2 clean_shared
 
 Overwrites the shared memory storage area.
 
