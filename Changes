@@ -4,9 +4,9 @@ Revision history for Perl extension RPi::WiringPi.
         - added the test platform I2C address map listing (closes #103)
         - EEPROM: add the new RPi::EEPROM::AT24C32 distribution for EEPROM
           access (closes #104)
-        - we now use IPC::Shareable to pass around test information (number,
-          name etc) so we can display it on the sysinfo display for
-          troubleshooting (added new running_test() to t/RPiTest.pm)
+        - implemented IPC::Shareable so we can read and write object and other
+          various information (pins, test info etc) between separate processes
+          and objects (closes #107)
 
 2.3632  2019-06-22
         - added the digital potentiometer (MCP4xxxx) to the test platform (in
