@@ -5,10 +5,16 @@ use warnings;
 
 use parent 'WiringPi::API';
 use parent 'RPi::SysInfo';
-use JSON;
+use Carp qw(croak);
+use IPC::Shareable;
 use RPi::Const qw(:all);
 
 our $VERSION = '2.3633';
+
+tie my %shared_pi_info, 'IPC::Shareable', {
+    key => 'rpiw',
+    create => 1,
+};
 
 sub gpio_layout {
     return $_[0]->gpio_layout;
@@ -64,7 +70,7 @@ sub pin_to_gpio {
         return $pin;
     }
     if ($scheme == RPI_MODE_UNINIT){
-        die "setup not run; pin mapping scheme not initialized\n";
+        croak "setup not run; pin mapping scheme not initialized\n";
     }
 }
 sub pin_map {
@@ -144,7 +150,7 @@ sub pwm_mode {
         $self->pwm_set_mode($mode);
     }
     else {
-        die "pwm_mode() requires either 0 or 1 if a param is sent in\n";
+        croak "pwm_mode() requires either 0 or 1 if a param is sent in\n";
     }
     return defined $self->{pwm_mode} ? $self->{pwm_mode} : 1;
 }
@@ -160,72 +166,74 @@ sub registered_pins {
     return $_[0]->_pin_registration;
 }
 sub register_pin {
-    my ($self, $pin) = @_;
-    $self->_pin_registration($pin, $pin->mode_alt, $pin->read, $pin->mode);
+    my ($self, $pin, $comment) = @_;
+    $self->_pin_registration(
+        $pin,
+        alt       => $pin->mode_alt,
+        state     => $pin->read,
+        mode      => $pin->mode,
+        comment   => $comment,
+        operation => 'register',
+    );
 }
 sub unregister_pin {
     my ($self, $pin) = @_;
-    $self->_pin_registration($pin);
+    $self->_pin_registration($pin, operation => 'unregister');
 }
 sub cleanup{
+
     if ($ENV{PWM_IN_USE}){
         WiringPi::API::pwm_set_mode(PWM_DEFAULT_MODE);
         WiringPi::API::pwm_set_clock(PWM_DEFAULT_CLOCK);
         WiringPi::API::pwm_set_range(PWM_DEFAULT_RANGE);
     }
 
-    return if ! $ENV{RPI_PINS};
+    return if keys %{ $shared_pi_info{pins} } == 0;
 
-    my $pins = decode_json $ENV{RPI_PINS};
+    for my $pin (keys %{ $shared_pi_info{pins} }){
+        WiringPi::API::pin_mode_alt($pin, $shared_pi_info{pins}->{$pin}{alt});
+        WiringPi::API::write_pin($pin, $shared_pi_info{pins}->{$pin}{state});
+        WiringPi::API::pin_mode($pin, $shared_pi_info{pins}->{$pin}{mode});
 
-    for my $pin (keys %{ $pins }){
-        WiringPi::API::pin_mode_alt($pin, $pins->{$pin}{alt});
-        WiringPi::API::write_pin($pin, $pins->{$pin}{state});
-        WiringPi::API::pin_mode($pin, $pins->{$pin}{mode});
+        delete $shared_pi_info{pins}->{$pin};
     }
-    delete $ENV{RPI_PINS};
 }
 sub _pin_registration {
     # manages the registration duties for pins
 
-    my ($self, $pin, $alt, $state, $mode) = @_;
-
-    my $json = $ENV{RPI_PINS};
-    my $perl = defined $json ? decode_json $json : {};
+    my ($self, $pin, %param) = @_;
 
     if (! defined $pin){
-        my @registered_pins = keys %{ $perl };
+        my @registered_pins = keys %{ $shared_pi_info{pins} };
         return \@registered_pins;
     }
 
-    if (! defined $alt){
-        if (defined $perl->{$self->pin_to_gpio($pin->num)}){
-            $pin->mode_alt($perl->{$pin->num}{alt});
-            $pin->write($perl->{$pin->num}{state});
-            $pin->mode($perl->{$pin->num}{mode});
-            delete $perl->{$self->pin_to_gpio($pin->num)};
-            $ENV{RPI_PINS} = encode_json $perl;
+    if ($param{operation} eq 'unregister'){
+        if (exists $shared_pi_info{pins}->{$self->pin_to_gpio($pin->num)}){
+            $pin->mode_alt($shared_pi_info{pins}->{$pin->num}{alt});
+            $pin->write($shared_pi_info{pins}->{$pin->num}{state});
+            $pin->mode($shared_pi_info{pins}->{$pin->num}{mode});
+            delete $shared_pi_info{pins}->{$self->pin_to_gpio($pin->num)};
             return;
         }
     }
 
-    die "_pin_registration() requires both \$alt and \$state params\n"
-      if ! defined $state;
-
-    if (exists $perl->{$self->pin_to_gpio($pin->num)}){
-        my $gpio_pin_num = $self->pin_to_gpio($pin->num);
-        die "pin $gpio_pin_num is already in use, can't continue...\n";
+    if (! exists $param{state} && ! exists $param{alt}) {
+        croak "_pin_registration() requires both 'alt' and 'state' params\n";
     }
 
-    $perl->{$self->pin_to_gpio($pin->num)}{alt} = $alt;
-    $perl->{$self->pin_to_gpio($pin->num)}{state} = $state;
-    $perl->{$self->pin_to_gpio($pin->num)}{mode} = $mode;
+    if (exists $shared_pi_info{pins}->{$self->pin_to_gpio($pin->num)}){
+        my $gpio_pin_num = $self->pin_to_gpio($pin->num);
+        croak "pin $gpio_pin_num is already in use, can't continue...\n";
+    }
 
-    my @registered_pins = keys %{ $perl };
+    if ($param{operation} eq 'register'){
+        $shared_pi_info{pins}->{$self->pin_to_gpio($pin->num)}{alt} = $param{alt};
+        $shared_pi_info{pins}->{$self->pin_to_gpio($pin->num)}{state} = $param{state};
+        $shared_pi_info{pins}->{$self->pin_to_gpio($pin->num)}{mode} = $param{mode};
+    }
 
-    $json = encode_json $perl;
-    
-    $ENV{RPI_PINS} = $json;
+    my @registered_pins = keys %{ $shared_pi_info{pins} };
 
     return \@registered_pins;
 }

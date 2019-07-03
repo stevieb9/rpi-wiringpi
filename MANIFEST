@@ -58,6 +58,7 @@ t/110-register.t
 t/115-pwm_spi_adc.t
 t/150-cleanup.t
 t/155-sig_die.t
+t/156-running_test.t
 t/200-interrupt_rising_and_pud.t
 t/201-interrupt_falling_and_pud.t
 t/202-interrupt_both_and_pud.t

@@ -18,8 +18,8 @@ use IPC::Shareable;
 use Test::More;
 use WiringPi::API qw(:perl);
 
-tie my %shared_testinfo, 'IPC::Shareable', {
-    key => 'test',
+tie my %shared_pi_info, 'IPC::Shareable', {
+    key => 'rpiw',
     create => 1,
 };
 
@@ -29,13 +29,13 @@ sub running_test {
     (my $test) = @_;
 
     if ($test =~ m|t/(\d+)-(.*)\.t|){
-        $shared_testinfo{test_num} = $1;
-        $shared_testinfo{test_name} = $2;
+        $shared_pi_info{testing}->{test_num} = $1;
+        $shared_pi_info{testing}->{test_name} = $2;
         return 0;
     }
     elsif ($test =~ /^-\d+/){
-        $shared_testinfo{test_num} = -1;
-        $shared_testinfo{test_name} = '';
+        $shared_pi_info{testing}->{test_num} = -1;
+        $shared_pi_info{testing}->{test_name} = '';
         return 0;
     }
 
@@ -87,12 +87,12 @@ sub check_pin_status {
         if ($_ == 14 || $_ == 15){
             # serial pins
             my $alt = get_alt($_);
-            ok $alt == $config->{$_}{alt} || $alt == 2, "pin $_ set back to default mode ok";
-            is read_pin($_), $config->{$_}{state}, "pin $_ set back to default state ok";
+            ok $alt == $config->{$_}{alt} || $alt == 2, "pin $_ set back to default mode ($alt) ok";
+            is read_pin($_), $config->{$_}{state}, "pin $_ set back to default state ($config->{$_}{state}) ok";
             next;
         }
-        is get_alt($_), $config->{$_}{alt}, "pin $_ set back to default mode ok";
-        is read_pin($_), $config->{$_}{state}, "pin $_ set back to default state ok";
+        is get_alt($_), $config->{$_}{alt}, "pin $_ set back to default mode ($config->{$_}{alt}) ok";
+        is read_pin($_), $config->{$_}{state}, "pin $_ set back to default state ($config->{$_}{state}) ok";
     }
 }
 sub default_pin_config {

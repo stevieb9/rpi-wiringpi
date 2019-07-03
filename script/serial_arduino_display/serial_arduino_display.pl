@@ -7,8 +7,8 @@ use feature 'say';
 use IPC::Shareable;
 use RPi::WiringPi;
 
-tie my %shared_testinfo, 'IPC::Shareable', {
-    key => 'test',
+tie my %shared_pi_info, 'IPC::Shareable', {
+    key => 'ripw',
     create => 1,
 };
 
@@ -41,8 +41,8 @@ while (1){
 }
 
 sub test_num {
-    if ($shared_testinfo{test_num} > 0){
-        return $shared_testinfo{test_num};
+    if ($shared_pi_info{testing}->{test_num} > 0){
+        return $shared_pi_info{testing}->{test_num};
     }
     else {
         return -1;

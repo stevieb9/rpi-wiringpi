@@ -43,6 +43,11 @@ BEGIN {
 
 # core
 
+tie my %shared_pi_info, 'IPC::Shareable', {
+    key => 'ripw',
+    create => 1
+};
+
 sub new {
     my ($self, %args) = @_;
     $self = bless {%args}, $self;
