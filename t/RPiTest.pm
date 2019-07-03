@@ -13,30 +13,34 @@ our @EXPORT_OK = qw(
     oled_unavailable
 );
 
+use Carp qw(croak);
+use IPC::Shareable;
 use Test::More;
 use WiringPi::API qw(:perl);
+
+tie my %shared_testinfo, 'IPC::Shareable', {
+    key => 'test',
+    create => 1,
+};
 
 my $oled_lock = '/tmp/oled_unavailable.rpi-wiringpi';
 
 sub running_test {
     (my $test) = @_;
 
-    my $test_file_num;
-
-    if ($test =~ /^(-\d+)$/){
-        $test_file_num = $1;
+    if ($test =~ m|t/(\d+)-(.*)\.t|){
+        $shared_testinfo{test_num} = $1;
+        $shared_testinfo{test_name} = $2;
+        return 0;
     }
-    elsif ($test =~ m|t/(\d+)|){
-        $test_file_num = $1;
+    elsif ($test =~ /^-\d+/){
+        $shared_testinfo{test_num} = -1;
+        $shared_testinfo{test_name} = '';
+        return 0;
     }
 
-    return 0 if ! defined $test_file_num;
-
-    open my $fh, '>', '/tmp/running_test.rpi-wiringpi';
-    print $fh $test_file_num;
-    close $fh;
-
-    return 1;
+    croak
+        "running_test() couldn't translate '$test' to a usable shared format\n";
 }
 sub oled_available {
     my ($available) = @_;
