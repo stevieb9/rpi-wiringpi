@@ -41,7 +41,6 @@ running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
 
-my $fm = Parallel::ForkManager->new(MAX_PROCS);
 
 my $pi = RPi::WiringPi->new;
 
