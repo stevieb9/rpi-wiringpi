@@ -171,18 +171,19 @@ sub registered_pins {
 }
 sub register_pin {
     my ($self, $pin, $comment) = @_;
+
     $self->_pin_registration(
         pin       => $pin,
         alt       => $pin->mode_alt,
         state     => $pin->read,
         mode      => $pin->mode,
-        comment   => $comment,
+        comment   => $comment //= '',
         operation => 'register'
     );
 }
 sub unregister_pin {
     my ($self, $pin) = @_;
-    $self->_pin_registration($pin, operation => 'unregister');
+    $self->_pin_registration(pin => $pin, operation => 'unregister');
 }
 sub cleanup{
 

@@ -196,8 +196,6 @@ sub pin {
 
     my $pin = RPi::Pin->new($pin_num, $comment);
 
-    use Data::Dumper;
-    print Dumper $pin;
     $self->register_pin($pin);
 
     return $pin;

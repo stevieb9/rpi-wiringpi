@@ -92,8 +92,8 @@ sub display {
     say "\n";
 }
 
-done_testing;
-
 $expander->cleanup;
-#$pi->cleanup;
+$pi->cleanup;
+
+done_testing();
 
