@@ -21,11 +21,12 @@ my $oled_lock = '/tmp/oled_unavailable.rpi-wiringpi';
 sub running_test {
     (my $test) = @_;
 
-    print "test file: $test\n";
-
     my $test_file_num;
 
-    if ($test =~ m|t/(\d+)|){
+    if ($test =~ /^(-\d+)$/){
+        $test_file_num = 1;
+    }
+    else ($test =~ m|t/(\d+)|){
         $test_file_num = $1;
     }
 
@@ -34,6 +35,8 @@ sub running_test {
     open my $fh, '>', '/tmp/running_test.rpi-wiringpi';
     print $fh $test_file_num;
     close $fh;
+
+    return 1;
 }
 sub oled_available {
     my ($available) = @_;
