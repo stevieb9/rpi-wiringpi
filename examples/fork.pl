@@ -9,25 +9,27 @@ say "Process ID: $$";
 
 my $pid = fork;
 
-if (not defined $pid) {
-    warn 'Could not fork';
-    next;
-}
+
 if ($pid) {
-    $forks++;
+    my $pi_parent = RPi::WiringPi->new(label => 'PARENT');
     say "in parent $$, child $pid";
-    my $pi = RPi::WiringPi->new(label => 'parent');
-    $pi->pin(12);
-    print Dumper $pi->metadata;
+    $pi_parent->pin(12);
 
-    say "Parent obj... label: " . $pi->label . "\n";
+    say "parent: " . $pi_parent->label . "\n";
+    print Dumper $pi_parent->metadata;
+    #$pi_parent->clean_shared;
+    #$pi_parent->cleanup;
 } else {
-    my $pi = RPi::WiringPi->new(label => 'child');
-    sleep 2;
-    say "Child obj... label:" . $pi->label . "\n";;
-    exit;
+    my $pi = RPi::WiringPi->new(label => 'CHILD');
+    $pi->pin(18);
+
+    say "child:" . $pi->label . "\n";;
+    print Dumper $pi->metadata;
+#    $pi->cleanup;
 }
 
-my $pid = wait();
-say "Parent saw $pid exiting";
-say "Parent ($$) ending";
+my $pid_w = wait();
+
+say "$pid_w done";
+
+

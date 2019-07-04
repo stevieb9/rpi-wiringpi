@@ -90,6 +90,9 @@ sub new {
         $ENV{RPI_SCHEME} = $self->pin_scheme;
     }
     $self->_fatal_exit;
+
+    $self->{uuid} = $self->checksum;
+
     return $self;
 }
 sub adc {

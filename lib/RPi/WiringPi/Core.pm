@@ -6,6 +6,7 @@ use warnings;
 use parent 'WiringPi::API';
 use parent 'RPi::SysInfo';
 use Carp qw(croak);
+use Data::Dumper;
 use Digest::MD5 qw(md5_hex);
 use IPC::Shareable;
 use RPi::Const qw(:all);
@@ -18,6 +19,10 @@ tie my %shared_pi_info, 'IPC::Shareable', {
 
 sub checksum {
      return md5_hex(rand());
+}
+sub dump_object {
+    my ($self) = @_;
+    print Dumper $self;
 }
 sub gpio_layout {
     return $_[0]->gpio_layout;
@@ -188,6 +193,10 @@ sub unregister_pin {
     my ($self, $pin) = @_;
     $self->_pin_registration(pin => $pin, operation => 'unregister');
 }
+sub uuid {
+    my ($self) = @_;
+    return $self->{uuid};
+}
 sub cleanup{
 
     if ($ENV{PWM_IN_USE}){
@@ -277,7 +286,11 @@ usage details.
 Returns a randomly generated 32-byte hexidecimal MD5 checksum. We use this
 internally to generate a UUID for each Pi object.
 
-=head2 gpio_layout()
+=head2 dump_object
+
+Used for troubleshooting/development, dumps the object using L<Data::Dumper>.
+
+=head2 gpio_layout
 
 Returns the GPIO layout which indicates the board revision number.
 
@@ -527,6 +540,10 @@ Parameters:
     $pin_obj
 
 Mandatory: An object instance of L<RPi::Pin> class.
+
+=head2 uuid
+
+Returns the Pi object's 32-byte hexidecimal unique identifier.
 
 =head2 cleanup
 
