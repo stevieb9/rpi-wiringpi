@@ -6,9 +6,9 @@ use warnings;
 use parent 'WiringPi::API';
 use parent 'RPi::SysInfo';
 use Carp qw(croak);
+use Digest::MD5 qw(md5_hex);
 use IPC::Shareable;
 use RPi::Const qw(:all);
-
 our $VERSION = '2.3633';
 
 tie my %shared_pi_info, 'IPC::Shareable', {
@@ -16,6 +16,9 @@ tie my %shared_pi_info, 'IPC::Shareable', {
     create => 1,
 };
 
+sub checksum {
+     return md5_hex(rand());
+}
 sub gpio_layout {
     return $_[0]->gpio_layout;
 }
@@ -268,6 +271,11 @@ used independently.
 Besides the methods listed below, we also make available through inheritance
 all methods provided by L<RPi::SysInfo>. Please see that documentation for
 usage details.
+
+=head2 checksum
+
+Returns a randomly generated 32-byte hexidecimal MD5 checksum. We use this
+internally to generate a UUID for each Pi object.
 
 =head2 gpio_layout()
 
