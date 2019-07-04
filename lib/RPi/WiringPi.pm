@@ -44,7 +44,7 @@ BEGIN {
 # core
 
 tie my %shared_pi_info, 'IPC::Shareable', {
-    key => 'ripw',
+    key => 'rpiw',
     create => 1
 };
 
@@ -92,6 +92,7 @@ sub new {
     $self->_fatal_exit;
 
     $self->{uuid} = $self->checksum;
+    $shared_pi_info{objects}->{$self->uuid} = 1;
 
     return $self;
 }

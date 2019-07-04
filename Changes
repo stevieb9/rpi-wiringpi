@@ -26,6 +26,8 @@ Revision history for Perl extension RPi::WiringPi.
         - added uuid(), returns the generated string set as the Pi object's UUID
           in the new() method
         - added dump_object(), simply dumps the object out using Data::Dumper
+        - shared memory now stores the checksum of each Pi object created on the
+          system (specifically used for cleanup identification)
 
 2.3632  2019-06-22
         - added the digital potentiometer (MCP4xxxx) to the test platform (in

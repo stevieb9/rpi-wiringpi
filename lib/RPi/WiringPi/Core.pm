@@ -198,6 +198,7 @@ sub uuid {
     return $self->{uuid};
 }
 sub cleanup{
+    my ($self) = @_;
 
     if ($ENV{PWM_IN_USE}){
         WiringPi::API::pwm_set_mode(PWM_DEFAULT_MODE);
@@ -205,14 +206,14 @@ sub cleanup{
         WiringPi::API::pwm_set_range(PWM_DEFAULT_RANGE);
     }
 
-    return if keys %{ $shared_pi_info{pins} } == 0;
-
     for my $pin (keys %{ $shared_pi_info{pins} }){
         WiringPi::API::pin_mode_alt($pin, $shared_pi_info{pins}->{$pin}{alt});
         WiringPi::API::write_pin($pin, $shared_pi_info{pins}->{$pin}{state});
         
         delete $shared_pi_info{pins}->{$pin};
     }
+
+    delete $shared_pi_info{objects}->{$self->uuid};
 }
 sub clean_shared {
     %shared_pi_info = ();
