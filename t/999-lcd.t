@@ -27,7 +27,7 @@ running_test(__FILE__);
 my $continue = 1;
 $SIG{INT} = sub { $continue = 0; };
 
-my $pi = RPi::WiringPi->new;
+my $pi = RPi::WiringPi->new(fatal_exit => 0);
 
 my %args = (
     cols => 20,
@@ -45,13 +45,7 @@ my %args = (
     d7 => 0,
 );
 
-print "BEFORE lcd():\n";
-print Dumper $pi->metadata;
-
 my $lcd = $pi->lcd(%args);
-
-print "AFTER lcd():\n";
-print Dumper $pi->metadata;
 
 $lcd->position(0, 0);
 $lcd->print("hello, world!"); 
@@ -72,8 +66,6 @@ my $ok = eval {
     }
     1;
 };
-print "AFTER init():\n";
-print Dumper $pi->metadata;
 
 is $ok, undef, "initializing too many LCD objects dies ok";
 
@@ -84,8 +76,5 @@ $pi->cleanup;
 check_pin_status();
 
 running_test(-1);
-
-print "AFTER cleanup():\n";
-print Dumper $pi->metadata;
 
 done_testing();

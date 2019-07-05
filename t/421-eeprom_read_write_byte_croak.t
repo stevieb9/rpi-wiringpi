@@ -22,7 +22,7 @@ BEGIN {
 
 running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new;
+my $pi = RPi::WiringPi->new(fatal_exit => 0);
 my $e = $pi->eeprom;
 
 # read w/o addr
