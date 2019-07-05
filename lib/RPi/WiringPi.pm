@@ -28,73 +28,18 @@ use RPi::StepperMotor;
 
 our $VERSION = '2.3633';
 
-my $fatal_exit = 1;
-my %sig_handlers;
-my $signal_debug = 0;
-
-sub _generate_signal_handlers {
-    my $self = shift;
-
-    if (! %sig_handlers){
-        # set up the signal handler class structure only once
-        $SIG{INT} = \&_class_signal_handler('INT');
-        $SIG{TERM} = \&_class_signal_handler('TERM');
-        $SIG{__DIE__} = sub { _class_signal_handler('__DIE__', @_) };
-    }
-
-    $sig_handlers{'__DIE__'}{$self->uuid} = sub {
-        my @err = @_;
-        $self->_cleanup_handler('__DIE__', @err)
-    };
-    $sig_handlers{'INT'}{$self->uuid} = sub {
-        $self->_cleanup_handler('INT')
-    };
-    $sig_handlers{'TERM'}{$self->uuid} = sub {
-        $self->_cleanup_handler('TERM')
-    };
-}
-sub _class_signal_handler {
-    # populates the class level signal handler structure
-
-    my $signal = shift;
-
-    for (keys %{ $sig_handlers{$signal} }){
-        &{ $sig_handlers{$signal}->{$_} }(@_);
-    }
-}
-sub _cleanup_handler {
-    # the actual sig handler methods
-
-    my ($self, $sig, @err) = @_;
-
-    print "$_\n" for @err;
-
-    if ($signal_debug){
-        print "running '$sig' handler for: " . $self->uuid .
-            " with fatal_exit = " . $self->_fatal_exit . "\n";
-    }
-
-    $self->cleanup;
-
-    if ($self->_fatal_exit){
-        delete $sig_handlers{$sig}{$self->uuid};
-
-        if (scalar(keys %{ $sig_handlers{$sig} }) == 0){
-             exit;
-        }
-    }
-}
-sub _signal_handlers {
-    return \%sig_handlers;
-}
-sub _dump_handlers {
-    print Dumper \%sig_handlers;
-}
+# initialize the IPC shared memory space
 
 tie my %shared_pi_info, 'IPC::Shareable', {
     key => 'rpiw',
     create => 1
 };
+
+# class variables
+
+my $fatal_exit = 1;
+my %sig_handlers;
+my $signal_debug = 0;
 
 # core
 
@@ -329,6 +274,65 @@ sub DESTROY {
 }
 
 # private
+
+sub _generate_signal_handlers {
+    my $self = shift;
+
+    if (! %sig_handlers){
+        # set up the signal handler class structure only once
+        $SIG{INT} = \&_class_signal_handler('INT');
+        $SIG{TERM} = \&_class_signal_handler('TERM');
+        $SIG{__DIE__} = sub { _class_signal_handler('__DIE__', @_) };
+    }
+
+    $sig_handlers{'__DIE__'}{$self->uuid} = sub {
+        my @err = @_;
+        $self->_cleanup_handler('__DIE__', @err)
+    };
+    $sig_handlers{'INT'}{$self->uuid} = sub {
+        $self->_cleanup_handler('INT')
+    };
+    $sig_handlers{'TERM'}{$self->uuid} = sub {
+        $self->_cleanup_handler('TERM')
+    };
+}
+sub _class_signal_handler {
+    # populates the class level signal handler structure
+
+    my $signal = shift;
+
+    for (keys %{ $sig_handlers{$signal} }){
+        &{ $sig_handlers{$signal}->{$_} }(@_);
+    }
+}
+sub _cleanup_handler {
+    # the actual sig handler methods
+
+    my ($self, $sig, @err) = @_;
+
+    print "$_\n" for @err;
+
+    if ($signal_debug){
+        print "running '$sig' handler for: " . $self->uuid .
+            " with fatal_exit = " . $self->_fatal_exit . "\n";
+    }
+
+    $self->cleanup;
+
+    if ($self->_fatal_exit){
+        delete $sig_handlers{$sig}{$self->uuid};
+
+        if (scalar(keys %{ $sig_handlers{$sig} }) == 0){
+             exit;
+        }
+    }
+}
+sub _signal_handlers {
+    return \%sig_handlers;
+}
+sub _dump_handlers {
+    print Dumper \%sig_handlers;
+}
 
 sub _fatal_exit {
     my ($self, $fatal) = @_;
