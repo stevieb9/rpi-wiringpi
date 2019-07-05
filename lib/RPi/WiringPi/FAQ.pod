@@ -1027,6 +1027,38 @@ maps/translation hashes, manually export and unexport GPIO pins etc.
 
 It's worth having a look at...
 
+=head1 INCLUDED SCRIPTS
+
+When L<RPi::WiringPi> is installed, we install a number of scripts for basic
+common tasks.
+
+=head2 pinmap
+
+Displays a list of all the Pi pins, and their association with various pin
+mapping schemes.
+
+=head2 pidentify
+
+Runs a hardware-based LED triggering routine that allows you to physically see
+which Raspberry Pi you're running on.
+
+See C<pidentify -h> for full details.
+
+=head2 pimetadata
+
+Displays, using L<Data::Dumper>, the entire structure of the shared memory data
+structure as it currently sits, which is used to glue all objects and processes
+together.
+
+See C<pimetadata -h> for full details.
+
+=head2 pi-erase-metadata
+
+Completely erases all data within the shared memory location. WARNING: Running
+this script while you've got Pi objects in operation is not advised.
+
+See C<pi-erase-metadata -h> for full details.
+
 =head1 RUNNING TESTS
 
 =head2 Setup and configuration
