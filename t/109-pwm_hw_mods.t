@@ -3,7 +3,7 @@ use warnings;
 
 use lib 't/';
 
-use RPiTest qw(check_pin_status running_test);
+use RPiTest;
 use RPi::WiringPi;
 use RPi::Const qw(:all);
 use Test::More;
@@ -25,7 +25,7 @@ if ($> != 0){
     exit;
 }
 
-running_test(__FILE__);
+rpi_running_test(__FILE__);
 
 use constant {
     LEFT    => 60,
@@ -113,8 +113,11 @@ if (! $ENV{NO_BOARD}) {
     is $pin->mode, INPUT, "PWM pin back to INPUT ok";
 }
 
-check_pin_status();
+rpi_check_pin_status();
 
 $pi->cleanup;
+
+rpi_check_pin_status();
+rpi_metadata_clean();
 
 done_testing();

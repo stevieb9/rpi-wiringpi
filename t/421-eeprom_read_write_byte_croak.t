@@ -3,7 +3,7 @@ use warnings;
 
 use lib 't/';
 
-use RPiTest qw(check_pin_status running_test);
+use RPiTest;
 use RPi::WiringPi;
 use Test::More;
 
@@ -20,7 +20,7 @@ BEGIN {
     $SIG{__DIE__} = sub { die shift; }; # bypass RPi::WiringPi's grab on die()
 }
 
-running_test(__FILE__);
+rpi_running_test(__FILE__);
 
 my $pi = RPi::WiringPi->new(fatal_exit => 0);
 my $e = $pi->eeprom;
@@ -76,6 +76,11 @@ for (-1, 256){
 
     like $@, qr/byte parameter out of range/, "...and error is sane";
 }
+
+$pi->cleanup;
+
+rpi_check_pin_status();
+rpi_metadata_clean();
 
 done_testing();
 

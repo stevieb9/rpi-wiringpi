@@ -3,14 +3,18 @@ use warnings;
 
 use lib 't/';
 
-use RPiTest qw(check_pin_status running_test);
+use RPiTest;
 use RPi::WiringPi;
 use RPi::Const qw(:all);
 use Test::More;
 
-running_test(__FILE__);
+rpi_running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
+
+if (! $ENV{RPI_MULTI}){
+    plan skip_all => "RPI_MULTI environment variable not set\n";
+}
 
 if (! $ENV{PI_BOARD}){
     $ENV{NO_BOARD} = 1;
@@ -51,6 +55,7 @@ is keys(%{ $pi_b->metadata->{objects} }), 0, "after die(), no more objects exist
 is exists $pi_a->_signal_handlers->{__DIE__}{$pi_a->uuid}, 1, "pi_a sig handlers still exist if ! fatal_exit";
 is exists $pi_b->_signal_handlers->{__DIE__}{$pi_b->uuid}, 1, "pi_b sig handlers still exist if ! fatal_exit";
 
-#check_pin_status();
+rpi_check_pin_status();
+rpi_metadata_clean();
 
 done_testing();

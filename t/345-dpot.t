@@ -3,8 +3,7 @@ use strict;
 
 use lib 't/';
 
-use RPiTest qw(check_pin_status running_test);
-
+use RPiTest;
 use RPi::WiringPi;
 use RPi::Const qw(:all);
 use Test::More;
@@ -28,7 +27,7 @@ use constant {
     ADC_CH => 1,
 };
 
-running_test(__FILE__);
+rpi_running_test(__FILE__);
 
 my $pi = RPi::WiringPi->new;
 
@@ -65,6 +64,7 @@ for (0..255){
 
 $pi->cleanup;
 
-check_pin_status();
+rpi_check_pin_status();
+rpi_metadata_clean();
 
 done_testing();

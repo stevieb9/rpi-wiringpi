@@ -3,7 +3,7 @@ use warnings;
 use Test::More;
 
 use lib 't/';
-use RPiTest qw(check_pin_status running_test);
+use RPiTest;
 use RPi::WiringPi;
 
 if (! $ENV{PI_BOARD}){
@@ -11,7 +11,7 @@ if (! $ENV{PI_BOARD}){
     plan skip_all => "Not on a Pi board\n";
 }
 
-running_test(__FILE__);
+rpi_running_test(__FILE__);
 
 my $pi = RPi::WiringPi->new;
 
@@ -29,6 +29,11 @@ is $ok, 1, "pwr_led() and io_led() sudo ok";
 is $pi->label, '', "label() without initial param empty string ok";
 is $pi->label('hello'), 'hello', "label() with param ok";
 is $pi->label, 'hello', "label() w/o param ok after setting it previously";
+
+$pi->cleanup;
+
+rpi_check_pin_status();
+rpi_metadata_clean();
 
 done_testing();
 

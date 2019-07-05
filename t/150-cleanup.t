@@ -3,11 +3,11 @@ use warnings;
 
 use lib 't/';
 
-use RPiTest qw(check_pin_status running_test);
+use RPiTest;
 use RPi::WiringPi;
 use Test::More;
 
-running_test(__FILE__);
+rpi_running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
 
@@ -56,6 +56,7 @@ $pi->cleanup;
 
 is @{ $pi->registered_pins }, 0, "cleanup() ok";
 
-check_pin_status();
+rpi_check_pin_status();
+rpi_metadata_clean();
 
 done_testing();

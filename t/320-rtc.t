@@ -3,7 +3,7 @@ use strict;
 
 use lib 't/';
 
-use RPiTest qw(check_pin_status running_test);
+use RPiTest;
 use RPi::WiringPi;
 use Test::More;
 
@@ -20,7 +20,7 @@ if (! $ENV{PI_BOARD}){
 
 $SIG{__DIE__} = sub {};
 
-running_test(__FILE__);
+rpi_running_test(__FILE__);
 
 my $pi = RPi::WiringPi->new(fatal_exit => 0);
 my $rtc = $pi->rtc;
@@ -337,5 +337,10 @@ my $rtc = $pi->rtc;
 
     like $@, qr/parameter must be in the format/, "...and error is sane";
 }
+
+$pi->cleanup;
+
+rpi_check_pin_status();
+rpi_metadata_clean();
 
 done_testing();

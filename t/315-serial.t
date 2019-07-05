@@ -3,7 +3,7 @@ use warnings;
 
 use lib 't/';
 
-use RPiTest qw(check_pin_status running_test);
+use RPiTest;
 use RPi::WiringPi;
 use RPi::Const qw(:all);
 use Test::More;
@@ -21,7 +21,7 @@ if (! $ENV{PI_BOARD}){
     plan skip_all => "Not on a Pi board\n";
 }
 
-running_test(__FILE__);
+rpi_running_test(__FILE__);
 
 my $pi = $mod->new;
 
@@ -50,6 +50,7 @@ like $s->gets(13), qr/^hello, world!/, "puts() and gets() ok";
 
 $pi->cleanup;
 
-check_pin_status();
+rpi_check_pin_status();
+rpi_metadata_clean();
 
 done_testing();

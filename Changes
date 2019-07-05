@@ -44,6 +44,11 @@ Revision history for Perl extension RPi::WiringPi.
           etc. Also moved a bunch of methods from Core into here (closes #120)
         - added signal_handlers() and dump_signal_handlers() to Util. (closes
           #121)
+        - added further subs to t/RPiTest
+        - in t/RPiTest library, changed all exports to have an "rpi_" prefix,
+          made it so that all subs are exported by default (as opposed to using
+          @EXPORT_OK), and rewrote all test files to do base meta/pin checks on
+          all files
 
 2.3632  2019-06-22
         - added the digital potentiometer (MCP4xxxx) to the test platform (in

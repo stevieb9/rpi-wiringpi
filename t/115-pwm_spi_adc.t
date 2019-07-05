@@ -3,7 +3,7 @@ use warnings;
 
 use lib 't/';
 
-use RPiTest qw(check_pin_status running_test);
+use RPiTest;
 use RPi::WiringPi;
 use Test::More;
 
@@ -29,7 +29,7 @@ if ($> != 0){
     exit;
 }
 
-running_test(__FILE__);
+rpi_running_test(__FILE__);
 
 my $pi = $mod->new;
 my $adc = $pi->adc;
@@ -68,9 +68,8 @@ if (! $ENV{NO_BOARD}) {
     $pi->cleanup;
 
     select(undef, undef, undef, 0.02);
-    check_pin_status();
+    rpi_check_pin_status();
+    rpi_metadata_clean();
 }
-
-$pi->cleanup;
 
 done_testing();

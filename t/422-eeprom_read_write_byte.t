@@ -3,7 +3,7 @@ use warnings;
 
 use lib 't/';
 
-use RPiTest qw(check_pin_status running_test);
+use RPiTest;
 use Test::More;
 use RPi::WiringPi;
 
@@ -18,7 +18,7 @@ BEGIN {
     }
 }
 
-running_test(__FILE__);
+rpi_running_test(__FILE__);
 
 my $pi = RPi::WiringPi->new;
 my $e = $pi->eeprom(delay => 2);
@@ -33,5 +33,10 @@ for (4080..4095){
     is $e->read($_), $val, "wrote val $val to addr $_ ok";
     $val++;
 }
+
+$pi->cleanup;
+
+rpi_check_pin_status();
+rpi_metadata_clean();
 
 done_testing();

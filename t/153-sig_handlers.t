@@ -3,12 +3,12 @@ use warnings;
 
 use lib 't/';
 
-use RPiTest qw(check_pin_status running_test);
+use RPiTest;
 use RPi::WiringPi;
 use RPi::Const qw(:all);
 use Test::More;
 
-running_test(__FILE__);
+rpi_running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
 
@@ -40,5 +40,8 @@ for ('__DIE__', 'TERM', 'INT'){
     my $uuid = $pi->uuid;
     is ref $sh->{$_}{$uuid}, 'CODE', "$_ has a handler for UUID $uuid after clean cleanup()";
 }
+
+rpi_check_pin_status();
+rpi_metadata_clean();
 
 done_testing();

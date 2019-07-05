@@ -2,6 +2,9 @@ use strict;
 use warnings;
 use feature 'say';
 
+use lib 't/';
+
+use RPiTest;
 use IPC::Shareable;
 use RPi::WiringPi;
 use Test::More;
@@ -11,15 +14,30 @@ tie my %shared_pi_info, 'IPC::Shareable', {
     create => 1
 };
 
+rpi_running_test(__FILE__);
+
 my $pi = RPi::WiringPi->new;
-#use Data::Dumper;
-#print Dumper \%shared_pi_info;
+
 is exists $shared_pi_info{objects}->{$pi->uuid}, 1, "shared memory has the object's uuid";
 
 my $c = $pi->checksum;
 
 check_checksum($c, 'checksum');
 check_checksum($pi->uuid, 'uuid');
+
+$pi->cleanup;
+
+is
+    exists $shared_pi_info{objects}->{$pi->uuid},
+    '',
+    "shared memory removed the object's uuid after cleanup";
+
+is exists $shared_pi_info{objects}, 1, "objects container in shared memory ok";
+
+rpi_check_pin_status();
+rpi_metadata_clean();
+
+done_testing();
 
 sub check_checksum {
     my ($c, $text) = @_;
@@ -35,15 +53,4 @@ sub check_checksum {
         $u_count++;
     }
 }
-
-$pi->cleanup;
-
-is
-    exists $shared_pi_info{objects}->{$pi->uuid},
-    '',
-    "shared memory removed the object's uuid after cleanup";
-
-is exists $shared_pi_info{objects}, 1, "objects container in shared memory ok";
-
-done_testing();
 

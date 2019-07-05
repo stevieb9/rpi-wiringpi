@@ -4,12 +4,12 @@ use warnings;
 use lib 't/';
 
 use Data::Dumper;
-use RPiTest qw(check_pin_status running_test);
+use RPiTest;
 use RPi::WiringPi;
 use Test::More;
 use feature 'say';
 
-if (! $ENV{RPI_MULTIPLE}){
+if (! $ENV{RPI_MULTI}){
     plan skip_all => "RPI_MULTIPLE environment variable not set\n";
 }
 
@@ -18,7 +18,7 @@ if (! $ENV{PI_BOARD}){
     plan skip_all => "Not on a Pi board\n";
 }
 
-running_test(__FILE__);
+rpi_running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
 
@@ -47,7 +47,8 @@ is keys %{ $pi_b->metadata->{objects} }, 0, "no more objects stored after pi_b c
 is $pi_a->metadata->{objects}{$pi_a->uuid}, undef, "...pi_a has definitely been removed";
 is $pi_b->metadata->{objects}{$pi_b->uuid}, undef, "...pi_b has definitely been removed";
 
-check_pin_status();
+rpi_check_pin_status();
+rpi_metadata_clean();
 
 done_testing();
 

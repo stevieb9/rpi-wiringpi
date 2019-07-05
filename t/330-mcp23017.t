@@ -18,7 +18,7 @@ BEGIN {
 
 use lib 't/';
 
-use RPiTest qw(check_pin_status running_test);
+use RPiTest;
 use RPi::Const qw(:all);
 use RPi::WiringPi;
 
@@ -27,7 +27,7 @@ use constant {
     BANK_B => 1,
 };
 
-running_test(__FILE__);
+rpi_running_test(__FILE__);
 
 my $pi = RPi::WiringPi->new(fatal_exit => 0);
 my $o = $pi->expander(0x20);
@@ -604,5 +604,8 @@ my $o = $pi->expander(0x20);
         }
     }
 }
+
+rpi_check_pin_status();
+rpi_metadata_clean();
 
 done_testing();
