@@ -1,6 +1,6 @@
 Revision history for Perl extension RPi::WiringPi.
 
-2.3633 UNREL
+2.3633_01 2019-07-05
         - added the test platform I2C address map listing (closes #103)
         - EEPROM: add the new RPi::EEPROM::AT24C32 distribution for EEPROM
           access (closes #104), and tests pull the EEPROM object from a $pi

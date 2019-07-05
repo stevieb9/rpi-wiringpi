@@ -10,7 +10,7 @@ use Digest::MD5 qw(md5_hex);
 use IPC::Shareable;
 use RPi::Const qw(:all);
 
-our $VERSION = '2.3633';
+our $VERSION = '2.3633_01';
 
 tie my %shared_pi_info, 'IPC::Shareable', {
     key => 'rpiw',
