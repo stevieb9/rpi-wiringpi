@@ -4,7 +4,9 @@ use strict;
 use warnings;
 
 use parent 'WiringPi::API';
+use parent 'RPi::WiringPi::Util';
 use parent 'RPi::SysInfo';
+
 use Carp qw(croak);
 use Data::Dumper;
 use Digest::MD5 qw(md5_hex);
@@ -17,17 +19,6 @@ tie my %shared_pi_info, 'IPC::Shareable', {
     create => 1,
 };
 
-sub checksum {
-     return md5_hex(rand());
-}
-sub dump_metadata {
-    my ($self) = @_;
-    print Dumper $self->metadata;
-}
-sub dump_object {
-    my ($self) = @_;
-    print Dumper $self;
-}
 sub gpio_layout {
     return $_[0]->gpio_layout;
 }
@@ -65,10 +56,6 @@ sub label {
     $self->{label} = $label if defined $label;
     return $self->{label} // '';
 }
-sub metadata {
-    my %meta = %shared_pi_info;
-    return \%meta;
-}
 sub pin_to_gpio {
     my ($self, $pin, $scheme) = @_;
 
@@ -88,36 +75,6 @@ sub pin_to_gpio {
     if ($scheme == RPI_MODE_UNINIT){
         croak "setup not run; pin mapping scheme not initialized\n";
     }
-}
-sub pin_map {
-    my ($self, $scheme) = @_;
-
-    $scheme = $self->pin_scheme if ! defined $scheme;
-
-    return {} if $scheme eq RPI_MODE_UNINIT;
-
-    if (defined $self->{pin_map_cache}{$scheme}){
-        return $self->{pin_map_cache}{$scheme};
-    }
-
-    my %map;
-
-    for (0..63){
-        my $pin;
-        if ($scheme == RPI_MODE_WPI) {
-            $pin = $self->phys_to_wpi($_);
-        }
-        elsif ($scheme == RPI_MODE_GPIO){
-            $pin = $self->phys_to_gpio($_);
-        }
-        elsif ($scheme == RPI_MODE_PHYS){
-            $pin = $_;
-        }
-        $map{$_} = $pin;
-    }
-    $self->{pin_map_cache}{$scheme} = \%map;
-
-    return \%map;
 }
 sub pin_scheme {
     my ($self, $scheme) = @_;
@@ -202,10 +159,6 @@ sub unregister_pin {
         requester   => $self->uuid
     );
 }
-sub uuid {
-    my ($self) = @_;
-    return $self->{uuid};
-}
 sub cleanup{
     my ($self) = @_;
 
@@ -224,9 +177,6 @@ sub cleanup{
     }
 
     delete $shared_pi_info{objects}->{$self->uuid};
-}
-sub clean_shared {
-    %shared_pi_info = ();
 }
 sub _pin_registration {
     # manages the registration duties for pins
@@ -297,20 +247,6 @@ Besides the methods listed below, we also make available through inheritance
 all methods provided by L<RPi::SysInfo>. Please see that documentation for
 usage details.
 
-=head2 checksum
-
-Returns a randomly generated 32-byte hexidecimal MD5 checksum. We use this
-internally to generate a UUID for each Pi object.
-
-=head2 dump_metadata
-
-Used for troubleshooting/development, dumps the system's meta data within the
-shared memory storage using L<Data::Dumper>.
-
-=head2 dump_object
-
-Used for troubleshooting/development, dumps the object using L<Data::Dumper>.
-
 =head2 gpio_layout
 
 Returns the GPIO layout which indicates the board revision number.
@@ -377,15 +313,6 @@ object.
 Return: The label/name you've previously set. If one has not been set, return
 will be the empty string.
 
-=head2 metadata
-
-During operation, we store several pieces of meta data of both the Pi object
-as well as operational status information in shared memory.
-
-Call this method to get a copy of this meta information.
-
-Return: Hash reference containing the meta data.
-
 =head2 pin_scheme([$scheme])
 
 Returns the current pin mapping in use. Returns C<0> for C<wiringPi> scheme,
@@ -400,41 +327,6 @@ If using L<RPi::Const>, these map out to:
     2  => RPI_MODE_GPIO_SYS # unused in RPi::WiringPi
     3  => RPI_MODE_PHYS
     -1 => RPI_MODE_UNINIT
-
-=head2 pin_map($scheme)
-
-Returns a hash reference in the following format:
-
-    $map => {
-        phys_pin_num => pin_num,
-        ...
-    };
-
-If no scheme is in place or one isn't sent in, return will be an empty hash
-reference.
-
-Parameters:
-
-    $scheme
-
-Optional: By default, we'll check if you've already run a setup routine, and
-if so, we'll use the scheme currently in use. If one is not in use and no
-C<$scheme> has been sent in, we'll return an empty hash reference, otherwise
-if a scheme is sent in, the return will be:
-
-For C<'wiringPi'> scheme:
-
-    $map = {
-        phys_pin_num => wiringPi_pin_num,
-        ....
-    };
-
-For C<'GPIO'> scheme:
-
-    $map = {
-        phys_pin_num => gpio_pin_num,
-        ...
-    };
 
 =head2 pin_to_gpio($pin, [$scheme])
 
@@ -562,18 +454,10 @@ Parameters:
 
 Mandatory: An object instance of L<RPi::Pin> class.
 
-=head2 uuid
-
-Returns the Pi object's 32-byte hexidecimal unique identifier.
-
 =head2 cleanup
 
 Resets all registered pins back to default settings as they were before your
 program started. It's important that this method be called in each application.
-
-=head2 clean_shared
-
-Overwrites the shared memory storage area.
 
 =head1 ENVIRONMENT VARIABLES
 
