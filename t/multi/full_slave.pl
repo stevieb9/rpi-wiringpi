@@ -8,7 +8,6 @@ use RPi::WiringPi;
 
 my $f = 'ready.multi';
 
-my $run = 1;
 my $pi= RPi::WiringPi->new;
 
 my $p18 = $pi->pin(18, "eighteen");
