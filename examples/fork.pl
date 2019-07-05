@@ -18,18 +18,16 @@ if ($pid) {
     say "parent: " . $pi_parent->label . "\n";
     print Dumper $pi_parent->metadata;
     #$pi_parent->clean_shared;
-    #$pi_parent->cleanup;
+    $pi_parent->cleanup;
 } else {
     my $pi = RPi::WiringPi->new(label => 'CHILD');
     $pi->pin(18);
 
     say "child:" . $pi->label . "\n";;
     print Dumper $pi->metadata;
-#    $pi->cleanup;
+    $pi->cleanup;
 }
 
 my $pid_w = wait();
-
-say "$pid_w done";
 
 
