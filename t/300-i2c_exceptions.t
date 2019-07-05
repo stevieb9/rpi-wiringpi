@@ -27,7 +27,7 @@ BEGIN {
 
 $SIG{__DIE__} = sub {};
 
-my $pi = $mod->new;
+my $pi = $mod->new(fatal_exit => 0);
 
 { # catch device not found
     is eval { $pi->i2c(0x99); 1; }, undef, "I2C init dies if device not found";

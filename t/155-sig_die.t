@@ -29,8 +29,13 @@ eval { die "intentional die()"; };
 
 is $pin->mode, INPUT, "pin reset to INPUT after die()";
 
+is @{ $pi->registered_pins }, 0, "all pins unregisterd ok";
+is keys(%{ $pi->metadata->{pins} }), 0, "...and meta data shows this";
+
 $pi->cleanup;
 
-check_pin_status();
+is keys(%{ $pi->metadata->{objects} }), 0, "after cleanup(), no more objects exist";
+
+#check_pin_status();
 
 done_testing();

@@ -20,7 +20,7 @@ use WiringPi::API qw(:perl);
 
 tie my %shared_pi_info, 'IPC::Shareable', {
     key => 'rpiw',
-    create => 1,
+    create => 0,
 };
 
 my $oled_lock = '/tmp/oled_unavailable.rpi-wiringpi';

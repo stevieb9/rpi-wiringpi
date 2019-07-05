@@ -10,6 +10,7 @@ use RPi::ADC::ADS;
 use RPi::ADC::MCP3008;
 use RPi::BMP180;
 use Carp qw(croak confess);
+use Data::Dumper;
 use RPi::Const qw(:all);
 use RPi::DAC::MCP4922;
 use RPi::DigiPot::MCP4XXXX;
@@ -27,34 +28,67 @@ use RPi::StepperMotor;
 
 our $VERSION = '2.3633';
 
-my $fatal_exit = 0;
+my $fatal_exit = 1;
 my %sig_handlers;
+my $signal_debug = 0;
 
-sub _signal_handlers {
+sub _generate_signal_handlers {
     my $self = shift;
-    if (! %sig_handlers) {
-        $SIG{INT} = \&_class_signal_handler;
-        $SIG{TERM} = \&_class_signal_handler;
-        $SIG{__DIE__} = \&_class_signal_handler;
+
+    if (! %sig_handlers){
+        # set up the signal handler class structure only once
+        $SIG{INT} = \&_class_signal_handler('INT');
+        $SIG{TERM} = \&_class_signal_handler('TERM');
+        $SIG{__DIE__} = sub { _class_signal_handler('__DIE__', @_) };
     }
 
-    # set the sig handler data structure with the process ID as the key
-    $sig_handlers{$$}->{handler} = sub { $self->_cleanup_handler };
-    $sig_handlers{$$}->{object} = $self;
+    $sig_handlers{'__DIE__'}{$self->uuid} = sub {
+        my @err = @_;
+        $self->_cleanup_handler('__DIE__', @err)
+    };
+    $sig_handlers{'INT'}{$self->uuid} = sub {
+        $self->_cleanup_handler('INT')
+    };
+    $sig_handlers{'TERM'}{$self->uuid} = sub {
+        $self->_cleanup_handler('TERM')
+    };
 }
 sub _class_signal_handler {
-    # call the specific object's handler (using its procID), and pass it a
-    # reference to the object we stored in the handler structure earlier
+    # populates the class level signal handler structure
 
-    &{ $sig_handlers{$$}->{handler} }(
-        $sig_handlers{$$}->{object}
-    );
+    my $signal = shift;
+
+    for (keys %{ $sig_handlers{$signal} }){
+        &{ $sig_handlers{$signal}->{$_} }(@_);
+    }
 }
 sub _cleanup_handler {
-    # the actual sig handler method
-    my $self = shift;
+    # the actual sig handler methods
+
+    my ($self, $sig, @err) = @_;
+
+    print "$_\n" for @err;
+
+    if ($signal_debug){
+        print "running '$sig' handler for: " . $self->uuid .
+            " with fatal_exit = " . $self->_fatal_exit . "\n";
+    }
+
     $self->cleanup;
-    exit if $self->_fatal_exit;
+
+    if ($self->_fatal_exit){
+        delete $sig_handlers{$sig}{$self->uuid};
+
+        if (scalar(keys %{ $sig_handlers{$sig} }) == 0){
+             exit;
+        }
+    }
+}
+sub _signal_handlers {
+    return \%sig_handlers;
+}
+sub _dump_handlers {
+    print Dumper \%sig_handlers;
 }
 
 tie my %shared_pi_info, 'IPC::Shareable', {
@@ -105,14 +139,15 @@ sub new {
 
         $ENV{RPI_SCHEME} = $self->pin_scheme;
     }
-    $self->_fatal_exit;
+
+    $self->_fatal_exit($args{fatal_exit});
 
     $self->{proc} = $$;
     $self->{uuid} = $self->checksum;
 
     $shared_pi_info{objects}->{$self->uuid} = $self->{proc};
 
-    $self->_signal_handlers;
+    $self->_generate_signal_handlers;
 
     return $self;
 }
@@ -280,8 +315,10 @@ sub stepper_motor {
         die "steppermotor() requires an arrayref of pins sent in\n";
     }
 
-    for (@{ $args{pins} }){
-        $self->pin($_);
+    if (! exists $args{expander}) {
+        for (@{$args{pins}}) {
+            $self->pin($_);
+        }
     }
 
     return RPi::StepperMotor->new(%args);
@@ -294,9 +331,11 @@ sub DESTROY {
 # private
 
 sub _fatal_exit {
-    my $self = shift;
-    $self->{fatal_exit} = shift if @_;
-    $fatal_exit = $self->{fatal_exit} if defined $self->{fatal_exit};
+    my ($self, $fatal) = @_;
+    if (defined $fatal){
+        $fatal_exit = $fatal;
+    }
+    $self->{fatal_exit} = $fatal_exit;
     return $self->{fatal_exit};
 }
 sub _pwm_in_use {
