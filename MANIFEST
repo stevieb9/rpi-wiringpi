@@ -64,6 +64,7 @@ t/110-register.t
 t/111-metadata_multi_pi_single_script.t
 t/115-pwm_spi_adc.t
 t/150-cleanup.t
+t/153-sig_handlers.t
 t/154-sig_die_multi.t
 t/155-sig_die.t
 t/156-running_test.t
@@ -95,6 +96,7 @@ t/450-stepper.t
 t/500-pod_coverage.t
 t/505-pod_linkcheck.t
 t/510-manifest.t
+t/515-pod.t
 t/900-oled_new.t
 t/901-oled_string.t
 t/902-oled_rect.t

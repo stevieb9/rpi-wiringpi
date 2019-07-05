@@ -20,6 +20,10 @@ tie my %shared_pi_info, 'IPC::Shareable', {
 sub checksum {
      return md5_hex(rand());
 }
+sub dump_signal_handlers {
+    my ($self) = @_;
+    print Dumper $self->_signal_handlers;
+}
 sub dump_metadata {
     my ($self) = @_;
     print Dumper $self->metadata;
@@ -61,6 +65,10 @@ sub pin_map {
     $self->{pin_map_cache}{$scheme} = \%map;
 
     return \%map;
+}
+sub signal_handlers {
+    my ($self) = @_;
+    return $self->_signal_handlers;
 }
 sub uuid {
     my ($self) = @_;
@@ -151,6 +159,15 @@ Returns the Pi object's 32-byte hexidecimal unique identifier.
 =head2 clean_shared
 
 Overwrites the shared memory storage area.
+
+=head2 signal_handlers
+
+Returns a hash reference of the currently set signal handlers.
+
+=head2 dump_signal_handlers
+
+Prints, using L<Data::Dumper>, the structure holding the class' signal handling
+data.
 
 =head1 AUTHOR
 
