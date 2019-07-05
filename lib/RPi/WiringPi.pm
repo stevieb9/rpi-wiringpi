@@ -330,10 +330,6 @@ sub _cleanup_handler {
 sub _signal_handlers {
     return \%sig_handlers;
 }
-sub _dump_handlers {
-    print Dumper \%sig_handlers;
-}
-
 sub _fatal_exit {
     my ($self, $fatal) = @_;
     if (defined $fatal){
@@ -877,6 +873,16 @@ shared memory storage using L<Data::Dumper>.
 =head2 dump_object
 
 Used for troubleshooting/development, dumps the object using L<Data::Dumper>.
+
+=head2 dump_signal_handlers
+
+Prints, using L<Data::Dumper>, the structure of the class' signal handling
+routines.
+
+=head2 _signal_handlers
+
+Returns a hash reference containing the data within the signal handling data
+structure;
 
 =head2 metadata
 

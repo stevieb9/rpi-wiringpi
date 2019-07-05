@@ -42,6 +42,8 @@ Revision history for Perl extension RPi::WiringPi.
         - created RPi::WiringPi::Util, and put all methods not related to Pi
           hardware functionality within. This includes metadata functionality
           etc. Also moved a bunch of methods from Core into here (closes #120)
+        - added signal_handlers() and dump_signal_handlers() to Util. (closes
+          #121)
 
 2.3632  2019-06-22
         - added the digital potentiometer (MCP4xxxx) to the test platform (in
