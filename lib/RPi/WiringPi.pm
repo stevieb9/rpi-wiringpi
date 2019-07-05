@@ -26,7 +26,7 @@ use RPi::Serial;
 use RPi::SPI;
 use RPi::StepperMotor;
 
-our $VERSION = '2.3633_01';
+our $VERSION = '2.3633_02';
 
 # initialize the IPC shared memory space
 
