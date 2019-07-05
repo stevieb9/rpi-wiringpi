@@ -181,17 +181,22 @@ sub register_pin {
     my ($self, $pin, $comment) = @_;
 
     $self->_pin_registration(
-        pin       => $pin,
-        alt       => $pin->mode_alt,
-        state     => $pin->read,
-        mode      => $pin->mode,
-        comment   => $comment //= '',
-        operation => 'register'
+        pin         => $pin,
+        alt         => $pin->mode_alt,
+        state       => $pin->read,
+        mode        => $pin->mode,
+        comment     => $comment //= '',
+        operation   => 'register',
+        requester   => $self->uuid
     );
 }
 sub unregister_pin {
     my ($self, $pin) = @_;
-    $self->_pin_registration(pin => $pin, operation => 'unregister');
+    $self->_pin_registration(
+        pin         => $pin,
+        operation   => 'unregister',
+        requester   => $self->uuid
+    );
 }
 sub uuid {
     my ($self) = @_;
@@ -207,10 +212,14 @@ sub cleanup{
     }
 
     for my $pin (keys %{ $shared_pi_info{pins} }){
-        WiringPi::API::pin_mode_alt($pin, $shared_pi_info{pins}->{$pin}{alt});
-        WiringPi::API::write_pin($pin, $shared_pi_info{pins}->{$pin}{state});
-        
-        delete $shared_pi_info{pins}->{$pin};
+        if (exists $shared_pi_info{pins}->{$pin}{users}{$self->uuid}){
+            WiringPi::API::pin_mode_alt($pin, $shared_pi_info{pins}->{$pin}{alt});
+            WiringPi::API::write_pin($pin, $shared_pi_info{pins}->{$pin}{state});
+            if ($shared_pi_info{pins}->{$pin}{mode} < 4){
+                WiringPi::API::pin_mode($pin, $shared_pi_info{pins}->{$pin}{mode});
+            }
+            delete $shared_pi_info{pins}->{$pin};
+        }
     }
 
     delete $shared_pi_info{objects}->{$self->uuid};
@@ -230,12 +239,18 @@ sub _pin_registration {
         return \@registered_pins;
     }
 
+    my $pin_num = $self->pin_to_gpio($pin->num);
+
     if ($param{operation} eq 'unregister'){
-        if (exists $shared_pi_info{pins}->{$self->pin_to_gpio($pin->num)}){
-            $pin->mode_alt($shared_pi_info{pins}->{$pin->num}{alt});
-            $pin->write($shared_pi_info{pins}->{$pin->num}{state});
-            $pin->mode($shared_pi_info{pins}->{$pin->num}{mode});
-            delete $shared_pi_info{pins}->{$self->pin_to_gpio($pin->num)};
+
+        if (! $shared_pi_info{pins}->{$pin_num}{users}{$param{requester}} eq $self->uuid){
+            return;
+        }
+        if (exists $shared_pi_info{pins}->{$pin_num}){
+            $pin->mode_alt($shared_pi_info{pins}->{$pin_num}{alt});
+            $pin->write($shared_pi_info{pins}->{$pin_num}{state});
+            $pin->mode($shared_pi_info{pins}->{$pin_num}{mode});
+            delete $shared_pi_info{pins}->{$pin_num};
             return;
         }
     }
@@ -244,16 +259,15 @@ sub _pin_registration {
         croak "_pin_registration() requires both 'alt' and 'state' params\n";
     }
 
-    if (exists $shared_pi_info{pins}->{$self->pin_to_gpio($pin->num)}){
-        my $gpio_pin_num = $self->pin_to_gpio($pin->num);
-        croak "pin $gpio_pin_num is already in use, can't continue...\n";
-    }
-
     if ($param{operation} eq 'register'){
-        $shared_pi_info{pins}->{$self->pin_to_gpio($pin->num)}{alt} = $param{alt};
-        $shared_pi_info{pins}->{$self->pin_to_gpio($pin->num)}{state} = $param{state};
-        $shared_pi_info{pins}->{$self->pin_to_gpio($pin->num)}{mode} = $param{mode};
-        $shared_pi_info{pins}->{$self->pin_to_gpio($pin->num)}{comment} = $pin->comment;
+        if (exists $shared_pi_info{pins}->{$pin_num}){
+            croak "pin $pin_num is already in use, can't continue...\n";
+        }
+        $shared_pi_info{pins}->{$pin_num}{alt} = $param{alt};
+        $shared_pi_info{pins}->{$pin_num}{state} = $param{state};
+        $shared_pi_info{pins}->{$pin_num}{mode} = $param{mode};
+        $shared_pi_info{pins}->{$pin_num}{comment} = $pin->comment;
+        $shared_pi_info{pins}->{$pin_num}{users}{$param{requester}}++;
     }
 
     my @registered_pins = keys %{ $shared_pi_info{pins} };

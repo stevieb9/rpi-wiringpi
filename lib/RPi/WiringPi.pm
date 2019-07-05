@@ -9,6 +9,7 @@ use GPSD::Parse;
 use RPi::ADC::ADS;
 use RPi::ADC::MCP3008;
 use RPi::BMP180;
+use Carp qw(croak confess);
 use RPi::Const qw(:all);
 use RPi::DAC::MCP4922;
 use RPi::DigiPot::MCP4XXXX;
@@ -26,20 +27,27 @@ use RPi::StepperMotor;
 
 our $VERSION = '2.3633';
 
-my $fatal_exit = 1;
+my $fatal_exit = 0;
+my %sig_handlers;
 
-BEGIN {
-    sub _error {
-        my $err = shift;
-        RPi::WiringPi::Core::cleanup();
-        print "\ncleaned up, exiting...\n";
-        print "\noriginal error: $err\n";
-        exit if $fatal_exit;
+sub signal_handlers {
+    my $self = shift;
+    if (! %sig_handlers) {
+        $SIG{INT} = \&class_signal_handler;
+        $SIG{TERM} = \&class_signal_handler;
+        $SIG{__DIE__} = \&class_signal_handler;
     }
-
-    $SIG{__DIE__} = \&_error;
-    $SIG{INT} = \&_error;
-};
+    $sig_handlers{$$}->{handler} = sub { $self->cleanup_handler };
+    $sig_handlers{$$}->{object} = $self;
+}
+sub class_signal_handler {
+    &{ $sig_handlers{$$}->{handler} }($sig_handlers{$$}->{object});
+}
+sub cleanup_handler {
+    my $self = shift;
+    $self->cleanup;
+    exit if $self->_fatal_exit;
+}
 
 # core
 
@@ -48,6 +56,10 @@ tie my %shared_pi_info, 'IPC::Shareable', {
     create => 1
 };
 
+sub DESTROY {
+    my ($self) = @_;
+    $self->cleanup;
+}
 sub new {
     my ($self, %args) = @_;
     $self = bless {%args}, $self;
@@ -91,8 +103,12 @@ sub new {
     }
     $self->_fatal_exit;
 
+    $self->{proc} = $$;
     $self->{uuid} = $self->checksum;
-    $shared_pi_info{objects}->{$self->uuid} = 1;
+
+    $shared_pi_info{objects}->{$self->uuid} = $self->{proc};
+
+    $self->signal_handlers;
 
     return $self;
 }
@@ -195,11 +211,10 @@ sub oled {
 sub pin {
     my ($self, $pin_num, $comment) = @_;
 
-#    $self->registered_pins;
     my $gpio = $self->pin_to_gpio($pin_num);
 
     if (grep {$gpio == $_} @{ $self->registered_pins }){
-        die "\npin $pin_num is already in use... can't create second object\n";
+        croak "\npin $pin_num is already in use... can't create second object\n";
     }
 
     my $pin = RPi::Pin->new($pin_num, $comment);
