@@ -36,6 +36,8 @@ Revision history for Perl extension RPi::WiringPi.
           multi processes, and pin cleanups
         - completely re-wrote all signal handlers to properly house all objects
           within a class variable for cleanup() use
+        - added dump_metadata(), uses Data::Dumper to dump the contents of the
+          meta data within the shared memory storage
 
 2.3632  2019-06-22
         - added the digital potentiometer (MCP4xxxx) to the test platform (in

@@ -30,36 +30,40 @@ our $VERSION = '2.3633';
 my $fatal_exit = 0;
 my %sig_handlers;
 
-sub signal_handlers {
+sub _signal_handlers {
     my $self = shift;
     if (! %sig_handlers) {
-        $SIG{INT} = \&class_signal_handler;
-        $SIG{TERM} = \&class_signal_handler;
-        $SIG{__DIE__} = \&class_signal_handler;
+        $SIG{INT} = \&_class_signal_handler;
+        $SIG{TERM} = \&_class_signal_handler;
+        $SIG{__DIE__} = \&_class_signal_handler;
     }
-    $sig_handlers{$$}->{handler} = sub { $self->cleanup_handler };
+
+    # set the sig handler data structure with the process ID as the key
+    $sig_handlers{$$}->{handler} = sub { $self->_cleanup_handler };
     $sig_handlers{$$}->{object} = $self;
 }
-sub class_signal_handler {
-    &{ $sig_handlers{$$}->{handler} }($sig_handlers{$$}->{object});
+sub _class_signal_handler {
+    # call the specific object's handler (using its procID), and pass it a
+    # reference to the object we stored in the handler structure earlier
+
+    &{ $sig_handlers{$$}->{handler} }(
+        $sig_handlers{$$}->{object}
+    );
 }
-sub cleanup_handler {
+sub _cleanup_handler {
+    # the actual sig handler method
     my $self = shift;
     $self->cleanup;
     exit if $self->_fatal_exit;
 }
-
-# core
 
 tie my %shared_pi_info, 'IPC::Shareable', {
     key => 'rpiw',
     create => 1
 };
 
-sub DESTROY {
-    my ($self) = @_;
-    $self->cleanup;
-}
+# core
+
 sub new {
     my ($self, %args) = @_;
     $self = bless {%args}, $self;
@@ -108,7 +112,7 @@ sub new {
 
     $shared_pi_info{objects}->{$self->uuid} = $self->{proc};
 
-    $self->signal_handlers;
+    $self->_signal_handlers;
 
     return $self;
 }
@@ -281,6 +285,10 @@ sub stepper_motor {
     }
 
     return RPi::StepperMotor->new(%args);
+}
+sub DESTROY {
+    my ($self) = @_;
+    $self->cleanup;
 }
 
 # private

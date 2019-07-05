@@ -20,6 +20,7 @@ examples/alt_mode.pl
 examples/api_servo.pl
 examples/baseline_setup.pl
 examples/bmp.pl
+examples/fork.pl
 examples/i2c.pl
 examples/identify.pl
 examples/metadata.pl
@@ -51,6 +52,7 @@ script/oled_display_date_time_temp.pl
 script/serial_arduino_display/serial_arduino_display.ino
 script/serial_arduino_display/serial_arduino_display.pl
 t/00-load.t
+t/05-checksum_uuid.t
 t/100-identification_and_label.t
 t/105-pin.t
 t/106-pin_map.t
@@ -58,7 +60,7 @@ t/107-alt_modes.t
 t/108-mode_state_all_pins.t
 t/109-pwm_hw_mods.t
 t/110-register.t
-t/111-multiple_objects.t
+t/111-metadata_multiproc.t
 t/115-pwm_spi_adc.t
 t/150-cleanup.t
 t/155-sig_die.t
@@ -103,5 +105,12 @@ t/908-oled_vertical_line.t
 t/909-oled_horizontal_line.t
 t/920-oled_cleanup.t
 t/999-lcd.t
+t/multi/die_master.pl
+t/multi/die_run.pl
+t/multi/die_slave.pl
+t/multi/full_master.pl
+t/multi/full_slave.pl
+t/multi/metadata.pl
+t/multi/README
 t/README
 t/RPiTest.pm

@@ -20,6 +20,10 @@ tie my %shared_pi_info, 'IPC::Shareable', {
 sub checksum {
      return md5_hex(rand());
 }
+sub dump_metadata {
+    my ($self) = @_;
+    print Dumper $self->metadata;
+}
 sub dump_object {
     my ($self) = @_;
     print Dumper $self;
@@ -215,9 +219,6 @@ sub cleanup{
         if (exists $shared_pi_info{pins}->{$pin}{users}{$self->uuid}){
             WiringPi::API::pin_mode_alt($pin, $shared_pi_info{pins}->{$pin}{alt});
             WiringPi::API::write_pin($pin, $shared_pi_info{pins}->{$pin}{state});
-            if ($shared_pi_info{pins}->{$pin}{mode} < 4){
-                WiringPi::API::pin_mode($pin, $shared_pi_info{pins}->{$pin}{mode});
-            }
             delete $shared_pi_info{pins}->{$pin};
         }
     }
@@ -300,6 +301,11 @@ usage details.
 
 Returns a randomly generated 32-byte hexidecimal MD5 checksum. We use this
 internally to generate a UUID for each Pi object.
+
+=head2 dump_metadata
+
+Used for troubleshooting/development, dumps the system's meta data within the
+shared memory storage using L<Data::Dumper>.
 
 =head2 dump_object
 
