@@ -28,6 +28,14 @@ Revision history for Perl extension RPi::WiringPi.
         - added dump_object(), simply dumps the object out using Data::Dumper
         - shared memory now stores the checksum of each Pi object created on the
           system (specifically used for cleanup identification)
+        - if multiple Pi objects are being used simultaneously on the same
+          system, we now keep track of pins, and only the pins associated with
+          a specific object are reset back to default status; all other Pi
+          object's pins are left registered and in tact (closes #118)
+        - added new t/multi directory with a manual test setup for testing
+          multi processes, and pin cleanups
+        - completely re-wrote all signal handlers to properly house all objects
+          within a class variable for cleanup() use
 
 2.3632  2019-06-22
         - added the digital potentiometer (MCP4xxxx) to the test platform (in

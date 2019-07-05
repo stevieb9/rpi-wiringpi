@@ -22,6 +22,7 @@ my $pin = $pi->pin(21);
 
 $pin->mode(OUTPUT);
 
+is $pin->mode, OUTPUT, "pin s set to OUTPUT";
 is ${ $pi->registered_pins }[0], '21', "pin registered ok";
 
 eval { die "intentional die()"; };
