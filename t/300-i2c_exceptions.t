@@ -3,14 +3,14 @@ use warnings;
 
 use lib 't/';
 
-use RPiTest qw(check_pin_status running_test);
+use RPiTest;
 use RPi::WiringPi;
 use RPi::Const qw(:all);
 use Test::More;
 
 use lib 't/';
 
-running_test(__FILE__);
+rpi_running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
 
@@ -57,6 +57,9 @@ my $pi = $mod->new(fatal_exit => 0);
 }
 
 $ENV{I2C_TESTING} = 0;
+
+rpi_check_pin_status();
+rpi_metadata_clean();
 
 done_testing();
 

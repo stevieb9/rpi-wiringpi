@@ -6,11 +6,12 @@ use strict;
 use Exporter;
 our @ISA = qw(Exporter);
 
-our @EXPORT_OK = qw(
-    running_test
-    check_pin_status 
-    oled_available 
-    oled_unavailable
+our @EXPORT = qw(
+    rpi_running_test
+    rpi_check_pin_status
+    rpi_oled_available
+    rpi_oled_unavailable
+    rpi_metadata_clean
 );
 
 use Carp qw(croak);
@@ -25,7 +26,7 @@ tie my %shared_pi_info, 'IPC::Shareable', {
 
 my $oled_lock = '/tmp/oled_unavailable.rpi-wiringpi';
 
-sub running_test {
+sub rpi_running_test {
     (my $test) = @_;
 
     if ($test =~ m|t/(\d+)-(.*)\.t|){
@@ -40,9 +41,12 @@ sub running_test {
     }
 
     croak
-        "running_test() couldn't translate '$test' to a usable shared format\n";
+        "rpi_running_test() couldn't translate '$test' to a usable shared format\n";
 }
-sub oled_available {
+sub rpi_metadata_clean {
+    is scalar(keys(% { $shared_pi_info{objects} })), 0, "meta is all cleaned up";
+}
+sub rpi_oled_available {
     my ($available) = @_;
 
     if ($available) {
@@ -53,13 +57,13 @@ sub oled_available {
 
     return -e $oled_lock ? 0 : 1;
 }
-sub oled_unavailable {
+sub rpi_oled_unavailable {
     open my $wfh, '>', $oled_lock or die $!;
     close $wfh;
 
     return -e $oled_lock ? 1 : 0;
 }
-sub check_pin_status {
+sub rpi_check_pin_status {
 
     setup_gpio();
 

@@ -3,7 +3,7 @@ use warnings;
 
 use lib 't/';
 
-use RPiTest qw(check_pin_status running_test);
+use RPiTest;
 use RPi::WiringPi;
 use RPi::Const qw(:all);
 use Test::More;
@@ -11,7 +11,7 @@ use Test::More;
 use constant ARDUINO_ADDR => 0x04;
 use constant MAX_BYTES => 4;
 
-running_test(__FILE__);
+rpi_running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
 
@@ -87,6 +87,7 @@ sub _eeprom {
 
 $pi->cleanup;
 
-check_pin_status();
+rpi_check_pin_status();
+rpi_metadata_clean();
 
 done_testing();

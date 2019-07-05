@@ -173,6 +173,9 @@ sub cleanup{
         if (exists $shared_pi_info{pins}->{$pin}{users}{$self->uuid}){
             WiringPi::API::pin_mode_alt($pin, $shared_pi_info{pins}->{$pin}{alt});
             WiringPi::API::write_pin($pin, $shared_pi_info{pins}->{$pin}{state});
+            if ($shared_pi_info{pins}->{$pin}{mode} < 4){
+                WiringPi::API::pin_mode($pin, $shared_pi_info{pins}->{$pin}{mode});
+            }
             delete $shared_pi_info{pins}->{$pin};
         }
     }

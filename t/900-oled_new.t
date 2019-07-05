@@ -3,7 +3,7 @@ use warnings;
 
 use lib 't/';
 
-use RPiTest qw(check_pin_status oled_available oled_unavailable running_test);
+use RPiTest;
 use Test::More;
 use RPi::Const;
 use RPi::WiringPi;
@@ -17,10 +17,10 @@ if (! $ENV{PI_BOARD}){
     plan skip_all => "Not on a Pi board\n";
 }
 
-running_test(__FILE__);
+rpi_running_test(__FILE__);
 
-oled_unavailable();
-is oled_available(), 0, "oled unavailable for use ok";
+rpi_oled_unavailable();
+is rpi_oled_available(), 0, "oled unavailable for use ok";
 
 my $s = RPi::WiringPi->oled('128x64', 0x3C, 0);
 

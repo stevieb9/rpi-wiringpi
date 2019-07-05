@@ -4,7 +4,7 @@ use strict;
 use lib 't/';
 
 use Data::Dumper;
-use RPiTest qw(check_pin_status running_test);
+use RPiTest;
 use RPi::WiringPi;
 use RPi::Const qw(:all);
 use Test::More;
@@ -22,7 +22,7 @@ if (! $ENV{PI_BOARD}){
     plan skip_all => "Not on a Pi board\n";
 }
 
-running_test(__FILE__);
+rpi_running_test(__FILE__);
 
 my $continue = 1;
 $SIG{INT} = sub { $continue = 0; };
@@ -73,8 +73,9 @@ $lcd->position(0, 0);
 $lcd->print("Testing in progress");
 $pi->cleanup;
 
-check_pin_status();
+rpi_check_pin_status();
+rpi_metadata_clean();
 
-running_test(-1);
+rpi_running_test(-1);
 
 done_testing();

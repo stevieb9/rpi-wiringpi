@@ -4,9 +4,11 @@ use feature 'say';
 
 use lib 't/';
 
-use RPiTest qw(check_pin_status running_test);
+use RPiTest;
 use RPi::WiringPi;
 use Test::More;
+
+plan skip_all => "DISABLED DUE TO RECALIBRATION NEEDED";
 
 if (! $ENV{RPI_STEPPER}){
     plan(skip_all => "RPI_STEPPER environment variable not set");
@@ -21,7 +23,7 @@ use constant {
     DEBUG => 0
 };
 
-running_test(__FILE__);
+rpi_running_test(__FILE__);
 
 my $pi = RPi::WiringPi->new;
 my $expander = $pi->expander(0x21);
@@ -94,6 +96,9 @@ sub display {
 
 $expander->cleanup;
 $pi->cleanup;
+
+rpi_check_pin_status();
+rpi_metadata_clean();
 
 done_testing();
 

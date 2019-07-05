@@ -4,7 +4,7 @@ use feature 'say';
 
 use lib 't/';
 
-use RPiTest qw(check_pin_status running_test);
+use RPiTest;
 use RPi::WiringPi;
 use Test::More;
 
@@ -12,7 +12,7 @@ if (! $ENV{PI_BOARD}){
     plan skip_all => "Not on a Pi board";
 }
 
-running_test(__FILE__);
+rpi_running_test(__FILE__);
 
 my $pi = RPi::WiringPi->new;
 
@@ -26,5 +26,10 @@ like $four_ret, qr/GPIO 4:/, "with 2,4,6,8 as a param, pin 4 method ok";
 like $four_ret, qr/GPIO 6:/, "with 2,4,6,8 as a param, pin 6 method ok";
 like $four_ret, qr/GPIO 8:/, "with 2,4,6,8 as a param, pin 8 method ok";
 unlike $four_ret, qr/GPIO 9:/, "...and pin 9 is excluded";
+
+$pi->cleanup;
+
+rpi_check_pin_status();
+rpi_metadata_clean();
 
 done_testing();

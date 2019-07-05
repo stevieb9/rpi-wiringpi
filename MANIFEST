@@ -114,7 +114,6 @@ t/multi/die_run.pl
 t/multi/die_slave.pl
 t/multi/full_master.pl
 t/multi/full_slave.pl
-t/multi/metadata.pl
 t/multi/README
 t/README
 t/RPiTest.pm
