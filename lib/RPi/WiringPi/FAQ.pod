@@ -1096,11 +1096,19 @@ tests but these couple to be run as a standard user.
 
 To run the author tests (manifest, POD etc), set:
 
-    RPI_RELEASE_TESTING=1
+    export RPI_RELEASE_TESTING=1
 
 We use this instead of C<RELEASE_TESTING>, because that typically caused
 all sorts of grief when installing prerequisites from the CPAN. Other
 people's distribution's author tests often fail due to having it set.
+
+=head3 Multi Object Testing
+
+We've switched over to having shared data between objects and processes.
+Although it's the default, you still have to enable these tests explicitly by
+setting the following environment variable:
+
+    export RPI_MULTI=1
 
 =head3 Arduino/I2C
 
@@ -1324,6 +1332,7 @@ column unit, leave those last two digits off.
     BB_RPI_LCD=5,6,4,17,27,22,4,20
     RPI_RTC=1
     RPI_MCP23017=1
+    RPI_MULTI=1
     RELEASE_TESTING=0
 
 =head2 I2C Test Platform Connections
