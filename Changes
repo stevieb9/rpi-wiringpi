@@ -38,7 +38,10 @@ Revision history for Perl extension RPi::WiringPi.
           within a class variable for cleanup() use
         - added dump_metadata(), uses Data::Dumper to dump the contents of the
           meta data within the shared memory storage
-        -
+        - added installed script information to FAQ (closes #114)
+        - created RPi::WiringPi::Util, and put all methods not related to Pi
+          hardware functionality within. This includes metadata functionality
+          etc. Also moved a bunch of methods from Core into here (closes #120)
 
 2.3632  2019-06-22
         - added the digital potentiometer (MCP4xxxx) to the test platform (in

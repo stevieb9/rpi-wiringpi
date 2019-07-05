@@ -802,11 +802,6 @@ Sets an internal label/name to your L<RPi::WiringPi> Pi object.
 
 Returns the current pin mapping scheme in use within the object.
 
-=head2 pin_map
-
-Returns a hash reference mapping of the physical pin numbers to a pin scheme's
-pin numbers.
-
 =head2 pin_to_gpio
 
 Converts a pin number from any non-GPIO (BCM) scheme to GPIO (BCM) scheme.
@@ -857,6 +852,48 @@ Removes an already registered pin.
 
 Cleans up the entire system, resetting all pins and devices back to the state
 we found them in when we initialized the system.
+
+=head1 UTILITY METHODS
+
+Outside of core hardware functionality, there are several utility type methods
+available to manage and view certain software aspects of the system. See
+L<RPi::WiringPi::Util> for full details.
+
+=head2 pin_map($cheme))
+
+Returns a hash reference mapping of the physical pin numbers to a pin scheme's
+pin numbers.
+
+=head2 checksum
+
+Returns a randomly generated 32-byte hexidecimal MD5 checksum. We use this
+internally to generate a UUID for each Pi object.
+
+=head2 dump_metadata
+
+Used for troubleshooting/development, dumps the system's meta data within the
+shared memory storage using L<Data::Dumper>.
+
+=head2 dump_object
+
+Used for troubleshooting/development, dumps the object using L<Data::Dumper>.
+
+=head2 metadata
+
+During operation, we store several pieces of meta data of both the Pi object
+as well as operational status information in shared memory.
+
+Call this method to get a copy of this meta information.
+
+Return: Hash reference containing the meta data.
+
+=head2 uuid
+
+Returns the Pi object's 32-byte hexidecimal unique identifier.
+
+=head2 clean_shared
+
+Overwrites the shared memory storage area.
 
 =head1 ADDITIONAL PI SYSTEM METHODS
 

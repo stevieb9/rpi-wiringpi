@@ -1013,7 +1013,7 @@ instead of the GPIO on the Pi:
 
     $sm->cw(180);
 
-=head1 CORE/UTIL LIBRARY
+=head1 CORE LIBRARY
 
 =head2 Overview
 
@@ -1026,6 +1026,17 @@ You can transform pin numbers from one scheme to another, get full pin number
 maps/translation hashes, manually export and unexport GPIO pins etc.
 
 It's worth having a look at...
+
+=head1 UTILITY LIBRARY
+
+The included L<RPi::WiringPi::Util> library provides methods that are more
+software-maintenance related, that fall out of the scope of hardware related
+tasks.
+
+You can gain access to the system's meta data, UUID information and a myriad of
+other details.
+
+It's worth having a look at, too.
 
 =head1 INCLUDED SCRIPTS
 
