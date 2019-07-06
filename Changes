@@ -1,7 +1,8 @@
 Revision history for Perl extension RPi::WiringPi.
 
 2.3633_02 UNREL
-        -
+        - all methods that use GPIO pins now supply an appropriate comment for
+          each pin for identification in shared memory (closes #110)
 
 2.3633_01 2019-07-05
         - added the test platform I2C address map listing (closes #103)

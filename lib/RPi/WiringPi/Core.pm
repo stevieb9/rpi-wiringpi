@@ -149,7 +149,7 @@ sub register_pin {
         mode        => $pin->mode,
         comment     => $comment //= '',
         operation   => 'register',
-        requester   => $self->uuid
+        requester   => $self->uuid,
     );
 }
 sub unregister_pin {
@@ -164,18 +164,20 @@ sub cleanup{
     my ($self) = @_;
 
     if ($ENV{PWM_IN_USE}){
+        print "pwm in use!\n";
         WiringPi::API::pwm_set_mode(PWM_DEFAULT_MODE);
         WiringPi::API::pwm_set_clock(PWM_DEFAULT_CLOCK);
         WiringPi::API::pwm_set_range(PWM_DEFAULT_RANGE);
     }
 
     for my $pin (keys %{ $shared_pi_info{pins} }){
+
         if (exists $shared_pi_info{pins}->{$pin}{users}{$self->uuid}){
             WiringPi::API::pin_mode_alt($pin, $shared_pi_info{pins}->{$pin}{alt});
             WiringPi::API::write_pin($pin, $shared_pi_info{pins}->{$pin}{state});
-            if ($shared_pi_info{pins}->{$pin}{mode} < 4){
-                WiringPi::API::pin_mode($pin, $shared_pi_info{pins}->{$pin}{mode});
-            }
+#            if ($shared_pi_info{pins}->{$pin}{mode} < 4){
+#                WiringPi::API::pin_mode($pin, $shared_pi_info{pins}->{$pin}{mode});
+#            }
             delete $shared_pi_info{pins}->{$pin};
         }
     }
@@ -222,7 +224,7 @@ sub _pin_registration {
         $shared_pi_info{pins}->{$pin_num}{state} = $param{state};
         $shared_pi_info{pins}->{$pin_num}{mode} = $param{mode};
         $shared_pi_info{pins}->{$pin_num}{comment} = $pin->comment;
-        $shared_pi_info{pins}->{$pin_num}{users}{$param{requester}}++;
+        $shared_pi_info{pins}->{$pin_num}{users}{$param{requester}}++
     }
 
     my @registered_pins = keys %{ $shared_pi_info{pins} };
