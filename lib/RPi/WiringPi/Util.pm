@@ -41,9 +41,6 @@ sub meta_lock {
 
     return $shared_pi_info{locks}->{$name}{state};
 }
-sub meta_delete {
-    print Dumper \@_;
-}
 sub checksum {
      return md5_hex(rand());
 }
