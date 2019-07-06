@@ -13,7 +13,7 @@ if (! $ENV{PI_BOARD}){
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new;
+my $pi = RPi::WiringPi->new(label => 't/402-sysinfo_core_temp.t');
 
 like $pi->core_temp, qr/^\d+\.\d+$/, "core_temp() method return ok";
 

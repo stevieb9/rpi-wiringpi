@@ -31,7 +31,7 @@ if ($> != 0){
 
 rpi_running_test(__FILE__);
 
-my $pi = $mod->new;
+my $pi = $mod->new(label => 't/115-pwm_spi_adc.t');
 my $adc = $pi->adc;
 
 my $adc_in = 0;

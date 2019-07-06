@@ -17,7 +17,7 @@ if (! $ENV{PI_BOARD}){
     plan skip_all => "Not on a Pi board\n";
 }
 
-my $pi = $mod->new(fatal_exit => 0);
+my $pi = $mod->new(fatal_exit => 0, label => 't/155-sig_die.t');
 my $pin = $pi->pin(21);
 
 $pin->mode(OUTPUT);

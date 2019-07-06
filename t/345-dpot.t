@@ -29,7 +29,7 @@ use constant {
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new;
+my $pi = RPi::WiringPi->new(label => 't/345-dpot.t');
 
 my $adc = $pi->adc;
 my $pot = $pi->dpot(DPOT_CS, DPOT_CH);

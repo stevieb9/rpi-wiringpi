@@ -90,7 +90,10 @@ sub new {
     $self->{proc} = $$;
     $self->{uuid} = $self->checksum;
 
-    $shared_pi_info{objects}->{$self->uuid} = $self->{proc};
+    $shared_pi_info{objects}->{$self->uuid} = {
+        proc  => $self->{proc},
+        label => $self->{label}
+    };
 
     $self->_generate_signal_handlers;
 

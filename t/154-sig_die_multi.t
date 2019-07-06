@@ -21,8 +21,8 @@ if (! $ENV{PI_BOARD}){
     plan skip_all => "Not on a Pi board\n";
 }
 
-my $pi_a = $mod->new(fatal_exit => 0);
-my $pi_b = $mod->new(fatal_exit => 0);
+my $pi_a = $mod->new(fatal_exit => 0, label => 't/154-sig_die_multi.t: pi_A');
+my $pi_b = $mod->new(fatal_exit => 0, label => 't/154-sig_die_multi.t: pi_B');
 
 my $pin_a = $pi_a->pin(21);
 my $pin_b = $pi_b->pin(16);

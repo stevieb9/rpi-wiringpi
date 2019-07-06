@@ -17,7 +17,7 @@ if (! $ENV{PI_BOARD}){
     plan skip_all => "Not on a Pi board\n";
 }
 
-my $pi = $mod->new;
+my $pi = $mod->new(label => 't/153-sig_handlers.t');
 
 my $sh = $pi->signal_handlers;
 

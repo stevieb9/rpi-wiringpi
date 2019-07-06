@@ -22,7 +22,7 @@ $SIG{__DIE__} = sub {};
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new(fatal_exit => 0);
+my $pi = RPi::WiringPi->new(fatal_exit => 0, label => 't/320-rtc.t');
 my $rtc = $pi->rtc;
 
 { # sec()

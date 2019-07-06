@@ -14,7 +14,7 @@ if (! $ENV{PI_BOARD}){
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new;
+my $pi = RPi::WiringPi->new(label => 't/405-sysinfo_network_info.t');
 like $pi->network_info, qr/inet/, "method includes data ok";
 
 $pi->cleanup;

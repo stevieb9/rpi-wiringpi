@@ -15,7 +15,7 @@ if (! $ENV{PI_BOARD}){
     plan skip_all => "Not on a Pi board\n";
 }
 
-my $pi = RPi::WiringPi->new(setup => 'none');
+my $pi = RPi::WiringPi->new(setup => 'none', label => 't/106-pin_map.t');
 
 is $pi->pin_scheme, -1, "pin_scheme() returns NULL if not set";
 

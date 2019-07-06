@@ -14,7 +14,7 @@ if (! $ENV{PI_BOARD}){
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new;
+my $pi = RPi::WiringPi->new(label => 't/404-sysinfo_raspi_config.t');
 
 like $pi->raspi_config, qr/core_freq/, "method includes data ok";
 

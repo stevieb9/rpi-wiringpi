@@ -13,7 +13,7 @@ if (! $ENV{PI_BOARD}){
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new;
+my $pi = RPi::WiringPi->new(label => 't/401-sysinfo_mem_percent.t');
 like $pi->mem_percent, qr/^\d+\.\d+$/, "mem_percent() method return ok";
 
 $pi->cleanup;

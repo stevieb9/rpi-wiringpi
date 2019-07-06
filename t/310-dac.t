@@ -29,7 +29,7 @@ my ($adc_cs_pin, $dac_cs_pin) = (26, 12);
 my $adc_dac0_in = 1;
 my $adc_dac1_in = 3;
 
-my $pi = RPi::WiringPi->new;
+my $pi = RPi::WiringPi->new(label => 't/310-dac.t');
 
 my $dac = $pi->dac(
     model => 'MCP4922',

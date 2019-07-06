@@ -16,7 +16,7 @@ if (! $ENV{PI_BOARD}){
 
 rpi_running_test(__FILE__);
 
-my $pi = $mod->new(fatal_exit => 0);
+my $pi = $mod->new(fatal_exit => 0, label => 't/110-register.t');
 
 my $pin26 = $pi->pin(26, '26:t/110-register.t');
 my $pin12 = $pi->pin(12, '12:t/110-register.t');
