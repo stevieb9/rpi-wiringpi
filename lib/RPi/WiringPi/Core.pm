@@ -164,19 +164,16 @@ sub cleanup{
     my ($self) = @_;
 
     if ($ENV{PWM_IN_USE}){
-        WiringPi::API::pwm_set_mode(PWM_DEFAULT_MODE);
-        WiringPi::API::pwm_set_clock(PWM_DEFAULT_CLOCK);
-        WiringPi::API::pwm_set_range(PWM_DEFAULT_RANGE);
+        WiringPi::API::pwmSetMode(PWM_DEFAULT_MODE);
+        WiringPi::API::pwmSetClock(PWM_DEFAULT_CLOCK);
+        WiringPi::API::pwmSetRange(PWM_DEFAULT_RANGE);
     }
 
     for my $pin (keys %{ $shared_pi_info{pins} }){
 
         if (exists $shared_pi_info{pins}->{$pin}{users}{$self->uuid}){
-            WiringPi::API::pin_mode_alt($pin, $shared_pi_info{pins}->{$pin}{alt});
-            WiringPi::API::write_pin($pin, $shared_pi_info{pins}->{$pin}{state});
-#            if ($shared_pi_info{pins}->{$pin}{mode} < 4){
-#                WiringPi::API::pin_mode($pin, $shared_pi_info{pins}->{$pin}{mode});
-#            }
+            WiringPi::API::pinModealt($pin, $shared_pi_info{pins}->{$pin}{alt});
+            WiringPi::API::digitalWrite($pin, $shared_pi_info{pins}->{$pin}{state});
             delete $shared_pi_info{pins}->{$pin};
         }
     }
