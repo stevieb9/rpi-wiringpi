@@ -21,6 +21,7 @@ my $s = $pi->serial($dev, $baud);
 
 while (1){
     sleep 1;
+
     next if $pi->meta_lock(name => 'serial');
 
     my $cpu = int $pi->cpu_percent;
@@ -28,6 +29,7 @@ while (1){
     my $tmp = int $pi->core_temp('f');
     my $test_num = int test_num();
 
+    print "$cpu\n";
     $s->putc($cpu);
     $s->putc($mem);
     $s->putc($tmp);
