@@ -17,6 +17,8 @@ if (! $ENV{PI_BOARD}){
     plan skip_all => "Not on a Pi board\n";
 }
 
+print "*** $ENV{PWM_IN_USE}\n";
+
 my $pi = $mod->new;
 
 {# pin
@@ -26,8 +28,7 @@ my $pi = $mod->new;
     isa_ok $pin, 'RPi::Pin';
 
     is $pin->comment, 'test', "comment sent in new ok";
-    $pin->comment("test2");
-    is $pin->comment('test2'), 'test2', "comment() sets and gets the comment ok";
+    is $pin->comment('t/105-pin.t'), 't/105-pin.t', "comment() sets and gets the comment ok";
 
     is $pin->mode, 0, "pin mode is INPUT by default";
     is $pin->read, 0, "pin status is LOW by default";
@@ -38,20 +39,17 @@ my $pi = $mod->new;
     
     is $pin->read, 0, "pin status is LOW after going OUTPUT mode";
 
-    if (! $ENV{NO_BOARD}){
+    $pin->write(1);
 
-        $pin->write(1);
-        
-        is $pin->read, 1, "pin status HIGH after write(1)";
+    is $pin->read, 1, "pin status HIGH after write(1)";
 
-        $pin->write(0);
-        
-        is $pin->read, 0, "pin status back to LOW after write(0)";
-       
-        $pin->mode(0);
-    
-        is $pin->mode, 0, "pin mode back to INPUT";
-    }
+    $pin->write(0);
+
+    is $pin->read, 0, "pin status back to LOW after write(0)";
+
+    $pin->mode(0);
+
+    is $pin->mode, 0, "pin mode back to INPUT";
 }
 
 $pi->cleanup;

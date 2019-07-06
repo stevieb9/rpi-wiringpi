@@ -100,7 +100,7 @@ sub adc {
     my ($self, %args) = @_;
 
     if (defined $args{model} && $args{model} eq 'MCP3008'){
-        my $pin = $self->pin($args{channel});
+        my $pin = $self->pin($args{channel}, "MCP3008 ADC CS");
         return RPi::ADC::MCP3008->new($pin->num);
     }
     else {
@@ -113,14 +113,14 @@ sub bmp {
 }
 sub dac {
     my ($self, %args) = @_;
-    $self->pin($args{cs});
-    $self->pin($args{shdn}) if defined $args{shdn};
+    $self->pin($args{cs}, 'MCP4922 DAC CS');
+    $self->pin($args{shdn}, 'MCP4922 DAC Shutdown') if defined $args{shdn};
     $args{model} = 'MCP4922' if ! defined $args{model};
     return RPi::DAC::MCP4922->new(%args);
 }
 sub dpot {
     my ($self, $cs, $channel) = @_;
-    $self->pin($cs);
+    $self->pin($cs, 'MCP4XXXX Digital Potentiometer CS');
     return RPi::DigiPot::MCP4XXXX->new($cs, $channel);
 }
 sub eeprom {
@@ -141,12 +141,13 @@ sub gps {
 }
 sub hcsr04 {
     my ($self, $t, $e) = @_;
-    $self->pin($_) for ($t, $e);
+    $self->pin($t, "HCSR04 Ultrasonic Distance Sensor Trigger");
+    $self->pin($e, "HCSR04 Ultrasonic Distance Sensor Echo");
     return RPi::HCSR04->new($t, $e);
 }
 sub hygrometer {
     my ($self, $pin) = @_;
-    $self->register_pin($pin);
+    $self->register_pin($pin, 'DHT11 Hygrometer Signal');
     return RPi::DHT11->new($pin);
 }
 sub i2c {
@@ -164,7 +165,7 @@ sub lcd {
             die "lcd() requires pin configuration within a hash\n";
         }
         next if $args{$_} == 0;
-        $self->pin($args{$_});
+        $self->pin($args{$_}, "LCD $_");
     }
 
     my $lcd = RPi::LCD->new;
@@ -228,7 +229,7 @@ sub servo {
 
     $self->_pwm_in_use(1);
 
-    my $servo = $self->pin($pin_num);
+    my $servo = $self->pin($pin_num, "Servo PWM");
     $servo->mode(PWM_OUT);
 
     $self->pwm_mode(PWM_MODE_MS);
@@ -241,10 +242,17 @@ sub shift_register {
     my ($self, $base, $num_pins, $data, $clk, $latch) = @_;
 
     my @pin_nums;
+    my @pin_comments = (
+        'Shift Register Data',
+        'Shift Register Clock',
+        'Shift Register Latch',
+    );
+    my $pin_count = 0;
 
     for ($data, $clk, $latch){
-        my $pin = $self->pin($_);
+        my $pin = $self->pin($_, $pin_comments[$pin_count]);
         push @pin_nums, $pin->num;
+        $pin_count++;
     }
     $self->shift_reg_setup($base, $num_pins, @pin_nums);
 }
@@ -260,9 +268,18 @@ sub stepper_motor {
         die "steppermotor() requires an arrayref of pins sent in\n";
     }
 
+    my @pin_comments = (
+        'Stepper IN1',
+        'Stepper IN2',
+        'Stepper IN3',
+        'Stepper IN4'
+    );
+    my $pin_count = 0;
+
     if (! exists $args{expander}) {
         for (@{$args{pins}}) {
-            $self->pin($_);
+            $self->pin($_, $pin_comments[$pin_count]);
+            $pin_count++;
         }
     }
 
