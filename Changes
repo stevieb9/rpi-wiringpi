@@ -14,6 +14,7 @@ Revision history for Perl extension RPi::WiringPi.
         - multi-object, multi-script/proc tests are now automated within the
           test suite (as t/112 (good) and t/113 (die)) (closes #132)
         - added SIGINT multi test files
+        - added meta_locks(). Manages shared memory lock section
 
 2.3633_01 2019-07-05
         - added the test platform I2C address map listing (closes #103)
