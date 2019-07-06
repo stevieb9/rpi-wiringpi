@@ -15,29 +15,27 @@ tie my %shared_pi_info, 'IPC::Shareable', {
 my $pi = RPi::WiringPi->new(label => 'serial_arduino_display');
 
 my $dev = '/dev/ttyS0';
-my $baud = 9600;
+my $baud = 115200;
 
 my $s = $pi->serial($dev, $baud);
 
 while (1){
-    sleep 1;
-
-    next if $pi->meta_lock(name => 'serial');
-
     my $cpu = int $pi->cpu_percent;
     my $mem = int $pi->mem_percent;
     my $tmp = int $pi->core_temp('f');
     my $test_num = int test_num();
 
-    print "$cpu\n";
     $s->putc($cpu);
     $s->putc($mem);
     $s->putc($tmp);
-#    $s->putc($test_num);
-# for the above, we're going to have to separate the test number into two bytes
-# and then merge them at the arduino end
 
-# will also need to test sending -1 to the arduino
+    my $msb = $test_num >> 8;
+    my $lsb = $test_num & 0xFF;
+
+    $s->putc(int $msb);
+    $s->putc(int $lsb);
+
+    sleep 1;
 }
 
 sub test_num {
