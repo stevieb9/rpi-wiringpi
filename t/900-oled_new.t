@@ -22,9 +22,16 @@ rpi_running_test(__FILE__);
 rpi_oled_unavailable();
 is rpi_oled_available(), 0, "oled unavailable for use ok";
 
-my $s = RPi::WiringPi->oled('128x64', 0x3C, 0);
+my $pi = RPi::WiringPi->new;
+
+my $s = $pi->oled('128x64', 0x3C, 0);
 
 is ref $s, 'RPi::OLED::SSD1306::128_64', "oled() returns an object of proper class";
+
+$pi->cleanup;
+
+rpi_check_pin_status();
+rpi_metadata_clean();
 
 done_testing();
 

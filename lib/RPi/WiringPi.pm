@@ -224,12 +224,13 @@ sub servo {
             "requires your script to be run as the 'root' user (sudo)\n\n";
     }
 
+    my $servo = $self->pin($pin_num, "Servo PWM");
+
     $config{clock} = exists $config{clock} ? $config{clock} : 192;
     $config{range} = exists $config{range} ? $config{range} : 2000;
 
     $self->_pwm_in_use(1);
 
-    my $servo = $self->pin($pin_num, "Servo PWM");
     $servo->mode(PWM_OUT);
 
     $self->pwm_mode(PWM_MODE_MS);

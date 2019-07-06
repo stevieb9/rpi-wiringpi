@@ -34,6 +34,9 @@ is
 
 is exists $shared_pi_info{objects}, 1, "objects container in shared memory ok";
 
+$pi->cleanup;
+$pi->clean_shared;
+
 rpi_check_pin_status();
 rpi_metadata_clean();
 
