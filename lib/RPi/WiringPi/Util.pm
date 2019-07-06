@@ -17,6 +17,29 @@ tie my %shared_pi_info, 'IPC::Shareable', {
     create => 1,
 };
 
+sub meta_lock {
+    my ($self, %args) = @_;
+
+    my $name   = $args{name};
+    my $state  = $args{state};
+    my $delete = $args{delete};
+
+    return keys %{ $shared_pi_info{locks} } if ! defined $name;
+
+    if (defined $delete && $delete){
+        delete $shared_pi_info{locks}{$name};
+        return keys %{ $shared_pi_info{locks} };
+
+    }
+    if (defined $name && defined $state){
+        $shared_pi_info{locks}->{$name}{state} = $state;
+    }
+
+    return $shared_pi_info{locks}->{$name}{state};
+}
+sub meta_delete {
+    print Dumper \@_;
+}
 sub checksum {
      return md5_hex(rand());
 }
@@ -93,6 +116,34 @@ necessarily fit anywhere else. It is a base class, and is not designed to be
 used independently.
 
 =head1 METHODS
+
+=head2 meta_lock(%args)
+
+Fetches and sets software "locks". Useful for when you've got multiple
+processes trying to use a single-use-only feature (such as serial).
+
+Parameters:
+
+All parameters are sent in as a hash.
+
+    name => 'string'
+
+Optional, String: The name of the lock. If this is not sent in, we'll return an
+array with the names of all existing locks.
+
+    state => 0|1
+
+Optional, Bool: The state of the lock. If this is sent in, we'll set the lock
+supplied in the C<name> parameter to this value.
+
+    delete => 1
+
+Optional, Bool: Deletes a lock from the shared memory. You must also supply the
+C<name> parameter for this to have any effect.
+
+Returns: Array of all existing lock names if a name isn't sent in, and the
+current state of the lock if it is. If using C<delete>, we'll return a list of
+all existing lock names after the deletion occurs.
 
 =head2 checksum
 
