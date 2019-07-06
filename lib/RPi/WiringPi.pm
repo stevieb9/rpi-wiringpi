@@ -905,7 +905,7 @@ Used for troubleshooting/development, dumps the object using L<Data::Dumper>.
 Prints, using L<Data::Dumper>, the structure of the class' signal handling
 routines.
 
-=head2 _signal_handlers
+=head2 signal_handlers
 
 Returns a hash reference containing the data within the signal handling data
 structure;
