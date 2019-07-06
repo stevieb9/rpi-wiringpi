@@ -18,7 +18,7 @@ if (! $ENV{PI_BOARD}){
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new;
+my $pi = RPi::WiringPi->new(label => 't/906-oled_pixel.t');
 my $s = $pi->oled('128x64', 0x3C, 0);
 
 for (1..5){

@@ -14,7 +14,7 @@ if (! $ENV{PI_BOARD}){
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new;
+my $pi = RPi::WiringPi->new(label => 't/406-sysinfo_file_system.t');
 
 like $pi->file_system, qr|/dev/root|, "method includes root ok";
 like $pi->file_system, qr|/var/swap|, "method includes swap ok";

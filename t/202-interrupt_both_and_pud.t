@@ -26,7 +26,7 @@ BEGIN {
     }
 }
 
-my $pi = $mod->new;
+my $pi = $mod->new(label => 't/202-interrupt_both_and_pud.t');
 
 # pin specific interrupts
 

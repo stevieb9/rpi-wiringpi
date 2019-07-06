@@ -27,7 +27,7 @@ BEGIN {
 
 $SIG{__DIE__} = sub {};
 
-my $pi = $mod->new(fatal_exit => 0);
+my $pi = $mod->new(fatal_exit => 0, label => 't/300-i2c_exceptions.t');
 
 { # catch device not found
     is eval { $pi->i2c(0x99); 1; }, undef, "I2C init dies if device not found";

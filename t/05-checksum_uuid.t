@@ -16,9 +16,17 @@ tie my %shared_pi_info, 'IPC::Shareable', {
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new;
+my $pi = RPi::WiringPi->new(label => 't/05-checksum_uuid.t');
 
 is exists $shared_pi_info{objects}->{$pi->uuid}, 1, "shared memory has the object's uuid";
+is exists $shared_pi_info{objects}->{$pi->uuid}{proc}, 1, "shared memory has the object's proc";
+is exists $shared_pi_info{objects}->{$pi->uuid}{label}, 1, "shared memory has the object's label";
+
+is ref $shared_pi_info{objects}->{$pi->uuid}, 'HASH', "object is a hash ref";
+is $shared_pi_info{objects}->{$pi->uuid}{label}, 't/05-checksum_uuid.t', "object's label is correct";
+is $shared_pi_info{objects}->{$pi->uuid}{proc}, $$, "object's proc is ok";
+
+sleep 5;
 
 my $c = $pi->checksum;
 

@@ -15,7 +15,7 @@ $pi->cleanup;
 
 my $meta = $pi->metadata;
 
-print "\nCurrent state of shared data storage:\n\n";
+print "\nCurrent state of RPi::WiringPi shared data storage:\n\n";
 
 print Dumper $meta;
 

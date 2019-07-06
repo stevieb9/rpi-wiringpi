@@ -40,7 +40,7 @@ use constant {
 
 
 if (! $ENV{NO_BOARD}) {
-    my $pi = $mod->new;
+    my $pi = $mod->new(label => 't/325-servo.t');
 
     my $adc = $pi->adc;
 

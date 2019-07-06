@@ -13,7 +13,7 @@ if (! $ENV{PI_BOARD}){
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new;
+my $pi = RPi::WiringPi->new(label => 't/400-sysinfo_cpu_percent.t');
 like $pi->cpu_percent, qr/^\d+\.\d+$/, "cpu_percent() method return ok";
 
 $pi->cleanup;

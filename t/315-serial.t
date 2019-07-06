@@ -23,7 +23,7 @@ if (! $ENV{PI_BOARD}){
 
 rpi_running_test(__FILE__);
 
-my $pi = $mod->new;
+my $pi = $mod->new(label => 't/315-serial.t');
 
 my $s = $pi->serial("/dev/ttyS0", 115200);
 

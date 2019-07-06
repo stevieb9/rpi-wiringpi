@@ -39,7 +39,7 @@ use constant {
     MAX_IN  => 40,
 };
 
-my $pi = $mod->new;
+my $pi = $mod->new(label => 't/109-pwm_hw_mods.t');
 
 my $adc = $pi->adc;
 
