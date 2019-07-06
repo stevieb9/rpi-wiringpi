@@ -172,7 +172,7 @@ sub cleanup{
     for my $pin (keys %{ $shared_pi_info{pins} }){
 
         if (exists $shared_pi_info{pins}->{$pin}{users}{$self->uuid}){
-            WiringPi::API::pinModealt($pin, $shared_pi_info{pins}->{$pin}{alt});
+            WiringPi::API::pinModeAlt($pin, $shared_pi_info{pins}->{$pin}{alt});
             WiringPi::API::digitalWrite($pin, $shared_pi_info{pins}->{$pin}{state});
             delete $shared_pi_info{pins}->{$pin};
         }
