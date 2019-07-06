@@ -1063,6 +1063,12 @@ together.
 
 See C<pimetadata -h> for full details.
 
+=head2 pimetasize
+
+Prints to C<STDOUT> the size in bytes of the shared memory space.
+
+Requires L<IPC::Shareable> and L<Devel::Size> to be installed.
+
 =head2 pi-erase-metadata
 
 Completely erases all data within the shared memory location. WARNING: Running

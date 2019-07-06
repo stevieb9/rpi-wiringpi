@@ -15,6 +15,7 @@ WriteMakefile(
             pinmap 
             pidentify 
             pimetadata
+            pimetasize
             pi-erase-metadata
         ) 
     ],

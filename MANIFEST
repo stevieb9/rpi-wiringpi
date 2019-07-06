@@ -1,6 +1,7 @@
 bin/pi-erase-metadata
 bin/pidentify
 bin/pimetadata
+bin/pimetasize
 bin/pinmap
 build_testing/adc.pl
 build_testing/alt_mode.pl
@@ -62,6 +63,8 @@ t/108-mode_state_all_pins.t
 t/109-pwm_hw_mods.t
 t/110-register.t
 t/111-metadata_multi_pi_single_script.t
+t/112-metadata_multi_pi_multi_script.t
+t/113-metadata_multi_pi_multi_script_die.t
 t/115-pwm_spi_adc.t
 t/150-cleanup.t
 t/153-sig_handlers.t
@@ -110,7 +113,6 @@ t/909-oled_horizontal_line.t
 t/920-oled_cleanup.t
 t/999-lcd.t
 t/multi/die_master.pl
-t/multi/die_run.pl
 t/multi/die_slave.pl
 t/multi/full_master.pl
 t/multi/full_slave.pl
