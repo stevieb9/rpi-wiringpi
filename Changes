@@ -9,6 +9,8 @@ Revision history for Perl extension RPi::WiringPi.
           (closes #131)
         - when setting a new object in shared storage, we ensure there are no
           duplicate UUIDs present before assignment (closes #130)
+        - all calls through WiringPi::API now use the C function directly as
+          opposed to the Perl functions (closes #128)
 
 2.3633_01 2019-07-05
         - added the test platform I2C address map listing (closes #103)
