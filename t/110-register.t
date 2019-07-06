@@ -18,9 +18,9 @@ rpi_running_test(__FILE__);
 
 my $pi = $mod->new(fatal_exit => 0);
 
-my $pin26 = $pi->pin(26, 'test26');
-my $pin12 = $pi->pin(12, 'test12');
-my $pin18 = $pi->pin(18, 'test18');
+my $pin26 = $pi->pin(26, '26:t/110-register.t');
+my $pin12 = $pi->pin(12, '12:t/110-register.t');
+my $pin18 = $pi->pin(18, '18:t/110-register.t');
 
 my %pin_map = (
     26 => $pin26,
@@ -34,7 +34,7 @@ is @$pins, 3, "proper num of pins registered";
 
 for (keys %pin_map){
     is $pin_map{$_}->num, $_, "\$pin$_ has proper num()";
-    is $pin_map{$_}->comment, "test$_", "...and has proper comment";
+    is $pin_map{$_}->comment, "$_:t/110-register.t", "...and has proper comment";
 }
 
 $pi->cleanup;

@@ -164,7 +164,6 @@ sub cleanup{
     my ($self) = @_;
 
     if ($ENV{PWM_IN_USE}){
-        print "pwm in use!\n";
         WiringPi::API::pwm_set_mode(PWM_DEFAULT_MODE);
         WiringPi::API::pwm_set_clock(PWM_DEFAULT_CLOCK);
         WiringPi::API::pwm_set_range(PWM_DEFAULT_RANGE);

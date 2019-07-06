@@ -45,7 +45,7 @@ my $adc = $pi->adc;
 
 if (! $ENV{NO_BOARD}) {
 
-    my $pin = $pi->pin(PIN);
+    my $pin = $pi->pin(PIN, 't/109-pwm_hw_mods.t');
     $pin->mode(INPUT);
     $pin->pull(PUD_DOWN);
 

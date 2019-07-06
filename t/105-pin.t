@@ -17,8 +17,6 @@ if (! $ENV{PI_BOARD}){
     plan skip_all => "Not on a Pi board\n";
 }
 
-print "*** $ENV{PWM_IN_USE}\n";
-
 my $pi = $mod->new;
 
 {# pin

@@ -18,7 +18,8 @@ if (! $ENV{PI_BOARD}){
 
 rpi_running_test(__FILE__);
 
-my $s = RPi::WiringPi->oled('128x64', 0x3C, 0);
+my $pi = RPi::WiringPi->new;
+my $s = $pi->oled('128x64', 0x3C, 0);
 
 # full screen
 
@@ -37,6 +38,11 @@ $s->rect(20, 10, 88, 44, 0);
 $s->display;
 
 $s->clear;
+
+$pi->cleanup;
+
+rpi_check_pin_status();
+rpi_metadata_clean();
 
 done_testing();
 
