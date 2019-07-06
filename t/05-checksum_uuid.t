@@ -26,8 +26,6 @@ is ref $shared_pi_info{objects}->{$pi->uuid}, 'HASH', "object is a hash ref";
 is $shared_pi_info{objects}->{$pi->uuid}{label}, 't/05-checksum_uuid.t', "object's label is correct";
 is $shared_pi_info{objects}->{$pi->uuid}{proc}, $$, "object's proc is ok";
 
-sleep 5;
-
 my $c = $pi->checksum;
 
 check_checksum($c, 'checksum');

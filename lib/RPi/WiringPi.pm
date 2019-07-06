@@ -88,7 +88,12 @@ sub new {
     $self->_fatal_exit($args{fatal_exit});
 
     $self->{proc} = $$;
-    $self->{uuid} = $self->checksum;
+
+    while (! defined $self->{uuid}){
+        my $uuid = $self->checksum;
+        next if exists $shared_pi_info{objects}{$uuid};
+        $self->{uuid} = $uuid;
+    }
 
     $shared_pi_info{objects}->{$self->uuid} = {
         proc  => $self->{proc},
