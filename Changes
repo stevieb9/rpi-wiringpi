@@ -7,6 +7,8 @@ Revision history for Perl extension RPi::WiringPi.
           opposed to through the class (closes #124)
         - UUID in shared memory now has a href value, containing proc and label
           (closes #131)
+        - when setting a new object in shared storage, we ensure there are no
+          duplicate UUIDs present before assignment (closes #130)
 
 2.3633_01 2019-07-05
         - added the test platform I2C address map listing (closes #103)
