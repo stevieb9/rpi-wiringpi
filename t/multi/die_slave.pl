@@ -8,16 +8,16 @@ use RPi::WiringPi;
 
 my $f = 'ready.multi';
 
-my $pi= RPi::WiringPi->new;
+my $pi= RPi::WiringPi->new(label => 'multi_die_slave');
 
-my $p18 = $pi->pin(18, "eighteen");
+my $p18 = $pi->pin(18, "112-die_slave");
 
 touch $f or die $!;
 mywait();
 
 die();
 
-$pi->cleanup;
+#$pi->cleanup;
 
 sub mywait {
     while (1){

@@ -30,5 +30,3 @@ sub mywait {
         select(undef, undef, undef, 0.2);
     }
 }
-
-
