@@ -41,9 +41,11 @@ for (@locks){
 
 is $pi->meta_lock, $locks, "$locks locks remain. All test locks deleted";
 
+is $pi->meta_lock(name => 'blah'), -1, "if a lock doesn't exist, we return -1";
+
 $pi->cleanup;
 
-#rpi_check_pin_status();
-#rpi_metadata_clean();
+rpi_check_pin_status();
+rpi_metadata_clean();
 
 done_testing();

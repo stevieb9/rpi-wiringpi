@@ -26,14 +26,18 @@ sub meta_lock {
 
     return keys %{ $shared_pi_info{locks} } if ! defined $name;
 
+    if (defined $name && defined $state){
+        $shared_pi_info{locks}->{$name}{state} = $state;
+    }
+
+    return -1 if ! exists $shared_pi_info{locks}->{$name};
+
     if (defined $delete && $delete){
         delete $shared_pi_info{locks}{$name};
         return keys %{ $shared_pi_info{locks} };
 
     }
-    if (defined $name && defined $state){
-        $shared_pi_info{locks}->{$name}{state} = $state;
-    }
+
 
     return $shared_pi_info{locks}->{$name}{state};
 }
@@ -143,7 +147,8 @@ C<name> parameter for this to have any effect.
 
 Returns: Array of all existing lock names if a name isn't sent in, and the
 current state of the lock if it is. If using C<delete>, we'll return a list of
-all existing lock names after the deletion occurs.
+all existing lock names after the deletion occurs. Will return C<-1> if a name
+is sent in, but no lock exists by that name.
 
 =head2 checksum
 
