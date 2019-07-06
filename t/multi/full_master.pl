@@ -2,18 +2,23 @@ use strict;
 use warnings;
 use 5.010;
 
+use lib 't/';
+
+use RPiTest;
 use Data::Dumper;
 use RPi::WiringPi;
 use Test::More;
 
+rpi_running_test('t/112-multi-full.t');
+
 my $f = 'ready.multi';
 
-my $pi = RPi::WiringPi->new;
+my $pi = RPi::WiringPi->new(label => 'multi-full');
 
 print "\n*** Two pins remote, single pin local ***\n\n";
 
 is exists($pi->metadata->{objects}{$pi->uuid}), 1, "$$ set in meta ok";
-is $pi->metadata->{objects}{$pi->uuid}, $$, "UUID set to procID $$ in meta ok";
+is $pi->metadata->{objects}{$pi->uuid}{proc}, $$, "UUID proc set to procID $$ in meta ok";
 is keys %{ $pi->metadata->{objects} }, 2, "both procs have registered in meta";
 
 $pi->pin(12);
@@ -53,7 +58,7 @@ sleep 2;
 print "\n*** External script: Cleaned up ***\n\n";
 
 is exists($pi->metadata->{objects}{$pi->uuid}), 1, "$$ set in meta ok";
-is $pi->metadata->{objects}{$pi->uuid}, $$, "UUID set to procID $$ in meta ok";
+is $pi->metadata->{objects}{$pi->uuid}{proc}, $$, "UUID set to procID $$ in meta ok";
 is keys %{ $pi->metadata->{objects} }, 1, "the remote proc UUID is now removed from shared mem";
 
 is exists($pi->metadata->{pins}{12}), 1, "pin 12 exists for master proc ok";
@@ -71,6 +76,9 @@ print "\n*** Local: Cleaned up ***\n\n";
 
 is keys %{ $pi->metadata->{objects} }, 0, "all objects have been removed from registry";
 is keys %{ $pi->metadata->{pins} }, 0, "all pins have been removed from registry";
+
+rpi_check_pin_status();
+rpi_metadata_clean();
 
 done_testing();
 

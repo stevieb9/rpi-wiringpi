@@ -1,4 +1,4 @@
 #!/bin/sh
 
-perl die_slave.pl &
-perl die_master.pl
+perl t/multi/die_slave.pl &
+perl t/multi/die_master.pl

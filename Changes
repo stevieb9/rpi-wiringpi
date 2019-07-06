@@ -11,6 +11,8 @@ Revision history for Perl extension RPi::WiringPi.
           duplicate UUIDs present before assignment (closes #130)
         - all calls through WiringPi::API now use the C function directly as
           opposed to the Perl functions (closes #128)
+        - multi-object, multi-script/proc tests are now automated within the
+          test suite (as t/112 (good) and t/113 (die)) (closes #132)
 
 2.3633_01 2019-07-05
         - added the test platform I2C address map listing (closes #103)
