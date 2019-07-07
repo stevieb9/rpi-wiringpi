@@ -41,7 +41,7 @@ for (@locks){
 
 is $pi->meta_lock, $locks, "$locks locks remain. All test locks deleted";
 
-is $pi->meta_lock(name => 'blah'), -1, "if a lock doesn't exist, we return -1";
+is $pi->meta_lock(name => 'blah'), '', "if a lock doesn't exist, we return empy string";
 
 $pi->cleanup;
 
