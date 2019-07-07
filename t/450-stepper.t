@@ -8,7 +8,7 @@ use RPiTest;
 use RPi::WiringPi;
 use Test::More;
 
-# plan skip_all => "DISABLED DUE TO RECALIBRATION NEEDED";
+plan skip_all => "DISABLED DUE TO RECALIBRATION NEEDED";
 
 if (! $ENV{RPI_STEPPER}){
     plan(skip_all => "RPI_STEPPER environment variable not set");
