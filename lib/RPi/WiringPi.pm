@@ -82,7 +82,7 @@ sub new {
         # set the env var so we can catch multiple
         # setup calls properly
 
-        $ENV{RPI_SCHEME} = $self->pin_scheme;
+        $ENV{RPI_PIN_MODE} = $self->pin_scheme;
     }
 
     $self->_fatal_exit($args{fatal_exit});
@@ -296,7 +296,11 @@ sub stepper_motor {
 }
 sub DESTROY {
     my ($self) = @_;
-    $self->cleanup;
+
+    if (! $shared_pi_info{_tidy}){
+        $self->cleanup;
+    }
+    $shared_pi_info{_tidy} = 0;
 }
 
 # private
@@ -366,7 +370,9 @@ sub _fatal_exit {
 }
 sub _pwm_in_use {
     my $self = shift;
-    $ENV{PWM_IN_USE} = 1 if @_;
+    if ($_[0]){
+        $shared_pi_info{pwm}{in_use} = 1;
+    }
 }
 sub _setup {
     return $_[0]->{setup};

@@ -160,13 +160,14 @@ sub unregister_pin {
         requester   => $self->uuid
     );
 }
-sub cleanup{
+sub cleanup {
     my ($self) = @_;
-
-    if ($ENV{PWM_IN_USE}){
+    
+    if ($shared_pi_info{pwm}->{in_use}){
         WiringPi::API::pwmSetMode(PWM_DEFAULT_MODE);
         WiringPi::API::pwmSetClock(PWM_DEFAULT_CLOCK);
         WiringPi::API::pwmSetRange(PWM_DEFAULT_RANGE);
+        $shared_pi_info{pwm}->{in_use} = 0;
     }
 
     for my $pin (keys %{ $shared_pi_info{pins} }){
@@ -179,6 +180,11 @@ sub cleanup{
     }
 
     delete $shared_pi_info{objects}->{$self->uuid};
+}
+sub tidy {
+    my ($self) = @_;
+    delete $shared_pi_info{objects}->{$self->uuid};
+    $shared_pi_info{_tidy} = 1;
 }
 sub _pin_registration {
     # manages the registration duties for pins
@@ -460,6 +466,11 @@ Mandatory: An object instance of L<RPi::Pin> class.
 
 Resets all registered pins back to default settings as they were before your
 program started. It's important that this method be called in each application.
+
+=head2 tidy
+
+Performs a basic cleanup. This should only be used in situations when you know
+for fact that no pins or anything have been used in your script.
 
 =head1 ENVIRONMENT VARIABLES
 

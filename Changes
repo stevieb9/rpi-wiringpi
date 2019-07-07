@@ -17,6 +17,10 @@ Revision history for Perl extension RPi::WiringPi.
         - added meta_locks(). Manages shared memory lock section
         - serial Arduino OLED display now displays the current test file number
           (closes #106)
+        - items that used environment variables to store data are now located
+          within the shared memory storage (closes #129)
+        - added tidy(), a cleanup routine that only removes the object from
+          shared memory
 
 2.3633_01 2019-07-05
         - added the test platform I2C address map listing (closes #103)

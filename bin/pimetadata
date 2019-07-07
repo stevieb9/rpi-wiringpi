@@ -11,7 +11,7 @@ if (@ARGV) {
 }
 
 my $pi = RPi::WiringPi->new;
-$pi->cleanup;
+$pi->tidy;
 
 my $meta = $pi->metadata;
 
