@@ -5,7 +5,7 @@
 #include <stdio.h>
  
 #define PI_BYTES 5
-#define DEBUG 1
+#define DEBUG 0
  
 #define RX 2
 #define TX 3
@@ -53,11 +53,23 @@ void displaySysInfo (uint8_t *sysInfo){
 
   uint16_t testNum = (sysInfo[3] << 8 ) | (sysInfo[4] & 0xff);
 
-  if (testNum != 65535){    
+  
+  if (testNum != 0){    
     // we got a -1 return
     screen.setCursor(0, 48);
-    screen.print(F("TEST#: "));
-    screen.print(testNum);
+
+    if (testNum < 1000){
+      screen.print(F("TEST#: "));
+      screen.print(testNum);
+    }
+    else if (testNum >= 1000 && testNum < 10000){
+      screen.print(F("TST#: "));
+      screen.print(testNum);
+    }
+    else {
+      screen.print(F("TST: "));
+      screen.print(testNum);      
+    }
   }
   
   screen.display();
@@ -87,7 +99,7 @@ void setup() {
  
   // Pi comms setup
    
-  pi.begin(115200);
+  pi.begin(9600);
  
   // OLED display setup
    
@@ -110,9 +122,6 @@ void processData (void){
   if (pi.available() == PI_BYTES){
     for (uint8_t i=0; i<PI_BYTES; i++){
       sysInfo[i] = pi.read();
-      Serial.print(i);
-      Serial.print(" : ");
-      Serial.println(sysInfo[i]);
     }
  
     if (DEBUG){
@@ -126,5 +135,3 @@ void processData (void){
 void loop() {
   processData();
 }
-
-
