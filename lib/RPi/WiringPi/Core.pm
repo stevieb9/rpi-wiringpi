@@ -17,7 +17,7 @@ our $VERSION = '2.3633_02';
 
 tie my %shared_pi_info, 'IPC::Shareable', {
     key => 'rpiw',
-    create => 1,
+    create => 0,
 };
 
 sub gpio_layout {
@@ -180,6 +180,8 @@ sub cleanup {
     }
 
     delete $shared_pi_info{objects}->{$self->uuid};
+    $self->{clean} = 1;
+#    IPC::Shareable->clean_up;
 }
 sub tidy {
     my ($self) = @_;

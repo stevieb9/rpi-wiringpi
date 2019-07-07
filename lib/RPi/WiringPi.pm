@@ -297,6 +297,8 @@ sub stepper_motor {
 sub DESTROY {
     my ($self) = @_;
 
+    return if $self->{clean};
+
     if (! $shared_pi_info{_tidy}){
         $self->cleanup;
     }
@@ -317,6 +319,7 @@ sub _generate_signal_handlers {
 
     $sig_handlers{'__DIE__'}{$self->uuid} = sub {
         my @err = @_;
+        print "$_\n" for @err;
         $self->_cleanup_handler('__DIE__', @err)
     };
     $sig_handlers{'INT'}{$self->uuid} = sub {
@@ -341,7 +344,7 @@ sub _cleanup_handler {
     my ($self, $sig, @err) = @_;
 
     print "$_\n" for @err;
-
+    
     if ($signal_debug){
         print "running '$sig' handler for: " . $self->uuid .
             " with fatal_exit = " . $self->_fatal_exit . "\n";
