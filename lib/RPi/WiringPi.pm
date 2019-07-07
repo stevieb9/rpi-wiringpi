@@ -28,18 +28,19 @@ use RPi::StepperMotor;
 
 our $VERSION = '2.3633_02';
 
-# initialize the IPC shared memory space
+my $shared_pi_info;
+my $tied;
 
-tie my %shared_pi_info, 'IPC::Shareable', {
-    key => 'rpiw',
-    create => 1
-};
+#tie my %shared_pi_info, 'IPC::Shareable', {
+#    key => 'rpiw',
+#    create => 0
+#};
 
 # class variables
 
 my $fatal_exit = 1;
 my %sig_handlers;
-my $signal_debug = 0;
+my $signal_debug = 1;
 
 # core
 
@@ -85,17 +86,21 @@ sub new {
         $ENV{RPI_PIN_MODE} = $self->pin_scheme;
     }
 
+    $shared_pi_info = $self->_shared;
+    $self->{shared} = $self->_shared;
+    $tied = $self->{$$};
+
     $self->_fatal_exit($args{fatal_exit});
 
     $self->{proc} = $$;
 
     while (! defined $self->{uuid}){
         my $uuid = $self->checksum;
-        next if exists $shared_pi_info{objects}{$uuid};
+        next if exists $shared_pi_info->{objects}{$uuid};
         $self->{uuid} = $uuid;
     }
 
-    $shared_pi_info{objects}->{$self->uuid} = {
+    $shared_pi_info->{objects}->{$self->uuid} = {
         proc  => $self->{proc},
         label => $self->{label}
     };
@@ -297,12 +302,22 @@ sub stepper_motor {
 sub DESTROY {
     my ($self) = @_;
 
+    print "DESTROY\n";
     return if $self->{clean};
 
-    if (! $shared_pi_info{_tidy}){
+    print "here\n";
+    if (! $shared_pi_info->{_tidy}){
         $self->cleanup;
     }
-    $shared_pi_info{_tidy} = 0;
+    $shared_pi_info->{_tidy} = 0;
+
+    if (keys %{ $shared_pi_info->{objects} } == 0){
+        print "NO OBJECTS\n";
+        $tied->remove;
+        #IPC::Shareable->clean_up;
+        print "DONE REMOVING SHARE\n";
+    }
+
 }
 
 # private
@@ -341,6 +356,8 @@ sub _class_signal_handler {
 sub _cleanup_handler {
     # the actual sig handler methods
 
+    print "CLEANUP PROC: $$\n";
+
     my ($self, $sig, @err) = @_;
 
     print "$_\n" for @err;
@@ -351,12 +368,14 @@ sub _cleanup_handler {
     }
 
     $self->cleanup;
-
+#    IPC::Shareable->clean_up_all;
+    print "REMOVE PROC: $$\n";
+    print $self->{$$};
     if ($self->_fatal_exit){
         delete $sig_handlers{$sig}{$self->uuid};
-
+    
         if (scalar(keys %{ $sig_handlers{$sig} }) == 0){
-             exit;
+            exit;
         }
     }
 }
@@ -374,11 +393,31 @@ sub _fatal_exit {
 sub _pwm_in_use {
     my $self = shift;
     if ($_[0]){
-        $shared_pi_info{pwm}{in_use} = 1;
+        $shared_pi_info->{pwm}{in_use} = 1;
     }
 }
 sub _setup {
     return $_[0]->{setup};
+}
+
+END {
+
+    my $done_cleanup = eval {
+        if (! %$shared_pi_info){
+            print "NO MORE DATA, exiting...\n";
+            exit;
+        };
+    };
+
+    print("OBJECTS: " . scalar keys(%{ $shared_pi_info->{objects} }) . "\n");
+    print "$_\n" for keys %{ $shared_pi_info->{objects} };
+
+    if (keys %{ $shared_pi_info->{objects} } == 0){
+        print "NO OBJECTS\n";
+        IPC::Shareable->clean_up_all;
+        print "DONE REMOVING SHARE\n";
+    }
+
 }
 
 sub _vim{};

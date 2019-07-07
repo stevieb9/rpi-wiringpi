@@ -11,6 +11,7 @@ use Test::More;
 
 rpi_running_test('t/113-multi_die.t');
 
+print "MASTER PROC: $$\n";
 my $f = 'ready.multi';
 
 my $pi = RPi::WiringPi->new(label => 'multi_die');
@@ -36,6 +37,8 @@ unlink $f or die $!;
 sleep 1;
 
 print "*** External script: died() ***\n\n";
+
+$pi->dump_metadata;
 
 is exists($pi->metadata->{objects}{$pi->uuid}), 1, "$$ set in meta ok";
 is $pi->metadata->{objects}{$pi->uuid}{proc}, $$, "UUID proc set to procID $$ in meta ok";

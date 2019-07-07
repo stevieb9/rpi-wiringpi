@@ -14,29 +14,37 @@ our @EXPORT = qw(
     rpi_metadata_clean
 );
 
+use RPi::WiringPi;
 use Carp qw(croak);
-use IPC::Shareable;
 use Test::More;
 use WiringPi::API qw(:perl);
 
-tie my %shared_pi_info, 'IPC::Shareable', {
-    key => 'rpiw',
-    create => 0,
-};
+local $SIG{__DIE__} = sub {print "$_\n" for @_; };
+
+my $pi = RPi::WiringPi->new(label => 'RPiTest');
+my $shared_pi_info = $pi->_shared;
+$pi->cleanup;
+
+#tie my %shared_pi_info, 'IPC::Shareable', {
+#    key => 'rpiw',
+#    create => 0,
+#};
 
 my $oled_lock = '/tmp/oled_unavailable.rpi-wiringpi';
+
+print "PROC: $$\n";
 
 sub rpi_running_test {
     (my $test) = @_;
 
     if ($test =~ m|t/(\d+)-(.*)\.t|){
-        $shared_pi_info{testing}->{test_num} = $1;
-        $shared_pi_info{testing}->{test_name} = $2;
+        $shared_pi_info->{testing}{test_num} = $1;
+        $shared_pi_info->{testing}{test_name} = $2;
         return 0;
     }
     elsif ($test =~ /^-\d+/){
-        $shared_pi_info{testing}->{test_num} = -1;
-        $shared_pi_info{testing}->{test_name} = '';
+        $shared_pi_info->{testing}{test_num} = -1;
+        $shared_pi_info->{testing}{test_name} = '';
         return 0;
     }
 
@@ -44,7 +52,9 @@ sub rpi_running_test {
         "rpi_running_test() couldn't translate '$test' to a usable shared format\n";
 }
 sub rpi_metadata_clean {
-    is scalar(keys(% { $shared_pi_info{objects} })), 0, "meta is all cleaned up";
+    is scalar(keys(% { $shared_pi_info->{objects} })), 0, "meta is all cleaned up";
+#    IPC::Shareable->clean_up;
+
 }
 sub rpi_oled_available {
     my ($available) = @_;
@@ -227,3 +237,5 @@ sub default_pin_config {
 
     return $pin_conf;
 }
+
+1;
