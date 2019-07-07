@@ -3,8 +3,8 @@ use warnings;
 
 use lib 't/';
 
-use RPiTest;
 use RPi::WiringPi;
+use RPiTest;
 use RPi::Const qw(:all);
 use Test::More;
 

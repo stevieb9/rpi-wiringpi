@@ -15,11 +15,6 @@ use RPi::Const qw(:all);
 
 our $VERSION = '2.3633_02';
 
-tie my %shared_pi_info, 'IPC::Shareable', {
-    key => 'rpiw',
-    create => 0,
-};
-
 sub gpio_layout {
     return $_[0]->gpio_layout;
 }
@@ -162,31 +157,35 @@ sub unregister_pin {
 }
 sub cleanup {
     my ($self) = @_;
-    
-    if ($shared_pi_info{pwm}->{in_use}){
+  
+    print "STARTING CLEAN\n"; 
+    return if $self->{clean};
+
+    if ($self->{shared}{pwm}->{in_use}){
         WiringPi::API::pwmSetMode(PWM_DEFAULT_MODE);
         WiringPi::API::pwmSetClock(PWM_DEFAULT_CLOCK);
         WiringPi::API::pwmSetRange(PWM_DEFAULT_RANGE);
-        $shared_pi_info{pwm}->{in_use} = 0;
+        $self->{shared}{pwm}->{in_use} = 0;
     }
 
-    for my $pin (keys %{ $shared_pi_info{pins} }){
+    for my $pin (keys %{ $self->{shared}{pins} }){
 
-        if (exists $shared_pi_info{pins}->{$pin}{users}{$self->uuid}){
-            WiringPi::API::pinModeAlt($pin, $shared_pi_info{pins}->{$pin}{alt});
-            WiringPi::API::digitalWrite($pin, $shared_pi_info{pins}->{$pin}{state});
-            delete $shared_pi_info{pins}->{$pin};
+        if (exists $self->{shared}{pins}->{$pin}{users}{$self->uuid}){
+            WiringPi::API::pinModeAlt($pin, $self->{shared}{pins}->{$pin}{alt});
+            WiringPi::API::digitalWrite($pin, $self->{shared}{pins}->{$pin}{state});
+            delete $self->{shared}{pins}->{$pin};
         }
     }
 
-    delete $shared_pi_info{objects}->{$self->uuid};
+    delete $self->{shared}{objects}->{$self->uuid};
     $self->{clean} = 1;
-#    IPC::Shareable->clean_up;
+    print "DONE CLEAN\n";
 }
 sub tidy {
     my ($self) = @_;
-    delete $shared_pi_info{objects}->{$self->uuid};
-    $shared_pi_info{_tidy} = 1;
+    delete $self->{shared}{objects}->{$self->uuid};
+    $self->{shared}{_tidy} = 1;
+    $self->{clean} = 1;
 }
 sub _pin_registration {
     # manages the registration duties for pins
@@ -196,7 +195,7 @@ sub _pin_registration {
     my $pin = $param{pin};
 
     if (! defined $pin){
-        my @registered_pins = keys %{ $shared_pi_info{pins} };
+        my @registered_pins = keys %{ $self->{shared}{pins} };
         return \@registered_pins;
     }
 
@@ -204,14 +203,14 @@ sub _pin_registration {
 
     if ($param{operation} eq 'unregister'){
 
-        if (! $shared_pi_info{pins}->{$pin_num}{users}{$param{requester}} eq $self->uuid){
+        if (! $self->{shared}{pins}->{$pin_num}{users}{$param{requester}} eq $self->uuid){
             return;
         }
-        if (exists $shared_pi_info{pins}->{$pin_num}){
-            $pin->mode_alt($shared_pi_info{pins}->{$pin_num}{alt});
-            $pin->write($shared_pi_info{pins}->{$pin_num}{state});
-            $pin->mode($shared_pi_info{pins}->{$pin_num}{mode});
-            delete $shared_pi_info{pins}->{$pin_num};
+        if (exists $self->{shared}{pins}->{$pin_num}){
+            $pin->mode_alt($self->{shared}{pins}->{$pin_num}{alt});
+            $pin->write($self->{shared}{pins}->{$pin_num}{state});
+            $pin->mode($self->{shared}{pins}->{$pin_num}{mode});
+            delete $self->{shared}{pins}->{$pin_num};
             return;
         }
     }
@@ -221,17 +220,17 @@ sub _pin_registration {
     }
 
     if ($param{operation} eq 'register'){
-        if (exists $shared_pi_info{pins}->{$pin_num}){
+        if (exists $self->{shared}{pins}->{$pin_num}){
             croak "pin $pin_num is already in use, can't continue...\n";
         }
-        $shared_pi_info{pins}->{$pin_num}{alt} = $param{alt};
-        $shared_pi_info{pins}->{$pin_num}{state} = $param{state};
-        $shared_pi_info{pins}->{$pin_num}{mode} = $param{mode};
-        $shared_pi_info{pins}->{$pin_num}{comment} = $pin->comment;
-        $shared_pi_info{pins}->{$pin_num}{users}{$param{requester}}++
+        $self->{shared}{pins}->{$pin_num}{alt} = $param{alt};
+        $self->{shared}{pins}->{$pin_num}{state} = $param{state};
+        $self->{shared}{pins}->{$pin_num}{mode} = $param{mode};
+        $self->{shared}{pins}->{$pin_num}{comment} = $pin->comment;
+        $self->{shared}{pins}->{$pin_num}{users}{$param{requester}}++
     }
 
-    my @registered_pins = keys %{ $shared_pi_info{pins} };
+    my @registered_pins = keys %{ $self->{shared}{pins} };
 
     return \@registered_pins;
 }

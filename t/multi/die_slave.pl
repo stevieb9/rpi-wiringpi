@@ -6,6 +6,7 @@ use Data::Dumper;
 use File::Touch qw(touch);
 use RPi::WiringPi;
 
+print "SLAVE PROC: $$\n";
 my $f = 'ready.multi';
 
 my $pi= RPi::WiringPi->new(label => 'multi_die_slave');
