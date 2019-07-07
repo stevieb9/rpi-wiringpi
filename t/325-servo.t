@@ -50,9 +50,6 @@ if (! $ENV{NO_BOARD}) {
     $servo->pwm(LEFT);
 
     sleep 5;
-    $pi->cleanup;
-    done_testing();
-    exit;
 
     for (LEFT .. RIGHT){
         # sweep all the way left to right
