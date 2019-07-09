@@ -6,23 +6,19 @@ use lib 't/';
 
 use RPi::WiringPi;
 use RPiTest;
-use IPC::Shareable;
 use Test::More;
 
 rpi_running_test(__FILE__);
 
 my $pi = RPi::WiringPi->new(label => 't/05-checksum_uuid.t');
 
-my $shared_pi_info = $pi->_shared;
+is exists $RPi::WiringPi::Util::shared_pi_info{objects}->{$pi->uuid}, 1, "shared memory has the object's uuid";
+is exists $RPi::WiringPi::Util::shared_pi_info{objects}->{$pi->uuid}{proc}, 1, "shared memory has the object's proc";
+is exists $RPi::WiringPi::Util::shared_pi_info{objects}->{$pi->uuid}{label}, 1, "shared memory has the object's label";
 
-
-is exists $shared_pi_info->{objects}->{$pi->uuid}, 1, "shared memory has the object's uuid";
-is exists $shared_pi_info->{objects}->{$pi->uuid}{proc}, 1, "shared memory has the object's proc";
-is exists $shared_pi_info->{objects}->{$pi->uuid}{label}, 1, "shared memory has the object's label";
-
-is ref $shared_pi_info->{objects}->{$pi->uuid}, 'HASH', "object is a hash ref";
-is $shared_pi_info->{objects}->{$pi->uuid}{label}, 't/05-checksum_uuid.t', "object's label is correct";
-is $shared_pi_info->{objects}->{$pi->uuid}{proc}, $$, "object's proc is ok";
+is ref $RPi::WiringPi::Util::shared_pi_info{objects}->{$pi->uuid}, 'HASH', "object is a hash ref";
+is $RPi::WiringPi::Util::shared_pi_info{objects}->{$pi->uuid}{label}, 't/05-checksum_uuid.t', "object's label is correct";
+is $RPi::WiringPi::Util::shared_pi_info{objects}->{$pi->uuid}{proc}, $$, "object's proc is ok";
 
 my $c = $pi->checksum;
 
@@ -32,22 +28,18 @@ check_checksum($pi->uuid, 'uuid');
 $pi->cleanup;
 
 is
-    exists $shared_pi_info->{objects}->{$pi->uuid},
+    exists $RPi::WiringPi::Util::shared_pi_info{objects}->{$pi->uuid},
     '',
     "shared memory removed the object's uuid after cleanup";
 
-is exists $shared_pi_info->{objects}, 1, "objects container in shared memory ok";
+is exists $RPi::WiringPi::Util::shared_pi_info{objects}, 1, "objects container in shared memory ok";
+is keys( %{ $RPi::WiringPi::Util::shared_pi_info{objects} }), 0, "objects has no objects";
 
-#pi->clean_shared;
-
-rpi_check_pin_status();
+# rpi_check_pin_status();
 rpi_metadata_clean();
 
 done_testing();
 
-END {
-    print "LEAVING RPiTest\n";
-};
 sub check_checksum {
     my ($c, $text) = @_;
 

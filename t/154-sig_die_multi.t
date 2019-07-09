@@ -55,6 +55,9 @@ is keys(%{ $pi_b->metadata->{objects} }), 0, "after die(), no more objects exist
 is exists $pi_a->_signal_handlers->{__DIE__}{$pi_a->uuid}, 1, "pi_a sig handlers still exist if ! fatal_exit";
 is exists $pi_b->_signal_handlers->{__DIE__}{$pi_b->uuid}, 1, "pi_b sig handlers still exist if ! fatal_exit";
 
+$pi_a->cleanup;
+$pi_b->cleanup;
+
 rpi_check_pin_status();
 rpi_metadata_clean();
 
