@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use parent 'RPi::WiringPi::Core';
+use parent 'RPi::WiringPi::Util';
 
 use GPSD::Parse;
 use RPi::ADC::ADS;
@@ -27,14 +28,6 @@ use RPi::SPI;
 use RPi::StepperMotor;
 
 our $VERSION = '2.3633_02';
-
-my $shared_pi_info;
-my $tied;
-
-#tie my %shared_pi_info, 'IPC::Shareable', {
-#    key => 'rpiw',
-#    create => 0
-#};
 
 # class variables
 
@@ -86,21 +79,17 @@ sub new {
         $ENV{RPI_PIN_MODE} = $self->pin_scheme;
     }
 
-    $shared_pi_info = $self->_shared;
-    $self->{shared} = $self->_shared;
-    $tied = $self->{$$};
-
     $self->_fatal_exit($args{fatal_exit});
 
     $self->{proc} = $$;
 
     while (! defined $self->{uuid}){
         my $uuid = $self->checksum;
-        next if exists $shared_pi_info->{objects}{$uuid};
+        next if exists $RPi::WiringPi::Util::shared_pi_info{objects}{$uuid};
         $self->{uuid} = $uuid;
     }
 
-    $shared_pi_info->{objects}->{$self->uuid} = {
+    $RPi::WiringPi::Util::shared_pi_info{objects}->{$self->uuid} = {
         proc  => $self->{proc},
         label => $self->{label}
     };
@@ -219,6 +208,7 @@ sub pin {
 
     $self->register_pin($pin);
 
+    $self->dump_metadata;
     return $pin;
 }
 sub rtc {
@@ -306,18 +296,16 @@ sub DESTROY {
     return if $self->{clean};
 
     print "here\n";
-    if (! $shared_pi_info->{_tidy}){
+    if (! $RPi::WiringPi::Util::shared_pi_info{_tidy}){
         $self->cleanup;
     }
-    $shared_pi_info->{_tidy} = 0;
+    $RPi::WiringPi::Util::shared_pi_info{_tidy} = 0;
 
-    if (keys %{ $shared_pi_info->{objects} } == 0){
+    if (keys %{ $RPi::WiringPi::Util::shared_pi_info{objects} } == 0){
         print "NO OBJECTS\n";
-        $tied->remove;
-        #IPC::Shareable->clean_up;
+        IPC::Shareable->clean_up_all;
         print "DONE REMOVING SHARE\n";
     }
-
 }
 
 # private
@@ -393,7 +381,7 @@ sub _fatal_exit {
 sub _pwm_in_use {
     my $self = shift;
     if ($_[0]){
-        $shared_pi_info->{pwm}{in_use} = 1;
+        $RPi::WiringPi::Util::shared_pi_info{pwm}{in_use} = 1;
     }
 }
 sub _setup {
@@ -403,16 +391,14 @@ sub _setup {
 END {
 
     my $done_cleanup = eval {
-        if (! %$shared_pi_info){
+        print "DEFINED: " . ! %RPi::WiringPi::Util::shared_pi_info;
+        if (! %RPi::WiringPi::Util::shared_pi_info){
             print "NO MORE DATA, exiting...\n";
             exit;
         };
     };
 
-    print("OBJECTS: " . scalar keys(%{ $shared_pi_info->{objects} }) . "\n");
-    print "$_\n" for keys %{ $shared_pi_info->{objects} };
-
-    if (keys %{ $shared_pi_info->{objects} } == 0){
+    if (keys %{ $RPi::WiringPi::Util::shared_pi_info{objects} } == 0){
         print "NO OBJECTS\n";
         IPC::Shareable->clean_up_all;
         print "DONE REMOVING SHARE\n";

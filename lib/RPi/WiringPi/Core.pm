@@ -160,31 +160,35 @@ sub cleanup {
   
     print "STARTING CLEAN\n"; 
     return if $self->{clean};
+    print "NOT CLEAN, CONTINUING...\n";
 
-    if ($self->{shared}{pwm}->{in_use}){
+    if ($RPi::WiringPi::Util::shared_pi_info::{pwm}->{in_use}){
         WiringPi::API::pwmSetMode(PWM_DEFAULT_MODE);
         WiringPi::API::pwmSetClock(PWM_DEFAULT_CLOCK);
         WiringPi::API::pwmSetRange(PWM_DEFAULT_RANGE);
-        $self->{shared}{pwm}->{in_use} = 0;
+        $RPi::WiringPi::Util::shared_pi_info::{pwm}->{in_use} = 0;
     }
 
-    for my $pin (keys %{ $self->{shared}{pins} }){
+    for my $pin (keys %{ $RPi::WiringPi::Util::shared_pi_info::{pins} }){
 
-        if (exists $self->{shared}{pins}->{$pin}{users}{$self->uuid}){
-            WiringPi::API::pinModeAlt($pin, $self->{shared}{pins}->{$pin}{alt});
-            WiringPi::API::digitalWrite($pin, $self->{shared}{pins}->{$pin}{state});
-            delete $self->{shared}{pins}->{$pin};
+        if (exists $RPi::WiringPi::Util::shared_pi_info::{pins}->{$pin}{users}{$self->uuid}){
+            WiringPi::API::pinModeAlt($pin, $RPi::WiringPi::Util::shared_pi_info::{pins}->{$pin}{alt});
+            WiringPi::API::digitalWrite($pin, $RPi::WiringPi::Util::shared_pi_info::{pins}->{$pin}{state});
+            delete $RPi::WiringPi::Util::shared_pi_info::{pins}->{$pin};
         }
     }
 
-    delete $self->{shared}{objects}->{$self->uuid};
+    print "BEFORE DELETE UUID: " . $self->uuid . "\n";
+    delete $RPi::WiringPi::Util::shared_pi_info{objects}->{$self->uuid};
+    print "AFTER $_\n" for keys %{ $RPi::WiringPi::Util::shared_pi_info{objects} };
+
     $self->{clean} = 1;
     print "DONE CLEAN\n";
 }
 sub tidy {
     my ($self) = @_;
-    delete $self->{shared}{objects}->{$self->uuid};
-    $self->{shared}{_tidy} = 1;
+    delete $RPi::WiringPi::Util::shared_pi_info::{objects}->{$self->uuid};
+    $RPi::WiringPi::Util::shared_pi_info::{_tidy} = 1;
     $self->{clean} = 1;
 }
 sub _pin_registration {
@@ -195,7 +199,7 @@ sub _pin_registration {
     my $pin = $param{pin};
 
     if (! defined $pin){
-        my @registered_pins = keys %{ $self->{shared}{pins} };
+        my @registered_pins = keys %{ $RPi::WiringPi::Util::shared_pi_info::{pins} };
         return \@registered_pins;
     }
 
@@ -203,14 +207,14 @@ sub _pin_registration {
 
     if ($param{operation} eq 'unregister'){
 
-        if (! $self->{shared}{pins}->{$pin_num}{users}{$param{requester}} eq $self->uuid){
+        if (! $RPi::WiringPi::Util::shared_pi_info::{pins}->{$pin_num}{users}{$param{requester}} eq $self->uuid){
             return;
         }
-        if (exists $self->{shared}{pins}->{$pin_num}){
-            $pin->mode_alt($self->{shared}{pins}->{$pin_num}{alt});
-            $pin->write($self->{shared}{pins}->{$pin_num}{state});
-            $pin->mode($self->{shared}{pins}->{$pin_num}{mode});
-            delete $self->{shared}{pins}->{$pin_num};
+        if (exists $RPi::WiringPi::Util::shared_pi_info::{pins}->{$pin_num}){
+            $pin->mode_alt($RPi::WiringPi::Util::shared_pi_info::{pins}->{$pin_num}{alt});
+            $pin->write($RPi::WiringPi::Util::shared_pi_info::{pins}->{$pin_num}{state});
+            $pin->mode($RPi::WiringPi::Util::shared_pi_info::{pins}->{$pin_num}{mode});
+            delete $RPi::WiringPi::Util::shared_pi_info::{pins}->{$pin_num};
             return;
         }
     }
@@ -220,17 +224,17 @@ sub _pin_registration {
     }
 
     if ($param{operation} eq 'register'){
-        if (exists $self->{shared}{pins}->{$pin_num}){
+        if (exists $RPi::WiringPi::Util::shared_pi_info::{pins}->{$pin_num}){
             croak "pin $pin_num is already in use, can't continue...\n";
         }
-        $self->{shared}{pins}->{$pin_num}{alt} = $param{alt};
-        $self->{shared}{pins}->{$pin_num}{state} = $param{state};
-        $self->{shared}{pins}->{$pin_num}{mode} = $param{mode};
-        $self->{shared}{pins}->{$pin_num}{comment} = $pin->comment;
-        $self->{shared}{pins}->{$pin_num}{users}{$param{requester}}++
+        $RPi::WiringPi::Util::shared_pi_info{pins}->{$pin_num}{alt} = $param{alt};
+        $RPi::WiringPi::Util::shared_pi_info{pins}->{$pin_num}{state} = $param{state};
+        $RPi::WiringPi::Util::shared_pi_info{pins}->{$pin_num}{mode} = $param{mode};
+        $RPi::WiringPi::Util::shared_pi_info{pins}->{$pin_num}{comment} = $pin->comment;
+        $RPi::WiringPi::Util::shared_pi_info{pins}->{$pin_num}{users}{$param{requester}}++
     }
 
-    my @registered_pins = keys %{ $self->{shared}{pins} };
+    my @registered_pins = keys %{ $RPi::WiringPi::Util::shared_pi_info::{pins} };
 
     return \@registered_pins;
 }

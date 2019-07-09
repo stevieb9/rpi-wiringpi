@@ -3,6 +3,9 @@ package RPi::WiringPi::Util;
 use strict;
 use warnings;
 
+use base 'Exporter';
+our @EXPORT = qw(%shared_pi_info);
+
 use parent 'WiringPi::API';
 use Carp qw(croak);
 use Data::Dumper;
@@ -12,60 +15,17 @@ use RPi::Const qw(:all);
 
 our $VERSION = '2.3633_02';
 
-my %shared_pi_info;
+our %shared_pi_info;
+my $tied;
 
-#BEGIN {
-#    local $SIG{__WARN__} = sub { 
-#        my $warn = shift;
-#        print "$warn\n" if $warn !~ /Storable/;
-#    };
-#
-#    my $init_shared = eval {
-#        local $SIG{__DIE__} = sub {};
-#        tie %shared_pi_info, 'IPC::Shareable', {
-#            key => 'rpiw',
-#            create => 0
-#        };
-#        1;
-#    };
-#
-#    if (! defined $init_shared){
-#        tie %shared_pi_info, 'IPC::Shareable', {
-#            key => 'rpiw',
-#            create => 1
-#        };
-#    }
-#}
-sub _shared {
-    my ($self) = @_;
-
-    return \%shared_pi_info if %shared_pi_info;
-
-    local $SIG{__WARN__} = sub { 
-        my $warn = shift;
-        print "$warn\n" if $warn !~ /Storable/;
+BEGIN {
+    $tied = %shared_pi_info, 'IPC::Shareable', {
+        key     => 'rpiw',
+        create  => 1,
+        destroy => 1
     };
-
-    my $init_shared = eval {
-        local $SIG{__DIE__} = sub {};
-        $self->{$$} = tie %shared_pi_info, 'IPC::Shareable', {
-            key => 'rpiw',
-            create => 0,
-            delete => 0
-        };
-        1;
-    };
-
-    if (! defined $init_shared){
-        $self->{$$} = tie %shared_pi_info, 'IPC::Shareable', {
-            key => 'rpiw',
-            create => 1,
-            delete => 0
-        };
-    }
-
-    return \%shared_pi_info;
 }
+
 sub meta_lock {
     my ($self, %args) = @_;
 
@@ -147,7 +107,9 @@ sub uuid {
     return $self->{uuid};
 }
 sub clean_shared {
-    %shared_pi_info = ();
+    for (keys %shared_pi_info){
+        delete $shared_pi_info{$_};
+    }
 }
 sub _vim{1;};
 1;
