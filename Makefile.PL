@@ -41,6 +41,7 @@ WriteMakefile(
         'parent'                    => 0,
         'GPSD::Parse'               => 1.02,
         'IPC::Shareable'            => 0,
+        'IPC::SpawnShared'          => 0,
         'JSON'                      => 0,
         'RPi::ADC::ADS'             => 1.02,
         'RPi::ADC::MCP3008'         => 2.3604,

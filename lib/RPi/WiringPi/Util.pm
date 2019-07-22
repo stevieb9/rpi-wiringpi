@@ -4,7 +4,6 @@ use strict;
 use warnings;
 
 use base 'Exporter';
-our @EXPORT = qw(%shared_pi_info);
 
 use parent 'WiringPi::API';
 use Carp qw(croak);
@@ -15,58 +14,12 @@ use RPi::Const qw(:all);
 
 our $VERSION = '2.3633_02';
 
-our %shared_pi_info;
-my $tied;
-
-BEGIN {
-    $tied = %shared_pi_info, 'IPC::Shareable', {
-        key     => 'rpiw',
-        create  => 1,
-        destroy => 1
-    };
-}
-
-sub meta_lock {
-    my ($self, %args) = @_;
-
-    my $name   = $args{name};
-    my $state  = $args{state};
-    my $delete = $args{delete};
-
-    return keys %{ $shared_pi_info{locks} } if ! defined $name;
-
-    if (defined $name && defined $state){
-        $shared_pi_info{locks}->{$name}{state} = $state;
-    }
-
-    return '' if ! exists $shared_pi_info{locks}->{$name};
-
-    if (defined $delete && $delete){
-        delete $shared_pi_info{locks}{$name};
-        return keys %{ $shared_pi_info{locks} };
-
-    }
-
-    return $shared_pi_info{locks}->{$name}{state};
-}
 sub checksum {
      return md5_hex(rand());
 }
 sub dump_signal_handlers {
     my ($self) = @_;
     print Dumper $self->_signal_handlers;
-}
-sub dump_metadata {
-    my ($self) = @_;
-    print Dumper $self->metadata;
-}
-sub dump_object {
-    my ($self) = @_;
-    print Dumper $self;
-}
-sub metadata {
-    my %meta = %shared_pi_info;
-    return \%meta;
 }
 sub pin_map {
     my ($self, $scheme) = @_;
@@ -106,11 +59,7 @@ sub uuid {
     my ($self) = @_;
     return $self->{uuid};
 }
-sub clean_shared {
-    for (keys %shared_pi_info){
-        delete $shared_pi_info{$_};
-    }
-}
+
 sub _vim{1;};
 1;
 
@@ -128,57 +77,10 @@ used independently.
 
 =head1 METHODS
 
-=head2 meta_lock(%args)
-
-Fetches and sets software "locks". Useful for when you've got multiple
-processes trying to use a single-use-only feature (such as serial).
-
-Parameters:
-
-All parameters are sent in as a hash.
-
-    name => 'string'
-
-Optional, String: The name of the lock. If this is not sent in, we'll return an
-array with the names of all existing locks.
-
-    state => 0|1
-
-Optional, Bool: The state of the lock. If this is sent in, we'll set the lock
-supplied in the C<name> parameter to this value.
-
-    delete => 1
-
-Optional, Bool: Deletes a lock from the shared memory. You must also supply the
-C<name> parameter for this to have any effect.
-
-Returns: Array of all existing lock names if a name isn't sent in, and the
-current state of the lock if it is. If using C<delete>, we'll return a list of
-all existing lock names after the deletion occurs. Will return C<''> if a name
-is sent in, but no lock exists by that name.
-
 =head2 checksum
 
 Returns a randomly generated 32-byte hexidecimal MD5 checksum. We use this
 internally to generate a UUID for each Pi object.
-
-=head2 dump_metadata
-
-Used for troubleshooting/development, dumps the system's meta data within the
-shared memory storage using L<Data::Dumper>.
-
-=head2 dump_object
-
-Used for troubleshooting/development, dumps the object using L<Data::Dumper>.
-
-=head2 metadata
-
-During operation, we store several pieces of meta data of both the Pi object
-as well as operational status information in shared memory.
-
-Call this method to get a copy of this meta information.
-
-Return: Hash reference containing the meta data.
 
 =head2 pin_map($scheme)
 
