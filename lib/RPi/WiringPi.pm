@@ -5,6 +5,7 @@ use warnings;
 
 use parent 'RPi::WiringPi::Core';
 use parent 'RPi::WiringPi::Util';
+use parent 'RPi::WiringPi::Meta';
 
 use GPSD::Parse;
 use RPi::ADC::ADS;
@@ -34,6 +35,7 @@ our $VERSION = '2.3633_02';
 my $fatal_exit = 1;
 my %sig_handlers;
 my $signal_debug = 1;
+my $meta_data;
 
 # core
 
@@ -80,20 +82,22 @@ sub new {
     }
 
     $self->_fatal_exit($args{fatal_exit});
+    $self->meta_spawn;
+    $meta_data = $self->{meta};
 
     $self->{proc} = $$;
 
     while (! defined $self->{uuid}){
         my $uuid = $self->checksum;
-        next if exists $RPi::WiringPi::Util::shared_pi_info{objects}{$uuid};
+        next if exists $self->{meta}{objects}{$uuid};
         $self->{uuid} = $uuid;
     }
 
-    $RPi::WiringPi::Util::shared_pi_info{objects}->{$self->uuid} = {
+    $self->{meta}{objects}->{$self->uuid} = {
         proc  => $self->{proc},
         label => $self->{label}
     };
-
+    $self->{meta}{object_count}++;
     $self->_generate_signal_handlers;
 
     return $self;
@@ -208,7 +212,6 @@ sub pin {
 
     $self->register_pin($pin);
 
-    $self->dump_metadata;
     return $pin;
 }
 sub rtc {
@@ -290,22 +293,21 @@ sub stepper_motor {
     return RPi::StepperMotor->new(%args);
 }
 sub DESTROY {
-    my ($self) = @_;
-
-    print "DESTROY\n";
-    return if $self->{clean};
-
-    print "here\n";
-    if (! $RPi::WiringPi::Util::shared_pi_info{_tidy}){
-        $self->cleanup;
-    }
-    $RPi::WiringPi::Util::shared_pi_info{_tidy} = 0;
-
-    if (keys %{ $RPi::WiringPi::Util::shared_pi_info{objects} } == 0){
-        print "NO OBJECTS\n";
-        IPC::Shareable->clean_up_all;
-        print "DONE REMOVING SHARE\n";
-    }
+#    my ($self) = @_;
+#
+#    print Dumper $self;
+#    return if $self->{clean};
+#
+#    if (! $self->{meta}{_tidy}){
+#        $self->cleanup;
+#    }
+#    $self->{meta}{_tidy} = 0;
+#
+#    if (keys %{ $self->{meta}{objects} } == 0){
+#        print "NO OBJECTS\n";
+#        IPC::Shareable->clean_up_all;
+#        print "DONE REMOVING SHARE\n";
+#    }
 }
 
 # private
@@ -381,7 +383,7 @@ sub _fatal_exit {
 sub _pwm_in_use {
     my $self = shift;
     if ($_[0]){
-        $RPi::WiringPi::Util::shared_pi_info{pwm}{in_use} = 1;
+        $self->{meta}{pwm}{in_use} = 1;
     }
 }
 sub _setup {
@@ -389,20 +391,15 @@ sub _setup {
 }
 
 END {
+#    my $done_cleanup = eval {
+#        if (! %{ $meta_data }){
+#            exit;
+#        };
+#    };
 
-    my $done_cleanup = eval {
-        print "DEFINED: " . ! %RPi::WiringPi::Util::shared_pi_info;
-        if (! %RPi::WiringPi::Util::shared_pi_info){
-            print "NO MORE DATA, exiting...\n";
-            exit;
-        };
-    };
-
-    if (keys %{ $RPi::WiringPi::Util::shared_pi_info{objects} } == 0){
-        print "NO OBJECTS\n";
-        IPC::Shareable->clean_up_all;
-        print "DONE REMOVING SHARE\n";
-    }
+#    if (keys %{ $meta_data->{objects} } == 0){
+#        IPC::Shareable->clean_up_all;
+#    }
 
 }
 
@@ -454,506 +451,7 @@ Please see the L<FAQ|RPi::WiringPi::FAQ> for full usage details.
 This is the root module for the C<RPi::WiringPi> system. It interfaces to a
 Raspberry Pi board, its accessories and its GPIO pins via the
 L<wiringPi|http://wiringpi.com> library through the Perl wrapper
-L<WiringPi::API|https://metacpan.org/pod/WiringPi::API>
-module, and various other custom device specific  modules.
-
-L<wiringPi|http://wiringpi.com> must be installed prior to installing/using
-this module (v2.36+).
-
-We always and only use the C<GPIO> pin numbering scheme.
-
-This module is essentially a 'manager' for the sub-modules (ie. components).
-You can use the component modules directly, but retrieving components through
-this module instead has many benefits. We maintain a registry of pins and other
-data. We also trap C<$SIG{__DIE__}> and C<$SIG{INT}>, so that in the event of a
-crash, we can reset the Pi back to default settings, so components are not left
-in an inconsistent state. Component modules do none of these things.
-
-There are a basic set of constants that can be imported. See
-L<RPi::Const>.
-
-It's handy to have access to a pin mapping conversion chart. There's an
-excellent pin scheme map for reference at
-L<pinout.xyz|https://pinout.xyz/pinout/wiringpi>. You can also run the C<pinmap>
-command that was installed by this module, or C<wiringPi>'s C<gpio readall>
-command.
-
-=head1 BASE METHODS
-
-=head2 new([%args])
-
-Returns a new C<RPi::WiringPi> object. We exclusively use the C<GPIO>
-(Broadcom (BCM) GPIO) pin numbering scheme.
-
-Parameters:
-
-    fatal_exit => $bool
-
-Optional: We trap all C<die()> calls and clean up for safety reasons. If a
-call to C<die()> is trapped, by default, we clean up, and then C<exit()>. Set
-C<fatal_exit> to false (C<0>) to perform the cleanup, and then continue running
-your script.
-
-We recommend only disabling this feature if you're doing unit test work, want to
-allow other exit traps to catch, allow the Pi to continue on working after a
-fatal error etc. If disabled, you will be responsible for doing your own cleanup
-of the Pi hardware configuration on exit.
-
-=head2 adc
-
-There are two different ADCs that you can select from. The default is the
-ADS1x15 series:
-
-=head3 ADS1115
-
-Returns a L<RPi::ADC::ADS> object, which allows you to read the four analog
-input channels on an Adafruit ADS1xxx analog to digital converter.
-
-Parameters:
-
-The default (no parameters) is almost always enough, but please do review
-the documentation in the link above for further information, and have a
-look at the
-L<ADC tutorial section|RPi::WiringPi::FAQ/ANALOG TO DIGITAL CONVERTERS (ADC)> in
-this distribution.
-
-=head3 MCP3008
-
-You can also use an L<RPi::ADC::MCP3008> ADC.
-
-Parameters:
-
-    model => 'MCP3008'
-
-Mandatory, String. The exact quoted string above.
-
-    channel => $channel
-
-Mandatory, Integer. C<0> or C<1> for the Pi's onboard hardware CS/SS CE0 and CE1
-pins, or any GPIO number above C<1> in order to use an arbitrary GPIO pin for
-the CS pin, and we'll do the bit-banging of the SPI bus automatically.
-
-=head2 bmp
-
-Returns a L<RPi::BMP180> object, which allows you to return the
-current temperature in farenheit or celcius, along with the ability to retrieve
-the barometric pressure in kPa.
-
-=head2 dac
-
-Returns a L<RPi::DAC::MCP4922> object (supports all 49x2 series DACs). These
-chips provide analog output signals from the Pi's digital output. Please
-see the documentation of that module for further information on both the
-configuration and use of the DAC object.
-
-Parameters:
-
-    model => 'MCP4922'
-
-Optional, String. The model of the DAC you're using. Defaults to C<MCP4922>.
-
-    channel => 0|1
-
-Mandatory, Bool. The SPI channel to use.
-
-    cs => $pin
-
-Mandatory, Integer. A valid GPIO pin that the DAC's Chip Select is connected to.
-
-There are a handful of other parameters that aren't required. For those, please
-refer to the L<RPi::DAC::MCP4922> documentation.
-
-=head2 dpot($cs, $channel)
-
-Returns a L<RPi::DigiPot::MCP4XXXX> object, which allows you to manage a
-digital potentiometer (only the MCP4XXXX versions are currently supported).
-
-See the linked documentation for full documentation on usage, or the
-L<RPi::WiringPi::FAQ> for usage examples.
-
-=head2 eeprom(%args)
-
-Returns a L<RPi::EEPROM::AT24C32> object, allowing you to read and write to the
-32Kb and 64Kb EEPROM chips.
-
-    my $eeprom = $pi->eeprom(
-        device  => '/dev/i2c-1', # optional, default
-        address => 0x57,         # optional, default
-        delay   => 1             # optional, default
-    );
-
-    # write the value 20 to EEPROM memory address 500
-
-    $eeprom->write(500, 20);
-
-    # read the value stored in EEPROM address 500
-
-    my $value = $eeprom->read(500);
-
-=head2 gps
-
-Returns a L<GPSD::Parse> object, allowing you to track your location.
-
-The GPS distribution requires C<gpsd> to be installed and running. All
-parameters for the GPS can be sent in here and we'll pass them along. Please see
-the link above for the full documentation on that module.
-
-=head2 hcsr04($trig, $echo)
-
-Returns a L<RPi::HCSR04> ultrasonic distance measurement sensor object, allowing
-you to retrieve the distance from the sensor in inches, centimetres or raw data.
-
-Parameters:
-
-    $trig
-
-Mandatory, Integer: The trigger pin number, in GPIO numbering scheme.
-
-    $echo
-
-Mandatory, Integer: The echo pin number, in GPIO numbering scheme.
-
-=head2 hygrometer($pin)
-
-Returns a L<RPi::DHT11> temperature/humidity sensor object, allows you to fetch
-the temperature (celcius or farenheit) as well as the current humidity level.
-
-Parameters:
-
-    $pin
-
-Mandatory, Integer: The GPIO pin the sensor is connected to.
-
-=head2 i2c($addr, [$device])
-
-Creates a new L<RPi::I2C> device object which allows you to communicate with
-the devices on an I2C bus.
-
-See the linked documentation for full documentation on usage, or the
-L<RPi::WiringPi::FAQ> for usage examples.
-
-Aruino note: If using I2C with an Arduino, the Pi may speak faster than the
-Arduino can. If this is the case, try lowering the I2C bus speed on the Pi:
-
-    dtparam=i2c_arm_baudrate=10000
-
-=head2 lcd(...)
-
-Returns a L<RPi::LCD> object, which allows you to fully manipulate
-LCD displays connected to your Raspberry Pi.
-
-Please see the linked documentation for information regarding the parameters
-required.
-
-=head2 oled([$model], [$i2c_addr])
-
-Returns a specific C<RPi::OLED::SSD1306> OLED display object, allowing you to
-display text, characters and shapes to the screen.
-
-Currently, only the C<128x64> size model is offered, see the
-L<RPi::OLED::SSD1306::128_64> documentation for full usage details.
-
-Parameters:
-
-    $model
-
-Optional, String: The screen size of the OLED you've got. Valid options are
-C<128x64>, C<128x32> and C<96x16>. Currently, only the C<128x64> option is
-valid, and it's the default if not sent in.
-
-    $i2c_addr
-
-Optional, Integer: The I2C address of your display. Defaults to C<0x3C> if not
-sent in.
-
-=head2 pin($pin_num)
-
-Returns a L<RPi::Pin> object, mapped to a specified GPIO pin, which
-you can then perform operations on. See that documentation for full usage
-details.
-
-Parameters:
-
-    $pin_num
-
-Mandatory, Integer: The pin number to attach to.
-
-=head2 rtc
-
-Creates a new L<RPi::RTC::DS3231> object which provides access to the C<DS3231>
-or C<DS1307> real-time clock modules.
-
-See the linked documentation for full documentation on usage, or the
-L<RPi::WiringPi::FAQ> for some usage examples.
-
-Parameters:
-
-    $i2c_addr
-
-Optional, Integer: The I2C address of the RTC module. Defaults to C<0x68> for
-the C<DS3231> unit.
-
-=head2 expander
-
-Creates a new L<RPi::GPIOExpander::MCP23017> GPIO expander chip object. This
-adds an additional 16 pins across two banks (8 pins per bank).
-
-See the linked documentation for full documentation on usage, or the
-L<RPi::WiringPi::FAQ> for some usage examples.
-
-Parameters:
-
-    $i2c_addr
-
-Optional, Integer: The I2C address of the device. Defaults to C<0x20>.
-
-    $expander
-
-Optional, String: The GPIO expander device type. Defaults to C<MCP23017>, and
-currently, this is the only option available.
-
-=head2 serial($device, $baud)
-
-Creates a new L<RPi::Serial> object which allows basic read/write access to a
-serial bus.
-
-See the linked documentation for full documentation on usage, or the
-L<RPi::WiringPi::FAQ> for usage examples.
-
-NOTE: Bluetooth on the Pi overlays the serial pins (14, 15) on the Pi. To use
-serial, you must disable bluetooth in the C</boot/config.txt> file:
-
-    dtoverlay=pi3-disable-bt-overlay
-
-=head2 servo($pin_num)
-
-This method configures PWM clock and divisor to operate a typical 50Hz servo,
-and returns a special L<RPi::Pin> object. These servos have a C<left> pulse of
-C<50>, a C<centre> pulse of C<150> and a C<right> pulse of C<250>. On exit of
-the program (or a crash), we automatically clean everything up properly.
-
-Parameters:
-
-    $pin_num
-
-Mandatory, Integer: The pin number (technically, this *must* be C<18> on the
-Raspberry Pi 3, as that's the only hardware PWM pin.
-
-    %pwm_config
-
-Optional, Hash. This parameter should only be used if you know what you're
-doing and are having very specific issues.
-
-Keys are C<clock> with a value that coincides with the PWM clock speed. It
-defaults to C<192>. The other key is C<range>, the value being an integer that
-sets the range of the PWM. Defaults to C<2000>.
-
-Example:
-
-    my $servo = $pi->servo(18);
-
-    $servo->pwm(50);  # all the way left
-    $servo->pwm(250); # all the way right
-
-=head2 shift_register($base, $num_pins, $data, $clk, $latch)
-
-Allows you to access the output pins of up to four 74HC595 shift registers in
-series, for a total of eight new output pins per register. Numerous chains of
-four registers are permitted, each chain uses three GPIO pins.
-
-Parameters:
-
-    $base
-
-Mandatory: Integer, represents the number at which you want to start
-referencing the new output pins attached to the register(s). For example, if
-you use C<100> here, output pin C<0> of the register will be C<100>, output
-C<1> will be C<101> etc.
-
-    $num_pins
-
-Mandatory: Integer, the number of output pins on the registers you want to use.
-Each register has eight outputs, so if you have a single register in use, the
-maximum number of additional pins would be eight.
-
-    $data
-
-Mandatory: Integer, the GPIO pin number attached to the C<DS> pin (14) on the
-shift register.
-
-    $clk
-
-Mandatory: Integer, the GPIO pin number attached to the C<SHCP> pin (11) on the
-shift register.
-
-    $latch
-
-Mandatory: Integer, the GPIO pin number attached to the C<STCP> pin (12) on the
-shift register.
-
-=head2 spi($channel, $speed)
-
-Creates a new L<RPi::SPI> object which allows you to communicate on the Serial
-Peripheral Interface (SPI) bus with attached devices.
-
-See the linked documentation for full documentation on usage, or the
-L<RPi::WiringPi::FAQ> for usage examples.
-
-=head2 stepper_motor($pins)
-
-Creates a new L<RPi::StepperMotor> object which allows you to drive a
-28BYJ-48 stepper motor with a ULN2003 driver chip.
-
-See the linked documentation for full usage instructions and the optional
-parameters.
-
-Parameters:
-
-    pins => $aref
-
-Mandatory, Array Reference: The ULN2003 has four data pins, IN1, IN2, IN3 and
-IN4. Send in the GPIO pin numbers in the array reference which correlate to the
-driver pins in the listed order.
-
-    speed => 'half'|'full'
-
-Optional, String: By default we run in "half speed" mode. Essentially, in this
-mode we run through all eight steps. Send in 'full' to double the speed of the
-motor. We do this by skipping every other step.
-
-    delay => Float|Int
-
-Optional, Float or Int: By default, between each step, we delay by C<0.01>
-seconds. Send in a float or integer for the number of seconds to delay each step
-by. The smaller this number, the faster the motor will turn.
-
-=head1 CORE PI SYSTEM METHODS
-
-Core methods are inherited in and documented in L<RPi::WiringPi::Core>. See
-that documentation for full details of each one. I've included a basic
-description of them here.
-
-=head2 gpio_layout
-
-Returns the GPIO layout, which in essence is the Pi board revision number.
-
-=head2 io_led
-
-Turn the disk IO (green) LED on or off.
-
-=head2 pwr_led
-
-Turn the power (red) LED on or off.
-
-=head2 identify
-
-Toggles the power led off and disk IO led on which allows external physical
-identification of the Pi you're running on.
-
-=head2 label
-
-Sets an internal label/name to your L<RPi::WiringPi> Pi object.
-
-=head2 pin_scheme
-
-Returns the current pin mapping scheme in use within the object.
-
-=head2 pin_to_gpio
-
-Converts a pin number from any non-GPIO (BCM) scheme to GPIO (BCM) scheme.
-
-=head2 wpi_to_gpio
-
-Converts a wiringPi pin number to GPIO pin number.
-
-=head2 phys_to_gpio
-
-Converts a physical pin number to the GPIO pin number.
-
-=head2 pwm_range
-
-Set/get the PWM range.
-
-=head2 pwm_mode
-
-Set/get the PWM mode.
-
-=head2 pwm_clock
-
-Set/get the PWM clock.
-
-=head2 export_pin
-
-Exports a pin if running under the C<setup_sys()> initialization scheme.
-
-=head2 unexport_pin
-
-Un-exports a pin if running under the C<setup_sys()> initialization scheme.
-
-=head2 registered_pins
-
-Returns an array reference of all pin numbers currently registered in the
-system. Used primarily for cleanup functionality.
-
-=head2 register_pin
-
-Registers a pin with the system for error checking, and proper resetting in the
-cleanup routines.
-
-=head2 unregister_pin
-
-Removes an already registered pin.
-
-=head2 cleanup
-
-Cleans up the entire system, resetting all pins and devices back to the state
-we found them in when we initialized the system.
-
-=head1 UTILITY METHODS
-
-Outside of core hardware functionality, there are several utility type methods
-available to manage and view certain software aspects of the system. See
-L<RPi::WiringPi::Util> for full details.
-
-=head2 pin_map($cheme))
-
-Returns a hash reference mapping of the physical pin numbers to a pin scheme's
-pin numbers.
-
-=head2 checksum
-
-Returns a randomly generated 32-byte hexidecimal MD5 checksum. We use this
-internally to generate a UUID for each Pi object.
-
-=head2 dump_metadata
-
-Used for troubleshooting/development, dumps the system's meta data within the
-shared memory storage using L<Data::Dumper>.
-
-=head2 dump_object
-
-Used for troubleshooting/development, dumps the object using L<Data::Dumper>.
-
-=head2 dump_signal_handlers
-
-Prints, using L<Data::Dumper>, the structure of the class' signal handling
-routines.
-
-=head2 signal_handlers
-
-Returns a hash reference containing the data within the signal handling data
-structure;
-
-=head2 metadata
-
-During operation, we store several pieces of meta data of both the Pi object
-as well as operational status information in shared memory.
-
-Call this method to get a copy of this meta information.
-
-Return: Hash reference containing the meta data.
-
-=head2 uuid
+L<WiringPi::API|https://=head2 uuid
 
 Returns the Pi object's 32-byte hexidecimal unique identifier.
 
