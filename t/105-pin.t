@@ -18,13 +18,11 @@ if (! $ENV{PI_BOARD}){
 }
 
 my $pi = $mod->new(label => 't/105-pin.t');
-my $m = $pi->metadata;
+my $m = $pi->meta_data;
 
 {# pin
 
     my $pin = $pi->pin(18, "test");
-
-    $pi->dump_metadata;
 
     isa_ok $pin, 'RPi::Pin';
 
@@ -55,7 +53,6 @@ my $m = $pi->metadata;
 
 $pi->cleanup;
 
-#rpi_check_pin_status();
-rpi_metadata_clean();
+rpi_check_pin_status();
 
 done_testing();

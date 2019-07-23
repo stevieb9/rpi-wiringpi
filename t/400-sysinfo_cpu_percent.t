@@ -19,6 +19,6 @@ like $pi->cpu_percent, qr/^\d+\.\d+$/, "cpu_percent() method return ok";
 $pi->cleanup;
 
 rpi_check_pin_status();
-rpi_metadata_clean();
+#rpi_metadata_clean();
 
 done_testing();

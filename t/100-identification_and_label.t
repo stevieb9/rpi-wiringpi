@@ -34,7 +34,7 @@ is $pi->label, 'hello', "label() w/o param ok after setting it previously";
 $pi->cleanup;
 
 rpi_check_pin_status();
-rpi_metadata_clean();
+#rpi_metadata_clean();
 
 done_testing();
 

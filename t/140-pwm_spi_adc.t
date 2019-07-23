@@ -69,7 +69,7 @@ if (! $ENV{NO_BOARD}) {
 
     select(undef, undef, undef, 0.02);
     rpi_check_pin_status();
-    rpi_metadata_clean();
+#    rpi_metadata_clean();
 }
 
 done_testing();

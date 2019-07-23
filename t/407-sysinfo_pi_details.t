@@ -22,6 +22,6 @@ like $pi->pi_details, qr|BCM2835|, "method includes data ok";
 $pi->cleanup;
 
 rpi_check_pin_status();
-rpi_metadata_clean();
+#rpi_metadata_clean();
 
 done_testing();

@@ -1,3 +1,4 @@
+2shared.pl
 bin/pi-erase-metadata
 bin/pidentify
 bin/pimetadata
@@ -39,11 +40,14 @@ docs/sketch/arduino.ino
 lib/RPi/WiringPi.pm
 lib/RPi/WiringPi/Core.pm
 lib/RPi/WiringPi/FAQ.pod
+lib/RPi/WiringPi/Meta.pm
 lib/RPi/WiringPi/Util.pm
 Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
 README
+ready.multi
+s.txt
 script/i2c_arduino_display/i2c_arduino_display.ino
 script/i2c_arduino_display/i2c_arduino_display.pl
 script/i2c_arduino_display/Multi_BitBang.cpp
@@ -53,6 +57,7 @@ script/i2c_arduino_display/Multi_OLED.h
 script/oled_display_date_time_temp.pl
 script/serial_arduino_display/serial_arduino_display.ino
 script/serial_arduino_display/serial_arduino_display.pl
+shared.pl
 t/00-load.t
 t/05-checksum_uuid.t
 t/100-identification_and_label.t
@@ -62,11 +67,12 @@ t/107-alt_modes.t
 t/108-mode_state_all_pins.t
 t/109-pwm_hw_mods.t
 t/110-register.t
-t/111-metadata_multi_pi_single_script.t
-t/112-metadata_multi_pi_multi_script.t
-t/113-metadata_multi_pi_multi_script_die.t
-t/114-metadata_multi_pi_multi_script_sigint.t
+t/111-metadata_multi_pi_single_script.t.norun
+t/112-metadata_multi_pi_multi_script.t.norun
+t/113-metadata_multi_pi_multi_script_die.t.norun
+t/114-metadata_multi_pi_multi_script_sigint.t.norun
 t/115-metadata_lock.t
+t/117-meta.t
 t/140-pwm_spi_adc.t
 t/150-cleanup.t
 t/153-sig_handlers.t

@@ -178,10 +178,8 @@ sub cleanup {
 
     delete $self->{meta}{objects}->{$self->uuid};
     $self->{meta}{__ipc}{run} = 0;
-
-    sleep 1;
-
-    $self->meta_cleanup;
+    
+    $self->meta_cleanup if $self->{shared};
 
     $self->{clean} = 1;
 }

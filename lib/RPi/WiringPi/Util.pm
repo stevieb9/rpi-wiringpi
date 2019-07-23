@@ -121,10 +121,6 @@ For C<'GPIO'> scheme:
 
 Returns the Pi object's 32-byte hexidecimal unique identifier.
 
-=head2 clean_shared
-
-Overwrites the shared memory storage area.
-
 =head2 signal_handlers
 
 Returns a hash reference of the currently set signal handlers.

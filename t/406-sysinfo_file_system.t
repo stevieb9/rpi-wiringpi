@@ -22,6 +22,6 @@ like $pi->file_system, qr|/var/swap|, "method includes swap ok";
 $pi->cleanup;
 
 rpi_check_pin_status();
-rpi_metadata_clean();
+#rpi_metadata_clean();
 
 done_testing();
