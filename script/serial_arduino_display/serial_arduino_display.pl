@@ -7,11 +7,6 @@ use feature 'say';
 use IPC::Shareable;
 use RPi::WiringPi;
 
-tie my %shared_pi_info, 'IPC::Shareable', {
-    key => 'rpiw',
-    create => 1,
-};
-
 my $pi = RPi::WiringPi->new(label => 'serial_arduino_display');
 
 my $dev = '/dev/ttyS0';
@@ -46,14 +41,14 @@ while (1){
 }
 
 sub test_num {
-    my $test_num = $shared_pi_info{testing}->{test_num};
+    my $test_num = $pi->{meta}{testing}->{test_num};
 
     if (defined $test_num && $test_num > 0){
-        return $shared_pi_info{testing}->{test_num};
+        return $pi->{meta}{testing}->{test_num};
     }
     else {
         return -1;
     }
 }
 
-$pi->cleanup;
+#$pi->cleanup;
