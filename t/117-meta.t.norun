@@ -6,7 +6,7 @@ use lib 't/';
 use Data::Dumper;
 use RPiTest;
 use RPi::WiringPi;
-use Test::More;
+#use Test::More;
 use feature 'say';
 
 if (! $ENV{PI_BOARD}){
@@ -20,10 +20,12 @@ my $mod = 'RPi::WiringPi';
 
 my $pi= $mod->new(label => 't/117-meta.t');
 
-$pi->cleanup;
+print Dumper $pi->{meta};
+
+#$pi->cleanup;
 
 #rpi_check_pin_status();
 #rpi_metadata_clean();
 
-done_testing();
+#done_testing();
 

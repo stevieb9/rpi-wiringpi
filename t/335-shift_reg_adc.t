@@ -68,6 +68,6 @@ $pi->cleanup;
 select(undef, undef, undef, 0.2);
 
 rpi_check_pin_status();
-rpi_metadata_clean();
+#rpi_metadata_clean();
 
 done_testing();

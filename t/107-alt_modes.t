@@ -40,6 +40,6 @@ my $pi = $mod->new(label => 't/107-alt_modes.t');
 $pi->cleanup;
 
 rpi_check_pin_status();
-rpi_metadata_clean();
+#rpi_metadata_clean();
 
 done_testing();

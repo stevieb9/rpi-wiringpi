@@ -7,6 +7,7 @@ use lib 't/';
 use RPiTest;
 use Test::More;
 
+plan( skip_all => "SKIPPING POD CHECKS" );
 unless ( $ENV{RPI_RELEASE_TESTING} ) {
     plan( skip_all => "Author test: RPI_RELEASE_TESTING not set" );
 }

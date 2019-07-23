@@ -8,6 +8,8 @@ use RPi::WiringPi;
 use RPi::Const qw(:all);
 use Test::More;
 
+#plan skip_all => "MULTI";
+
 rpi_running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
@@ -26,7 +28,10 @@ BEGIN {
     }
 }
 
-my $pi = $mod->new(label => 't/200-interrupt_rising_and_pud.t');
+my $pi = $mod->new(
+    label => 't/200-interrupt_rising_and_pud.t',
+    shared => 0
+);
 
 # pin specific interrupts
 
@@ -38,6 +43,7 @@ if (! $ENV{NO_BOARD}){
 
     $pin->set_interrupt(EDGE_RISING, 'main::handler');
 
+    print "here\n";
     $pin->pull(PUD_DOWN);
 
     # trigger the interrupt
@@ -66,6 +72,6 @@ if (! $ENV{NO_BOARD}){
 $pi->cleanup;
 
 rpi_check_pin_status();
-rpi_metadata_clean();
+#rpi_metadata_clean();
 
 done_testing();

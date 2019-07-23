@@ -7,7 +7,11 @@ use IPC::Shareable;
 use RPiTest;
 use Test::More;
 
+plan skip_all => "MULTI TESTS CURRENTLY DISABLED";
+
 rpi_running_test(__FILE__);
+
+#my $pi = RPi::WiringPi->new(label => 't/156-
 
 tie my %shared_pi_info, 'IPC::Shareable', 'rpiw' or die $!;
 
@@ -20,7 +24,7 @@ is $shared_pi_info{testing}->{test_num}, -1, "running_test() stored the negative
 is $shared_pi_info{testing}->{test_name}, '', "running_test() with negative num erases test name";
 
 rpi_check_pin_status();
-rpi_metadata_clean();
+#rpi_metadata_clean();
 
 done_testing();
 

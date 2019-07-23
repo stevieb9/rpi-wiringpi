@@ -12,8 +12,13 @@ our $VERSION = '2.3633_02';
 
 sub meta_spawn {
     my ($self) = @_;
-    my $hv = IPC::SpawnShared->spawn('rpiw', 1);
-    $self->meta_data($hv);
+    if ($self->{shared}){
+        my $hv = IPC::SpawnShared->spawn('rpiw', 1);
+        $self->meta_data($hv);
+    }
+    else {
+        $self->{meta} = {};
+    }
 }
 sub meta_data {
     $_[0]->{meta} = $_[1] if defined $_[1];

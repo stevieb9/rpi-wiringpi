@@ -31,7 +31,7 @@ is ref $s, 'RPi::OLED::SSD1306::128_64', "oled() returns an object of proper cla
 $pi->cleanup;
 
 rpi_check_pin_status();
-rpi_metadata_clean();
+#rpi_metadata_clean();
 
 done_testing();
 

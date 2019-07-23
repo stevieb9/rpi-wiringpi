@@ -8,6 +8,8 @@ use RPi::WiringPi;
 use RPi::Const qw(:all);
 use Test::More;
 
+plan skip_all => "MULTI TESTS CURRENTLY DISABLED";
+
 rpi_running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
@@ -36,7 +38,9 @@ $pi->cleanup;
 
 is keys(%{ $pi->metadata->{objects} }), 0, "after cleanup(), no more objects exist";
 
+$pi->cleanup;
+
 rpi_check_pin_status();
-rpi_metadata_clean();
+#rpi_metadata_clean();
 
 done_testing();

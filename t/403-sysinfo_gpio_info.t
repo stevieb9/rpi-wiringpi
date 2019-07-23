@@ -30,6 +30,6 @@ unlike $four_ret, qr/GPIO 9:/, "...and pin 9 is excluded";
 $pi->cleanup;
 
 rpi_check_pin_status();
-rpi_metadata_clean();
+#rpi_metadata_clean();
 
 done_testing();
