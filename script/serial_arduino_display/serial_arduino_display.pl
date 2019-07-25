@@ -8,7 +8,6 @@ use IPC::Shareable;
 use RPi::WiringPi;
 
 my $pi = RPi::WiringPi->new(label => 'serial_arduino_display');
-
 my $dev = '/dev/ttyS0';
 my $baud = 9600;
 
@@ -41,10 +40,14 @@ while (1){
 }
 
 sub test_num {
-    my $test_num = $pi->{meta}{testing}->{test_num};
+
+    $pi->meta_lock;
+    my $meta = $pi->meta_fetch;
+    my $test_num = $meta->{testing}{test_num};
+    $pi->meta_unlock;
 
     if (defined $test_num && $test_num > 0){
-        return $pi->{meta}{testing}->{test_num};
+        return $test_num;
     }
     else {
         return -1;

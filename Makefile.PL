@@ -14,10 +14,7 @@ WriteMakefile(
     EXE_FILES         => [ map "bin/$_", qw(
             pinmap 
             pidentify 
-            pimetadata
-            pimetasize
-            pi-erase-metadata
-        ) 
+        )
     ],
     META_MERGE => {
         'meta-spec' => { version => 2 },
