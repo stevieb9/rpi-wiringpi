@@ -160,35 +160,30 @@ sub cleanup {
   
     return if $self->{clean};
 
-    if ($self->{meta}{pwm}->{in_use}){
+    $self->meta_lock;
+    my $meta = $self->meta_fetch;
+
+    if ($meta->{pwm}{in_use}){
         WiringPi::API::pwmSetMode(PWM_DEFAULT_MODE);
         WiringPi::API::pwmSetClock(PWM_DEFAULT_CLOCK);
         WiringPi::API::pwmSetRange(PWM_DEFAULT_RANGE);
-        $self->{meta}{pwm}->{in_use} = 0;
+        $meta->{pwm}->{in_use} = 0;
     }
 
-    for my $pin (keys %{ $self->{meta}{pins} }){
+    for my $pin (keys %{ $meta->{pins} }){
 
-        if (exists $self->{meta}{pins}->{$pin}{users}{$self->uuid}){
-            WiringPi::API::pinModeAlt($pin, $self->{meta}{pins}->{$pin}{alt});
-            WiringPi::API::digitalWrite($pin, $self->{meta}{pins}->{$pin}{state});
-            delete $self->{meta}{pins}->{$pin};
+        if (exists $meta->{pins}->{$pin}{users}{$self->uuid}){
+            WiringPi::API::pinModeAlt($pin, $meta->{pins}->{$pin}{alt});
+            WiringPi::API::digitalWrite($pin, $meta->{pins}->{$pin}{state});
+            delete $meta->{pins}->{$pin};
         }
     }
 
-    delete $self->{meta}{objects}->{$self->uuid};
+    delete $meta->{objects}->{$self->uuid};
+    $meta->{object_count}--;
+    $self->meta_store($meta);
+    $self->meta_unlock;
 
-    $self->{clean} = 1;
-}
-sub clean_share {
-    my ($self) = @_;
-    $self->{meta}{__ipc}{run} = 0;
-    $self->meta_cleanup if $self->{shared};
-}
-sub tidy {
-    my ($self) = @_;
-    delete $self->{meta}{objects}->{$self->uuid};
-    $self->{meta}{_tidy} = 1;
     $self->{clean} = 1;
 }
 sub _pin_registration {
@@ -198,8 +193,12 @@ sub _pin_registration {
 
     my $pin = $param{pin};
 
+    $self->meta_lock;
+    my $meta = $self->meta_fetch;
+
     if (! defined $pin){
-        my @registered_pins = keys %{ $self->{meta}{pins} };
+        my @registered_pins = keys %{ $meta->{pins} };
+        $self->meta_unlock;
         return \@registered_pins;
     }
 
@@ -207,34 +206,45 @@ sub _pin_registration {
 
     if ($param{operation} eq 'unregister'){
 
-        if (! $self->{meta}{pins}->{$pin_num}{users}{$param{requester}} eq $self->uuid){
+        if (! $meta->{pins}{$pin_num}{users}{$param{requester}} eq $self->uuid){
+            $self->meta_unlock;
             return;
         }
-        if (exists $self->{meta}{pins}->{$pin_num}){
-            $pin->mode_alt($self->{meta}{pins}->{$pin_num}{alt});
-            $pin->write($self->{meta}{pins}->{$pin_num}{state});
-            $pin->mode($self->{meta}{pins}->{$pin_num}{mode});
-            delete $self->{meta}{pins}->{$pin_num};
+        if (exists $meta->{pins}{$pin_num}){
+            $pin->mode_alt($meta->{pins}{$pin_num}{alt});
+            $pin->write($meta->{pins}{$pin_num}{state});
+            $pin->mode($meta->{pins}{$pin_num}{mode});
+
+            delete $meta->{pins}{$pin_num};
+
+            $self->meta_store($meta);
+            $self->meta_unlock;
+
             return;
         }
     }
 
     if (! exists $param{state} && ! exists $param{alt}) {
+        $self->meta_unlock;
         croak "_pin_registration() requires both 'alt' and 'state' params\n";
     }
 
     if ($param{operation} eq 'register'){
         if (exists $self->{meta}{pins}->{$pin_num}){
+            $self->meta_unlock;
             croak "pin $pin_num is already in use, can't continue...\n";
         }
-        $self->{meta}{pins}->{$pin_num}{alt} = $param{alt};
-        $self->{meta}{pins}->{$pin_num}{state} = $param{state};
-        $self->{meta}{pins}->{$pin_num}{mode} = $param{mode};
-        $self->{meta}{pins}->{$pin_num}{comment} = $pin->comment;
-        $self->{meta}{pins}->{$pin_num}{users}{$param{requester}}++
+        $self->{meta}{pins}{$pin_num}{alt} = $param{alt};
+        $self->{meta}{pins}{$pin_num}{state} = $param{state};
+        $self->{meta}{pins}{$pin_num}{mode} = $param{mode};
+        $self->{meta}{pins}{$pin_num}{comment} = $pin->comment;
+        $self->{meta}{pins}{$pin_num}{users}{$param{requester}}++
     }
 
     my @registered_pins = keys %{ $self->{meta}{pins} };
+
+    $self->meta_store($meta);
+    $self->meta_unlock;
 
     return \@registered_pins;
 }

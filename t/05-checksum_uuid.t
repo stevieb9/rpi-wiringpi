@@ -4,6 +4,7 @@ use feature 'say';
 
 use lib 't/';
 
+use Data::Dumper;
 use RPi::WiringPi;
 use RPiTest;
 use Test::More;
@@ -11,14 +12,17 @@ use Test::More;
 rpi_running_test(__FILE__);
 
 my $pi = RPi::WiringPi->new(label => 't/05-checksum_uuid.t');
+my $meta = $pi->meta_fetch;
 
-is exists $pi->{meta}{objects}->{$pi->uuid}, 1, "shared memory has the object's uuid";
-is exists $pi->{meta}{objects}->{$pi->uuid}{proc}, 1, "shared memory has the object's proc";
-is exists $pi->{meta}{objects}->{$pi->uuid}{label}, 1, "shared memory has the object's label";
+is exists $meta->{objects}{$pi->uuid}, 1, "shared memory has the object's uuid";
+is exists $meta->{objects}{$pi->uuid}{proc}, 1, "shared memory has the object's proc";
+is exists $meta->{objects}{$pi->uuid}{label}, 1, "shared memory has the object's label";
 
-is ref $pi->{meta}{objects}->{$pi->uuid}, 'HASH', "object is a hash ref";
-is $pi->{meta}{objects}->{$pi->uuid}{label}, 't/05-checksum_uuid.t', "object's label is correct";
-is $pi->{meta}{objects}->{$pi->uuid}{proc}, $$, "object's proc is ok";
+is ref $meta->{objects}{$pi->uuid}, 'HASH', "object is a hash ref";
+is $meta->{objects}{$pi->uuid}{label}, 't/05-checksum_uuid.t', "object's label is correct";
+is $meta->{objects}{$pi->uuid}{proc}, $$, "object's proc is ok";
+
+print Dumper $meta;
 
 my $c = $pi->checksum;
 
@@ -26,14 +30,6 @@ check_checksum($c, 'checksum');
 check_checksum($pi->uuid, 'uuid');
 
 $pi->cleanup;
-
-#is
-#    exists $pi->{meta}{objects}->{$pi->uuid},
-#    '',
-#    "shared memory removed the object's uuid after cleanup";
-
-#is exists $pi->{meta}{objects}, 1, "objects container in shared memory ok";
-#is keys( %{ $pi->{meta}{objects} }), 0, "objects has no objects";
 
 rpi_check_pin_status();
 #rpi_metadata_clean();

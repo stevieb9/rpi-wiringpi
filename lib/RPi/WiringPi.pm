@@ -35,7 +35,6 @@ our $VERSION = '2.3633_02';
 my $fatal_exit = 1;
 my %sig_handlers;
 my $signal_debug = 1;
-my $meta_data;
 
 # core
 
@@ -81,24 +80,29 @@ sub new {
         $ENV{RPI_PIN_MODE} = $self->pin_scheme;
     }
 
-    $self->_fatal_exit($args{fatal_exit});
-    $self->{shared} //= 1;
-    $self->meta_spawn;
-    $meta_data = $self->{meta};
-
     $self->{proc} = $$;
+
+    $self->_fatal_exit($args{fatal_exit});
+
+    $self->meta;
+    $self->meta_lock;
+    my $meta = $self->meta_fetch;
 
     while (! defined $self->{uuid}){
         my $uuid = $self->checksum;
-        next if exists $self->{meta}{objects}{$uuid};
+        next if exists $meta->{objects}{$uuid};
         $self->{uuid} = $uuid;
     }
 
-    $self->{meta}{objects}->{$self->uuid} = {
+    $meta->{objects}{$self->uuid} = {
         proc  => $self->{proc},
         label => $self->{label}
     };
-    $self->{meta}{object_count}++;
+    $meta->{object_count}++;
+
+    $self->meta_store($meta);
+    $self->meta_unlock;
+
     $self->_generate_signal_handlers;
 
     return $self;
@@ -382,7 +386,11 @@ sub _fatal_exit {
 sub _pwm_in_use {
     my $self = shift;
     if ($_[0]){
-        $self->{meta}{pwm}{in_use} = 1;
+        $self->meta_lock;
+        my $meta = $self->meta_fetch;
+        $meta->{pwm}{in_use} = 1;
+        $self->meta_store($meta);
+        $self->meta_unlock;
     }
 }
 sub _setup {

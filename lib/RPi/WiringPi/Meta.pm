@@ -5,37 +5,44 @@ use warnings;
 
 use Carp qw(croak);
 use Data::Dumper;
-use IPC::Shareable;
-use IPC::SpawnShared;
+use IPC::ShareLite qw(:flock);
+use JSON::XS;
 
 our $VERSION = '2.3633_02';
-$SIG{CHLD} = 'IGNORE';
 
-sub meta_spawn {
+sub meta {
     my ($self) = @_;
-    if ($self->{shared}){
-        return if exists $self->{meta};
-        # my $hv = IPC::SpawnShared->spawn('rpiw', 1);
-        # $self->meta_data($hv);
 
-        tie my %hash, 'IPC::Shareable', {
-            key     => 'rpiw',
-            create  => 1,
-            destroy => 0,
-        };
-        $self->{meta} = \%hash;
-    }
-    else {
-        $self->{meta} = {};
-    }
+    return $self->{meta_shm} if exists $self->{meta_shm};
+
+    my $shm = IPC::ShareLite->new(
+        -key     => 'rpiw',
+        -create  => 1,
+        -destroy => 0,
+    ) or die "can't create shared memory segment: $!";
+
+    $self->{meta_shm} = $shm;
 }
-sub meta_data {
-    $_[0]->{meta} = $_[1] if defined $_[1];
-    return %{ $_[0]->{meta} };
+sub meta_lock {
+    my ($self, $flags) = @_;
+    $flags = LOCK_EX if ! defined $flags;
+    $self->meta->lock($flags);
 }
-sub meta_cleanup {
+sub meta_unlock {
     my ($self) = @_;
-    IPC::SpawnShared->unspawn('rpiw', 1) if keys %{ $self->{meta}{objects} } == 0;
+    $self->meta->unlock;
+}
+sub meta_fetch {
+    my ($self) = @_;
+    my $json;
+    $json = $self->meta->fetch;
+    $json = "{}" if $json eq '';
+    my $perl = decode_json $json;
+    return $perl
+}
+sub meta_store {
+    my ($self, $data) = @_;
+    $self->meta->store(encode_json $data) or die $!;
 }
 sub _vim{1;};
 
