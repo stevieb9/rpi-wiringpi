@@ -241,7 +241,6 @@ sub _pin_registration {
         $meta->{pins}{$pin_num}{users}{$param{requester}}++
     }
 
-    print "num: $pin_num\n";
     my @registered_pins = keys %{ $self->{meta}{pins} };
 
     $self->meta_store($meta);

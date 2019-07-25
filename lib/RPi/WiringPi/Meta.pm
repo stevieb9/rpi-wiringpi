@@ -4,7 +4,6 @@ use strict;
 use warnings;
 
 use Carp qw(croak);
-use Data::Dumper;
 use IPC::ShareLite qw(:flock);
 use JSON::XS;
 
@@ -59,6 +58,37 @@ RPi::WiringPi::Meta - Shared memory meta data management for RPI::WiringPi
 This module contains various utilities for the shared memory storage area.
 
 =head1 METHODS
+
+=head2 meta_fetch
+
+Fetches and returns the shared memory data as a hash reference.
+
+=head2 meta_store($data)
+
+Serializes and stores the shared data.
+
+Parameters:
+
+    $data
+
+Mandatory, Hash Reference. The data to store (should be a modified version that
+was retrieved using C<meta_fetch()>).
+
+=head2 meta_lock($flags)
+
+Although we do locking on each transaction internally, use this as a wrapper
+around bulk transactions.
+
+Parameters:
+
+    $flags
+
+Mandatory, Integer. See L<flock|http://man7.org/linux/man-pages/man2/flock.2.html>
+for details as to what's available here.
+
+=head2 meta_unlock
+
+Performs an unlock after you're done with C<meta_lock()>.
 
 =head1 AUTHOR
 
