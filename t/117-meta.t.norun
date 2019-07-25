@@ -9,10 +9,10 @@ use RPi::WiringPi;
 #use Test::More;
 use feature 'say';
 
-if (! $ENV{PI_BOARD}){
-    $ENV{NO_BOARD} = 1;
-    plan skip_all => "Not on a Pi board\n";
-}
+#if (! $ENV{PI_BOARD}){
+#    $ENV{NO_BOARD} = 1;
+#    plan skip_all => "Not on a Pi board\n";
+#}
 
 rpi_running_test(__FILE__);
 
@@ -22,7 +22,7 @@ my $pi= $mod->new(label => 't/117-meta.t');
 
 print Dumper $pi->{meta};
 
-#$pi->cleanup;
+$pi->cleanup;
 
 #rpi_check_pin_status();
 #rpi_metadata_clean();
