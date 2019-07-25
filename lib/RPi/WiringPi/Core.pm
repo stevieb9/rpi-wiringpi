@@ -177,11 +177,13 @@ sub cleanup {
     }
 
     delete $self->{meta}{objects}->{$self->uuid};
-    $self->{meta}{__ipc}{run} = 0;
-    
-    $self->meta_cleanup if $self->{shared};
 
     $self->{clean} = 1;
+}
+sub clean_share {
+    my ($self) = @_;
+    $self->{meta}{__ipc}{run} = 0;
+    $self->meta_cleanup if $self->{shared};
 }
 sub tidy {
     my ($self) = @_;

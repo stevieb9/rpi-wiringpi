@@ -82,6 +82,7 @@ sub new {
     }
 
     $self->_fatal_exit($args{fatal_exit});
+    $self->{shared} //= 1;
     $self->meta_spawn;
     $meta_data = $self->{meta};
 
@@ -398,7 +399,6 @@ END {
 #    if (keys %{ $meta_data->{objects} } == 0){
 #        IPC::Shareable->clean_up_all;
 #    }
-
 }
 
 sub _vim{};

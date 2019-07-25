@@ -3,6 +3,7 @@ use warnings;
 
 use lib 't/';
 
+use Data::Dumper;
 use RPi::WiringPi;
 use RPiTest;
 use RPi::Const qw(:all);
@@ -18,8 +19,7 @@ if (! $ENV{PI_BOARD}){
 }
 
 my $pi = $mod->new(label => 't/105-pin.t');
-my $m = $pi->meta_data;
-
+$pi->{meta}{testing}{files}++;
 {# pin
 
     my $pin = $pi->pin(18, "test");
@@ -51,8 +51,10 @@ my $m = $pi->meta_data;
     is $pin->mode, 0, "pin mode back to INPUT";
 }
 
+print Dumper $pi->{meta};
+
 $pi->cleanup;
 
-rpi_check_pin_status();
+#rpi_check_pin_status();
 
 done_testing();

@@ -9,12 +9,21 @@ use IPC::Shareable;
 use IPC::SpawnShared;
 
 our $VERSION = '2.3633_02';
+$SIG{CHLD} = 'IGNORE';
 
 sub meta_spawn {
     my ($self) = @_;
     if ($self->{shared}){
-        my $hv = IPC::SpawnShared->spawn('rpiw', 1);
-        $self->meta_data($hv);
+        return if exists $self->{meta};
+        # my $hv = IPC::SpawnShared->spawn('rpiw', 1);
+        # $self->meta_data($hv);
+
+        tie my %hash, 'IPC::Shareable', {
+            key     => 'rpiw',
+            create  => 1,
+            destroy => 0,
+        };
+        $self->{meta} = \%hash;
     }
     else {
         $self->{meta} = {};
