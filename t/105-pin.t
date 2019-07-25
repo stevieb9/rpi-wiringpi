@@ -25,7 +25,6 @@ my $pi = $mod->new(label => 't/105-pin.t');
     my $pin = $pi->pin(18, "test");
 
     isa_ok $pin, 'RPi::Pin';
-
     is $pin->comment, 'test', "comment sent in new ok";
     is $pin->comment('t/105-pin.t'), 't/105-pin.t', "comment() sets and gets the comment ok";
 

@@ -17,7 +17,7 @@ if (! $ENV{PI_BOARD}){
 
 my $pi = RPi::WiringPi->new(setup => 'none', label => 't/106-pin_map.t');
 
-is $pi->pin_scheme, -1, "pin_scheme() returns NULL if not set";
+is $pi->pin_scheme, 1, "pin_scheme() returns RPI_MODE_GPIO if not set";
 
 is
     $pi->pin_scheme('BCM'),

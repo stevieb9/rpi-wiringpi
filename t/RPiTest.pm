@@ -29,14 +29,22 @@ my $oled_lock = '/dev/shm/oled_unavailable.rpi-wiringpi';
 sub rpi_running_test {
     (my $test) = @_;
 
+    my $pi = RPi::WiringPi->new(label => 't/RPiTest.pm');
+    $pi->meta_lock;
+    my $meta = $pi->meta_fetch;
+    
     if ($test =~ m|t/(\d+)-(.*)\.t|){
-        $RPi::WiringPi::Util::shared_pi_info{testing}{test_num} = $1;
-        $RPi::WiringPi::Util::shared_pi_info{testing}{test_name} = $2;
+        $meta->{testing}{test_num} = $1;
+        $meta->{testing}{test_name} = $2;
+        $pi->meta_store($meta);
+        $pi->meta_unlock;
         return 0;
     }
     elsif ($test =~ /^-\d+/){
-        $RPi::WiringPi::Util::shared_pi_info{testing}{test_num} = -1;
-        $RPi::WiringPi::Util::shared_pi_info{testing}{test_name} = '';
+        $meta->{testing}{test_num} = -1;
+        $meta->{testing}{test_name} = '';
+        $pi->meta_store($meta);
+        $pi->meta_unlock;
         return 0;
     }
 
@@ -44,10 +52,9 @@ sub rpi_running_test {
         "rpi_running_test() couldn't translate '$test' to a usable shared format\n";
 }
 sub rpi_metadata_clean {
-    print "$_\n" for keys %{ $RPi::WiringPi::Util::shared_pi_info{objects} };
-    is scalar(keys(% { $RPi::WiringPi::Util::shared_pi_info{objects} })), 0, "meta is all cleaned up";
-    IPC::Shareable->clean_up_all;
-
+#    print "$_\n" for keys %{ $meta{objects} };
+#    is scalar(keys(% { $meta{objects} })), 0, "meta is all cleaned up";
+#    IPC::Shareable->clean_up_all;
 }
 sub rpi_oled_available {
     my ($available) = @_;
