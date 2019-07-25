@@ -20,7 +20,7 @@ use IPC::Shareable;
 use Test::More;
 use WiringPi::API qw(:perl);
 
-my $oled_lock = '/tmp/oled_unavailable.rpi-wiringpi';
+my $oled_lock = '/dev/shm/oled_unavailable.rpi-wiringpi';
 
 #END {
 #    IPC::Shareable->clean_up_all;
@@ -73,7 +73,7 @@ sub rpi_check_pin_status {
 
     # pins 4, 5, 6, 17, 22, 27 removed because of LCD
 
-    my $oled_locked = -e '/tmp/oled_in_use';
+    my $oled_locked = -e '/dev/shm/oled_in_use';
 
     note "I2C locked due to external OLED software running; skipping pins 2 and 3";
 

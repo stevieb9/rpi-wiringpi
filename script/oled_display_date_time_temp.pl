@@ -9,7 +9,7 @@ use File::Touch;
 use DateTime;
 use RPi::WiringPi;
 
-my $oled_lock = '/tmp/oled_in_use';
+my $oled_lock = '/dev/shm/oled_in_use';
 touch $oled_lock;
 
 $SIG{INT} = sub { unlink $oled_lock or die $!; };
@@ -26,7 +26,7 @@ $oled->text_size(2);
 
 while (1){
 
-    if (-e '/tmp/oled_unavailable.rpi-wiringpi'){
+    if (-e '/dev/shm/oled_unavailable.rpi-wiringpi'){
         sleep 30;
         next;
     }
