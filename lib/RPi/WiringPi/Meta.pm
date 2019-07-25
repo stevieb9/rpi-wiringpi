@@ -10,7 +10,7 @@ use JSON::XS;
 
 our $VERSION = '2.3633_02';
 
-sub meta {
+sub _meta {
     my ($self) = @_;
 
     return $self->{meta_shm} if exists $self->{meta_shm};
@@ -26,23 +26,23 @@ sub meta {
 sub meta_lock {
     my ($self, $flags) = @_;
     $flags = LOCK_EX if ! defined $flags;
-    $self->meta->lock($flags);
+    $self->_meta->lock($flags);
 }
 sub meta_unlock {
     my ($self) = @_;
-    $self->meta->unlock;
+    $self->_meta->unlock;
 }
 sub meta_fetch {
     my ($self) = @_;
     my $json;
-    $json = $self->meta->fetch;
+    $json = $self->_meta->fetch;
     $json = "{}" if $json eq '';
     my $perl = decode_json $json;
     return $perl
 }
 sub meta_store {
     my ($self, $data) = @_;
-    $self->meta->store(encode_json $data) or die $!;
+    $self->_meta->store(encode_json $data) or die $!;
 }
 sub _vim{1;};
 

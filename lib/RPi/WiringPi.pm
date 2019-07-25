@@ -84,7 +84,6 @@ sub new {
 
     $self->_fatal_exit($args{fatal_exit});
 
-    $self->meta;
     $self->meta_lock;
     my $meta = $self->meta_fetch;
 
