@@ -19,7 +19,7 @@ if (! $ENV{PI_BOARD}){
 }
 
 my $pi = $mod->new(label => 't/105-pin.t');
-$pi->{meta}{testing}{files}++;
+
 {# pin
 
     my $pin = $pi->pin(18, "test");
@@ -50,8 +50,6 @@ $pi->{meta}{testing}{files}++;
 
     is $pin->mode, 0, "pin mode back to INPUT";
 }
-
-print Dumper $pi->{meta};
 
 $pi->cleanup;
 

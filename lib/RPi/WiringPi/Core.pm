@@ -234,13 +234,14 @@ sub _pin_registration {
             $self->meta_unlock;
             croak "pin $pin_num is already in use, can't continue...\n";
         }
-        $self->{meta}{pins}{$pin_num}{alt} = $param{alt};
-        $self->{meta}{pins}{$pin_num}{state} = $param{state};
-        $self->{meta}{pins}{$pin_num}{mode} = $param{mode};
-        $self->{meta}{pins}{$pin_num}{comment} = $pin->comment;
-        $self->{meta}{pins}{$pin_num}{users}{$param{requester}}++
+        $meta->{pins}{$pin_num}{alt} = $param{alt};
+        $meta->{pins}{$pin_num}{state} = $param{state};
+        $meta->{pins}{$pin_num}{mode} = $param{mode};
+        $meta->{pins}{$pin_num}{comment} = $pin->comment;
+        $meta->{pins}{$pin_num}{users}{$param{requester}}++
     }
 
+    print "num: $pin_num\n";
     my @registered_pins = keys %{ $self->{meta}{pins} };
 
     $self->meta_store($meta);
