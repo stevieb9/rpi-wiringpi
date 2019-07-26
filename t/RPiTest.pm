@@ -42,7 +42,7 @@ sub rpi_running_test {
         $meta->{testing}{test_name} = $2;
         $pi->meta_store($meta);
         $pi->meta_unlock;
-        $pi->cleanup;
+        $pi->unregister_object;
         return 0;
     }
     elsif ($test =~ /^-\d+/){
@@ -50,7 +50,7 @@ sub rpi_running_test {
         $meta->{testing}{test_name} = '';
         $pi->meta_store($meta);
         $pi->meta_unlock;
-        $pi->cleanup;
+        $pi->unregister_object;
         return 0;
     }
 

@@ -8,7 +8,8 @@ use RPi::WiringPi;
 use RPi::Const qw(:all);
 use Test::More;
 
-plan skip_all => "MULTI TESTS CURRENTLY DISABLED";
+plan skip_all => "fatal_exit = 0 TESTS NEED TO BE FIXED";
+#TODO: fatal_exit => 0 doesn't clean up pins
 
 rpi_running_test(__FILE__);
 
@@ -21,6 +22,7 @@ if (! $ENV{PI_BOARD}){
 
 my $pi = $mod->new(fatal_exit => 0, label => 't/155-sig_die.t');
 my $pin = $pi->pin(21);
+my $meta;
 
 $pin->mode(OUTPUT);
 
@@ -32,11 +34,12 @@ eval { die "intentional die()"; };
 is $pin->mode, INPUT, "pin reset to INPUT after die()";
 
 is @{ $pi->registered_pins }, 0, "all pins unregisterd ok";
-is keys(%{ $pi->metadata->{pins} }), 0, "...and meta data shows this";
 
-$pi->cleanup;
+$pi->lock;
+$meta = $pi->meta_fetch;
+$pi->unlock;
 
-is keys(%{ $pi->metadata->{objects} }), 0, "after cleanup(), no more objects exist";
+is keys(%{ $meta->{pins} }), 0, "...and meta data shows this";
 
 $pi->cleanup;
 
