@@ -8,7 +8,8 @@ use RPi::WiringPi;
 use RPi::Const qw(:all);
 use Test::More;
 
-plan skip_all => "MULTI TESTS CURRENTLY DISABLED";
+plan skip_all => "fatal_exit = 0 TESTS NEED TO BE FIXED";
+#TODO: fatal_exit => 0 doesn't clean up pins
 
 rpi_running_test(__FILE__);
 
@@ -22,6 +23,8 @@ if (! $ENV{PI_BOARD}){
     $ENV{NO_BOARD} = 1;
     plan skip_all => "Not on a Pi board\n";
 }
+
+my $meta;
 
 my $pi_a = $mod->new(fatal_exit => 0, label => 't/154-sig_die_multi.t: pi_A');
 my $pi_b = $mod->new(fatal_exit => 0, label => 't/154-sig_die_multi.t: pi_B');
@@ -48,14 +51,16 @@ is $pin_b->mode, INPUT, "pin reset to INPUT after die()";
 
 is @{ $pi_a->registered_pins }, 0, "all pins unregisterd ok (pi_a)";
 is @{ $pi_b->registered_pins }, 0, "all pins unregisterd ok (pi_b)";
-is keys(%{ $pi_a->metadata->{pins} }), 0, "...and meta data shows this (pi_a)";
-is keys(%{ $pi_b->metadata->{pins} }), 0, "...and meta data shows this (pi_b)";
 
-is keys(%{ $pi_a->metadata->{objects} }), 0, "after die(), no more objects exist (pi_a)";
-is keys(%{ $pi_b->metadata->{objects} }), 0, "after die(), no more objects exist (pi_b)";
+$pi_a->lock;
+$meta = $pi_a->meta_fetch;
+$pi_a->unlock;
+
+is keys(%{ $meta->{pins} }), 0, "...and meta data shows this (pi_a)";
+
+is keys(%{ $meta->{objects} }), 0, "after die(), no more objects exist (pi_a)";
 
 is exists $pi_a->_signal_handlers->{__DIE__}{$pi_a->uuid}, 1, "pi_a sig handlers still exist if ! fatal_exit";
-is exists $pi_b->_signal_handlers->{__DIE__}{$pi_b->uuid}, 1, "pi_b sig handlers still exist if ! fatal_exit";
 
 $pi_a->cleanup;
 $pi_b->cleanup;
