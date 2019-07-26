@@ -7,6 +7,7 @@ build_testing/alt_mode.pl
 build_testing/api_servo.pl
 build_testing/baseline_setup.pl
 build_testing/benchmark/sharelite_vs_memfile.pl
+build_testing/benchmark/startup.pl
 build_testing/bmp.pl
 build_testing/i2c.pl
 build_testing/identify.pl
