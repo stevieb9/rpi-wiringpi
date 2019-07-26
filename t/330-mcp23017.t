@@ -605,6 +605,8 @@ my $o = $pi->expander(0x20);
     }
 }
 
+$pi->cleanup;
+
 rpi_check_pin_status();
 #rpi_metadata_clean();
 

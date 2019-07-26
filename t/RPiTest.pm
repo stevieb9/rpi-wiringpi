@@ -12,6 +12,7 @@ our @EXPORT = qw(
     rpi_oled_available
     rpi_oled_unavailable
     rpi_metadata_clean
+    rpi_legal_object_count
 );
 
 use RPi::WiringPi;
@@ -26,6 +27,9 @@ my $oled_lock = '/dev/shm/oled_unavailable.rpi-wiringpi';
 #    IPC::Shareable->clean_up_all;
 #}
 
+sub rpi_legal_object_count {
+    return 2; # oled scripts
+}
 sub rpi_running_test {
     (my $test) = @_;
 

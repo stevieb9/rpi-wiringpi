@@ -15,6 +15,7 @@ my $f = 'ready.multi';
 
 my $pi = RPi::WiringPi->new(label => 'multi-full');
 my $meta;
+my $obj_count = rpi_legal_object_count(); # in use, existing objects
 
 print "\n*** Two pins remote, single pin local ***\n\n";
 
@@ -22,7 +23,7 @@ $meta = $pi->meta_fetch;
 
 is exists($meta->{objects}{$pi->uuid}), 1, "$$ set in meta ok";
 is $meta->{objects}{$pi->uuid}{proc}, $$, "UUID proc set to procID $$ in meta ok";
-is keys %{ $meta->{objects} }, 2, "both procs have registered in meta";
+is keys %{ $meta->{objects} }, 2 + $obj_count, "both procs have registered in meta";
 
 $pi->pin(12);
 
@@ -68,7 +69,7 @@ $meta = $pi->meta_fetch;
 
 is exists($meta->{objects}{$pi->uuid}), 1, "$$ set in meta ok";
 is $meta->{objects}{$pi->uuid}{proc}, $$, "UUID set to procID $$ in meta ok";
-is keys %{ $meta->{objects} }, 1, "the remote proc UUID is now removed from shared mem";
+is keys %{ $meta->{objects} }, 1 + $obj_count, "the remote proc UUID is now removed from shared mem";
 
 is exists($meta->{pins}{12}), 1, "pin 12 exists for master proc ok";
 is $meta->{pins}{12}{users}{$pi->uuid}, 1, "pin 12 has local UUID as user ok";
@@ -85,7 +86,7 @@ print "\n*** Local: Cleaned up ***\n\n";
 
 $meta = $pi->meta_fetch;
 
-is keys %{ $meta->{objects} }, 0, "all objects have been removed from registry";
+is keys %{ $meta->{objects} }, 0 + $obj_count, "all objects have been removed from registry";
 is keys %{ $meta->{pins} }, 0, "all pins have been removed from registry";
 
 rpi_check_pin_status();
