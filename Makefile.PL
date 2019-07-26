@@ -15,6 +15,7 @@ WriteMakefile(
             pinmap 
             pidentify
             pimeta
+            pimetaerase
         )
     ],
     META_MERGE => {

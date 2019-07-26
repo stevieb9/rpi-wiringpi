@@ -1055,26 +1055,16 @@ which Raspberry Pi you're running on.
 
 See C<pidentify -h> for full details.
 
-=head2 pimetadata
+=head2 pimeta
 
 Displays, using L<Data::Dumper>, the entire structure of the shared memory data
 structure as it currently sits, which is used to glue all objects and processes
 together.
 
-See C<pimetadata -h> for full details.
-
-=head2 pimetasize
-
-Prints to C<STDOUT> the size in bytes of the shared memory space.
-
-Requires L<IPC::Shareable> and L<Devel::Size> to be installed.
-
-=head2 pi-erase-metadata
+=head2 pimetaerase
 
 Completely erases all data within the shared memory location. WARNING: Running
 this script while you've got Pi objects in operation is not advised.
-
-See C<pi-erase-metadata -h> for full details.
 
 =head1 RUNNING TESTS
 
