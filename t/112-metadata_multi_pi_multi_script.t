@@ -1,6 +1,5 @@
 use warnings;
 use strict;
 
-exit;
 system('t/multi/test_full.sh');
 
