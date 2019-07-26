@@ -7,26 +7,26 @@ use parent 'RPi::WiringPi::Core';
 use parent 'RPi::WiringPi::Util';
 use parent 'RPi::WiringPi::Meta';
 
-use GPSD::Parse;
-use RPi::ADC::ADS;
-use RPi::ADC::MCP3008;
-use RPi::BMP180;
+#use GPSD::Parse;
+#use RPi::ADC::ADS;
+#use RPi::ADC::MCP3008;
+#use RPi::BMP180;
 use Carp qw(croak confess);
 use Data::Dumper;
 use RPi::Const qw(:all);
-use RPi::DAC::MCP4922;
-use RPi::DigiPot::MCP4XXXX;
-use RPi::EEPROM::AT24C32;
-use RPi::GPIOExpander::MCP23017;
-use RPi::HCSR04;
-use RPi::I2C;
-use RPi::LCD;
-use RPi::OLED::SSD1306::128_64;
-use RPi::Pin;
-use RPi::RTC::DS3231;
-use RPi::Serial;
-use RPi::SPI;
-use RPi::StepperMotor;
+#use RPi::DAC::MCP4922;
+#use RPi::DigiPot::MCP4XXXX;
+#use RPi::EEPROM::AT24C32;
+#use RPi::GPIOExpander::MCP23017;
+#use RPi::HCSR04;
+#use RPi::I2C;
+#use RPi::LCD;
+#use RPi::OLED::SSD1306::128_64;
+#use RPi::Pin;
+#use RPi::RTC::DS3231;
+#use RPi::Serial;
+#use RPi::SPI;
+#use RPi::StepperMotor;
 
 our $VERSION = '2.3633_02';
 
@@ -110,15 +110,21 @@ sub adc {
     my ($self, %args) = @_;
 
     if (defined $args{model} && $args{model} eq 'MCP3008'){
+        require RPi::ADC::MCP3008;
+        RPi::ADC::MCP3008->import;
         my $pin = $self->pin($args{channel}, "MCP3008 ADC CS");
         return RPi::ADC::MCP3008->new($pin->num);
     }
     else {
         # ADSxxxx ADCs don't require any pins
+        require RPi::ADC::ADS;
+        RPi::ADC::ADS->import;
         return RPi::ADC::ADS->new(%args);
     }
 }
 sub bmp {
+    require RPi::BMP180;
+    RPi::BMP180->import;
     return RPi::BMP180->new($_[1]);
 }
 sub dac {
@@ -126,15 +132,21 @@ sub dac {
     $self->pin($args{cs}, 'MCP4922 DAC CS');
     $self->pin($args{shdn}, 'MCP4922 DAC Shutdown') if defined $args{shdn};
     $args{model} = 'MCP4922' if ! defined $args{model};
+    require RPi::DAC::MCP4922;
+    RPi::DAC::MCP4922->import;
     return RPi::DAC::MCP4922->new(%args);
 }
 sub dpot {
     my ($self, $cs, $channel) = @_;
     $self->pin($cs, 'MCP4XXXX Digital Potentiometer CS');
+    require RPi::DigiPot::MCP4XXXX;
+    RPi::DigiPot::MCP4XXXX->import;
     return RPi::DigiPot::MCP4XXXX->new($cs, $channel);
 }
 sub eeprom {
     my ($self, %args) = @_;
+    require RPi::EEPROM::AT24C32;
+    RPi::EEPROM::AT24C32->import;
     return RPi::EEPROM::AT24C32->new(%args);
 }
 sub expander {
@@ -142,26 +154,36 @@ sub expander {
 
     if (! defined $expander || $expander eq 'MCP23017'){
         $addr = 0x20 if ! defined $addr;
+        require RPi::GPIOExpander::MCP23017;
+        RPi::GPIOExpander::MCP23017->import;
         return RPi::GPIOExpander::MCP23017->new($addr);
     }
 }
 sub gps {
     my ($self, %args) = @_;
+    require GPSD::Parse;
+    GPSD::Parse->import;
     return GPSD::Parse->new(%args);
 }
 sub hcsr04 {
     my ($self, $t, $e) = @_;
     $self->pin($t, "HCSR04 Ultrasonic Distance Sensor Trigger");
     $self->pin($e, "HCSR04 Ultrasonic Distance Sensor Echo");
+    require RPi::HCSR04;
+    RPi::HCSR04->import;
     return RPi::HCSR04->new($t, $e);
 }
 sub hygrometer {
     my ($self, $pin) = @_;
     $self->register_pin($pin, 'DHT11 Hygrometer Signal');
+    require RPi::DHT11;
+    RPi::DHT11->import;
     return RPi::DHT11->new($pin);
 }
 sub i2c {
     my ($self, $addr, $i2c_device) = @_;
+    require RPi::I2C;
+    RPi::I2C->import;
     return RPi::I2C->new($addr, $i2c_device);
 }
 sub lcd {
@@ -178,6 +200,8 @@ sub lcd {
         $self->pin($args{$_}, "LCD $_");
     }
 
+    require RPi::LCD;
+    RPi::LCD->import;
     my $lcd = RPi::LCD->new;
     $lcd->init(%args);
     return $lcd;
@@ -200,11 +224,16 @@ sub oled {
     }
 
     if ($model eq '128x64'){
+        require RPi::OLED::SSD1306::128_64;
+        RPi::OLED::SSD1306::128_64->import;
         return RPi::OLED::SSD1306::128_64->new($i2c_addr, $display_splash_page);
     }
 }
 sub pin {
     my ($self, $pin_num, $comment) = @_;
+
+    require RPi::Pin;
+    RPi::Pin->import;
 
     my $gpio = $self->pin_to_gpio($pin_num);
 
@@ -220,10 +249,14 @@ sub pin {
 }
 sub rtc {
     my ($self, $rtc_addr) = @_;
+    require RPi::RTC::DS3231;
+    RPi::RTC::DS3231->import;
     return RPi::RTC::DS3231->new($rtc_addr);
 }
 sub serial {
     my ($self, $device, $baud) = @_;
+    require RPi::Serial;
+    RPi::Serial->import;
     return RPi::Serial->new($device, $baud);
 }
 sub servo {
@@ -269,11 +302,16 @@ sub shift_register {
 }
 sub spi {
     my ($self, $chan, $speed) = @_;
+    require RPi::SPI;
+    RPi::SPI->import;
     my $spi = RPi::SPI->new($chan, $speed);
     return $spi;
 }
 sub stepper_motor {
     my ($self, %args) = @_;
+
+    require RPi::StepperMotor;
+    RPi::StepperMotor->import;
 
     if (! exists $args{pins}){
         die "steppermotor() requires an arrayref of pins sent in\n";
