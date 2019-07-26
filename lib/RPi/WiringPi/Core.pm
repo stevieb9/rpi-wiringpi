@@ -181,6 +181,8 @@ sub cleanup {
 
     delete $meta->{objects}->{$self->uuid};
     $meta->{object_count}--;
+    delete $meta->{testing};
+
     $self->meta_store($meta);
     $self->meta_unlock;
 

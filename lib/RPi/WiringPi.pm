@@ -297,21 +297,9 @@ sub stepper_motor {
     return RPi::StepperMotor->new(%args);
 }
 sub DESTROY {
-#    my ($self) = @_;
-#
-#    print Dumper $self;
-#    return if $self->{clean};
-#
-#    if (! $self->{meta}{_tidy}){
-#        $self->cleanup;
-#    }
-#    $self->{meta}{_tidy} = 0;
-#
-#    if (keys %{ $self->{meta}{objects} } == 0){
-#        print "NO OBJECTS\n";
-#        IPC::Shareable->clean_up_all;
-#        print "DONE REMOVING SHARE\n";
-#    }
+    my ($self) = @_;
+    return if $self->{clean};
+    $self->cleanup;
 }
 
 # private
@@ -350,18 +338,13 @@ sub _class_signal_handler {
 sub _cleanup_handler {
     # the actual sig handler methods
 
-    print "CLEANUP PROC: $$\n";
-
     my ($self, $sig, @err) = @_;
 
-    print "$_\n" for @err;
-    
     if ($signal_debug){
         print "running '$sig' handler for: " . $self->uuid .
             " with fatal_exit = " . $self->_fatal_exit . "\n";
     }
 
-#    IPC::Shareable->clean_up_all;
     if ($self->_fatal_exit){
         delete $sig_handlers{$sig}{$self->uuid};
     

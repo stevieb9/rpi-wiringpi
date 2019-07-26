@@ -1,4 +1,6 @@
 bin/pidentify
+bin/pimeta
+bin/pimetaerase
 bin/pinmap
 build_testing/adc.pl
 build_testing/alt_mode.pl
@@ -62,12 +64,10 @@ t/107-alt_modes.t
 t/108-mode_state_all_pins.t
 t/109-pwm_hw_mods.t
 t/110-register.t
-t/111-metadata_multi_pi_single_script.t.norun
-t/112-metadata_multi_pi_multi_script.t.norun
-t/113-metadata_multi_pi_multi_script_die.t.norun
-t/114-metadata_multi_pi_multi_script_sigint.t.norun
-t/115-metadata_lock.t.norun
-t/117-meta.t.norun
+t/111-metadata_multi_pi_single_script.t
+t/112-metadata_multi_pi_multi_script.t
+t/113-metadata_multi_pi_multi_script_die.t
+t/114-metadata_multi_pi_multi_script_sigint.t
 t/140-pwm_spi_adc.t
 t/150-cleanup.t
 t/153-sig_handlers.t
