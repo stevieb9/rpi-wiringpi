@@ -86,6 +86,9 @@ Parameters:
 Mandatory, Integer. See L<flock|http://man7.org/linux/man-pages/man2/flock.2.html>
 for details as to what's available here.
 
+Default: If C<$flags> is not sent in, we default to an exclusive lock
+(C<LOCK_EX>).
+
 =head2 meta_unlock
 
 Performs an unlock after you're done with C<meta_lock()>.
