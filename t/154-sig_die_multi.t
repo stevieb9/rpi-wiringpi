@@ -52,9 +52,9 @@ is $pin_b->mode, INPUT, "pin reset to INPUT after die()";
 is @{ $pi_a->registered_pins }, 0, "all pins unregisterd ok (pi_a)";
 is @{ $pi_b->registered_pins }, 0, "all pins unregisterd ok (pi_b)";
 
-$pi_a->lock;
+$pi_a->meta_lock;
 $meta = $pi_a->meta_fetch;
-$pi_a->unlock;
+$pi_a->meta_unlock;
 
 is keys(%{ $meta->{pins} }), 0, "...and meta data shows this (pi_a)";
 

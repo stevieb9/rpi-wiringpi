@@ -22,8 +22,6 @@ is ref $meta->{objects}{$pi->uuid}, 'HASH', "object is a hash ref";
 is $meta->{objects}{$pi->uuid}{label}, 't/05-checksum_uuid.t', "object's label is correct";
 is $meta->{objects}{$pi->uuid}{proc}, $$, "object's proc is ok";
 
-print Dumper $meta;
-
 my $c = $pi->checksum;
 
 check_checksum($c, 'checksum');

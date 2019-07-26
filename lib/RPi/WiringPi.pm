@@ -298,8 +298,7 @@ sub stepper_motor {
 }
 sub DESTROY {
     my ($self) = @_;
-    return if $self->{clean};
-    $self->cleanup;
+    $self->cleanup if ! $self->{clean};
 }
 
 # private

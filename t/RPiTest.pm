@@ -23,10 +23,6 @@ use WiringPi::API qw(:perl);
 
 my $oled_lock = '/dev/shm/oled_unavailable.rpi-wiringpi';
 
-#END {
-#    IPC::Shareable->clean_up_all;
-#}
-
 sub rpi_legal_object_count {
     return 2; # oled scripts
 }
