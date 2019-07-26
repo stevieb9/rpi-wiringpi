@@ -155,6 +155,21 @@ sub unregister_pin {
         requester   => $self->uuid
     );
 }
+sub unregister_object {
+    my ($self) = @_;
+
+    $self->meta_lock;
+    my $meta = $self->meta_fetch;
+
+    delete $meta->{objects}->{$self->uuid};
+    $meta->{object_count}--;
+    $meta->{object_count} = 0 if $meta->{object_count} < 0;
+
+    delete $meta->{testing};
+
+    $self->meta_store($meta);
+    $self->meta_unlock;
+}
 sub cleanup {
     my ($self) = @_;
   
@@ -480,6 +495,14 @@ Parameters:
     $pin_obj
 
 Mandatory: An object instance of L<RPi::Pin> class.
+
+=head2 unregister_object
+
+Removes an object from the shared memory data store.
+
+B<NOTE>: This should only be used for testing purposes. It's simply a way to
+remove objects from the register while bypassing the entire C<cleanup()>
+routine.
 
 =head2 cleanup
 
