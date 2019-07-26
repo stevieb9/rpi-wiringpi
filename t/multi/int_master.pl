@@ -15,6 +15,7 @@ my $f = 'ready.multi';
 
 my $pi = RPi::WiringPi->new(label => 'multi_int');
 my $meta;
+my $obj_count = rpi_legal_object_count();
 
 print "*** Single pin: Local & Remote ***\n\n";
 
@@ -22,7 +23,7 @@ $meta = $pi->meta_fetch;
 
 is exists($meta->{objects}{$pi->uuid}), 1, "$$ set in meta ok";
 is $meta->{objects}{$pi->uuid}{proc}, $$, "UUID proc set to procID $$ in meta ok";
-is keys %{ $meta->{objects} }, 2, "both procs have registered in meta";
+is keys %{ $meta->{objects} }, 2 + $obj_count, "both procs have registered in meta";
 
 $pi->pin(12, "114-int_master");
 
@@ -46,7 +47,7 @@ $meta = $pi->meta_fetch;
 
 is exists($meta->{objects}{$pi->uuid}), 1, "$$ set in meta ok";
 is $meta->{objects}{$pi->uuid}{proc}, $$, "UUID proc set to procID $$ in meta ok";
-is keys %{ $meta->{objects} }, 1, "back to one object";
+is keys %{ $meta->{objects} }, 1 + $obj_count, "back to one object";
 
 is exists($meta->{pins}{12}), 1, "pin 12 exists for master proc ok";
 is $meta->{pins}{12}{users}{$pi->uuid}, 1, "pin 12 has local UUID as user ok";

@@ -21,12 +21,14 @@ rpi_running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
 my $meta;
+my $obj_count = rpi_legal_object_count(); # in use, existing objects
 
 my $pi_a = $mod->new(label => 't/111-metadata_multi_pi_single_script.t: pi_A');
 
 $meta = $pi_a->meta_fetch;
 
-is keys %{ $meta->{objects} }, 1, "only one object in meta";
+print(1 + $obj_count . "\n");
+is keys %{ $meta->{objects} }, 1 + $obj_count, "only one object in meta";
 is ref $meta->{objects}{$pi_a->uuid}, 'HASH', "...and is a hashref";
 is $meta->{objects}{$pi_a->uuid}{proc}, $$, "object A proc is proper";
 is
@@ -38,7 +40,7 @@ my $pi_b = $mod->new(label => 't/111-metadata_multi_pi_single_script.t: pi_B');
 
 $meta = $pi_b->meta_fetch;
 
-is keys %{ $meta->{objects} }, 2, "two objects now in registry";
+is keys %{ $meta->{objects} }, 2 + $obj_count, "two objects now in registry";
 is ref $meta->{objects}{$pi_b->uuid}, 'HASH', "...and is a hashref";
 is $meta->{objects}{$pi_b->uuid}{proc}, $$, "object B proc is proper";
 is
@@ -50,7 +52,7 @@ $pi_a->cleanup();
 
 $meta = $pi_b->meta_fetch;
 
-is keys %{ $meta->{objects} }, 1, "back down to 1 object after pi_a cleanup";
+is keys %{ $meta->{objects} }, 1 + $obj_count, "back down to 1 object after pi_a cleanup";
 is $meta->{objects}{$pi_a->uuid}, undef, "...pi_a has definitely been removed";
 is $meta->{objects}{$pi_b->uuid}{proc}, $$, "...pi_B has the proper uuid still";
 
@@ -58,7 +60,7 @@ $pi_b->cleanup();
 
 $meta = $pi_b->meta_fetch;
 
-is keys %{ $meta->{objects} }, 0, "no more objects stored after pi_b cleanup";
+is keys %{ $meta->{objects} }, 0 + $obj_count, "no more objects stored after pi_b cleanup";
 is $meta->{objects}{$pi_a->uuid}, undef, "...pi_a has definitely been removed";
 is $meta->{objects}{$pi_b->uuid}, undef, "...pi_b has definitely been removed";
 
