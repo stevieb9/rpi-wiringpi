@@ -13,7 +13,8 @@ WriteMakefile(
     INC               => '-I.',
     EXE_FILES         => [ map "bin/$_", qw(
             pinmap 
-            pidentify 
+            pidentify
+            pimeta
         )
     ],
     META_MERGE => {
