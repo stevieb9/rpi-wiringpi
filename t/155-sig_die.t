@@ -35,9 +35,9 @@ is $pin->mode, INPUT, "pin reset to INPUT after die()";
 
 is @{ $pi->registered_pins }, 0, "all pins unregisterd ok";
 
-$pi->lock;
+$pi->meta_lock;
 $meta = $pi->meta_fetch;
-$pi->unlock;
+$pi->meta_unlock;
 
 is keys(%{ $meta->{pins} }), 0, "...and meta data shows this";
 

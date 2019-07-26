@@ -169,10 +169,12 @@ sub unregister_object {
 
     $self->meta_store($meta);
     $self->meta_unlock;
+
+    $self->{clean} = 1;
 }
 sub cleanup {
     my ($self) = @_;
-  
+
     return if $self->{clean};
 
     $self->meta_lock;
