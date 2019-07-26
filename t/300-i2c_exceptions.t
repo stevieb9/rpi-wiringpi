@@ -58,8 +58,9 @@ my $pi = $mod->new(fatal_exit => 0, label => 't/300-i2c_exceptions.t');
 
 $ENV{I2C_TESTING} = 0;
 
+$pi->cleanup;
 rpi_check_pin_status();
-rpi_metadata_clean();
+# rpi_metadata_clean();
 
 done_testing();
 
