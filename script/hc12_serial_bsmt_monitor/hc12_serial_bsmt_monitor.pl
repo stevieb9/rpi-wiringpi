@@ -2,8 +2,24 @@
 
 use warnings;
 use strict;
+use feature 'state';
 
 use RPi::Serial;
+
+use constant {
+    PIR_OFF     => 50,
+    PIR_ON      => 51,
+
+    BSMT_CLOSED => 60,
+    BSMT_OPEN   => 61,
+
+    TRIP_CLOSED => 70,
+    TRIP_OPEN   => 71,
+};
+
+my $security_devices = {
+    5   => \&pir,
+};
 
 my $s = RPi::Serial->new('/dev/ttyUSB0', 9600);
 
@@ -18,9 +34,34 @@ while (1){
         my $data_populated = rx($start_char, $end_char);
 
         if ($data_populated){
-            print "$data\n";
+            # print "$data\n";
+            execute_command($data);
             rx_reset();
         }
+    }
+}
+
+sub execute_command {
+    my ($command) = @_;
+
+    my ($dev, $state) = split //, $command;
+
+#    print "DEVICE: $dev, STATE: $state\n";
+    $security_devices->{$dev}($state);
+}
+
+sub pir {
+    my ($state) = @_;
+
+    state $pir = 0;
+
+    if ($state && ! $pir){
+        print "Motion detected on the PIR!\n";
+        $pir = 1;
+    }
+    elsif (! $state && $pir) {
+        print "...motion stopped\n";
+        $pir = 0;
     }
 }
 
