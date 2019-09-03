@@ -50,7 +50,7 @@ void loop() {
                 hc12Send(pirOff);
                 break;
         }
-
+/*
         switch (digitalRead(BSMT_DOOR_PIN)) {
             case LOW:
                 hc12Send(bsmtOpen);
@@ -68,7 +68,7 @@ void loop() {
                 hc12Send(tripClosed);
                 break;
         }
-
+*/
         startTime = millis();
     }
 }
