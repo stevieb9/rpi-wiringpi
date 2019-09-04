@@ -25,7 +25,7 @@ const char *tripOpen    = "71"; // laser beam breached
 const uint8_t rxPin = 8;
 const uint8_t txPin = 9;
 
-const unsigned long waitTime = 2000;
+const unsigned long waitTime = 500;
 unsigned long startTime = millis();
 
 const char startChar = '[';
@@ -38,16 +38,24 @@ void setup() {
     hc12.begin(9600);
 }
 
+uint8_t pirState = 0;
+
 void loop() {
 
     if (millis () - startTime >= waitTime) {
 
         switch (digitalRead(PIR_PIN)) {
             case HIGH:
-                hc12Send(pirOn);
+                //if (! pirState){
+                    hc12Send(pirOn);
+                    pirState = 1;
+                //}
                 break;
             case LOW:
-                hc12Send(pirOff);
+                //if (pirState){
+                    hc12Send(pirOff);
+                    pirState = 0;
+                //}
                 break;
         }
 /*
