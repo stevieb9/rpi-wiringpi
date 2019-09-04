@@ -46,16 +46,11 @@ void loop() {
 
         switch (digitalRead(PIR_PIN)) {
             case HIGH:
-                //if (! pirState){
                     hc12Send(pirOn);
-                    pirState = 1;
-                //}
                 break;
             case LOW:
-                //if (pirState){
                     hc12Send(pirOff);
                     pirState = 0;
-                //}
                 break;
         }
 /*
