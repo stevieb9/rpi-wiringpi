@@ -7,6 +7,8 @@ use feature 'state';
 use RPi::Serial;
 
 use constant {
+    DEBUG   => 0,
+
     PIR_OFF     => 50,
     PIR_ON      => 51,
 
@@ -18,10 +20,10 @@ use constant {
 };
 
 my $security_devices = {
-    5   => \&pir,
+    5   => { code => \&pir, name => 'PIR' },
 };
 
-my $s = RPi::Serial->new('/dev/ttyUSB1', 9600);
+my $s = RPi::Serial->new('/dev/ttyUSB0', 9600);
 
 my $data;
 my $start_char = '[';
@@ -46,8 +48,8 @@ sub execute_command {
 
     my ($dev, $state) = split //, $command;
 
-    print "DEVICE: $dev, STATE: $state\n";
-    $security_devices->{$dev}($state);
+    print "$security_devices->{$dev}{name}: STATE: $state\n" if DEBUG;
+    $security_devices->{$dev}{code}($state);
 }
 
 sub pir {
