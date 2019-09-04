@@ -21,7 +21,7 @@ my $security_devices = {
     5   => \&pir,
 };
 
-my $s = RPi::Serial->new('/dev/ttyUSB0', 9600);
+my $s = RPi::Serial->new('/dev/ttyUSB1', 9600);
 
 my $data;
 my $start_char = '[';
@@ -46,7 +46,7 @@ sub execute_command {
 
     my ($dev, $state) = split //, $command;
 
-#    print "DEVICE: $dev, STATE: $state\n";
+    print "DEVICE: $dev, STATE: $state\n";
     $security_devices->{$dev}($state);
 }
 
