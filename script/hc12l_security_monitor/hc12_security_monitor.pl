@@ -2,7 +2,6 @@
 
 use warnings;
 use strict;
-use feature 'state';
 
 use RPi::Serial;
 
@@ -55,15 +54,11 @@ sub execute_command {
 sub pir {
     my ($state) = @_;
 
-    state $pir = 0;
-
-    if ($state && ! $pir){
+    if ($state){
         print "Motion detected on the PIR!\n";
-        $pir = 1;
     }
-    elsif (! $state && $pir) {
+    else {
         print "...motion stopped\n";
-        $pir = 0;
     }
 }
 
