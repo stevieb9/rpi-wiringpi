@@ -3,10 +3,12 @@
 use warnings;
 use strict;
 
+use Net::SMTP;
 use RPi::Serial;
 
 use constant {
-    DEBUG   => 1,
+    DEBUG       => 0,
+    DEBUG_SMTP  => 0,
 
     PIR_OFF     => 50,
     PIR_ON      => 51,
@@ -17,6 +19,8 @@ use constant {
     TRIP_CLOSED => 70,
     TRIP_OPEN   => 71,
 };
+
+my $pir_state = 0;
 
 my $security_devices = {
     5   => { code => \&pir, name => 'PIR' },
@@ -55,10 +59,16 @@ sub pir {
     my ($state) = @_;
 
     if ($state){
-        print "Motion detected on the PIR!\n";
+        print "Motion detected on the PIR!\n" if ! $pir_state;
+
+        if (! $pir_state){
+            text("PIR motion detected!");
+        }
+        $pir_state = 1;
     }
     else {
-        print "...motion stopped\n";
+        print "...motion stopped\n" if $pir_state;
+        $pir_state = 0;
     }
 }
 
@@ -107,4 +117,39 @@ sub rx_reset {
     $rx_started = 0;
     $rx_ended = 0;
     $data = '';
+}
+sub text {
+    my ($message) = @_;
+
+    if (! $ENV{GMAIL_PW}){
+        warn "You need to set your GMail password in the GMAIL_PW env var!\n";
+        return;
+    }
+    if (! $ENV{GMAIL_ADDR}){
+        warn "You need to set your GMail address in the GMAIL_ADDR env var!\n";
+        return;
+    }
+    if (! $ENV{GMAIL_TO}){
+        warn "You need to set your GMail recipient in the GMAIL_TO env var!\n";
+        return;
+    }
+    if (! $ENV{GMAIL_SERVER}){
+        warn "You need to set your GMail server in the GMAIL_SERVER env var!\n";
+        return;
+    }
+    my $smtp = Net::SMTP->new(
+        $ENV{GMAIL_SERVER},
+        Hello => 'local.example.com',
+        Timeout => 30,
+        Debug   => DEBUG_SMTP,
+        SSL     => 1,
+    );
+
+    $smtp->auth($ENV{GMAIL_ADDR}, $ENV{GMAIL_PW})
+        or die $!;
+    $smtp->mail($ENV{GMAIL_ADDR});
+    $smtp->to($ENV{GMAIL_TO});
+    $smtp->data();
+    $smtp->datasend($message);
+    $smtp->quit();
 }

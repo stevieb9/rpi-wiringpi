@@ -1330,6 +1330,10 @@ column unit, leave those last two digits off.
     RPI_MCP23017=1
     RPI_MULTI=1
     RELEASE_TESTING=0
+    GMAIL_ADDR=email@addr.com
+    GMAIL_PW=**********
+    GMAIL_TO=to@addr.com
+    GMAIL_SERVER=smtp.gmail.com
 
 =head2 I2C Test Platform Connections
 
