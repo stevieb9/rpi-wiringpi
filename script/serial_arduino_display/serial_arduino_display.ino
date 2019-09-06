@@ -123,7 +123,7 @@ void processData (void){
     for (uint8_t i=0; i<PI_BYTES; i++){
       sysInfo[i] = pi.read();
     }
- 
+
     if (DEBUG){
       serialPrintSysInfo(sysInfo);
     }

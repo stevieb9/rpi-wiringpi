@@ -22,19 +22,21 @@ while (1){
     if (! defined $test_num || $test_num == -1){
         $test_num = 0; 
     } 
-    
-    $s->putc($cpu);
-    $s->putc($mem);
-    $s->putc($tmp);
+
+    $s->putc(chr $cpu);
+    $s->putc(chr $mem);
+    $s->putc(chr $tmp);
 
     my $msb = int($test_num >> 8);
     my $lsb = int($test_num & 0xFF);
 
+#    print "cpu: $cpu, mem: $mem, tmp: $tmp, msb: $msb, lsb: $lsb\n";
+
     #my $num = int($msb << 8 ) | int($lsb & 0xff);
     # print "cpu: $cpu, mem: $mem, temp: $tmp, msb: $msb, lsb: $lsb, num: $num test_num: $test_num\n";
 
-    $s->putc(int $msb);
-    $s->putc(int $lsb);
+    $s->putc(chr $msb);
+    $s->putc(chr $lsb);
 
     sleep 1;
 }
@@ -54,4 +56,4 @@ sub test_num {
     }
 }
 
-#$pi->cleanup;
+$pi->cleanup;
