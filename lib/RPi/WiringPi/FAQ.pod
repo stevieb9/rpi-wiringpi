@@ -88,6 +88,22 @@ C</dev/gpiomem>, you need to add the C<pi> user to the C<gpio> group:
 
     sudo adduser pi gpio
 
+=head2 Crontab Configuration
+
+If you plan on running L<RPi::WiringPi> scripts from within B<crontab> as your
+normal user account, you need to set a C<logind> flag so that the shared memory
+semaphores don't get removed upon logout.
+
+In B</etc/systemd/logind.conf>, change:
+
+    #RemoveIPC=yes
+
+...to:
+
+    RemoveIPC=no
+
+That is, remove the comment hash, and change C<yes> to C<no>.
+
 =head2 I2C configuration
 
 You need to have some core software installed before using the I2C bus. The
@@ -1341,7 +1357,7 @@ The below list shows the I2C addresses in use on the Raspberry Pi in the
 hardware test platform:
 
     0x04  Arduino Metro Mini
-    0x05  ATMega328-P IC (not always in I2C mode, so not always available)
+    0x05  ATMega-328P IC (not always in I2C mode, so not always available)
     0x20  GPIO Expander 1
     0x21  GPIO Expander 2
     0x3c  OLED (main case)
