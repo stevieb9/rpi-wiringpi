@@ -4,7 +4,7 @@ use warnings;
 use strict;
 
 use Net::SMTP;
-use RPi::Serial;
+use RPi::WiringPi;
 
 use constant {
     DEBUG       => 0,
@@ -26,7 +26,8 @@ my $security_devices = {
     5   => { code => \&pir, name => 'PIR' },
 };
 
-my $s = RPi::Serial->new('/dev/ttyUSB0', 9600);
+my $pi = RPi::WiringPi->new(label => 'hc12_security_monitor.pl');
+my $s = $pi->serial('/dev/ttyUSB0', 9600);
 
 my $data;
 my $start_char = '[';
