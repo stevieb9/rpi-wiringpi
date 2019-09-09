@@ -25,6 +25,8 @@ Revision history for Perl extension RPi::WiringPi.
           don't get removed upon user logoff (closes #138)
         - renamed bin/pimetadata to bin/pimeta and bin/pi-erase-metadata to
           bin/pimetaerase
+        - bumped RPi::Serial prereq to 3.00 as it no longer relies on wiringPi
+          (closes #136)
 
 2.3633_01 2019-07-05
         - added the test platform I2C address map listing (closes #103)

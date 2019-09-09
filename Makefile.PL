@@ -56,7 +56,7 @@ WriteMakefile(
         'RPi::OLED::SSD1306::128_64'=> 2.3602,
         'RPi::Pin'                  => 2.3607,
         'RPi::RTC::DS3231'          => 0.01,
-        'RPi::Serial'               => 2.3603,
+        'RPi::Serial'               => 3.00,
         'RPi::SPI'                  => 2.3609,
         'RPi::StepperMotor'         => 2.3605,
         'RPi::SysInfo'              => 1.00,
