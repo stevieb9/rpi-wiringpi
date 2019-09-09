@@ -24,7 +24,7 @@ use WiringPi::API qw(:perl);
 my $oled_lock = '/dev/shm/oled_unavailable.rpi-wiringpi';
 
 sub rpi_legal_object_count {
-    return 2; # oled scripts
+    return 3; # crontab-run scripts
 }
 sub rpi_running_test {
     (my $test) = @_;
