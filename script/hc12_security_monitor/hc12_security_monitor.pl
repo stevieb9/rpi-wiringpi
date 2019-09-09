@@ -7,10 +7,10 @@ use Net::SMTP;
 use RPi::WiringPi;
 
 use constant {
-    DEBUG       => 0,
+    DEBUG       => 1,
     DEBUG_SMTP  => 0,
 
-    SEND_TEXT   => 1,
+    SEND_TEXT   => 0,
 
     PIR_OFF     => 50,
     PIR_ON      => 51,
@@ -37,16 +37,24 @@ my $end_char = ']';
 
 my ($rx_started, $rx_ended) = (0, 0);
 
-while (1){
-    if ($s->avail){
-        my $data_populated = rx($start_char, $end_char);
+my $wait_time = 0;
+my $prev_time = time;
 
-        if ($data_populated){
-            # print "$data\n";
-            execute_command($data);
-            rx_reset();
+while (1){
+
+#    if (time - $wait_time > $prev_time) {
+        if ($s->avail) {
+            my $data_populated = rx($start_char, $end_char);
+
+            if ($data_populated) {
+                # print "$data\n";
+                execute_command($data);
+                rx_reset();
+            }
         }
-    }
+        $prev_time = time;
+#    }
+    select(undef, undef, undef, 0.1);
 }
 
 sub execute_command {
@@ -80,6 +88,7 @@ sub rx {
 
     my $c = chr $s->getc; # getc() returns the ord() val on a char* perl-wise
 
+    print ">$c<\n";
     if ($c ne $start && ! $rx_started){
         rx_reset();
         return;
