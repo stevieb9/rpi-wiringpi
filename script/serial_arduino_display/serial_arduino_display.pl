@@ -2,13 +2,11 @@
 
 use warnings;
 use strict;
-use feature 'say';
 
-use IPC::Shareable;
 use RPi::WiringPi;
 
 my $pi = RPi::WiringPi->new(label => 'serial_arduino_display');
-my $dev = '/dev/ttyS0';
+my $dev = '/dev/ttyAMA0';
 my $baud = 9600;
 
 my $s = $pi->serial($dev, $baud);
@@ -55,5 +53,3 @@ sub test_num {
         return -1;
     }
 }
-
-$pi->cleanup;
