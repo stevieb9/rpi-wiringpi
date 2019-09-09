@@ -23,6 +23,8 @@ Revision history for Perl extension RPi::WiringPi.
         - add blurb in FAQ that if running scripts from crontab, the RemoveIPC
           flag in logind.conf must be set to "no" so shared memory semaphores
           don't get removed upon user logoff (closes #138)
+        - renamed bin/pimetadata to bin/pimeta and bin/pi-erase-metadata to
+          bin/pimetaerase
 
 2.3633_01 2019-07-05
         - added the test platform I2C address map listing (closes #103)
