@@ -10,6 +10,8 @@ use constant {
     DEBUG       => 0,
     DEBUG_SMTP  => 0,
 
+    SEND_TEXT   => 1,
+
     PIR_OFF     => 50,
     PIR_ON      => 51,
 
@@ -122,6 +124,8 @@ sub rx_reset {
 sub text {
     my ($message) = @_;
 
+    return if ! SEND_TEXT;
+
     if (! $ENV{GMAIL_PW}){
         warn "You need to set your GMail password in the GMAIL_PW env var!\n";
         return;
@@ -138,6 +142,7 @@ sub text {
         warn "You need to set your GMail server in the GMAIL_SERVER env var!\n";
         return;
     }
+
     my $smtp = Net::SMTP->new(
         $ENV{GMAIL_SERVER},
         Hello => 'local.example.com',
