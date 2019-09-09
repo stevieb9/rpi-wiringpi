@@ -6,7 +6,7 @@ use strict;
 use RPi::WiringPi;
 
 my $pi = RPi::WiringPi->new(label => 'serial_arduino_display');
-my $dev = '/dev/ttyAMA0';
+my $dev = '/dev/ttyS0';
 my $baud = 9600;
 
 my $s = $pi->serial($dev, $baud);
