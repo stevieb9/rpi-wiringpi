@@ -9,6 +9,8 @@ build_testing/baseline_setup.pl
 build_testing/benchmark/sharelite_vs_memfile.pl
 build_testing/benchmark/startup.pl
 build_testing/bmp.pl
+build_testing/hc12/hc12-receive.pl
+build_testing/hc12/hc12-send-receive.ino
 build_testing/i2c.pl
 build_testing/identify.pl
 build_testing/metadata.pl
@@ -26,6 +28,7 @@ build_testing/sysinfo_faq_examples.pl
 build_testing/test_suite_stepper.pl
 build_testing/tripwire.pl
 Changes
+colour_ssd_info.txt
 docs/breadboard/adc_basic_example_bb.jpg
 docs/breadboard/brewbuild_test_platform_bb.jpg
 docs/breadboard/dpot_adc_bb.jpg
@@ -47,6 +50,9 @@ Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
 README
+script/hc12_security_monitor/crc16.h
+script/hc12_security_monitor/hc12_security_monitor.ino
+script/hc12_security_monitor/hc12_security_monitor.pl
 script/i2c_arduino_display/i2c_arduino_display.ino
 script/i2c_arduino_display/i2c_arduino_display.pl
 script/i2c_arduino_display/Multi_BitBang.cpp
