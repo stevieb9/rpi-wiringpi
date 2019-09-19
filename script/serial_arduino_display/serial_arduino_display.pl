@@ -28,7 +28,7 @@ while (1){
     my $msb = int($test_num >> 8);
     my $lsb = int($test_num & 0xFF);
 
-#    print "cpu: $cpu, mem: $mem, tmp: $tmp, msb: $msb, lsb: $lsb\n";
+    print "cpu: $cpu, mem: $mem, tmp: $tmp, msb: $msb, lsb: $lsb\n";
 
     #my $num = int($msb << 8 ) | int($lsb & 0xff);
     # print "cpu: $cpu, mem: $mem, temp: $tmp, msb: $msb, lsb: $lsb, num: $num test_num: $test_num\n";
