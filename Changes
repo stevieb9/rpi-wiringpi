@@ -1,9 +1,5 @@
 Revision history for Perl extension RPi::WiringPi.
 
-1.3633 2019-09-19
-        - emergency release to correct an oversight in a test file, preventing
-          failed installations
-
 2.3633_02 UNREL
         - all methods that use GPIO pins now supply an appropriate comment for
           each pin for identification in shared memory (closes #110)
@@ -81,6 +77,10 @@ Revision history for Perl extension RPi::WiringPi.
           made it so that all subs are exported by default (as opposed to using
           @EXPORT_OK), and rewrote all test files to do base meta/pin checks on
           all files
+
+2.3633 2019-09-19
+        - emergency release to correct an oversight in a test file, preventing
+          failed installations
 
 2.3632  2019-06-22
         - added the digital potentiometer (MCP4xxxx) to the test platform (in
