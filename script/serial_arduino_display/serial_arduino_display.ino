@@ -19,9 +19,20 @@
 #define OLED_WIDTH 128
 #define OLED_HEIGHT 64
 
-#define TFT_CS          10
-#define TFT_RST         9
-#define TFT_DC          8
+/* Colour TFT Pins
+ *
+ * Name     Uno_Pin     ATMega-328P_Pin
+ **************************************
+ * SCL      13          13
+ * SDA      17          17
+ * RST      9           15
+ * DC       8           14
+ * CS       10          16
+*/
+
+#define TFT_RST 9
+#define TFT_DC  8
+#define TFT_CS  10
 
 #define TFT_SEC_LINE_1      0
 #define TFT_SEC_LINE_2      16
