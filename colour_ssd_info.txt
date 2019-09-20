@@ -11,6 +11,10 @@ RESET		RES
 VCC		VCC
 Gnd		GND
 
+#define TFT_CS          10
+#define TFT_RST         9
+#define TFT_DC          8
+
 # Pin info (Uno)
 
 https://learn.adafruit.com/adafruit-1-44-color-tft-with-micro-sd-socket/wiring-and-test
