@@ -143,11 +143,7 @@ void setup() {
     screen.setCursor(0, 0);
 
     // colour TFT setup
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> b7695d92f059afa1244693bac229d5a31484992b
     tft.initR(INITR_144GREENTAB);
 
     tft.fillScreen(ST77XX_BLACK);
@@ -172,23 +168,18 @@ void processData (void) {
     uint8_t securityByte = 0;
 
     if (pi.available() == PI_BYTES) {
-<<<<<<< HEAD
-
         securityByte = pi.read();
 
         for (uint8_t i = 0; i < PI_BYTES-1; i++) {
             sysInfo[i] = pi.read();
         }
 
-=======
-        
         securityByte = pi.read();
         
         for (uint8_t i = 0; i < PI_BYTES-1; i++) {
             sysInfo[i] = pi.read();
         }
         
->>>>>>> b7695d92f059afa1244693bac229d5a31484992b
         if (DEBUG) {
             serialPrintSysInfo(sysInfo);
             Serial.print(F("SEC BYTE: "));
@@ -239,3 +230,4 @@ void displaySecurityInfo (uint8_t secByte){
 
 void loop() {
     processData();
+}
