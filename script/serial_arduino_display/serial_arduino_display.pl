@@ -43,13 +43,13 @@ while (1){
     $s->putc(chr $msb);
     $s->putc(chr $lsb);
 
-    print "cpu: $cpu, mem: $mem, tmp: $tmp, msb: $msb, lsb: $lsb, sec: $sec_byte\n";
+    # print "cpu: $cpu, mem: $mem, tmp: $tmp, msb: $msb, lsb: $lsb, sec: $sec_byte\n";
 
     sleep 1;
 }
 
 sub sec_byte {
-    return 0b00000000;
+    return 0b01100101;
 }
 
 sub test_num {
