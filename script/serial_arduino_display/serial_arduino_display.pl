@@ -15,10 +15,8 @@ use constant {
     BIT_BSMT        => 0,
     BIT_BSMT_DOOR   => 1,
     BIT_MAIN        => 2,
-    BIT_ALARM           => 3,
+    BIT_ALARM       => 3,
 };
-
-
 
 while (1){
     my $cpu = int $pi->cpu_percent;
@@ -48,6 +46,10 @@ while (1){
     print "cpu: $cpu, mem: $mem, tmp: $tmp, msb: $msb, lsb: $lsb, sec: $sec_byte\n";
 
     sleep 1;
+}
+
+sub sec_byte {
+    return 0b00000000;
 }
 
 sub test_num {
