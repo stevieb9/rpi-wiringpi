@@ -11,18 +11,12 @@ rpi_running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
 
-# sudo init
-
-if ($> == 0){
-    $ENV{PI_BOARD} = 1;
-}
 if (! $ENV{PI_BOARD}){
     $ENV{NO_BOARD} = 1;
     plan skip_all => "Not on a Pi board\n";
 }
 
 my $pi = $mod->new(label => 't/150-cleanup.t');
-
 
 my $pin26 = $pi->pin(26);
 my $pin12 = $pi->pin(12);
