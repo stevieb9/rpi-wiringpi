@@ -8,7 +8,7 @@ use RPi::WiringPi;
 use RPi::Const qw(:all);
 use Test::More;
 
-plan skip_all => "fatal_exit = 0 TESTS NEED TO BE FIXED";
+## plan skip_all => "fatal_exit = 0 TESTS NEED TO BE FIXED";
 #TODO: fatal_exit => 0 doesn't clean up pins
 
 rpi_running_test(__FILE__);
