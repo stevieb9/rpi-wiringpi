@@ -22,10 +22,30 @@ use constant {
     TRIP_OPEN   => 71,
 };
 
-my $pir_state = 0;
+# ---
+
+my $bsmt_pir = 1;
+my $bsmt_door = 0;
+my $main = 1;
+my $alarm = 1;
+
+sub sec_byte {
+    my $byte = 0;
+
+    $byte ^= (-$bsmt_pir ^ $byte) & (1 << BIT_BSMT);
+    $byte ^= (-$bsmt_door ^ $byte) & (1 << BIT_BSMT_DOOR);
+    $byte ^= (-$main ^ $byte) & (1 << BIT_MAIN);
+    $byte ^= (-$alarm ^ $byte) & (1 << BIT_ALARM);
+
+    return $byte;
+}
+
+# ---
+
+my ($bsmt_pir_state, $bsmt_door_state, $main_state, $alarm_state) = (0, 0, 0, 0);
 
 my $security_devices = {
-    5   => { code => \&pir, name => 'PIR' },
+    5   => { code => \&bsmt_pir, name => 'BSMT PIR' },
 };
 
 my $pi = RPi::WiringPi->new(label => 'hc12_security_monitor.pl');
@@ -66,20 +86,20 @@ sub execute_command {
     $security_devices->{$dev}{code}($state);
 }
 
-sub pir {
+sub bsmt_pir {
     my ($state) = @_;
 
     if ($state){
-        print "Motion detected on the PIR!\n" if ! $pir_state;
+        print "Motion detected on the PIR!\n" if ! $bsmt_pir_state;
 
-        if (! $pir_state){
+        if (! $bsmt_pir_state){
             text("PIR motion detected!");
         }
-        $pir_state = 1;
+        $bsmt_pir_state = 1;
     }
     else {
-        print "...motion stopped\n" if $pir_state;
-        $pir_state = 0;
+        print "...motion stopped\n" if $bsmt_pir_state;
+        $bsmt_pir_state = 0;
     }
 }
 
