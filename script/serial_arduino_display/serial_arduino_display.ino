@@ -85,7 +85,6 @@ void displaySysInfo (uint8_t *sysInfo) {
 
     uint16_t testNum = (sysInfo[3] << 8 ) | (sysInfo[4] & 0xff);
 
-
     if (testNum != 0) {
         
         screen.setCursor(0, 48);
@@ -108,6 +107,8 @@ void displaySysInfo (uint8_t *sysInfo) {
 }
 
 void serialPrintSysInfo(uint8_t *sysInfo) {
+
+}
     Serial.println(F("System Info"));
     Serial.print(F("CPU:  "));
     Serial.print(sysInfo[0]);
@@ -217,24 +218,6 @@ void displaySecurityInfo (uint8_t secByte){
     tft.setTextColor(ST77XX_YELLOW, ST77XX_ORANGE);
     tft.print(F("0b"));
     tft.print(secByte, BIN);
-
-/*
-    tft.setCursor(60, 0);
-    tft.setTextColor(ST77XX_GREEN, ST77XX_BLACK);
-    tft.println("OK ");
-
-    delay(1000);
-
-    tft.setCursor(60, 0);
-    tft.setTextColor(ST77XX_BLACK, ST77XX_BLACK);
-    tft.print("OK ");
-
-    tft.setCursor(60, 0);
-    tft.setTextColor(ST77XX_RED, ST77XX_BLACK);
-    tft.println("NOK");
-*/
-
-
 }
 
 void loop() {
