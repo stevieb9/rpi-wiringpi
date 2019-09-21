@@ -27,6 +27,8 @@ Revision history for Perl extension RPi::WiringPi.
           bin/pimetaerase
         - bumped RPi::Serial prereq to 3.00 as it no longer relies on wiringPi
           (closes #136)
+        - bump prereq of RPi::LCD to 2.3604 due to it relying on the old
+          RPi::WiringPi::Constant (closes #147)
 
 2.3633_01 2019-07-05
         - added the test platform I2C address map listing (closes #103)

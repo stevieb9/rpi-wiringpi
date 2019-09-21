@@ -52,7 +52,7 @@ WriteMakefile(
         'RPi::GPIOExpander::MCP23017' => 1.00,
         'RPi::HCSR04'               => 2.3604,
         'RPi::I2C'                  => 2.3607,
-        'RPi::LCD'                  => 2.3603,
+        'RPi::LCD'                  => 2.3604,
         'RPi::OLED::SSD1306::128_64'=> 2.3602,
         'RPi::Pin'                  => 2.3607,
         'RPi::RTC::DS3231'          => 0.01,
