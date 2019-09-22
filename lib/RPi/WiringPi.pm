@@ -382,14 +382,18 @@ sub _cleanup_handler {
             " with fatal_exit = " . $self->_fatal_exit . "\n";
     }
 
-    if ($self->_fatal_exit){
+    my $sigs = keys %{ $sig_handlers{$sig} };
+    print "SIGS: $sigs\n";
+
+#    if ($self->_fatal_exit){
+    print "*** ". $self->uuid . "\n";
         delete $sig_handlers{$sig}{$self->uuid};
     
-        if (scalar(keys %{ $sig_handlers{$sig} }) == 0){
+#        if (scalar(keys %{ $sig_handlers{$sig} }) == 0){
             $self->cleanup;
-            exit;
-        }
-    }
+            #exit;
+#        }
+#    }
 }
 sub _signal_handlers {
     return \%sig_handlers;

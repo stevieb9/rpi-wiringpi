@@ -7,6 +7,7 @@ use Exporter;
 our @ISA = qw(Exporter);
 
 our @EXPORT = qw(
+    rpi_sudo_check
     rpi_running_test
     rpi_check_pin_status
     rpi_oled_available
@@ -21,10 +22,29 @@ use IPC::Shareable;
 use Test::More;
 use WiringPi::API qw(:perl);
 
+# validate that tests can run
+
+#$ENV{SUDO_USER} = undef;
+
+if (! $ENV{PI_BOARD} && ! $ENV{SUDO_USER}){
+    $ENV{NO_BOARD} = 1;
+    plan skip_all => "Not on a Pi board";
+}
+if (! defined $ENV{RPI_OBJECT_COUNT} && ! $ENV{SUDO_USER}){
+    plan skip_all => "RPI_OBJECT_COUNT env var not set";
+}
+
+my $legal_object_count = $ENV{RPI_OBJECT_COUNT};
+
 my $oled_lock = '/dev/shm/oled_unavailable.rpi-wiringpi';
 
 sub rpi_legal_object_count {
-    return 3; # crontab-run scripts
+    return $legal_object_count; # crontab-run scripts
+}
+sub rpi_sudo_check {
+    if (! $ENV{RPI_SUDO} && $> != 0){
+        plan skip_all => "RPI_SUDO env var not set\n";
+    }
 }
 sub rpi_running_test {
     (my $test) = @_;
@@ -39,6 +59,7 @@ sub rpi_running_test {
         $pi->meta_store($meta);
         $pi->meta_unlock;
         $pi->unregister_object;
+        $pi->cleanup;
         return 0;
     }
     elsif ($test =~ /^-\d+/){
@@ -47,6 +68,7 @@ sub rpi_running_test {
         $pi->meta_store($meta);
         $pi->meta_unlock;
         $pi->unregister_object;
+        $pi->cleanup;
         return 0;
     }
 

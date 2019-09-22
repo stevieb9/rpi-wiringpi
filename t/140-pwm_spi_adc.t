@@ -9,6 +9,8 @@ use Test::More;
 
 my $mod = 'RPi::WiringPi';
 
+rpi_sudo_check();
+
 if ($> == 0){
     $ENV{PI_BOARD} = 1;
     $ENV{RPI_ADC} = 1;
@@ -23,7 +25,7 @@ if (! $ENV{PI_BOARD}){
     plan skip_all => "Not on a Pi board\n";
 }
 
-if ($> != 0){
+if ($> != 0 && $ENV{RPI_SUDO}){
     print "enforcing sudo for PWM tests...\n";
     system('sudo', 'perl', $0);
     exit;
