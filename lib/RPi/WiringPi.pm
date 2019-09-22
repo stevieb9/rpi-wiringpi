@@ -382,18 +382,12 @@ sub _cleanup_handler {
             " with fatal_exit = " . $self->_fatal_exit . "\n";
     }
 
-    my $sigs = keys %{ $sig_handlers{$sig} };
-    print "SIGS: $sigs\n";
+    delete $sig_handlers{$sig}{$self->uuid};
+    $self->cleanup;
 
-#    if ($self->_fatal_exit){
-    print "*** ". $self->uuid . "\n";
-        delete $sig_handlers{$sig}{$self->uuid};
-    
-#        if (scalar(keys %{ $sig_handlers{$sig} }) == 0){
-            $self->cleanup;
-            #exit;
-#        }
-#    }
+    if ($self->_fatal_exit) {
+        #FIXME: add an object count per proc in meta, and exit if it's 0
+    }
 }
 sub _signal_handlers {
     return \%sig_handlers;

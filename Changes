@@ -9,6 +9,9 @@ Revision history for Perl extension RPi::WiringPi.
           now not required in individual test files. Test files need only
           specify the env vars they require specifically (eg RPI_ADC).
           (closes #148)
+        - reworked the entire cleanup() regimen and how we manage meta data. It
+          only ever operates on its own object, and never crosses object
+          boundaries
 
 2.3633_02 2019-09-21
         - TRIAL RELEASE: may not install properly, and there's a potential for

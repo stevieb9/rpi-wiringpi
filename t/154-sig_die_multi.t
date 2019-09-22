@@ -49,8 +49,11 @@ $pi_a->meta_lock;
 $meta = $pi_a->meta_fetch;
 $pi_a->meta_unlock;
 
+sleep 1;
+
 is keys(%{ $meta->{pins} }), 0, "...and meta data shows this (pi_a)";
-is keys(%{ $meta->{objects} }), 0, "after die(), no more objects exist (pi_a)";
+is keys(%{ $meta->{objects} }), rpi_legal_object_count(), "after die(), no more objects exist (pi_a)";
+is $meta->{object_count}, rpi_legal_object_count(), "after die(), proper object count exist (pi_a)";
 
 # is exists $pi_a->_signal_handlers->{__DIE__}{$pi_a->uuid}, 1, "pi_a sig handlers still exist if ! fatal_exit";
 
