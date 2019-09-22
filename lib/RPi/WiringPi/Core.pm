@@ -162,19 +162,19 @@ sub unregister_object {
     my $meta = $self->meta_fetch;
 
     delete $meta->{objects}->{$self->uuid};
-    $meta->{object_count}--;
-    $meta->{object_count} = 0 if $meta->{object_count} < 0;
+    $meta->{object_count} = keys %{ $meta->{objects} };
 
     $self->meta_store($meta);
     $self->meta_unlock;
-
-    $self->{clean} = 1;
 }
 sub cleanup {
     my ($self) = @_;
 
     $self->meta_lock;
     my $meta = $self->meta_fetch;
+
+    #FIXME: this could be an issue if a proc is using different PWM settings
+    # but a different proc cleans up
 
     if ($meta->{pwm}{in_use}){
         WiringPi::API::pwmSetMode(PWM_DEFAULT_MODE);
@@ -184,7 +184,6 @@ sub cleanup {
     }
 
     for my $pin (keys %{ $meta->{pins} }){
-
         if (exists $meta->{pins}->{$pin}{users}{$self->uuid}){
             WiringPi::API::pinModeAlt($pin, $meta->{pins}->{$pin}{alt});
             WiringPi::API::digitalWrite($pin, $meta->{pins}->{$pin}{state});
@@ -192,11 +191,10 @@ sub cleanup {
         }
     }
 
-    delete $meta->{objects}->{$self->uuid};
-    $meta->{object_count} = keys %{ $meta->{objects} };
-
     $self->meta_store($meta);
     $self->meta_unlock;
+
+    $self->unregister_object;
 
     $self->{clean} = 1;
 }
