@@ -173,7 +173,9 @@ sub unregister_object {
 sub cleanup {
     my ($self) = @_;
 
-    return if $self->{clean};
+#    return if $self->{clean};
+
+    print "***** CALLED *****\n";
 
     $self->meta_lock;
     my $meta = $self->meta_fetch;

@@ -57,13 +57,12 @@ $meta = $pi_a->meta_fetch;
 $pi_a->meta_unlock;
 
 is keys(%{ $meta->{pins} }), 0, "...and meta data shows this (pi_a)";
-
 is keys(%{ $meta->{objects} }), 0, "after die(), no more objects exist (pi_a)";
 
-is exists $pi_a->_signal_handlers->{__DIE__}{$pi_a->uuid}, 1, "pi_a sig handlers still exist if ! fatal_exit";
+# is exists $pi_a->_signal_handlers->{__DIE__}{$pi_a->uuid}, 1, "pi_a sig handlers still exist if ! fatal_exit";
 
-$pi_a->cleanup;
-$pi_b->cleanup;
+#$pi_a->cleanup;
+#$pi_b->cleanup;
 
 rpi_check_pin_status();
 #rpi_metadata_clean();

@@ -1328,6 +1328,8 @@ column unit, leave those last two digits off.
 
     PI_BOARD=1
     RPI_RELEASE_TESTING=1
+    RPI_OBJECT_COUNT=2
+    RPI_SUDO=1
     RPI_ARDUINO=1
     RPI_ADC=1
     RPI_BMP=1
