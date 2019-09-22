@@ -173,10 +173,6 @@ sub unregister_object {
 sub cleanup {
     my ($self) = @_;
 
-#    return if $self->{clean};
-
-    print "***** CALLED *****\n";
-
     $self->meta_lock;
     my $meta = $self->meta_fetch;
 
@@ -197,8 +193,7 @@ sub cleanup {
     }
 
     delete $meta->{objects}->{$self->uuid};
-    $meta->{object_count}--;
-    $meta->{object_count} = 0 if $meta->{object_count} < 0;
+    $meta->{object_count} = keys %{ $meta->{objects} };
 
     $self->meta_store($meta);
     $self->meta_unlock;
