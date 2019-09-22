@@ -34,7 +34,7 @@ our $VERSION = '2.3633_02';
 
 my $fatal_exit = 1;
 my %sig_handlers;
-my $signal_debug = 1;
+my $signal_debug = 0;
 
 # core
 
