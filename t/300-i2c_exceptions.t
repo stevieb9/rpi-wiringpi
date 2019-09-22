@@ -18,11 +18,6 @@ BEGIN {
     if (! $ENV{RPI_ARDUINO}){
         plan skip_all => "RPI_ARUDINO environment variable not set\n";
     }
-
-    if (! $ENV{PI_BOARD}){
-        $ENV{NO_BOARD} = 1;
-        plan skip_all => "Not on a Pi board\n";
-    }
 }
 
 $SIG{__DIE__} = sub {};

@@ -8,14 +8,7 @@ use RPi::WiringPi;
 use Test::More;
 use feature 'say';
 
-if (! $ENV{RPI_MULTI}){
-    plan skip_all => "RPI_MULTIPLE environment variable not set\n";
-}
-
-if (! $ENV{PI_BOARD}){
-    $ENV{NO_BOARD} = 1;
-    plan skip_all => "Not on a Pi board\n";
-}
+rpi_multi_check();
 
 rpi_running_test(__FILE__);
 

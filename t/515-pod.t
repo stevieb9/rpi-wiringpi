@@ -10,6 +10,8 @@ unless ( $ENV{RPI_RELEASE_TESTING} ) {
     plan( skip_all => "Author tests not required for installation" );
 }
 
+rpi_pod_check();
+
 # Ensure a recent version of Test::Pod
 my $min_tp = 1.22;
 eval "use Test::Pod $min_tp";

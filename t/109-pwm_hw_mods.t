@@ -8,6 +8,8 @@ use RPi::WiringPi;
 use RPi::Const qw(:all);
 use Test::More;
 
+rpi_sudo_check();
+
 my $mod = 'RPi::WiringPi';
 
 if ($> == 0){

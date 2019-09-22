@@ -12,11 +12,6 @@ rpi_running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
 
-if (! $ENV{PI_BOARD}){
-    $ENV{NO_BOARD} = 1;
-    plan skip_all => "Not on a Pi board\n";
-}
-
 BEGIN {
     my $c;
 

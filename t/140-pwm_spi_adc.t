@@ -7,9 +7,9 @@ use RPiTest;
 use RPi::WiringPi;
 use Test::More;
 
-my $mod = 'RPi::WiringPi';
-
 rpi_sudo_check();
+
+my $mod = 'RPi::WiringPi';
 
 if ($> == 0){
     $ENV{PI_BOARD} = 1;

@@ -13,11 +13,6 @@ if (! $ENV{RPI_BMP}){
     plan skip_all => "RPI_BMP environment variable not set\n";
 }
 
-if (! $ENV{PI_BOARD}){
-    $ENV{NO_BOARD} = 1;
-    plan skip_all => "Not on a Pi board\n";
-}
-
 use constant {
     BMP_BASE => 100,
 };

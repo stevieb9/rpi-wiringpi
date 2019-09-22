@@ -1328,6 +1328,7 @@ column unit, leave those last two digits off.
 
     PI_BOARD=1
     RPI_RELEASE_TESTING=1
+    RPI_POD=1
     RPI_OBJECT_COUNT=2
     RPI_SUDO=1
     RPI_ARDUINO=1
@@ -1352,6 +1353,14 @@ column unit, leave those last two digits off.
     GMAIL_PW=**********
     GMAIL_TO=to@addr.com
     GMAIL_SERVER=smtp.gmail.com
+
+C<RPI_OBJECT_COUNT> is the number of valid, existing objects being run across
+processes before the test suite starts. Auto-startup scripts will have valid
+registrations for example.
+
+C<RPI_POD> enables and disables POD tests.
+
+C<RPI_SUDO> enables and disables PWM tests.
 
 =head2 I2C Test Platform Connections
 

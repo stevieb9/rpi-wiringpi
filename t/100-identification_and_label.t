@@ -6,15 +6,9 @@ use lib 't/';
 use RPi::WiringPi;
 use RPiTest;
 
-if (! $ENV{PI_BOARD}){
-    $ENV{NO_BOARD} = 1;
-    plan skip_all => "Not on a Pi board\n";
-}
-
 my $pi = RPi::WiringPi->new;
 
 rpi_running_test(__FILE__);
-
 
 my $ok = eval {
     $pi->pwr_led(1); # pwr led OFF

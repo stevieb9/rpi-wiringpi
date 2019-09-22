@@ -3,6 +3,12 @@ Revision history for Perl extension RPi::WiringPi.
 2.3633_03 UNREL
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
           call this function before any work is done (fixes #144)
+        - added RPI_POD, RPI_SUDO and RPI_OBJECT_COUNT testing environment
+          variables
+        - test suite PI_BOARD check is now done in the RPiTest library, and is
+          now not required in individual test files. Test files need only
+          specify the env vars they require specifically (eg RPI_ADC).
+          (closes #148)
 
 2.3633_02 2019-09-21
         - TRIAL RELEASE: may not install properly, and there's a potential for

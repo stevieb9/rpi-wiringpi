@@ -7,10 +7,6 @@ use RPiTest;
 use RPi::WiringPi;
 use Test::More;
 
-if (! $ENV{PI_BOARD}){
-    plan skip_all => "Not on a Pi board";
-}
-
 rpi_running_test(__FILE__);
 
 my $pi = RPi::WiringPi->new(label => 't/401-sysinfo_mem_percent.t');

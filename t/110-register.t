@@ -9,11 +9,6 @@ use Test::More;
 
 my $mod = 'RPi::WiringPi';
 
-if (! $ENV{PI_BOARD}){
-    $ENV{NO_BOARD} = 1;
-    plan skip_all => "Not on a Pi board\n";
-}
-
 rpi_running_test(__FILE__);
 
 my $pi = $mod->new(fatal_exit => 0, label => 't/110-register.t');
