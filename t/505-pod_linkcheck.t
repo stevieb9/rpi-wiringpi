@@ -10,6 +10,8 @@ unless ( $ENV{RPI_RELEASE_TESTING} ) {
     plan( skip_all => "Author test: RPI_RELEASE_TESTING not set" );
 }
 
+rpi_pod_check();
+
 eval "use Test::Pod::LinkCheck";
 if ($@) {
     plan skip_all => 'Test::Pod::LinkCheck required for testing POD links';

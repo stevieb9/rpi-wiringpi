@@ -11,11 +11,6 @@ if (! $ENV{RPI_OLED}){
     plan skip_all => "RPI_OLED environment variable not set\n";
 }
 
-if (! $ENV{PI_BOARD}){
-    $ENV{NO_BOARD} = 1;
-    plan skip_all => "Not on a Pi board\n";
-}
-
 rpi_running_test(__FILE__);
 
 my $pi = RPi::WiringPi->new(label => 't/903-oled_dim.t');

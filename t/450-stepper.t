@@ -14,11 +14,6 @@ if (! $ENV{RPI_STEPPER}){
     plan(skip_all => "RPI_STEPPER environment variable not set");
 }
 
-if (! $ENV{PI_BOARD}){
-    $ENV{NO_BOARD} = 1;
-    plan skip_all => "Not on a Pi board\n";
-}
-
 use constant {
     DEBUG => 0
 };

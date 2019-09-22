@@ -7,7 +7,7 @@ use IPC::Shareable;
 use RPiTest;
 use Test::More;
 
-plan skip_all => "MULTI TESTS CURRENTLY DISABLED";
+plan skip_all => "SHARED MEM TESTS NEED TO BE REWORKED";
 
 rpi_running_test(__FILE__);
 

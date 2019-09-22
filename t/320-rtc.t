@@ -13,11 +13,6 @@ if (! $ENV{RPI_RTC}){
     plan(skip_all => "RPI_RTC environment variable not set");
 }
 
-if (! $ENV{PI_BOARD}){
-    $ENV{NO_BOARD} = 1;
-    plan skip_all => "Not on a Pi board\n";
-}
-
 $SIG{__DIE__} = sub {};
 
 rpi_running_test(__FILE__);

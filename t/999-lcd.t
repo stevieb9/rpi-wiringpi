@@ -17,11 +17,6 @@ if (! $ENV{RPI_LCD}){
     plan skip_all => "RPI_LCD environment variable not set\n";
 }
 
-if (! $ENV{PI_BOARD}){
-    $ENV{NO_BOARD} = 1;
-    plan skip_all => "Not on a Pi board\n";
-}
-
 rpi_running_test(__FILE__);
 
 my $continue = 1;

@@ -17,11 +17,6 @@ if (! $ENV{RPI_MCP3008}){
     plan skip_all => "RPI_MCP3008 environment variable not set\n";
 }
 
-if (! $ENV{PI_BOARD}){
-    $ENV{NO_BOARD} = 1;
-    plan skip_all => "Not on a Pi board\n";
-}
-
 rpi_running_test(__FILE__);
 
 my ($adc_cs_pin, $dac_cs_pin) = (26, 12);
