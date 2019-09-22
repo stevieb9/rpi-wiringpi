@@ -7,7 +7,7 @@ use RPiTest;
 use Test::More;
 
 unless ( $ENV{RPI_RELEASE_TESTING} ) {
-    plan( skip_all => "Author tests not required for installation" );
+    plan( skip_all => "Author test: RPI_RELEASE_TESTING not set" );
 }
 
 rpi_pod_check();
