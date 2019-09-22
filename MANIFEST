@@ -28,7 +28,7 @@ build_testing/sysinfo_faq_examples.pl
 build_testing/test_suite_stepper.pl
 build_testing/tripwire.pl
 Changes
-colour_ssd_info.txt
+docs/atmega-328p_bootloader.txt
 docs/breadboard/adc_basic_example_bb.jpg
 docs/breadboard/brewbuild_test_platform_bb.jpg
 docs/breadboard/dpot_adc_bb.jpg
@@ -41,6 +41,7 @@ docs/pics/bb_hardware_test_platform.jpg
 docs/schematic/adc_basic_example_schem.jpg
 docs/schematic/dpot_adc_schem.jpg
 docs/sketch/arduino.ino
+docs/sketch/arduino/arduino.ino
 lib/RPi/WiringPi.pm
 lib/RPi/WiringPi/Core.pm
 lib/RPi/WiringPi/FAQ.pod
