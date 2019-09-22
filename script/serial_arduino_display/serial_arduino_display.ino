@@ -34,17 +34,23 @@
 #define TFT_DC  8
 #define TFT_CS  10
 
-#define TFT_SEC_LINE_1      0
-#define TFT_SEC_LINE_2      16
-#define TFT_SEC_LINE_3      32
-#define TFT_SEC_LINE_4      48
-#define TFT_SEC_LINE_5      64
-#define TFT_SEC_LINE_6      80
-#define TFT_SEC_LINE_7      96
-#define TFT_SEC_LINE_8      112
+#define TFT_LINE_1      0
+#define TFT_LINE_2      16
+#define TFT_LINE_3      32
+#define TFT_LINE_4      48
+#define TFT_LINE_5      64
+#define TFT_LINE_6      80
+#define TFT_LINE_7      96
+#define TFT_LINE_8      112
 
+#define TFT_STATUS_COL  60
 
-#define TFT_SEC_STATUS_COL  60
+// security bit locations
+
+#define BIT_BSMT    0
+#define BIT_DOOR    1
+#define BIT_MAIN    2
+#define BIT_ALRM    6
 
 // object instantiation
 
@@ -155,16 +161,16 @@ void setup() {
     tft.fillScreen(ST77XX_BLACK);
     tft.setTextSize(2);
 
-    tft.setCursor(0, TFT_SEC_LINE_1);
+    tft.setCursor(0, TFT_LINE_1);
     tft.print(F("BSMT: "));
 
-    tft.setCursor(0, TFT_SEC_LINE_2);
+    tft.setCursor(0, TFT_LINE_2);
     tft.print(F("DOOR: "));
 
-    tft.setCursor(0, TFT_SEC_LINE_3);
+    tft.setCursor(0, TFT_LINE_3);
     tft.print(F("MAIN: "));
 
-    tft.setCursor(0, TFT_SEC_LINE_4);
+    tft.setCursor(0, TFT_LINE_4);
     tft.print(F("ALRM: "));
 }
 
@@ -194,27 +200,31 @@ void processData (void) {
 
 void displaySecurityInfo (uint8_t secByte){
 
-    tft.setCursor(TFT_SEC_STATUS_COL, TFT_SEC_LINE_1);
+    const uint8_t fg_colour[2] = { ST77XX_GREEN, ST77XX_WHITE };
+    const uint8_t bg_colour[2] = { ST77XX_BLACK, ST77XX_RED };
+
+    tft.setCursor(TFT_STATUS_COL, TFT_LINE_1);
+    uint8_t bsmt_state = (0xFF >> BIT_BSMT) & 1;
+    tft.setTextColor(fg_colour[bsmt_state], bg_colour[bsmt_state]);
+    tft.print(F("NOK"));
+
+    tft.setCursor(TFT_STATUS_COL, TFT_LINE_2);
     tft.setTextColor(ST77XX_WHITE, ST77XX_RED);
     tft.print(F("NOK"));
 
-    tft.setCursor(TFT_SEC_STATUS_COL, TFT_SEC_LINE_2);
+    tft.setCursor(TFT_STATUS_COL, TFT_LINE_3);
     tft.setTextColor(ST77XX_WHITE, ST77XX_RED);
     tft.print(F("NOK"));
 
-    tft.setCursor(TFT_SEC_STATUS_COL, TFT_SEC_LINE_3);
-    tft.setTextColor(ST77XX_WHITE, ST77XX_RED);
-    tft.print(F("NOK"));
-
-    tft.setCursor(TFT_SEC_STATUS_COL, TFT_SEC_LINE_4);
+    tft.setCursor(TFT_STATUS_COL, TFT_LINE_4);
     tft.setTextColor(ST77XX_GREEN, ST77XX_BLACK);
     tft.print(F("OK"));
 
-    tft.setCursor(0, TFT_SEC_LINE_7);
+    tft.setCursor(0, TFT_LINE_7);
     tft.setTextColor(ST77XX_MAGENTA, ST77XX_BLACK);
     tft.print(F("Sec Byte:"));
 
-    tft.setCursor(0, TFT_SEC_LINE_8);
+    tft.setCursor(0, TFT_LINE_8);
     tft.setTextColor(ST77XX_YELLOW, ST77XX_ORANGE);
     tft.print(F("0b"));
     tft.print(secByte, BIN);
