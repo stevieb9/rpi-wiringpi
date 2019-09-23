@@ -10,7 +10,7 @@ use Test::More;
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new(setup => 'none', label => 't/106-pin_map.t');
+my $pi = RPi::WiringPi->new(setup => 'none', label => 't/106-pin_map.t', shm_key => 'rpit');
 
 is $pi->pin_scheme, 1, "pin_scheme() returns RPI_MODE_GPIO if not set";
 

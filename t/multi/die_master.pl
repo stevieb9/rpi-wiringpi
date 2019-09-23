@@ -14,7 +14,7 @@ rpi_running_test('t/113-multi_die.t');
 print "MASTER PROC: $$\n";
 my $f = 'ready.multi';
 
-my $pi = RPi::WiringPi->new(label => 'multi_die');
+my $pi = RPi::WiringPi->new(label => 'multi_die', shm_key => 'rpit');
 my $meta;
 my $obj_count = rpi_legal_object_count();
 

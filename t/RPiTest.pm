@@ -58,7 +58,7 @@ sub rpi_pod_check {
 sub rpi_running_test {
     (my $test) = @_;
 
-    my $pi = RPi::WiringPi->new(label => 't/RPiTest.pm');
+    my $pi = RPi::WiringPi->new(label => 't/RPiTest.pm', shm_key => 'rpit');
     $pi->meta_lock;
     my $meta = $pi->meta_fetch;
     

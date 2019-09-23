@@ -11,7 +11,7 @@ use Test::More;
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new(label => 't/05-checksum_uuid.t');
+my $pi = RPi::WiringPi->new(label => 't/05-checksum_uuid.t', shm_key => 'rpit');
 my $meta = $pi->meta_fetch;
 
 is exists $meta->{objects}{$pi->uuid}, 1, "shared memory has the object's uuid";

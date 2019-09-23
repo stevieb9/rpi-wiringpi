@@ -13,7 +13,7 @@ rpi_running_test('t/114-multi_int.t');
 
 my $f = 'ready.multi';
 
-my $pi = RPi::WiringPi->new(label => 'multi_int');
+my $pi = RPi::WiringPi->new(label => 'multi_int', shm_key => 'rpit');
 my $meta;
 my $obj_count = rpi_legal_object_count();
 

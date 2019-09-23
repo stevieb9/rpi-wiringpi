@@ -84,6 +84,9 @@ sub new {
 
     $self->_fatal_exit($args{fatal_exit});
 
+    $self->{shm_key} //= 'rpiw';
+    $self->meta($self->{shm_key});
+
     $self->meta_lock;
     my $meta = $self->meta_fetch;
 
@@ -506,7 +509,14 @@ Returns a new C<RPi::WiringPi> object. We exclusively use the C<GPIO>
 (Broadcom (BCM) GPIO) pin numbering scheme.
  
 Parameters:
- 
+
+    shm_key => $string
+
+By default, we use the key C<rpiw> as the shared memory segment key. You can
+change this if desired. Useful for separating "groups" of Pi objects from one
+another (for example, production scripts can operate at the same time as test
+scripts, and both use their own shared memory pool).
+
     fatal_exit => $bool
  
 Optional: We trap all C<die()> calls and clean up for safety reasons. If a

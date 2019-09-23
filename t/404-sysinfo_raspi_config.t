@@ -10,7 +10,7 @@ use Test::More;
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new(label => 't/404-sysinfo_raspi_config.t');
+my $pi = RPi::WiringPi->new(label => 't/404-sysinfo_raspi_config.t', shm_key => 'rpit');
 
 like $pi->raspi_config, qr/core_freq/, "method includes data ok";
 

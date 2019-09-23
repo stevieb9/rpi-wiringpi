@@ -13,7 +13,7 @@ if (! $ENV{RPI_OLED}){
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new(label => 't/903-oled_dim.t');
+my $pi = RPi::WiringPi->new(label => 't/903-oled_dim.t', shm_key => 'rpit');
 my $s = $pi->oled('128x64', 0x3C, 0);
 
 is $s->rect(0, 0, 128, 64, 1), 1, "rect return ok";

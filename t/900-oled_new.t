@@ -17,7 +17,7 @@ rpi_running_test(__FILE__);
 rpi_oled_unavailable();
 is rpi_oled_available(), 0, "oled unavailable for use ok";
 
-my $pi = RPi::WiringPi->new(label => 't/900-oled_new.t');
+my $pi = RPi::WiringPi->new(label => 't/900-oled_new.t', shm_key => 'rpit');
 
 my $s = $pi->oled('128x64', 0x3C, 0);
 

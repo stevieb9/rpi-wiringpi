@@ -22,7 +22,11 @@ rpi_running_test(__FILE__);
 my $continue = 1;
 $SIG{INT} = sub { $continue = 0; };
 
-my $pi = RPi::WiringPi->new(fatal_exit => 0, label => 't/999-lcd.t');
+my $pi = RPi::WiringPi->new(
+    fatal_exit => 0,
+    label => 't/999-lcd.t',
+    shm_key => 'rpit'
+);
 
 my %args = (
     cols => 20,

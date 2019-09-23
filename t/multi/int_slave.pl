@@ -8,7 +8,7 @@ use RPi::WiringPi;
 
 my $f = 'ready.multi';
 
-my $pi= RPi::WiringPi->new(label => 'multi_int_slave');
+my $pi= RPi::WiringPi->new(label => 'multi_int_slave', shm_key => 'rpit');
 
 my $p18 = $pi->pin(18, "114-int_slave");
 

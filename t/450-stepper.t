@@ -20,7 +20,7 @@ use constant {
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new(label => 't/450-stepper.t');
+my $pi = RPi::WiringPi->new(label => 't/450-stepper.t', shm_key => 'rpit');
 my $expander = $pi->expander(0x21);
 my $adc = $pi->adc(addr => 0x49);
 

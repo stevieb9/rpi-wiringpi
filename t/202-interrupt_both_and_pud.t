@@ -21,7 +21,11 @@ BEGIN {
     }
 }
 
-my $pi = $mod->new(label => 't/202-interrupt_both_and_pud.t', shared => 0);
+my $pi = $mod->new(
+    label => 't/202-interrupt_both_and_pud.t',
+    shared => 0,
+    shm_key => 'rpit'
+);
 
 # pin specific interrupts
 

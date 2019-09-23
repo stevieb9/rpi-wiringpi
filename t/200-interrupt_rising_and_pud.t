@@ -23,6 +23,7 @@ BEGIN {
 
 my $pi = $mod->new(
     label => 't/200-interrupt_rising_and_pud.t',
+    shm_key => 'rpit',
     shared => 0
 );
 

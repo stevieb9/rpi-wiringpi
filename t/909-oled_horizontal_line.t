@@ -13,7 +13,7 @@ if (! $ENV{RPI_OLED}){
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new(label => 't/909-oled_horizontal_line.t');
+my $pi = RPi::WiringPi->new(label => 't/909-oled_horizontal_line.t', shm_key => 'rpit');
 my $s = $pi->oled('128x64', 0x3C, 0);
 
 is $s->horizontal_line(0, 32, 128), 1, "horizontal_line() return ok";

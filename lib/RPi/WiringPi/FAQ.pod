@@ -1071,16 +1071,22 @@ which Raspberry Pi you're running on.
 
 See C<pidentify -h> for full details.
 
-=head2 pimeta
+=head2 pimeta [shm_key]
 
 Displays, using L<Data::Dumper>, the entire structure of the shared memory data
 structure as it currently sits, which is used to glue all objects and processes
 together.
 
-=head2 pimetaerase
+By default, we read from the C<rpiw> shared memory space. Send in an alternate
+key as the first argument and we'll work on that instead.
+
+=head2 pimetaerase <shm_key>
 
 Completely erases all data within the shared memory location. WARNING: Running
 this script while you've got Pi objects in operation is not advised.
+
+Send in the shared memory key to operate on. This argument must be supplied. By
+default, L<RPi::WiringPi> uses C<rpiw>.
 
 =head1 RUNNING TESTS
 
@@ -1329,7 +1335,7 @@ column unit, leave those last two digits off.
     PI_BOARD=1
     RPI_RELEASE_TESTING=1
     RPI_POD=1
-    RPI_OBJECT_COUNT=2
+    RPI_OBJECT_COUNT=0
     RPI_SUDO=1
     RPI_ARDUINO=1
     RPI_ADC=1

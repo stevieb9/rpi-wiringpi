@@ -13,7 +13,7 @@ if (! $ENV{RPI_OLED}){
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new(label => 't/908-oled_vertical_line.t');
+my $pi = RPi::WiringPi->new(label => 't/908-oled_vertical_line.t', shm_key => 'rpit');
 my $s = $pi->oled('128x64', 0x3C, 0);
 
 is $s->vertical_line(64, 0, 64), 1, "vertical_line() return ok";

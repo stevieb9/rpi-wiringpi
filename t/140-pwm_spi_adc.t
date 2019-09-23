@@ -33,7 +33,7 @@ if ($> != 0 && $ENV{RPI_SUDO}){
 
 rpi_running_test(__FILE__);
 
-my $pi = $mod->new(label => 't/140-pwm_spi_adc.t');
+my $pi = $mod->new(label => 't/140-pwm_spi_adc.t', shm_key => 'rpit');
 my $adc = $pi->adc;
 
 my $adc_in = 0;

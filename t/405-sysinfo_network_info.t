@@ -10,7 +10,7 @@ use Test::More;
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new(label => 't/405-sysinfo_network_info.t');
+my $pi = RPi::WiringPi->new(label => 't/405-sysinfo_network_info.t', shm_key => 'rpit');
 like $pi->network_info, qr/inet/, "method includes data ok";
 
 $pi->cleanup;

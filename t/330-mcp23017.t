@@ -24,7 +24,11 @@ use constant {
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new(fatal_exit => 0, label => 't/330-mcp23017.t');
+my $pi = RPi::WiringPi->new(
+    fatal_exit => 0,
+    label => 't/330-mcp23017.t',
+    shm_key => 'rpit'
+);
 my $o = $pi->expander(0x20);
 
 { # registers.t

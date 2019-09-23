@@ -18,7 +18,7 @@ if (! $ENV{RPI_SERIAL}){
 
 rpi_running_test(__FILE__);
 
-my $pi = $mod->new(label => 't/315-serial.t');
+my $pi = $mod->new(label => 't/315-serial.t', shm_key => 'rpit');
 
 # lock the serial
 

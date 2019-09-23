@@ -12,7 +12,7 @@ rpi_running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
 
-my $pi = $mod->new(label => 't/153-sig_handlers.t');
+my $pi = $mod->new(label => 't/153-sig_handlers.t', shm_key => 'rpit');
 
 my $sh = $pi->signal_handlers;
 
