@@ -67,7 +67,6 @@ sub rpi_running_test {
         $meta->{testing}{test_name} = $2;
         $pi->meta_store($meta);
         $pi->meta_unlock;
-        $pi->unregister_object;
         $pi->cleanup;
         return 0;
     }
@@ -76,7 +75,6 @@ sub rpi_running_test {
         $meta->{testing}{test_name} = '';
         $pi->meta_store($meta);
         $pi->meta_unlock;
-        $pi->unregister_object;
         $pi->cleanup;
         return 0;
     }
