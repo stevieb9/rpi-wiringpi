@@ -19,8 +19,8 @@ rpi_multi_check();
 
 my $meta;
 
-my $pi_a = $mod->new(fatal_exit => 0, label => 't/154-sig_die_multi.t: pi_A');
-my $pi_b = $mod->new(fatal_exit => 0, label => 't/154-sig_die_multi.t: pi_B');
+my $pi_a = $mod->new(fatal_exit => 0, label => 't/154-sig_die_multi.t: pi_A', shm_key => 'rpit');
+my $pi_b = $mod->new(fatal_exit => 0, label => 't/154-sig_die_multi.t: pi_B', shm_key => 'rpit');
 
 my $pin_a = $pi_a->pin(21);
 my $pin_b = $pi_b->pin(16);

@@ -7,7 +7,13 @@ use Data::Dumper;
 use RPi::WiringPi;
 use RPi::Const qw(:all);
 
-my $pi = RPi::WiringPi->new(label => 'pimeta');
+if (! @ARGV){
+    die "\npimetaerase requires a shared memory key argument supplied...\n\n";
+}
+
+my $shm_key = $ARGV[0];
+
+my $pi = RPi::WiringPi->new(label => 'pimeta', shm_key => $shm_key);
 
 my %meta = %{ $pi->meta_fetch };
 delete $meta{objects}{$pi->uuid};

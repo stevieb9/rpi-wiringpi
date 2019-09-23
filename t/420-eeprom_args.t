@@ -15,7 +15,7 @@ BEGIN {
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new(label => 't/420-eeprom_args.t');
+my $pi = RPi::WiringPi->new(label => 't/420-eeprom_args.t', shm_key => 'rpit');
 my $e = $pi->eeprom;
 
 is ref $e, 'RPi::EEPROM::AT24C32', "object is of proper class";

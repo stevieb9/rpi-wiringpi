@@ -16,7 +16,7 @@ my $mod = 'RPi::WiringPi';
 my $meta;
 my $obj_count = rpi_legal_object_count(); # in use, existing objects
 
-my $pi_a = $mod->new(label => 't/111-metadata_multi_pi_single_script.t: pi_A');
+my $pi_a = $mod->new(label => 't/111-metadata_multi_pi_single_script.t: pi_A', shm_key => 'rpit');
 
 $meta = $pi_a->meta_fetch;
 
@@ -29,7 +29,7 @@ is
     't/111-metadata_multi_pi_single_script.t: pi_A',
     "object A label is correct";
 
-my $pi_b = $mod->new(label => 't/111-metadata_multi_pi_single_script.t: pi_B');
+my $pi_b = $mod->new(label => 't/111-metadata_multi_pi_single_script.t: pi_B', shm_key => 'rpit');
 
 $meta = $pi_b->meta_fetch;
 

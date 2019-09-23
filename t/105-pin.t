@@ -13,7 +13,7 @@ rpi_running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
 
-my $pi = $mod->new(label => 't/105-pin.t');
+my $pi = $mod->new(label => 't/105-pin.t', shm_key => 'rpit');
 
 {# pin
 

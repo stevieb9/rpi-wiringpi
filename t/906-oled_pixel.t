@@ -13,7 +13,7 @@ if (! $ENV{RPI_OLED}){
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new(label => 't/906-oled_pixel.t');
+my $pi = RPi::WiringPi->new(label => 't/906-oled_pixel.t', shm_key => 'rpit');
 my $s = $pi->oled('128x64', 0x3C, 0);
 
 for (1..5){

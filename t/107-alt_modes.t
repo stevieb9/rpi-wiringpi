@@ -12,7 +12,7 @@ rpi_running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
 
-my $pi = $mod->new(label => 't/107-alt_modes.t');
+my $pi = $mod->new(label => 't/107-alt_modes.t', shm_key => 'rpit');
 
 { # alt modes
 

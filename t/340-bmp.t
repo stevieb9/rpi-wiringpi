@@ -19,7 +19,7 @@ use constant {
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new(label => 't/340-bmp.t');
+my $pi = RPi::WiringPi->new(label => 't/340-bmp.t', shm_key => 'rpit');
 my $bmp = $pi->bmp(BMP_BASE);
 
 for (1..25){

@@ -42,7 +42,7 @@ use constant {
 
 
 if (! $ENV{NO_BOARD}) {
-    my $pi = $mod->new(label => 't/325-servo.t');
+    my $pi = $mod->new(label => 't/325-servo.t', shm_key => 'rpit');
 
     my $adc = $pi->adc;
 

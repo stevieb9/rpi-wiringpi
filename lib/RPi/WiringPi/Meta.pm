@@ -9,39 +9,43 @@ use JSON::XS;
 
 our $VERSION = '2.3633_03';
 
-sub _meta {
+sub meta {
     my ($self) = @_;
 
     return $self->{meta_shm} if exists $self->{meta_shm};
 
     my $shm = IPC::ShareLite->new(
-        -key     => 'rpiw',
+        -key     => $self->{shm_key},
         -create  => 1,
         -destroy => 0,
     ) or die "can't create shared memory segment: $!";
 
     $self->{meta_shm} = $shm;
 }
+sub meta_key {
+    my ($self) = @_;
+    return $self->meta->key;
+}
 sub meta_lock {
     my ($self, $flags) = @_;
     $flags = LOCK_EX if ! defined $flags;
-    $self->_meta->lock($flags);
+    $self->meta->lock($flags);
 }
 sub meta_unlock {
     my ($self) = @_;
-    $self->_meta->unlock;
+    $self->meta->unlock;
 }
 sub meta_fetch {
     my ($self) = @_;
     my $json;
-    $json = $self->_meta->fetch;
+    $json = $self->meta->fetch;
     $json = "{}" if $json eq '';
     my $perl = decode_json $json;
     return $perl
 }
 sub meta_store {
     my ($self, $data) = @_;
-    $self->_meta->store(encode_json $data) or die $!;
+    $self->meta->store(encode_json $data) or die $!;
 }
 sub _vim{1;};
 
@@ -92,6 +96,11 @@ Default: If C<$flags> is not sent in, we default to an exclusive lock
 =head2 meta_unlock
 
 Performs an unlock after you're done with C<meta_lock()>.
+
+=head2 meta_key
+
+Returns the shared memory key that links the object to the shared memory
+segment.
 
 =head1 AUTHOR
 

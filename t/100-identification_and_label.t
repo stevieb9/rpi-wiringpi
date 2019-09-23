@@ -6,7 +6,9 @@ use lib 't/';
 use RPi::WiringPi;
 use RPiTest;
 
-my $pi = RPi::WiringPi->new;
+my $pi = RPi::WiringPi->new(
+    shm_key => 'rpit'
+);
 
 rpi_running_test(__FILE__);
 

@@ -15,7 +15,7 @@ rpi_running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
 
-my $pi = $mod->new(fatal_exit => 0, label => 't/155-sig_die.t');
+my $pi = $mod->new(fatal_exit => 0, label => 't/155-sig_die.t', shm_key => 'rpit');
 my $pin = $pi->pin(21);
 my $meta;
 

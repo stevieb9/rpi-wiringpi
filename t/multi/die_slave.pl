@@ -9,7 +9,7 @@ use RPi::WiringPi;
 print "SLAVE PROC: $$\n";
 my $f = 'ready.multi';
 
-my $pi= RPi::WiringPi->new(label => 'multi_die_slave');
+my $pi= RPi::WiringPi->new(label => 'multi_die_slave', shm_key => 'rpit');
 
 my $p18 = $pi->pin(18, "112-die_slave");
 

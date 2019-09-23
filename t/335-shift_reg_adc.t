@@ -20,7 +20,7 @@ rpi_running_test(__FILE__);
 
 my $adc_pin = 26;
 
-my $pi = RPi::WiringPi->new(label => 't/335-shift_reg_adc.t');
+my $pi = RPi::WiringPi->new(label => 't/335-shift_reg_adc.t', shm_key => 'rpit');
 
 my $adc = $pi->adc(
     model => 'MCP3008',

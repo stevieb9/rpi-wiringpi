@@ -9,7 +9,7 @@ use Test::More;
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new(label => 't/402-sysinfo_core_temp.t');
+my $pi = RPi::WiringPi->new(label => 't/402-sysinfo_core_temp.t', shm_key => 'rpit');
 
 like $pi->core_temp, qr/^\d+\.\d+$/, "core_temp() method return ok";
 

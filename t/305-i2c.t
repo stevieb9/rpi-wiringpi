@@ -21,7 +21,7 @@ BEGIN {
     }
 }
 
-my $pi = $mod->new(label => 't/305-i2c.t');
+my $pi = $mod->new(label => 't/305-i2c.t', shm_key => 'rpit');
 
 my $uno = $pi->i2c(ARDUINO_ADDR);
 

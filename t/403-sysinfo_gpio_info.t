@@ -10,7 +10,7 @@ use Test::More;
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new(label => 't/403-sysinfo_gpio_info.t');
+my $pi = RPi::WiringPi->new(label => 't/403-sysinfo_gpio_info.t', shm_key => 'rpit');
 
 like $pi->gpio_info(), qr/GPIO 53:/, "with no pins param, method return is ok";
 like $pi->gpio_info([20]), qr/^GPIO 20:/, "with 20 as a param, method return ok";

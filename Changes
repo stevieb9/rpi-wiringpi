@@ -12,6 +12,10 @@ Revision history for Perl extension RPi::WiringPi.
         - reworked the entire cleanup() regimen and how we manage meta data. It
           only ever operates on its own object, and never crosses object
           boundaries
+        - added ability to set a custom shared memory key on a per-object basis.
+          This allows objects within separate processes to be 'grouped' together
+          under the same shared memory segment (eg: prod and test envs can run
+          separately) (closes #153)
 
 2.3633_02 2019-09-21
         - TRIAL RELEASE: may not install properly, and there's a potential for
