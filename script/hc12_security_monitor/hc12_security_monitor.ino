@@ -36,9 +36,9 @@ SoftwareSerial hc12(txPin, rxPin);
 void setup() {
     Serial.begin(9600);
     hc12.begin(9600);
-}
 
-uint8_t pirState = 0;
+    pinMode(BSMT_DOOR_PIN, INPUT_PULLUP);
+}
 
 void loop() {
 
@@ -50,19 +50,17 @@ void loop() {
                 break;
             case LOW:
                     hc12Send(pirOff);
-                    pirState = 0;
+                break;
+        }
+        switch (digitalRead(BSMT_DOOR_PIN)) {
+            case LOW:
+                hc12Send(bsmtClosed);
+                break;
+            case HIGH:
+                hc12Send(bsmtOpen);
                 break;
         }
 /*
-        switch (digitalRead(BSMT_DOOR_PIN)) {
-            case LOW:
-                hc12Send(bsmtOpen);
-                break;
-            case HIGH:
-                hc12Send(bsmtClosed);
-                break;
-        }
-
         switch (digitalRead(TRIPWIRE_PIN)) {
             case LOW:
                 hc12Send(tripOpen);
