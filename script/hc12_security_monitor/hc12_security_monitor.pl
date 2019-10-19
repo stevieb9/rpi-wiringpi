@@ -12,35 +12,22 @@ use constant {
 
     SEND_TEXT   => 0,
 
-    PIR_OFF     => 50,
-    PIR_ON      => 51,
+    BIT_BSMT_PIR        => 0,
+    BSMT_PIR_OFF        => 50,
+    BSMT_PIR_ON         => 51,
 
-    BSMT_CLOSED => 60,
-    BSMT_OPEN   => 61,
+    BIT_BSMT_DOOR       => 1,
+    BSMT_DOOR_CLOSED    => 60,
+    BSMT_DOOR_OPEN      => 61,
 
-    TRIP_CLOSED => 70,
-    TRIP_OPEN   => 71,
+    BIT_MAIN_PIR        => 2,
+
+    BIT_ALARM           => 7,
 };
 
 # ---
 
-my $bsmt_pir = 1;
-my $bsmt_door = 0;
-my $main = 1;
-my $alarm = 1;
-
-sub sec_byte {
-    my $byte = 0;
-
-    $byte ^= (-$bsmt_pir ^ $byte) & (1 << BIT_BSMT);
-    $byte ^= (-$bsmt_door ^ $byte) & (1 << BIT_BSMT_DOOR);
-    $byte ^= (-$main ^ $byte) & (1 << BIT_MAIN);
-    $byte ^= (-$alarm ^ $byte) & (1 << BIT_ALARM);
-
-    return $byte;
-}
-
-# ---
+my $sec_byte = 0;
 
 my ($bsmt_pir_state, $bsmt_door_state, $main_state, $alarm_state) = (0, 0, 0, 0);
 
@@ -60,6 +47,8 @@ my ($rx_started, $rx_ended) = (0, 0);
 my $wait_time = 0;
 my $prev_time = time;
 
+my $bsmt_pir_state = 0;
+
 while (1){
 
 #    if (time - $wait_time > $prev_time) {
@@ -77,6 +66,11 @@ while (1){
     select(undef, undef, undef, 0.1);
 }
 
+sub sec_byte {
+    my ($bit, $state) = @_;
+    $sec_byte ^= (-$state ^ $sec_byte) & (1 << $bit);
+    return $sec_byte;
+}
 sub execute_command {
     my ($command) = @_;
 
@@ -101,6 +95,8 @@ sub bsmt_pir {
         print "...motion stopped\n" if $bsmt_pir_state;
         $bsmt_pir_state = 0;
     }
+
+    sec_byte(BIT_BSMT_PIR, $state);
 }
 
 sub rx {

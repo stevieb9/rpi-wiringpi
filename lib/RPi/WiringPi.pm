@@ -7,26 +7,9 @@ use parent 'RPi::WiringPi::Core';
 use parent 'RPi::WiringPi::Util';
 use parent 'RPi::WiringPi::Meta';
 
-#use GPSD::Parse;
-#use RPi::ADC::ADS;
-#use RPi::ADC::MCP3008;
-#use RPi::BMP180;
 use Carp qw(croak confess);
 use Data::Dumper;
 use RPi::Const qw(:all);
-#use RPi::DAC::MCP4922;
-#use RPi::DigiPot::MCP4XXXX;
-#use RPi::EEPROM::AT24C32;
-#use RPi::GPIOExpander::MCP23017;
-#use RPi::HCSR04;
-#use RPi::I2C;
-#use RPi::LCD;
-#use RPi::OLED::SSD1306::128_64;
-#use RPi::Pin;
-#use RPi::RTC::DS3231;
-#use RPi::Serial;
-#use RPi::SPI;
-#use RPi::StepperMotor;
 
 our $VERSION = '2.3633_02';
 
