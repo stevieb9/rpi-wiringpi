@@ -5,7 +5,11 @@ use strict;
 
 use RPi::WiringPi;
 
-my $pi = RPi::WiringPi->new(label => 'serial_arduino_display');
+my $pi = RPi::WiringPi->new(
+    label   => 'serial_arduino_display',
+    shm_key => 'rpit',
+);
+
 my $dev = '/dev/ttyS0';
 my $baud = 9600;
 
