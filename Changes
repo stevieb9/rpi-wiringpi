@@ -24,6 +24,8 @@ Revision history for Perl extension RPi::WiringPi.
           memory segment exists or not
         - pimeta and pimetaerase scripts now croak if the shared memory segment
           we're trying to work on don't yet exist (fixes #156)
+        - added meta_get(), meta_set() and meta_delete(). Allows manipulation of
+          user-defined data within shared memory (closes #146)
 
 2.3633_02 2019-09-21
         - TRIAL RELEASE: may not install properly, and there's a potential for
