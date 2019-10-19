@@ -16,7 +16,7 @@ Revision history for Perl extension RPi::WiringPi.
           This allows objects within separate processes to be 'grouped' together
           under the same shared memory segment (eg: prod and test envs can run
           separately) (closes #153)
-        - removed left-over include of IPC::Shareable in Util. We don't use that
+        - removed left-over includes of IPC::Shareable. We don't use that
           distribution any longer, so it's not included as a prereq
         - added note to PWM FAQ section that root access is needed (link to sudo
           config section) (closes #158)

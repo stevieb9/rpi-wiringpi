@@ -401,15 +401,6 @@ sub _setup {
 }
 
 END {
-#    my $done_cleanup = eval {
-#        if (! %{ $meta_data }){
-#            exit;
-#        };
-#    };
-
-#    if (keys %{ $meta_data->{objects} } == 0){
-#        IPC::Shareable->clean_up_all;
-#    }
 }
 
 sub _vim{};
