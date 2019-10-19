@@ -3,7 +3,6 @@ use warnings;
 
 use lib 't/';
 
-use IPC::Shareable;
 use RPiTest;
 use Test::More;
 

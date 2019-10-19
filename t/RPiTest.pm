@@ -20,7 +20,6 @@ our @EXPORT = qw(
 
 use RPi::WiringPi;
 use Carp qw(croak);
-use IPC::Shareable;
 use Test::More;
 use WiringPi::API qw(:perl);
 
@@ -83,9 +82,6 @@ sub rpi_running_test {
         "rpi_running_test() couldn't translate '$test' to a usable shared format\n";
 }
 sub rpi_metadata_clean {
-#    print "$_\n" for keys %{ $meta{objects} };
-#    is scalar(keys(% { $meta{objects} })), 0, "meta is all cleaned up";
-#    IPC::Shareable->clean_up_all;
 }
 sub rpi_oled_available {
     my ($available) = @_;
