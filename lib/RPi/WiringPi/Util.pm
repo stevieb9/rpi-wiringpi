@@ -9,7 +9,6 @@ use parent 'WiringPi::API';
 use Carp qw(croak);
 use Data::Dumper;
 use Digest::MD5 qw(md5_hex);
-use IPC::Shareable;
 use RPi::Const qw(:all);
 
 our $VERSION = '2.3633_03';
