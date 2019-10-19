@@ -412,6 +412,9 @@ things like interrupts, buttons etc.
 
 =head3 Basics
 
+NOTE: PWM functionality requires running your script as the root user. See
+L</sudo configuration> on how to configure this at system level.
+
 Pulse Width Modulation kind of acts like a potentiometer (or a variable
 switch... like a light dimmer). They are used to send pulses of electricity
 to a device across time. It is required for things like stepper motors, or
