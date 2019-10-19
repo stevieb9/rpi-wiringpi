@@ -22,6 +22,18 @@ sub meta {
 
     $self->{meta_shm} = $shm;
 }
+sub meta_key_check {
+    my ($self, $key) = @_;
+
+    if (! defined $key){
+        croak "meta_key_check() requires a key sent in...\n";
+    }
+
+    $key = unpack('i', pack('A4', $key));
+    my $shm_check = shmget($key, 65536, 0);
+
+    return defined $shm_check && $shm_check ? 1 : 0;
+}
 sub meta_key {
     my ($self) = @_;
     return $self->meta->key;
@@ -101,6 +113,20 @@ Performs an unlock after you're done with C<meta_lock()>.
 
 Returns the shared memory key that links the object to the shared memory
 segment.
+
+=head2 meta_key_check($key)
+
+Checks whether a shared memory segment with the key C<$key> exists or not.
+
+Parameters:
+
+    $key
+
+Mandatory, String: A four letter key to validate against. This will be converted
+into its integer form internally.
+
+Returns: True C<1> if the shared memory segment exists, and false C<0>
+otherwise.
 
 =head1 AUTHOR
 

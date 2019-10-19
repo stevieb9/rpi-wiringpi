@@ -20,6 +20,8 @@ Revision history for Perl extension RPi::WiringPi.
           distribution any longer, so it's not included as a prereq
         - added note to PWM FAQ section that root access is needed (link to sudo
           config section) (closes #158)
+        - added meta_key_check() class method in Meta, to check whether a shared
+          memory segment exists or not
 
 2.3633_02 2019-09-21
         - TRIAL RELEASE: may not install properly, and there's a potential for
