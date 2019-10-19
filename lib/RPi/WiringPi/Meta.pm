@@ -23,7 +23,10 @@ sub meta {
     $self->{meta_shm} = $shm;
 }
 sub meta_key_check {
-    my ($self, $key) = @_;
+    # this is a class method, and must be called on the class prior to creating
+    # a Pi object
+
+    my ($class, $key) = @_;
 
     if (! defined $key){
         croak "meta_key_check() requires a key sent in...\n";

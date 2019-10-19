@@ -13,6 +13,10 @@ if (! @ARGV){
 
 my $shm_key = $ARGV[0];
 
+if (! RPi::WiringPi->meta_key_check($shm_key)){
+    die "shared memory segment with key '$shm_key' doesn't exist. Can't continue...\n";
+}
+
 my $pi = RPi::WiringPi->new(label => 'pimeta', shm_key => $shm_key);
 
 my %meta = %{ $pi->meta_fetch };
