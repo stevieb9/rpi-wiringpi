@@ -166,9 +166,15 @@ Mandatory, String: The key name for the user defined data to delete.
 
 =head2 meta_fetch
 
+NOTE: For most use cases, users should use the L</meta_get($name)> method as
+opposed to this one.
+
 Fetches and returns the shared memory data as a hash reference.
 
 =head2 meta_store($data)
+
+NOTE: For most use cases, users should use the L</meta_set($name, $href)> and
+L</meta_delete($name)> methods as opposed to this one.
 
 Serializes and stores the shared data.
 
