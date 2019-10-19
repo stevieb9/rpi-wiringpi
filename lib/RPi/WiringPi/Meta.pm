@@ -60,7 +60,56 @@ sub meta_fetch {
 }
 sub meta_store {
     my ($self, $data) = @_;
+
+    if (! defined $data){
+        croak "meta_store() requires a hash reference sent in...\n";
+    }
+
     $self->meta->store(encode_json $data) or die $!;
+}
+sub meta_delete {
+    my ($self, $name) = @_;
+
+    if (! defined $name){
+        croak "when setting a metadata slot, you must send in a name\n";
+    }
+
+    $self->meta_lock;
+    my $shm = $self->meta_fetch;
+    delete $shm->{storage}{$name};
+    $self->meta_store($shm);
+    $self->meta_unlock;
+}
+sub meta_set {
+    my ($self, $name, $data) = @_;
+
+    if (! defined $name){
+        croak "when setting a metadata slot, you must send in a name\n";
+    }
+
+    if (ref $data ne 'HASH'){
+        croak "when setting a metadata slot, you must supply a hash reference\n";
+    }
+
+    $self->meta_lock;
+    my $shm = $self->meta_fetch;
+    $shm->{storage}{$name} = { %$data };
+    $self->meta_store($shm);
+    $self->meta_unlock;
+}
+sub meta_get {
+    my ($self, $name) = @_;
+
+    if (! defined $name){
+        croak "when getting a metadata slot, you must send in a name\n";
+    }
+
+    $self->meta_lock;
+    my $shm = $self->meta_fetch;
+    my $data = { %{ $shm->{storage}{$name} }};
+    $self->meta_unlock;
+
+    return $data;
 }
 sub _vim{1;};
 
@@ -77,6 +126,43 @@ RPi::WiringPi::Meta - Shared memory meta data management for RPI::WiringPi
 This module contains various utilities for the shared memory storage area.
 
 =head1 METHODS
+
+=head2 meta_set($name, $href)
+
+Adds a user-defined hash reference to the shared memory segment with it's key
+named C<$name>.
+
+Parameters:
+
+    $name
+
+Mandatory, String: Any value that is a legitimate value for a hash key.
+
+    $href
+
+Mandatory, Hash Reference: A hash reference that contains your data.
+
+=head2 meta_get($name)
+
+Retrieves a user-defined hash reference from the shared memory.
+
+Parameters:
+
+    $name
+
+Mandatory, String: The key name for the user defined data.
+
+Returns: Hash reference.
+
+=head2 meta_delete($name)
+
+Deletes a user-defined shared memory segment.
+
+Parameters:
+
+    $name
+
+Mandatory, String: The key name for the user defined data to delete.
 
 =head2 meta_fetch
 
