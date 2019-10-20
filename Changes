@@ -26,6 +26,9 @@ Revision history for Perl extension RPi::WiringPi.
           we're trying to work on don't yet exist (fixes #156)
         - added meta_get(), meta_set() and meta_delete(). Allows manipulation of
           user-defined data within shared memory (closes #146)
+        - bump prereq of RPi::Pin from 2.3607 to 2.3608, and
+          RPi::GPIOExpander::MCP23017 from 1.00 to 1.01. These changes reflect
+          testing environment variable changes (work on #159)
 
 2.3633_02 2019-09-21
         - TRIAL RELEASE: may not install properly, and there's a potential for
