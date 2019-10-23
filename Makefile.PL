@@ -34,7 +34,8 @@ WriteMakefile(
     MIN_PERL_VERSION   => 5.010,
     LICENSE => 'perl_5',
     CONFIGURE_REQUIRES => {
-        'ExtUtils::MakeMaker' => 6.72,
+        'ExtUtils::MakeMaker'   => 6.72,
+        'File::Touch'           => 0,
     },
     PREREQ_PM         => {
         'parent'                    => 0,
