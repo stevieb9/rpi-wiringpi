@@ -34,8 +34,7 @@ sub meta_key_check {
 
     $key = unpack('i', pack('A4', $key));
     my $shm_check = shmget($key, 65536, 0);
-
-    return defined $shm_check && $shm_check ? 1 : 0;
+    return defined $shm_check ? 1 : 0;
 }
 sub meta_key {
     my ($self) = @_;
