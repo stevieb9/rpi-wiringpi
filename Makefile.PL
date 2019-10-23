@@ -38,7 +38,7 @@ WriteMakefile(
     },
     PREREQ_PM         => {
         'parent'                    => 0,
-        'GPSD::Parse'               => 1.02,
+        'GPSD::Parse'               => 1.03,
         'IPC::ShareLite'            => 0,
         'JSON::XS'                  => 0,
         'RPi::ADC::ADS'             => 1.02,
@@ -49,7 +49,7 @@ WriteMakefile(
         'RPi::DigiPot::MCP4XXXX'    => 2.3604,
         'RPi::DHT11'                => 1.04,
         'RPi::EEPROM::AT24C32'      => 0.01,
-        'RPi::GPIOExpander::MCP23017' => 1.03,
+        'RPi::GPIOExpander::MCP23017' => 1.02,
         'RPi::HCSR04'               => 2.3604,
         'RPi::I2C'                  => 2.3607,
         'RPi::LCD'                  => 2.3604,
