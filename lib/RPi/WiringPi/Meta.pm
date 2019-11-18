@@ -133,6 +133,10 @@ This module contains various utilities for the shared memory storage area.
 
 =head1 METHODS
 
+=head2 meta
+
+Instantiates and returns a shared memory object that stores the meta data.
+
 =head2 meta_set($name, $href)
 
 Adds a user-defined hash reference to the shared memory segment with it's key
