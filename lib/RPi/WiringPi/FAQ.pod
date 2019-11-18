@@ -1339,6 +1339,7 @@ column unit, leave those last two digits off.
     RPI_RELEASE_TESTING=1
     RPI_POD=1
     RPI_OBJECT_COUNT=0
+    RPI_PIN_COUNT=0
     RPI_SUDO=1
     RPI_ARDUINO=1
     RPI_ADC=1
@@ -1364,7 +1365,11 @@ column unit, leave those last two digits off.
     GMAIL_SERVER=smtp.gmail.com
 
 C<RPI_OBJECT_COUNT> is the number of valid, existing objects being run across
-processes before the test suite starts. Auto-startup scripts will have valid
+processes before the test suite starts. Auto-startup scripts may have valid
+registrations for example.
+
+C<RPI_PIN_COUNT> is the number of valid, existing pin objects being used across
+processes before the test suite starts. Auto-startup scripts may have valid
 registrations for example.
 
 C<RPI_POD> enables and disables POD tests.

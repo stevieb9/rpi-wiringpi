@@ -35,7 +35,11 @@ my $security_devices = {
     5   => { code => \&bsmt_pir, name => 'BSMT PIR' },
 };
 
-my $pi = RPi::WiringPi->new(label => 'hc12_security_monitor.pl');
+my $pi = RPi::WiringPi->new(
+    label        => 'hc12_security_monitor.pl',
+    rpi_register => 0
+);
+
 my $s = $pi->serial('/dev/ttyUSB0', 9600);
 
 my $data;
