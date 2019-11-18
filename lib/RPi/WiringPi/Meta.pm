@@ -110,6 +110,13 @@ sub meta_get {
 
     return $data;
 }
+sub meta_erase {
+    my ($self) = @_;
+
+    $self->meta_lock;
+    $self->meta_store({});
+    $self->meta_unlock;
+}
 sub _vim{1;};
 
 1;
@@ -221,6 +228,10 @@ into its integer form internally.
 
 Returns: True C<1> if the shared memory segment exists, and false C<0>
 otherwise.
+
+=head2 meta_erase
+
+Completely erases and resets all meta data. Do not use this method lightly.
 
 =head1 AUTHOR
 
