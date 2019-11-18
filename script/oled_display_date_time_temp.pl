@@ -18,7 +18,12 @@ $SIG{INT} = sub { unlink $oled_lock or die $!; };
 
 $SIG{TERM} = sub { print "$0: Terminated\n"; unlink $oled_lock or die $!; };
 
-my $pi = RPi::WiringPi->new(label => 'oled display date/time');
+my $pi = RPi::WiringPi->new(
+    label => 'oled display date/time',
+    rpi_register => 0,
+    shm_key => 'rpit'
+);
+
 my $oled = RPi::WiringPi->oled('128x64', 0x3C, 0);
 my $bmp = $pi->bmp(400);
 

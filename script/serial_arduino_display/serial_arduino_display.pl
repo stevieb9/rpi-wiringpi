@@ -7,6 +7,7 @@ use RPi::WiringPi;
 
 my $pi = RPi::WiringPi->new(
     label   => 'serial_arduino_display',
+    rpi_register => 0,
     shm_key => 'rpit',
 );
 

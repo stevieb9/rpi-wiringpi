@@ -136,6 +136,8 @@ sub registered_pins {
 sub register_pin {
     my ($self, $pin, $comment) = @_;
 
+    return if ! $self->_rpi_register_pins || ! $self->_rpi_register;
+
     $self->_pin_registration(
         pin         => $pin,
         alt         => $pin->mode_alt,
@@ -148,6 +150,9 @@ sub register_pin {
 }
 sub unregister_pin {
     my ($self, $pin) = @_;
+
+    return if ! $self->_rpi_register_pins || ! $self->_rpi_register;
+
     $self->_pin_registration(
         pin         => $pin,
         operation   => 'unregister',
@@ -156,6 +161,8 @@ sub unregister_pin {
 }
 sub unregister_object {
     my ($self) = @_;
+
+    return if ! $self->_rpi_register;
 
     $self->meta_lock;
     my $meta = $self->meta_fetch;
@@ -169,38 +176,52 @@ sub unregister_object {
 sub cleanup {
     my ($self) = @_;
 
-    $self->meta_lock;
-    my $meta = $self->meta_fetch;
 
-    #FIXME: this could be an issue if a proc is using different PWM settings
-    # but a different proc cleans up
+    if ($self->_rpi_register_pins) {
 
-    if ($meta->{pwm}{in_use}){
-        WiringPi::API::pwmSetMode(PWM_DEFAULT_MODE);
-        WiringPi::API::pwmSetClock(PWM_DEFAULT_CLOCK);
-        WiringPi::API::pwmSetRange(PWM_DEFAULT_RANGE);
-        $meta->{pwm}->{in_use} = 0;
-    }
+        $self->meta_lock;
+        my $meta = $self->meta_fetch;
 
-    for my $pin (keys %{ $meta->{pins} }){
-        if (exists $meta->{pins}->{$pin}{users}{$self->uuid}){
-            WiringPi::API::pinModeAlt($pin, $meta->{pins}->{$pin}{alt});
-            WiringPi::API::digitalWrite($pin, $meta->{pins}->{$pin}{state});
-            delete $meta->{pins}->{$pin};
+        #FIXME: this could be an issue if a proc is using different PWM settings
+        # but a different proc cleans up
+
+        if ($meta->{pwm}{in_use}) {
+            WiringPi::API::pwmSetMode(PWM_DEFAULT_MODE);
+            WiringPi::API::pwmSetClock(PWM_DEFAULT_CLOCK);
+            WiringPi::API::pwmSetRange(PWM_DEFAULT_RANGE);
+            $meta->{pwm}->{in_use} = 0;
         }
+
+        for my $pin (keys %{$meta->{pins}}) {
+            if (exists $meta->{pins}->{$pin}{users}{$self->uuid}) {
+                WiringPi::API::pinModeAlt($pin, $meta->{pins}->{$pin}{alt});
+                WiringPi::API::digitalWrite($pin, $meta->{pins}->{$pin}{state});
+                delete $meta->{pins}->{$pin};
+            }
+        }
+
+        $self->meta_store($meta);
+        $self->meta_unlock;
     }
 
-    $self->meta_store($meta);
-    $self->meta_unlock;
-
-    $self->unregister_object;
+    $self->unregister_object if $self->_rpi_register;
 
     $self->{clean} = 1;
+}
+sub _rpi_register {
+    # allow defeating the entire registration process (objects and pins)
+    return $_[0]->{rpi_register} // 1;
+}
+sub _rpi_register_pins {
+    # allow defeating the shared memory pin registration
+    return $_[0]->{rpi_register_pins} // 1;
 }
 sub _pin_registration {
     # manages the registration duties for pins
 
     my ($self, %param) = @_;
+
+    return if ! $self->_rpi_register_pins || ! $self->_rpi_register;
 
     my $pin = $param{pin};
 

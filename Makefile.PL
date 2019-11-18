@@ -35,10 +35,10 @@ WriteMakefile(
     LICENSE => 'perl_5',
     CONFIGURE_REQUIRES => {
         'ExtUtils::MakeMaker'   => 6.72,
-        'File::Touch'           => 0,
     },
     PREREQ_PM         => {
         'parent'                    => 0,
+        'File::Touch'               => 0,
         'GPSD::Parse'               => 1.03,
         'IPC::ShareLite'            => 0,
         'JSON::XS'                  => 0,

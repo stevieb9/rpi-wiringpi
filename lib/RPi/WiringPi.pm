@@ -70,25 +70,29 @@ sub new {
     $self->{shm_key} //= 'rpiw';
     $self->meta($self->{shm_key});
 
-    $self->meta_lock;
-    my $meta = $self->meta_fetch;
+    if ($self->_rpi_register) {
+        # register all objects for collision detection and safety shutdown
 
-    while (! defined $self->{uuid}){
-        my $uuid = $self->checksum;
-        next if exists $meta->{objects}{$uuid};
-        $self->{uuid} = $uuid;
+        $self->meta_lock;
+        my $meta = $self->meta_fetch;
+
+        while (!defined $self->{uuid}) {
+            my $uuid = $self->checksum;
+            next if exists $meta->{objects}{$uuid};
+            $self->{uuid} = $uuid;
+        }
+
+        $meta->{objects}{$self->uuid} = {
+            proc  => $self->{proc},
+            label => $self->{label}
+        };
+        $meta->{object_count}++;
+
+        $self->meta_store($meta);
+        $self->meta_unlock;
+
+        $self->_generate_signal_handlers;
     }
-
-    $meta->{objects}{$self->uuid} = {
-        proc  => $self->{proc},
-        label => $self->{label}
-    };
-    $meta->{object_count}++;
-
-    $self->meta_store($meta);
-    $self->meta_unlock;
-
-    $self->_generate_signal_handlers;
 
     return $self;
 }
@@ -161,7 +165,7 @@ sub hcsr04 {
 }
 sub hygrometer {
     my ($self, $pin) = @_;
-    $self->register_pin($pin, 'DHT11 Hygrometer Signal');
+    $self->pin($pin, "DHT11 Hygrometer Signal");
     require RPi::DHT11;
     RPi::DHT11->import;
     return RPi::DHT11->new($pin);
@@ -223,13 +227,20 @@ sub pin {
 
     my $gpio = $self->pin_to_gpio($pin_num);
 
-    if (grep {$gpio == $_} @{ $self->registered_pins }){
-        croak "\npin $pin_num is already in use... can't create second object\n";
+    if ($self->_rpi_register && $self->_rpi_register_pins) {
+        # both object and pin registration is enabled
+
+        if (grep {$gpio == $_} @{$self->registered_pins}) {
+            croak "\npin $pin_num is already in use... can't create second object\n";
+        }
     }
 
     my $pin = RPi::Pin->new($pin_num, $comment);
 
-    $self->register_pin($pin);
+    if ($self->_rpi_register && $self->_rpi_register_pins) {
+        # register the pin
+        $self->register_pin($pin);
+    }
 
     return $pin;
 }
@@ -388,6 +399,9 @@ sub _fatal_exit {
 }
 sub _pwm_in_use {
     my $self = shift;
+
+    return if ! $self->_rpi_register_pins || ! $self->_rpi_register;
+
     if ($_[0]){
         $self->meta_lock;
         my $meta = $self->meta_fetch;
@@ -502,7 +516,19 @@ We recommend only disabling this feature if you're doing unit test work, want to
 allow other exit traps to catch, allow the Pi to continue on working after a
 fatal error etc. If disabled, you will be responsible for doing your own cleanup
 of the Pi hardware configuration on exit.
- 
+
+    rpi_register => $bool
+
+Optional: Set this value to false (C<0>) to bypass the Pi object registration in
+the meta data. This will also prevent pins from being registered as well. If set
+to false, no object or pin cleanup will take place at the end of a program run.
+
+    rpi_register_pins => $bool
+
+Optional: Similar to C<rpi_register>, but only bypasses the pin registration.
+Object registration will still occur, and the object will be cleaned up after
+but the pins will not. Should only be used for testing.
+
 =head2 adc
  
 There are two different ADCs that you can select from. The default is the

@@ -16,6 +16,7 @@ our @EXPORT = qw(
     rpi_oled_unavailable
     rpi_metadata_clean
     rpi_legal_object_count
+    rpi_legal_pin_count
 );
 
 use RPi::WiringPi;
@@ -34,10 +35,15 @@ if (! defined $ENV{RPI_OBJECT_COUNT} && ! $ENV{SUDO_USER}){
 }
 
 my $legal_object_count = $ENV{RPI_OBJECT_COUNT};
+my $legal_pin_count = $ENV{RPI_PIN_COUNT};
+
 my $oled_lock = '/dev/shm/oled_unavailable.rpi-wiringpi';
 
 sub rpi_legal_object_count {
     return $legal_object_count; # crontab-run scripts
+}
+sub rpi_legal_pin_count {
+    return $legal_pin_count; # crontab-run scripts
 }
 sub rpi_sudo_check {
     if (! $ENV{RPI_SUDO} && $> != 0){
