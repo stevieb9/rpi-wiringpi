@@ -26,7 +26,7 @@ $meta{object_count}--;
 print "\nBEFORE ERASE:\n\n";
 print Dumper \%meta;
 
-$pi->meta_store({});
+$pi->meta_erase;
 
 print "\n\nAFTER ERASE:\n\n";
 print Dumper $pi->meta_fetch;
