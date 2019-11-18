@@ -29,6 +29,8 @@ Revision history for Perl extension RPi::WiringPi.
         - bump prereq of RPi::Pin from 2.3607 to 2.3608, and
           RPi::GPIOExpander::MCP23017 from 1.00 to 1.01. These changes reflect
           testing environment variable changes (work on #159)
+        - added rpi_register and rpi_register_pins attributes to allow bypassing
+          object and pin registration in meta data (closes #162)
 
 2.3633_02 2019-09-21
         - TRIAL RELEASE: may not install properly, and there's a potential for
