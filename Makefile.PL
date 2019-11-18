@@ -43,7 +43,7 @@ WriteMakefile(
         'IPC::ShareLite'            => 0,
         'JSON::XS'                  => 0,
         'RPi::ADC::ADS'             => 1.02,
-        'RPi::ADC::MCP3008'         => 2.3604,
+        'RPi::ADC::MCP3008'         => 2.3605,
         'RPi::Const'                => 1.04,
         'RPi::BMP180'               => 2.3604,
         'RPi::DAC::MCP4922'         => 2.3605,
