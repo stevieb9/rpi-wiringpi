@@ -703,7 +703,15 @@ Parameters:
  
 Optional, Integer: The I2C address of the RTC module. Defaults to C<0x68> for
 the C<DS3231> unit.
- 
+
+=head2 eeprom
+
+Creates and returns a new L<RPi::EEPROM::AT24C32> object for reading and writing
+to.
+
+See the linked documentation for full documentation on usage, parameters or the
+L<RPi::WiringPi::FAQ> for some usage examples.
+
 =head2 expander
  
 Creates a new L<RPi::GPIOExpander::MCP23017> GPIO expander chip object. This
