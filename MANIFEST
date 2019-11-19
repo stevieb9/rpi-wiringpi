@@ -64,6 +64,7 @@ script/oled_display_date_time_temp.pl
 script/serial_arduino_display/serial_arduino_display.ino
 script/serial_arduino_display/serial_arduino_display.pl
 t/00-load.t
+t/01-validate_test_suite_config.t
 t/02-shm_key.t
 t/05-checksum_uuid.t
 t/100-identification_and_label.t
