@@ -19,6 +19,7 @@ our @EXPORT = qw(
     rpi_metadata_clean
     rpi_legal_object_count
     rpi_legal_pin_count
+    rpi_reset
 );
 
 use RPi::WiringPi;
@@ -184,7 +185,6 @@ sub rpi_verify_pin_status {
 
     return $incorrect_config ? 0 : 1;
 }
-
 sub rpi_default_pin_config {
     # default pin configurations
 
@@ -312,6 +312,34 @@ sub rpi_default_pin_config {
     };
 
     return $pin_conf;
+}
+sub rpi_reset {
+    # reset pins and meta data
+
+    my $pi = RPi::WiringPi->new(
+        label           => 'rpi_reset',
+        shm_key         => 'rpit',
+        rpi_register    => 0,
+    );
+
+    $pi->meta_erase;
+
+    my $meta = $pi->meta_fetch;
+    $pi->cleanup;
+
+    is keys %{ $meta }, 0, "meta data store has been reset ok";
+
+    my $pin_defaults = rpi_default_pin_config();
+    my $valid_pin_config = rpi_verify_pin_status();
+
+    warn "pin configuration is not valid, resetting..." if ! $valid_pin_config;
+
+    if (! $valid_pin_config){
+        for my $pin (keys %$pin_defaults) {
+            WiringPi::API::pinModeAlt($pin, $pin_defaults->{$pin}{alt});
+            WiringPi::API::digitalWrite($pin, $pin_defaults->{$pin}{state});
+        }
+    }
 }
 
 1;

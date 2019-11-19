@@ -2,10 +2,13 @@ Revision history for Perl extension RPi::WiringPi.
 
 2.3634  UNREL
         - bump prereq of RPi::I2C to 2.3608
-        - added t/01-validate_pin_config.t; resets meta data and hardware pin
-          configuration in the event of previous test run failures, and ensures
-          the platform is correctly configured for this test run
+        - added t/01-validate_test_suite_config.t; resets meta data and hardware
+          pin configuration in the event of previous test run failures, and
+          ensures the platform is correctly configured for this test run
         - added rpi_validate_pin_status() in RPiTest.pm
+        - added rpi_reset() in RPiTest.pm, resets meta and pins for t/01 and
+          t/999; the meta data and pins are reset at the beginning of a test
+          suite run, and again at the end of it (only if necessary)
           
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
