@@ -1,6 +1,6 @@
 Revision history for Perl extension RPi::WiringPi.
 
-2.3633_03 UNREL
+2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
           call this function before any work is done (fixes #144)
         - added RPI_POD, RPI_SUDO and RPI_OBJECT_COUNT testing environment
