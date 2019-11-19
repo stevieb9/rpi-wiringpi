@@ -11,7 +11,9 @@ our @EXPORT = qw(
     rpi_multi_check
     rpi_pod_check
     rpi_running_test
+    rpi_default_pin_config
     rpi_check_pin_status
+    rpi_verify_pin_status
     rpi_oled_available
     rpi_oled_unavailable
     rpi_metadata_clean
@@ -127,7 +129,7 @@ sub rpi_check_pin_status {
             2 3 14 15 18 23 24 10 9 25 11 8 7 0 1 13 19 16 20 21
         );
     }
-    my $config = default_pin_config();
+    my $config = rpi_default_pin_config();
 
     for (@gpio_pins){
         if ($_ == 14 || $_ == 15){
@@ -141,7 +143,49 @@ sub rpi_check_pin_status {
         is read_pin($_), $config->{$_}{state}, "pin $_ set back to default state ($config->{$_}{state}) ok";
     }
 }
-sub default_pin_config {
+sub rpi_verify_pin_status {
+    setup_gpio();
+
+    # pins 4, 5, 6, 17, 22, 27 removed because of LCD
+
+    my $oled_locked = -e '/dev/shm/oled_in_use';
+
+    my @gpio_pins;
+
+    if ($oled_locked) {
+        @gpio_pins = qw(
+            14 15 18 23 24 10 9 25 11 8 7 0 1 13 19 16 20 21
+        );
+    }
+    else {
+        @gpio_pins = qw(
+            2 3 14 15 18 23 24 10 9 25 11 8 7 0 1 13 19 16 20 21
+        );
+    }
+    my $config = rpi_default_pin_config();
+
+    my $incorrect_config = 0;
+
+    for (@gpio_pins){
+        if ($_ == 14 || $_ == 15){
+            # serial pins
+            my $alt = get_alt($_);
+
+            $incorrect_config++ if $alt != $config->{$_}{alt} && $alt != 2;
+            $incorrect_config++ if read_pin($_) != $config->{$_}{state};
+            next;
+        }
+        
+        $incorrect_config++ if get_alt($_) != $config->{$_}{alt};
+        $incorrect_config++ if read_pin($_) != $config->{$_}{state};
+
+        return 0 if $incorrect_config;
+    }
+
+    return $incorrect_config ? 0 : 1;
+}
+
+sub rpi_default_pin_config {
     # default pin configurations
 
     my $pin_conf = {
