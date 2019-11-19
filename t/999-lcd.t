@@ -70,11 +70,12 @@ is $ok, undef, "initializing too many LCD objects dies ok";
 
 $lcd->position(0, 0);
 $lcd->print("Testing in progress");
+
 $pi->cleanup;
 
 rpi_check_pin_status();
-#rpi_metadata_clean();
-
 rpi_running_test(-1);
+
+$pi->meta_erase;
 
 done_testing();
