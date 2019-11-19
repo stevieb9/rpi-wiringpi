@@ -1,7 +1,7 @@
 Revision history for Perl extension RPi::WiringPi.
 
 2.3634  UNREL
-        -
+        - bump prereq of RPi::I2C to 2.3608
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
