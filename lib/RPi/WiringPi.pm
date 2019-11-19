@@ -11,7 +11,7 @@ use Carp qw(croak confess);
 use Data::Dumper;
 use RPi::Const qw(:all);
 
-our $VERSION = '2.3633_03';
+our $VERSION = '2.3634';
 
 # class variables
 
