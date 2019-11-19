@@ -7,7 +7,7 @@ use Carp qw(croak);
 use IPC::ShareLite qw(:flock);
 use JSON::XS;
 
-our $VERSION = '2.3633_03';
+our $VERSION = '2.3634';
 
 sub meta {
     my ($self) = @_;
