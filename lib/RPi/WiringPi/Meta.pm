@@ -9,6 +9,8 @@ use JSON::XS;
 
 our $VERSION = '2.3634';
 
+use constant SHM_SIZE => 65536;
+
 sub meta {
     my ($self) = @_;
 
@@ -33,7 +35,7 @@ sub meta_key_check {
     }
 
     $key = unpack('i', pack('A4', $key));
-    my $shm_check = shmget($key, 65536, 0);
+    my $shm_check = shmget($key, SHM_SIZE, 0);
     return defined $shm_check ? 1 : 0;
 }
 sub meta_key {
