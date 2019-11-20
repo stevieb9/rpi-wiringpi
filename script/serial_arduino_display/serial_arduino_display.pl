@@ -42,9 +42,18 @@ while (1){
 
     my $msb = int($test_num >> 8);
     my $lsb = int($test_num & 0xFF);
+    my $bin_msb = sprintf("0b%.8b", $msb);
+    my $bin_lsb = sprintf("0b%.8b", $lsb);
 
-     print "cpu: $cpu, mem: $mem, temp: $tmp, msb: $msb, lsb: $lsb, test_num: $test_num\n";
-
+    print <<EOF;
+    
+    cpu:    $cpu 
+    mem:    $mem
+    temp:   $tmp
+    msb:    $bin_msb ($msb)
+    lsb:    $bin_lsb ($lsb)
+    test:   $test_num
+EOF
     $s->putc(chr $msb);
     $s->putc(chr $lsb);
 
