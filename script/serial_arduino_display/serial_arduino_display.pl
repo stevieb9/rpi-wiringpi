@@ -45,19 +45,18 @@ while (1){
     my $bin_msb = sprintf("0b%.8b", $msb);
     my $bin_lsb = sprintf("0b%.8b", $lsb);
 
-    print <<EOF;
-    
-    cpu:    $cpu 
-    mem:    $mem
-    temp:   $tmp
-    msb:    $bin_msb ($msb)
-    lsb:    $bin_lsb ($lsb)
-    test:   $test_num
-EOF
     $s->putc(chr $msb);
     $s->putc(chr $lsb);
 
-    # print "cpu: $cpu, mem: $mem, tmp: $tmp, msb: $msb, lsb: $lsb, sec: $sec_byte\n";
+#    print <<EOF;
+#    
+#    cpu:    $cpu 
+#    mem:    $mem
+#    temp:   $tmp
+#    msb:    $bin_msb ($msb)
+#    lsb:    $bin_lsb ($lsb)
+#    test:   $test_num
+#EOF
 
     sleep 1;
 }
