@@ -51,8 +51,6 @@ my ($rx_started, $rx_ended) = (0, 0);
 my $wait_time = 0;
 my $prev_time = time;
 
-my $bsmt_pir_state = 0;
-
 while (1){
 
 #    if (time - $wait_time > $prev_time) {
@@ -60,7 +58,7 @@ while (1){
             my $data_populated = rx($start_char, $end_char);
 
             if ($data_populated) {
-                # print "$data\n";
+                # print $data;
                 execute_command($data);
                 rx_reset();
             }
@@ -109,6 +107,7 @@ sub rx {
     my $c = chr $s->getc; # getc() returns the ord() val on a char* perl-wise
 
     print ">$c<\n";
+
     if ($c ne $start && ! $rx_started){
         rx_reset();
         return;
