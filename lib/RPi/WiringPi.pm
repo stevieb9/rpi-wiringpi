@@ -397,19 +397,6 @@ sub _fatal_exit {
     $self->{fatal_exit} = $fatal_exit;
     return $self->{fatal_exit};
 }
-sub _pwm_in_use {
-    my $self = shift;
-
-    return if ! $self->_rpi_register_pins || ! $self->_rpi_register;
-
-    if ($_[0]){
-        $self->meta_lock;
-        my $meta = $self->meta_fetch;
-        $meta->{pwm}{in_use} = 1;
-        $self->meta_store($meta);
-        $self->meta_unlock;
-    }
-}
 sub _setup {
     return $_[0]->{setup};
 }
