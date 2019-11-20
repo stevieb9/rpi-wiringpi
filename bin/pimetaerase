@@ -13,6 +13,7 @@ if (! @ARGV){
 
 my $shm_key = $ARGV[0];
 my $erase_all = $ARGV[1] //= 0;
+my $display = $ARGV[2] //=0;
 
 if (! RPi::WiringPi->meta_key_check($shm_key)){
     die "shared memory segment with key '$shm_key' doesn't exist. Can't continue...\n";
@@ -20,17 +21,21 @@ if (! RPi::WiringPi->meta_key_check($shm_key)){
 
 my $pi = RPi::WiringPi->new(label => 'pimeta', shm_key => $shm_key);
 
-my %meta = %{ $pi->meta_fetch };
-delete $meta{objects}{$pi->uuid};
-$meta{object_count}--;
+if ($display){
+    my %meta = %{ $pi->meta_fetch };
+    delete $meta{objects}{$pi->uuid};
 
-print "\nBEFORE ERASE:\n\n";
-print Dumper \%meta;
+    $meta{object_count}--;
+    print "\nBEFORE ERASE:\n\n";
+
+    print Dumper \%meta;
+}
 
 $pi->meta_erase($erase_all);
 
-print "\n\nAFTER ERASE:\n\n";
-print Dumper $pi->meta_fetch;
+if ($display){
+    print "\n\nAFTER ERASE:\n\n";
+    print Dumper $pi->meta_fetch;
+}
 
 $pi->cleanup;
-

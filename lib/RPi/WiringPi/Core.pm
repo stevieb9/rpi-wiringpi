@@ -97,6 +97,7 @@ sub pwr_led {
 }
 sub pwm_range {
     my ($self, $range) = @_;
+
     if (defined $range){
         $self->{pwm_range} = $range;
         $self->pwm_set_range($range);
@@ -109,6 +110,7 @@ sub pwm_range {
 }
 sub pwm_clock {
     my ($self, $divisor) = @_;
+
     if (defined $divisor){
         $self->{pwm_clock} = $divisor;
         $self->pwm_set_clock($divisor);
@@ -120,6 +122,7 @@ sub pwm_clock {
 }
 sub pwm_mode {
     my ($self, $mode) = @_;
+
     if (defined $mode && ($mode == 0 || $mode == PWM_DEFAULT_MODE)){
         $self->{pwm_mode} = $mode;
         $self->pwm_set_mode($mode);
@@ -293,7 +296,7 @@ sub _pin_registration {
 sub _pwm_in_use {
     my $self = shift;
 
-    return if ! $self->_rpi_register_pins || ! $self->_rpi_register;
+    return if ! $self->_rpi_register_pins && ! $self->_rpi_register;
 
     if ($_[0]){
         $self->meta_lock;
