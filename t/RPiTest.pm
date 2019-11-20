@@ -7,18 +7,17 @@ use Exporter;
 our @ISA = qw(Exporter);
 
 our @EXPORT = qw(
+    rpi_legal_object_count
+    rpi_legal_pin_count
     rpi_sudo_check
     rpi_multi_check
     rpi_pod_check
     rpi_running_test
-    rpi_default_pin_config
-    rpi_check_pin_status
-    rpi_verify_pin_status
     rpi_oled_available
     rpi_oled_unavailable
-    rpi_metadata_clean
-    rpi_legal_object_count
-    rpi_legal_pin_count
+    rpi_check_pin_status
+    rpi_verify_pin_status
+    rpi_default_pin_config
     rpi_reset
 );
 
@@ -37,19 +36,17 @@ if (! defined $ENV{RPI_OBJECT_COUNT} && ! $ENV{SUDO_USER}){
     plan skip_all => "RPI_OBJECT_COUNT env var not set";
 }
 
-# gather relevant details for testing
+# relevant testing variables
 
-my $legal_object_count = $ENV{RPI_OBJECT_COUNT};
-my $legal_pin_count = $ENV{RPI_PIN_COUNT};
 my $oled_lock = '/dev/shm/oled_unavailable.rpi-wiringpi';
 
 # fetch the number of pre-existing objects and pins in use
 
 sub rpi_legal_object_count {
-    return $legal_object_count; # crontab-run scripts
+    return $ENV{RPI_OBJECT_COUNT}; # crontab-run scripts
 }
 sub rpi_legal_pin_count {
-    return $legal_pin_count; # crontab-run scripts
+    return $ENV{RPI_PIN_COUNT}; # crontab-run scripts
 }
 
 # various test run checks
