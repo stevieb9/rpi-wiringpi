@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use parent 'WiringPi::API';
+use parent 'RPi::WiringPi::Meta';
 use parent 'RPi::WiringPi::Util';
 use parent 'RPi::SysInfo';
 
@@ -100,6 +101,9 @@ sub pwm_range {
         $self->{pwm_range} = $range;
         $self->pwm_set_range($range);
     }
+
+    $self->_pwm_in_use(1);
+
     #FIXME: add const
     return defined $self->{pwm_range} ? $self->{pwm_range} : 1023;
 }
@@ -109,6 +113,9 @@ sub pwm_clock {
         $self->{pwm_clock} = $divisor;
         $self->pwm_set_clock($divisor);
     }
+
+    $self->_pwm_in_use(1);
+
     return defined $self->{pwm_clock} ? $self->{pwm_clock} : PWM_DEFAULT_CLOCK;
 }
 sub pwm_mode {
@@ -120,6 +127,9 @@ sub pwm_mode {
     else {
         croak "pwm_mode() requires either 0 or 1 if a param is sent in\n";
     }
+
+    $self->_pwm_in_use(1);
+
     return defined $self->{pwm_mode} ? $self->{pwm_mode} : 1;
 }
 sub export_pin {
@@ -279,6 +289,19 @@ sub _pin_registration {
     $self->meta_unlock;
 
     return \@registered_pins;
+}
+sub _pwm_in_use {
+    my $self = shift;
+
+    return if ! $self->_rpi_register_pins || ! $self->_rpi_register;
+
+    if ($_[0]){
+        $self->meta_lock;
+        my $meta = $self->meta_fetch;
+        $meta->{pwm}{in_use} = 1;
+        $self->meta_store($meta);
+        $self->meta_unlock;
+    }
 }
 sub _vim{1;};
 1;

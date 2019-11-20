@@ -66,6 +66,7 @@ script/serial_arduino_display/serial_arduino_display.pl
 t/00-load.t
 t/01-validate_test_suite_config.t
 t/02-shm_key.t
+t/03-meta.t
 t/05-checksum_uuid.t
 t/100-identification_and_label.t
 t/105-pin.t
@@ -78,7 +79,6 @@ t/111-metadata_multi_pi_single_script.t
 t/112-metadata_multi_pi_multi_script.t
 t/113-metadata_multi_pi_multi_script_die.t
 t/114-metadata_multi_pi_multi_script_sigint.t
-t/120-metadata_set_get.t
 t/140-pwm_spi_adc.t
 t/150-cleanup.t
 t/153-sig_handlers.t
@@ -124,7 +124,9 @@ t/907-oled_char.t
 t/908-oled_vertical_line.t
 t/909-oled_horizontal_line.t
 t/920-oled_cleanup.t
-t/999-lcd.t
+t/925-lcd.t
+t/999-test_suite_cleanup.t
+t/crontab/crontab.txt
 t/multi/die_master.pl
 t/multi/die_slave.pl
 t/multi/full_master.pl
