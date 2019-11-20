@@ -1,8 +1,6 @@
 use warnings;
 use strict;
 
-warn "\n\nRunning 999!\n\n";
-
 use lib 't/';
 
 use RPiTest;
