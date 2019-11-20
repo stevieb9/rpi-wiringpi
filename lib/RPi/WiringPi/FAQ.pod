@@ -1328,6 +1328,11 @@ restart the dispatcher with the C<--rpi> or the equivalent C<-R> flag:
 The C<--rpi> flag is rather hidden (but it *is* documented subtly), as this is
 a feature that most likely I'll be the only consumer of.
 
+=head3 Running Continuous Integration At Startup
+
+Simply copy the contents of the C<t/crontab/crontab.txt> file into the C<pi>
+user's crontab by using the C<crontab -e> command.
+
 =head2 Testing Environment Variable List
 
 Here's the contents of my C</etc/environment> file, setting the various testing
