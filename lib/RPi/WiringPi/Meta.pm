@@ -116,7 +116,9 @@ sub meta_erase {
     my ($self) = @_;
 
     $self->meta_lock;
-    $self->meta_store({});
+    my $storage = $self->meta_fetch()->{storage};
+    my $clean_store = defined $storage ? { storage => $storage } : {};
+    $self->meta_store($clean_store);
     $self->meta_unlock;
 }
 sub _vim{1;};
