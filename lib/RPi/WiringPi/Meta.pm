@@ -107,17 +107,28 @@ sub meta_get {
 
     $self->meta_lock;
     my $shm = $self->meta_fetch;
-    my $data = { %{ $shm->{storage}{$name} }};
+    my $data = { %{ $shm->{storage}{$name} }} if exists $shm->{storage}{$name};
     $self->meta_unlock;
 
     return $data;
 }
 sub meta_erase {
-    my ($self) = @_;
+    my ($self, $all) = @_;
+
+    $all //= 0;
 
     $self->meta_lock;
-    my $storage = $self->meta_fetch()->{storage};
-    my $clean_store = defined $storage ? { storage => $storage } : {};
+
+    my ($clean_store, $storage);
+
+    if ($all){
+        $clean_store = {};
+    }
+    else {
+        $storage = $self->meta_fetch()->{storage};
+        $clean_store = defined $storage ? { storage => $storage } : {};
+    }
+
     $self->meta_store($clean_store);
     $self->meta_unlock;
 }
@@ -237,9 +248,17 @@ into its integer form internally.
 Returns: True C<1> if the shared memory segment exists, and false C<0>
 otherwise.
 
-=head2 meta_erase
+=head2 meta_erase($all)
 
-Completely erases and resets all meta data. Do not use this method lightly.
+Erases and resets all meta data. Do not use this method lightly.
+
+Parameters:
+
+    $all
+
+Optional, Bool: If true, we'll delete the user-based C<storage> shared memory
+data along with the software's internal data, and if false, we'll leave that
+user data intact.
 
 =head1 AUTHOR
 
