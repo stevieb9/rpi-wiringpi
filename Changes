@@ -9,7 +9,8 @@ Revision history for Perl extension RPi::WiringPi.
         - added rpi_reset() in RPiTest.pm, resets meta and pins for t/01 and
           t/999; the meta data and pins are reset at the beginning of a test
           suite run, and again at the end of it (only if necessary)
-          
+        - added sample crontab file for automated CI testing at startup
+
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
           call this function before any work is done (fixes #144)
