@@ -9,8 +9,6 @@ use RPi::WiringPi;
 use RPi::Const qw(:all);
 use Test::More;
 
-warn "\n\nRunning 925!\n\n";
-
 $SIG{__DIE__} = sub {
     like shift, qr/Maximum number of LCD/, "initializing too many LCDs error ok";
 };
