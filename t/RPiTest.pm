@@ -37,10 +37,13 @@ if (! defined $ENV{RPI_OBJECT_COUNT} && ! $ENV{SUDO_USER}){
     plan skip_all => "RPI_OBJECT_COUNT env var not set";
 }
 
+# gather relevant details for testing
+
 my $legal_object_count = $ENV{RPI_OBJECT_COUNT};
 my $legal_pin_count = $ENV{RPI_PIN_COUNT};
-
 my $oled_lock = '/dev/shm/oled_unavailable.rpi-wiringpi';
+
+# fetch the number of pre-existing objects and pins in use
 
 sub rpi_legal_object_count {
     return $legal_object_count; # crontab-run scripts
@@ -48,6 +51,9 @@ sub rpi_legal_object_count {
 sub rpi_legal_pin_count {
     return $legal_pin_count; # crontab-run scripts
 }
+
+# various test run checks
+
 sub rpi_sudo_check {
     if (! $ENV{RPI_SUDO} && $> != 0){
         plan skip_all => "RPI_SUDO env var not set\n";
@@ -63,6 +69,9 @@ sub rpi_pod_check {
         plan skip_all => "RPI_POD environment variable not set\n";
     }
 }
+
+# fetch the current running test file number
+
 sub rpi_running_test {
     (my $test) = @_;
 
@@ -90,8 +99,9 @@ sub rpi_running_test {
     croak
         "rpi_running_test() couldn't translate '$test' to a usable shared format\n";
 }
-sub rpi_metadata_clean {
-}
+
+# get and set the availability of the OLED
+
 sub rpi_oled_available {
     my ($available) = @_;
 
@@ -109,6 +119,9 @@ sub rpi_oled_unavailable {
 
     return -e $oled_lock ? 1 : 0;
 }
+
+# test whether all pins have been reset to program start defaults
+
 sub rpi_check_pin_status {
     setup_gpio();
 
@@ -144,6 +157,9 @@ sub rpi_check_pin_status {
         is read_pin($_), $config->{$_}{state}, "pin $_ set back to default state ($config->{$_}{state}) ok";
     }
 }
+
+# verify whether all pins have been reset to program start defaults
+
 sub rpi_verify_pin_status {
     setup_gpio();
 
@@ -185,6 +201,9 @@ sub rpi_verify_pin_status {
 
     return $incorrect_config ? 0 : 1;
 }
+
+# fetch the default pin state and mode
+
 sub rpi_default_pin_config {
     # default pin configurations
 
@@ -313,8 +332,15 @@ sub rpi_default_pin_config {
 
     return $pin_conf;
 }
+
+# reset the pins and meta data to default
+
 sub rpi_reset {
     # reset pins and meta data
+
+    my ($all) = @_;
+
+    $all //= 0;
 
     my $pi = RPi::WiringPi->new(
         label           => 'rpi_reset',
@@ -322,7 +348,7 @@ sub rpi_reset {
         rpi_register    => 0,
     );
 
-    $pi->meta_erase;
+    $pi->meta_erase($all);
 
     my $meta = $pi->meta_fetch;
     $pi->cleanup;
