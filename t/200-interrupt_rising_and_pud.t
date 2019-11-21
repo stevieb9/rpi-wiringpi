@@ -66,6 +66,5 @@ if (! $ENV{NO_BOARD}){
 $pi->cleanup;
 
 rpi_check_pin_status();
-#rpi_metadata_clean();
 
 done_testing();
