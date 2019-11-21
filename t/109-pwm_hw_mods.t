@@ -23,7 +23,7 @@ if (! $ENV{PI_BOARD}){
 
 if ($> != 0){
     print "enforcing sudo for PWM tests...\n";
-    system('sudo', 'perl', $0);
+    system("sudo", "perl", "-I", "blib/lib", $0);
     exit;
 }
 
@@ -113,9 +113,10 @@ if (! $ENV{NO_BOARD}) {
     is $o < 1, 1, "PWM pin cleaned up ok";
 
     is $pin->mode, INPUT, "PWM pin back to INPUT ok";
+
 }
 
-rpi_check_pin_status();
+# rpi_check_pin_status();
 
 $pi->cleanup;
 

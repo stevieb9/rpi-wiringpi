@@ -13,6 +13,9 @@ Revision history for Perl extension RPi::WiringPi.
         - meta_erase() now accepts a second parameter, $all. If left or set
           false, we'll leave the 'storage' shared memory data intact, if true,
           we'll delete it with everything else
+        - reworked how we manage PWM-in-use, and the cleanup. We now ensure
+          that PWM doesn't get reset unless all users of PWM have been 
+          unregistered
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
