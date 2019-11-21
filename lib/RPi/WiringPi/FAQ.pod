@@ -1032,6 +1032,42 @@ instead of the GPIO on the Pi:
 
     $sm->cw(180);
 
+=head1 SHARE VARIABLES/DATA BETWEEN PROCESSES AND SCRIPTS
+
+This software utilizes shared memory, so multiple processes and scripts running
+at the same time can share data between themselves live time.
+
+=head2 Use case
+
+With one Pi object running in one script, you're receiving bytes of information
+from an Arduino.
+
+A different script, obviously running in a different process, needs to update
+an OLED with the data received by the other script.
+
+=head2 Create the Pi Object
+
+    my $pi = RPi::WiringPi;
+
+=head2 Add data for sharing
+
+Data is set by sending in a desired name, along with a hash reference.
+
+    my %data = (a => 1, b => 2, c => [1, 2, 3]);
+    $pi->meta_set('my_data', \%data);
+
+=head2 Retrieve previously stored data
+
+Data is retrieved by sending in the name of a previously stored hash reference.
+
+    my $stats = $pi->meta_get('stats');
+
+=head2 Delete an existing shared data storage slot
+
+Delete an existing hash reference by sending in the hash reference's name.
+
+    $pi->meta_delete('stats');
+
 =head1 CORE LIBRARY
 
 =head2 Overview
