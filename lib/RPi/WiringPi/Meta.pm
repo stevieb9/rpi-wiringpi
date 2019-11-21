@@ -144,7 +144,27 @@ RPi::WiringPi::Meta - Shared memory meta data management for RPI::WiringPi
 
 =head1 DESCRIPTION
 
-This module contains various utilities for the shared memory storage area.
+This module contains various utilities for the shared memory storage area. This
+area allows both the software and you, the user, to share Perl variables across
+different scripts and processes easily.
+
+=head1 SYNOPSIS
+
+    my $pi = RPi::WiringPi;
+
+    my %data = (a => 1, b => 2, c => [1, 2, 3]);
+
+    # add a new or set an existing storage slot (must be an href)
+
+    $pi->meta_set('my_data', \%data);
+
+    # retrieve an existing storage slot (always an href)
+
+    my $stats = $pi->meta_get('stats');
+
+    # delete an existing storage slot
+
+    $pi->meta_delete('stats');
 
 =head1 METHODS
 
@@ -192,14 +212,19 @@ Mandatory, String: The key name for the user defined data to delete.
 =head2 meta_fetch
 
 NOTE: For most use cases, users should use the L</meta_get($name)> method as
-opposed to this one.
+opposed to this one. The data held in the shared memory is critical to proper
+operation of the software.
 
 Fetches and returns the shared memory data as a hash reference.
 
+NOTE that you should always wrap the C<meta_fetch()> call with calls to
+C<meta_lock()> and C<meta_unlock()>.
+
 =head2 meta_store($data)
 
-NOTE: For most use cases, users should use the L</meta_set($name, $href)> and
-L</meta_delete($name)> methods as opposed to this one.
+NOTE: For most use cases, users should use the L</meta_get($name)> method as
+opposed to this one. The data held in the shared memory is critical to proper
+operation of the software.
 
 Serializes and stores the shared data.
 
@@ -209,6 +234,9 @@ Parameters:
 
 Mandatory, Hash Reference. The data to store (should be a modified version that
 was retrieved using C<meta_fetch()>).
+
+NOTE that you should always wrap the C<meta_store()> call with calls to
+C<meta_lock()> and C<meta_unlock()>.
 
 =head2 meta_lock($flags)
 
@@ -258,7 +286,7 @@ Parameters:
 
 Optional, Bool: If true, we'll delete the user-based C<storage> shared memory
 data along with the software's internal data, and if false, we'll leave that
-user data intact.
+user data intact. Defaults to false (C<0>).
 
 =head1 AUTHOR
 
