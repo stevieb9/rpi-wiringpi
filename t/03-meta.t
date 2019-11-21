@@ -93,7 +93,7 @@ my $pi = RPi::WiringPi->new(
     $pi->meta_erase(1);
 
     $pi->meta_lock;
-    my $shm = $pi->meta_fetch;
+    $shm = $pi->meta_fetch;
     $pi->meta_unlock;
 
     is exists $shm->{storage}, '', "meta_erase() w/o all works ok";
