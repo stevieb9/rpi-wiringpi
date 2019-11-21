@@ -98,6 +98,10 @@ sub pwr_led {
 sub pwm_range {
     my ($self, $range) = @_;
 
+    if ($> != 0){
+        die "\nPWM requires your script to be run as the 'root' user (sudo)\n";
+    }
+
     if (defined $range){
         $self->{pwm_range} = $range;
         $self->pwm_set_range($range);
@@ -111,6 +115,10 @@ sub pwm_range {
 sub pwm_clock {
     my ($self, $divisor) = @_;
 
+    if ($> != 0){
+        die "\nPWM requires your script to be run as the 'root' user (sudo)\n";
+    }
+
     if (defined $divisor){
         $self->{pwm_clock} = $divisor;
         $self->pwm_set_clock($divisor);
@@ -122,6 +130,10 @@ sub pwm_clock {
 }
 sub pwm_mode {
     my ($self, $mode) = @_;
+
+    if ($> != 0){
+        die "\nPWM requires your script to be run as the 'root' user (sudo)\n";
+    }
 
     if (defined $mode && ($mode == 0 || $mode == PWM_DEFAULT_MODE)){
         $self->{pwm_mode} = $mode;
