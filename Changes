@@ -16,6 +16,8 @@ Revision history for Perl extension RPi::WiringPi.
         - reworked how we manage PWM-in-use, and the cleanup. We now ensure
           that PWM doesn't get reset unless all users of PWM have been 
           unregistered
+        - tests that require sudo now use the library in blib as opposed to the
+          installed versions (fixes #164)
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
