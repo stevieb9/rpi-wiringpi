@@ -22,7 +22,7 @@ if (! $ENV{PI_BOARD}){
 
 if ($> != 0){
     print "enforcing sudo for PWM tests...\n";
-    system('sudo', 'perl', $0);
+    system("sudo", "perl", "-I", "blib/lib", $0);
     exit;
 }
 

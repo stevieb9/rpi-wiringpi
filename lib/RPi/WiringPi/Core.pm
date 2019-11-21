@@ -189,20 +189,19 @@ sub unregister_object {
 sub cleanup {
     my ($self) = @_;
 
-
     if ($self->_rpi_register_pins) {
 
         $self->meta_lock;
         my $meta = $self->meta_fetch;
 
-        #FIXME: this could be an issue if a proc is using different PWM settings
-        # but a different proc cleans up
-
-        if ($meta->{pwm}{in_use}) {
-            WiringPi::API::pwmSetMode(PWM_DEFAULT_MODE);
-            WiringPi::API::pwmSetClock(PWM_DEFAULT_CLOCK);
-            WiringPi::API::pwmSetRange(PWM_DEFAULT_RANGE);
-            $meta->{pwm}->{in_use} = 0;
+        if ($meta->{pwm}{in_use} && $meta->{pwm}{users}{$self->uuid}) {
+            delete $meta->{pwm}{users}{$self->uuid};
+            if (! keys %{ $meta->{pwm}{users} }){
+                WiringPi::API::pwmSetMode(PWM_DEFAULT_MODE);
+                WiringPi::API::pwmSetClock(PWM_DEFAULT_CLOCK);
+                WiringPi::API::pwmSetRange(PWM_DEFAULT_RANGE);
+                $meta->{pwm}->{in_use} = 0;
+            }
         }
 
         for my $pin (keys %{$meta->{pins}}) {
@@ -302,6 +301,7 @@ sub _pwm_in_use {
         $self->meta_lock;
         my $meta = $self->meta_fetch;
         $meta->{pwm}{in_use} = 1;
+        $meta->{pwm}{users}{$self->uuid} = 1;
         $self->meta_store($meta);
         $self->meta_unlock;
     }
