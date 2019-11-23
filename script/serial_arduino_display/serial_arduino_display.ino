@@ -183,7 +183,7 @@ void setup() {
 void processData (void) {
 
     uint8_t sysInfo[PI_BYTES-1];
-    uint8_t securityByte = 0;
+    byte securityByte = 0;
 
     if (pi.available() == PI_BYTES) {
 
@@ -208,7 +208,7 @@ void processData (void) {
     }
 }
 
-void displaySecurityInfo (uint8_t secByte, int freeMem){
+void displaySecurityInfo (byte secByte, int freeMem){
 
     const uint8_t fg_colour[2] = { ST77XX_GREEN, ST77XX_WHITE };
     const uint8_t bg_colour[2] = { ST77XX_BLACK, ST77XX_RED };
@@ -240,6 +240,7 @@ void displaySecurityInfo (uint8_t secByte, int freeMem){
 
     tft.setCursor(0, TFT_LINE_8);
     tft.setTextColor(ST77XX_YELLOW, ST77XX_ORANGE);
+    tft.print(F("0b"));
     tft.print(secByte, BIN);
 }
 
