@@ -1,3 +1,4 @@
+#include <MemoryFree.h>
 #include <SoftwareSerial.h>
 #include <Wire.h>
 #include <SPI.h>
@@ -58,6 +59,9 @@ SoftwareSerial pi(RX, TX);
 Adafruit_SSD1306 screen(OLED_WIDTH, OLED_HEIGHT, &Wire, OLED_RESET);
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 
+unsigned long memStartTime = millis();
+unsigned long memDelay = 1000;
+
 void displaySysInfo (uint8_t *sysInfo) {
 
     char cpu[16], mem[16], cTemp[16];
@@ -114,7 +118,6 @@ void displaySysInfo (uint8_t *sysInfo) {
 
 void serialPrintSysInfo(uint8_t *sysInfo) {
 
-}
     Serial.println(F("System Info"));
     Serial.print(F("CPU:  "));
     Serial.print(sysInfo[0]);
@@ -172,6 +175,9 @@ void setup() {
 
     tft.setCursor(0, TFT_LINE_4);
     tft.print(F("ALRM: "));
+
+    tft.setCursor(0, TFT_LINE_5);
+    tft.print(F("FMEM: "));
 }
 
 void processData (void) {
@@ -186,19 +192,23 @@ void processData (void) {
         for (uint8_t i = 0; i < PI_BYTES-1; i++) {
             sysInfo[i] = pi.read();
         }
-        
+
+        int freeMem = freeMemory();
+     
         if (DEBUG) {
             serialPrintSysInfo(sysInfo);
+            Serial.print(F("fmem: "));
+            Serial.println(freeMem);
             Serial.print(F("SEC BYTE: "));
             Serial.println(securityByte);
         }
 
         displaySysInfo(sysInfo);
-        displaySecurityInfo(securityByte);
+        displaySecurityInfo(securityByte, freeMem);
     }
 }
 
-void displaySecurityInfo (uint8_t secByte){
+void displaySecurityInfo (uint8_t secByte, int freeMem){
 
     const uint8_t fg_colour[2] = { ST77XX_GREEN, ST77XX_WHITE };
     const uint8_t bg_colour[2] = { ST77XX_BLACK, ST77XX_RED };
@@ -220,6 +230,10 @@ void displaySecurityInfo (uint8_t secByte){
     tft.setTextColor(ST77XX_GREEN, ST77XX_BLACK);
     tft.print(F("OK"));
 
+    tft.setCursor(TFT_STATUS_COL, TFT_LINE_5);
+    tft.setTextColor(ST77XX_WHITE, ST77XX_BLUE);
+    tft.print(freeMem);
+
     tft.setCursor(0, TFT_LINE_7);
     tft.setTextColor(ST77XX_MAGENTA, ST77XX_BLACK);
     tft.print(F("Sec Byte:"));
@@ -231,5 +245,13 @@ void displaySecurityInfo (uint8_t secByte){
 }
 
 void loop() {
+    if (DEBUG){
+        if (millis() - memStartTime >= memDelay){
+            Serial.print(F("Free Memory: "));
+            Serial.println(freeMemory());
+            memStartTime = millis();
+        }
+    }
     processData();
 }
+
