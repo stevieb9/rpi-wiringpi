@@ -240,7 +240,6 @@ void displaySecurityInfo (uint8_t secByte, int freeMem){
 
     tft.setCursor(0, TFT_LINE_8);
     tft.setTextColor(ST77XX_YELLOW, ST77XX_ORANGE);
-    tft.print(F("0b"));
     tft.print(secByte, BIN);
 }
 
