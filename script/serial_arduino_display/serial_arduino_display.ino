@@ -80,6 +80,7 @@ Adafruit_SSD1306 screen(OLED_WIDTH, OLED_HEIGHT, &Wire, OLED_RESET);
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 
 void setup() {
+
     Serial.begin(9600);
 
     // Pi comms setup
@@ -132,6 +133,31 @@ void setup() {
     }
 }
 
+void processData (void) {
+
+    uint8_t sysInfo[PI_BYTES-1];
+    byte securityByte = 0;
+
+    if (pi.available() == PI_BYTES) {
+
+        securityByte = pi.read();
+        
+        for (uint8_t i = 0; i < PI_BYTES-1; i++) {
+            sysInfo[i] = pi.read();
+        }
+     
+        if (DEBUG) {
+            serialPrintSysInfo(sysInfo);
+            Serial.print(F("SEC BYTE: "));
+            Serial.println(securityByte);
+        }
+
+        displaySysInfo(sysInfo);
+        displaySecurityInfo(securityByte);
+        displayFreeMemory();
+    }
+}
+
 void displaySysInfo (uint8_t *sysInfo) {
 
     screen.clearDisplay();
@@ -160,7 +186,7 @@ void displaySysInfo (uint8_t *sysInfo) {
     uint16_t testNum = (sysInfo[3] << 8 ) | (sysInfo[4] & 0xff);
 
     if (testNum != 0) {
-        
+
         screen.setCursor(0, 48);
 
         if (testNum < 1000) {
@@ -178,60 +204,6 @@ void displaySysInfo (uint8_t *sysInfo) {
     }
 
     screen.display();
-}
-
-void serialPrintSysInfo(uint8_t *sysInfo) {
-
-    Serial.println(F("System Info"));
-    Serial.print(F("CPU:  "));
-    Serial.print(sysInfo[0]);
-    Serial.println(F("%"));
-    Serial.print(F("RAM:  "));
-    Serial.print(sysInfo[1]);
-    Serial.println(F("%"));
-    Serial.print(F("TEMP: "));
-    Serial.print(sysInfo[2]);
-    Serial.println(F("F\n"));
-
-    uint16_t testNum = (sysInfo[3] << 8 ) | (sysInfo[4] & 0xff);
-
-    Serial.print(F("TEST: "));
-    Serial.println(testNum);
-
-}
-void processData (void) {
-
-    uint8_t sysInfo[PI_BYTES-1];
-    byte securityByte = 0;
-
-    if (pi.available() == PI_BYTES) {
-
-        securityByte = pi.read();
-        
-        for (uint8_t i = 0; i < PI_BYTES-1; i++) {
-            sysInfo[i] = pi.read();
-        }
-     
-        if (DEBUG) {
-            serialPrintSysInfo(sysInfo);
-            Serial.print(F("SEC BYTE: "));
-            Serial.println(securityByte);
-        }
-
-        displaySysInfo(sysInfo);
-        displaySecurityInfo(securityByte);
-        displayFreeMemory();
-    }
-}
-
-uint8_t _getBitValue (uint8_t byte, uint8_t bit){
-    return (uint8_t) (byte >> bit) & 1;
-}
-
-void _displaySecStatus(uint8_t tftCol, uint8_t tftLine, uint8_t state){
-    tft.setCursor(tftCol, tftLine);
-    tft.setTextColor(tft_sec_fg_colour[state], tft_sec_bg_colour[state]);
-    tft.print(tft_sec_text[state]);
 }
 
 void displaySecurityInfo (uint8_t secByte){
@@ -257,11 +229,6 @@ void displaySecurityInfo (uint8_t secByte){
     }
 }
 
-
-void loop() {
-    processData();
-}
-
 void displayFreeMemory (){
 
     int freeMem = freeMemory();
@@ -270,11 +237,44 @@ void displayFreeMemory (){
         Serial.print(F("Free SRAM: "));
         Serial.println(freeMem);
     }
-    
+
     if (DEBUG_FREE_MEM){
         tft.setCursor(TFT_STATUS_COL, TFT_LINE_7);
         tft.setTextColor(ST77XX_WHITE, ST77XX_BLUE);
         tft.print(freeMem);
-    }    
+    }
 }
 
+void serialPrintSysInfo(uint8_t *sysInfo) {
+
+    Serial.println(F("System Info"));
+    Serial.print(F("CPU:  "));
+    Serial.print(sysInfo[0]);
+    Serial.println(F("%"));
+    Serial.print(F("RAM:  "));
+    Serial.print(sysInfo[1]);
+    Serial.println(F("%"));
+    Serial.print(F("TEMP: "));
+    Serial.print(sysInfo[2]);
+    Serial.println(F("F\n"));
+
+    uint16_t testNum = (sysInfo[3] << 8 ) | (sysInfo[4] & 0xff);
+
+    Serial.print(F("TEST: "));
+    Serial.println(testNum);
+
+}
+
+uint8_t _getBitValue (uint8_t byte, uint8_t bit){
+    return (uint8_t) (byte >> bit) & 1;
+}
+
+void _displaySecStatus(uint8_t tftCol, uint8_t tftLine, uint8_t state){
+    tft.setCursor(tftCol, tftLine);
+    tft.setTextColor(tft_sec_fg_colour[state], tft_sec_bg_colour[state]);
+    tft.print(tft_sec_text[state]);
+}
+
+void loop() {
+    processData();
+}
