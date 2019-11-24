@@ -36,13 +36,13 @@ while (1){
     my $sec_byte = sec_byte();
     
     $s->putc(chr $sec_byte);
-    
-    my $sec_byte_bin = sprintf("0b%08b", $sec_byte);
 
     $s->putc(chr $cpu);
     $s->putc(chr $mem);
     $s->putc(chr $tmp);
 
+    my $sec_byte_bin = sprintf("0b%08b", $sec_byte);
+    
     my $msb = int($test_num >> 8);
     my $lsb = int($test_num & 0xFF);
     my $bin_msb = sprintf("0b%08b", $msb);

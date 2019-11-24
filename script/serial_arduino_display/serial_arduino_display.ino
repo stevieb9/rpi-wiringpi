@@ -2,8 +2,6 @@
 #include <SoftwareSerial.h>
 #include <Wire.h>
 #include <SPI.h>
-#include "SSD1306Ascii.h"
-#include "SSD1306AsciiAvrI2c.h"
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -12,7 +10,7 @@
 #include <stdio.h>
 
 #define PI_BYTES        6
-#define DEBUG           1
+#define DEBUG           0
 #define FREE_MEM_DEBUG  1
 
 #define RX 2
@@ -20,6 +18,9 @@
 
 #define OLED_I2C_ADDR   0x3C
 #define OLED_RESET      4
+#define OLED_WIDTH      128
+#define OLED_HEIGHT     64
+#define OLED_SRAM_REQ   1163
 
 /* Colour TFT Pins
  *
@@ -71,11 +72,8 @@
 // object instantiation
 
 SoftwareSerial pi(RX, TX);
-SSD1306AsciiAvrI2c screen;
+Adafruit_SSD1306 screen(OLED_WIDTH, OLED_HEIGHT, &Wire, OLED_RESET);
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
-
-unsigned long memStartTime = millis();
-unsigned long memDelay = 1000;
 
 void setup() {
     Serial.begin(9600);
@@ -86,21 +84,25 @@ void setup() {
         
     // OLED display setup
 
-    int freeMem = freeMemory();
-
-    if (freeMem <= 1163){
-        Serial.print(F("Not enough SRAM to load OLED with Adafruit's library. You have "));
-        Serial.print(freeMem);
-        Serial.println(F(", but we need 1163"));
+    if (freeMemory() <= OLED_SRAM_REQ){
+        Serial.print(F("Not enough SRAM to load OLED. You have "));
+        Serial.print(freeMemory());
+        Serial.print(F(", but we need "));
+        Serial.println(OLED_SRAM_REQ);
     }
     
-    screen.begin(&Adafruit128x64, OLED_I2C_ADDR, OLED_RESET);
-    screen.setFont(Adafruit5x7);
-    screen.set2X();
+    while (! screen.begin(SSD1306_SWITCHCAPVCC, OLED_I2C_ADDR)){
+        Serial.println(F("Error connecting to OLED"));
+        delay(1000);
+    }
     
-    screen.clear();
-    screen.setCursor(0, 0);
+    screen.clearDisplay();
+    screen.display();
 
+    screen.setTextSize(2);
+    screen.setTextColor(WHITE);
+    screen.setCursor(0, 0);
+    
     // colour TFT setup
 
     tft.initR(INITR_144GREENTAB);
@@ -120,19 +122,13 @@ void setup() {
     tft.setCursor(0, TFT_LINE_4);
     tft.print(F("ALRM: "));
 
-    tft.setCursor(0, TFT_LINE_5);
+    tft.setCursor(0, TFT_LINE_7);
     tft.print(F("FMEM: "));
 }
 
 void displaySysInfo (uint8_t *sysInfo) {
 
-    char cpu[16], mem[16], cTemp[16];
-
-    sprintf(cpu, "CPU:  %d%%    ", sysInfo[0]);
-    sprintf(mem, "RAM:  %d%%    ", sysInfo[1]);
-    sprintf(cTemp, "TEMP: %d F  ", sysInfo[2]);
-
-    screen.clear();
+    screen.clearDisplay();
 
     /* CPU percent */
 
@@ -175,7 +171,7 @@ void displaySysInfo (uint8_t *sysInfo) {
         }
     }
 
-    //;
+    screen.display();
 }
 
 void serialPrintSysInfo(uint8_t *sysInfo) {
@@ -230,8 +226,8 @@ void displaySecurityInfo (uint8_t secByte, int freeMem){
 
     const uint16_t fg_colour[2] = { ST77XX_GREEN, ST77XX_WHITE };
     const uint16_t bg_colour[2] = { ST77XX_BLACK, ST77XX_RED };
-    char* secText[2] = { "OK ", "NOK" };
-    
+    const char* const secText[2] = { "OK ", "NOK" };
+
     tft.setCursor(TFT_STATUS_COL, TFT_LINE_1);
     uint8_t bsmt_state = (secByte >> BIT_BSMT) & 1;
     tft.setTextColor(fg_colour[bsmt_state], bg_colour[bsmt_state]);
@@ -269,4 +265,3 @@ void displaySecurityInfo (uint8_t secByte, int freeMem){
 void loop() {
     processData();
 }
-
