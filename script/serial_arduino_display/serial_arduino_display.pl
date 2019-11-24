@@ -34,7 +34,10 @@ while (1){
     }
 
     my $sec_byte = sec_byte();
+    
     $s->putc(chr $sec_byte);
+    
+    my $sec_byte_bin = sprintf("0b%08b", $sec_byte);
 
     $s->putc(chr $cpu);
     $s->putc(chr $mem);
@@ -42,27 +45,33 @@ while (1){
 
     my $msb = int($test_num >> 8);
     my $lsb = int($test_num & 0xFF);
-    my $bin_msb = sprintf("0b%.8b", $msb);
-    my $bin_lsb = sprintf("0b%.8b", $lsb);
+    my $bin_msb = sprintf("0b%08b", $msb);
+    my $bin_lsb = sprintf("0b%08b", $lsb);
 
     $s->putc(chr $msb);
     $s->putc(chr $lsb);
 
-#    print <<EOF;
-#    
-#    cpu:    $cpu 
-#    mem:    $mem
-#    temp:   $tmp
-#    msb:    $bin_msb ($msb)
-#    lsb:    $bin_lsb ($lsb)
-#    test:   $test_num
-#EOF
+    print <<EOF;
+    
+    cpu:    $cpu 
+    mem:    $mem
+    temp:   $tmp
+    msb:    $bin_msb ($msb)
+    lsb:    $bin_lsb ($lsb)
+    test:   $test_num
+    sec:    $sec_byte_bin ($sec_byte)
+EOF
 
     sleep 1;
 }
 
 sub sec_byte {
-    return 0b01100101;
+#    return 0b01100101;
+
+    my ($u, $l) = (256, 0);
+    my $r = int(rand($u - $l)) + $l;
+    return $r;
+
 }
 
 sub test_num {
