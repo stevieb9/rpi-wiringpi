@@ -221,18 +221,6 @@ void processData (void) {
         displaySysInfo(sysInfo);
         displaySecurityInfo(securityByte, freeMem);
     }
-    else {
-        /*
-        tft.setCursor(0, TFT_LINE_1);
-        tft.print(F("          "));
-        tft.print(F("NO PI DATA"));
-
-        screen.clearDisplay();
-        screen.setCursor(0, 0);
-        screen.print(F("NO DATA"));
-        screen.display();
-        */
-    }
 }
 
 void displaySecurityInfo (uint8_t secByte, int freeMem){
