@@ -7,11 +7,9 @@
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_ST7735.h>
 
-#include <stdio.h>
-
 #define PI_BYTES        6
 #define DEBUG           0
-#define FREE_MEM_DEBUG  1
+#define DEBUG_FREE_MEM  1
 
 #define RX 2
 #define TX 3
@@ -73,7 +71,7 @@
 
 const uint16_t tft_sec_fg_colour[2] PROGMEM = { ST77XX_GREEN, ST77XX_WHITE };
 const uint16_t tft_sec_bg_colour[2] PROGMEM = { ST77XX_BLACK, ST77XX_RED };
-const PROGMEM char* const tft_sec_text[2] PROGMEM = { "OK ", "NOK" };
+const char* const tft_sec_text[2] PROGMEM = { "OK ", "NOK" };
 
 // object instantiation
 
@@ -128,8 +126,10 @@ void setup() {
     tft.setCursor(0, TFT_LINE_4);
     tft.print(F("ALRM: "));
 
-    tft.setCursor(0, TFT_LINE_7);
-    tft.print(F("FMEM: "));
+    if (DEBUG_FREE_MEM){
+        tft.setCursor(0, TFT_LINE_7);
+        tft.print(F("FMEM: "));
+    }
 }
 
 void displaySysInfo (uint8_t *sysInfo) {
@@ -211,19 +211,16 @@ void processData (void) {
         for (uint8_t i = 0; i < PI_BYTES-1; i++) {
             sysInfo[i] = pi.read();
         }
-
-        int freeMem = freeMemory();
      
         if (DEBUG) {
             serialPrintSysInfo(sysInfo);
-            Serial.print(F("fmem: "));
-            Serial.println(freeMem);
             Serial.print(F("SEC BYTE: "));
             Serial.println(securityByte);
         }
 
         displaySysInfo(sysInfo);
-        displaySecurityInfo(securityByte, freeMem);
+        displaySecurityInfo(securityByte);
+        displayFreeMemory();
     }
 }
 
@@ -231,43 +228,27 @@ uint8_t _getBitValue (uint8_t byte, uint8_t bit){
     return (uint8_t) (byte >> bit) & 1;
 }
 
-void _displaySecStatus(uint8_t state){
+void _displaySecStatus(uint8_t tftCol, uint8_t tftLine, uint8_t state){
+    tft.setCursor(tftCol, tftLine);
     tft.setTextColor(tft_sec_fg_colour[state], tft_sec_bg_colour[state]);
     tft.print(tft_sec_text[state]);
 }
 
-void displaySecurityInfo (uint8_t secByte, int freeMem){
+void displaySecurityInfo (uint8_t secByte){
 
     // basement PIR
-    
-    tft.setCursor(TFT_STATUS_COL, TFT_LINE_1);
-    _displaySecStatus(_getBitValue(secByte, BIT_BSMT));
+    _displaySecStatus(TFT_STATUS_COL, TFT_LINE_1, _getBitValue(secByte, BIT_BSMT));
 
     // basement door
-    
-    tft.setCursor(TFT_STATUS_COL, TFT_LINE_2);
-    _displaySecStatus(_getBitValue(secByte, BIT_DOOR));
+    _displaySecStatus(TFT_STATUS_COL, TFT_LINE_2, _getBitValue(secByte, BIT_BSMT));
 
     // main floor PIR
-    
-    tft.setCursor(TFT_STATUS_COL, TFT_LINE_3);
-    _displaySecStatus(_getBitValue(secByte, BIT_MAIN));
+    _displaySecStatus(TFT_STATUS_COL, TFT_LINE_3, _getBitValue(secByte, BIT_BSMT));
 
     // alarm
-    
-    tft.setCursor(TFT_STATUS_COL, TFT_LINE_4);
-    _displaySecStatus(_getBitValue(secByte, BIT_ALRM));
-
-    // free memory
-    
-    if (FREE_MEM_DEBUG){
-        tft.setCursor(TFT_STATUS_COL, TFT_LINE_7);
-        tft.setTextColor(ST77XX_WHITE, ST77XX_BLUE);
-        tft.print(freeMem);
-    }
+    _displaySecStatus(TFT_STATUS_COL, TFT_LINE_4, _getBitValue(secByte, BIT_BSMT));
 
     // security byte binary
-    
     tft.setCursor(0, TFT_LINE_8);
     tft.setTextColor(ST77XX_YELLOW, ST77XX_ORANGE);
 
@@ -276,8 +257,24 @@ void displaySecurityInfo (uint8_t secByte, int freeMem){
     }
 }
 
+
 void loop() {
     processData();
 }
 
+void displayFreeMemory (){
+
+    int freeMem = freeMemory();
+
+    if (DEBUG){
+        Serial.print(F("Free SRAM: "));
+        Serial.println(freeMem);
+    }
+    
+    if (DEBUG_FREE_MEM){
+        tft.setCursor(TFT_STATUS_COL, TFT_LINE_7);
+        tft.setTextColor(ST77XX_WHITE, ST77XX_BLUE);
+        tft.print(freeMem);
+    }    
+}
 
