@@ -2,6 +2,8 @@
 #include <SoftwareSerial.h>
 #include <Wire.h>
 #include <SPI.h>
+#include "SSD1306Ascii.h"
+#include "SSD1306AsciiAvrI2c.h"
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -18,8 +20,6 @@
 
 #define OLED_I2C_ADDR   0x3C
 #define OLED_RESET      4
-#define OLED_WIDTH      128
-#define OLED_HEIGHT     64
 
 /* Colour TFT Pins
  *
@@ -71,7 +71,7 @@
 // object instantiation
 
 SoftwareSerial pi(RX, TX);
-Adafruit_SSD1306 screen(OLED_WIDTH, OLED_HEIGHT, &Wire, OLED_RESET);
+SSD1306AsciiAvrI2c screen;
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 
 unsigned long memStartTime = millis();
@@ -89,22 +89,18 @@ void setup() {
     int freeMem = freeMemory();
 
     if (freeMem <= 1163){
-        Serial.print(F("Not enough SRAM to load OLED. You have "));
+        Serial.print(F("Not enough SRAM to load OLED with Adafruit's library. You have "));
         Serial.print(freeMem);
         Serial.println(F(", but we need 1163"));
     }
-    while (! screen.begin(SSD1306_SWITCHCAPVCC, OLED_I2C_ADDR)){
-        Serial.println(F("Error connecting to OLED"));
-        delay(1000);
-    }
     
-    screen.clearDisplay();
-    screen.display();
-
-    screen.setTextSize(2);
-    screen.setTextColor(WHITE);
+    screen.begin(&Adafruit128x64, OLED_I2C_ADDR, OLED_RESET);
+    screen.setFont(Adafruit5x7);
+    screen.set2X();
+    
+    screen.clear();
     screen.setCursor(0, 0);
-    
+
     // colour TFT setup
 
     tft.initR(INITR_144GREENTAB);
@@ -136,7 +132,7 @@ void displaySysInfo (uint8_t *sysInfo) {
     sprintf(mem, "RAM:  %d%%    ", sysInfo[1]);
     sprintf(cTemp, "TEMP: %d F  ", sysInfo[2]);
 
-    screen.clearDisplay();
+    screen.clear();
 
     /* CPU percent */
 
@@ -179,7 +175,7 @@ void displaySysInfo (uint8_t *sysInfo) {
         }
     }
 
-    screen.display();
+    //;
 }
 
 void serialPrintSysInfo(uint8_t *sysInfo) {
