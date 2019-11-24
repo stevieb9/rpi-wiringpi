@@ -44,6 +44,20 @@
 #define TFT_LINE_7      96
 #define TFT_LINE_8      112
 
+#define TFT_COL_0   0
+#define TFT_COL_1   12
+#define TFT_COL_2   24
+#define TFT_COL_3   36
+#define TFT_COL_4   48
+#define TFT_COL_5   60
+#define TFT_COL_6   72
+#define TFT_COL_7   84
+#define TFT_COL_8   96
+#define TFT_COL_9   108
+#define TFT_COL_10  120
+#define TFT_COL_11  132
+#define TFT_COL_12  144
+
 #define TFT_STATUS_COL  60
 
 // security bit locations
@@ -139,24 +153,23 @@ void serialPrintSysInfo(uint8_t *sysInfo) {
 void setup() {
     Serial.begin(9600);
 
+    delay(2000);
+    
     // Pi comms setup
 
     pi.begin(9600);
-
+        
     // OLED display setup
 
-    if (!screen.begin(SSD1306_SWITCHCAPVCC, OLED_I2C_ADDR)) {
-        Serial.println(F("I2C OLED attach failure..."));
-        for (;;);
-    }
-
+    screen.begin(SSD1306_SWITCHCAPVCC, OLED_I2C_ADDR);
+    
     screen.clearDisplay();
     screen.display();
 
     screen.setTextSize(2);
     screen.setTextColor(WHITE);
     screen.setCursor(0, 0);
-
+    
     // colour TFT setup
 
     tft.initR(INITR_144GREENTAB);
@@ -179,6 +192,8 @@ void setup() {
     tft.setCursor(0, TFT_LINE_5);
     tft.print(F("FMEM: "));
 }
+
+unsigned long test = 0;
 
 void processData (void) {
 
@@ -206,6 +221,18 @@ void processData (void) {
         displaySysInfo(sysInfo);
         displaySecurityInfo(securityByte, freeMem);
     }
+    else {
+        /*
+        tft.setCursor(0, TFT_LINE_1);
+        tft.print(F("          "));
+        tft.print(F("NO PI DATA"));
+
+        screen.clearDisplay();
+        screen.setCursor(0, 0);
+        screen.print(F("NO DATA"));
+        screen.display();
+        */
+    }
 }
 
 void displaySecurityInfo (uint8_t secByte, int freeMem){
@@ -220,16 +247,19 @@ void displaySecurityInfo (uint8_t secByte, int freeMem){
     tft.print(secText[bsmt_state]);
 
     tft.setCursor(TFT_STATUS_COL, TFT_LINE_2);
-    tft.setTextColor(ST77XX_WHITE, ST77XX_RED);
-    tft.print(F("NOK"));
+    uint8_t door_state = (secByte >> BIT_DOOR) & 1;
+    tft.setTextColor(fg_colour[door_state], bg_colour[door_state]);
+    tft.print(secText[door_state]);
 
     tft.setCursor(TFT_STATUS_COL, TFT_LINE_3);
-    tft.setTextColor(ST77XX_WHITE, ST77XX_RED);
-    tft.print(F("NOK"));
+    uint8_t main_state = (secByte >> BIT_MAIN) & 1;
+    tft.setTextColor(fg_colour[main_state], bg_colour[main_state]);
+    tft.print(secText[main_state]);
 
     tft.setCursor(TFT_STATUS_COL, TFT_LINE_4);
-    tft.setTextColor(ST77XX_GREEN, ST77XX_BLACK);
-    tft.print(F("OK"));
+    uint8_t alrm_state = (secByte >> BIT_ALRM) & 1;
+    tft.setTextColor(fg_colour[alrm_state], bg_colour[alrm_state]);
+    tft.print(secText[alrm_state]);
 
     tft.setCursor(TFT_STATUS_COL, TFT_LINE_5);
     tft.setTextColor(ST77XX_WHITE, ST77XX_BLUE);
