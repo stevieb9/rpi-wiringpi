@@ -1,3 +1,4 @@
+#include <MemoryFree.h>
 #include <SoftwareSerial.h>
 #include <Wire.h>
 #include <SPI.h>
@@ -43,6 +44,20 @@
 #define TFT_LINE_7      96
 #define TFT_LINE_8      112
 
+#define TFT_COL_0   0
+#define TFT_COL_1   12
+#define TFT_COL_2   24
+#define TFT_COL_3   36
+#define TFT_COL_4   48
+#define TFT_COL_5   60
+#define TFT_COL_6   72
+#define TFT_COL_7   84
+#define TFT_COL_8   96
+#define TFT_COL_9   108
+#define TFT_COL_10  120
+#define TFT_COL_11  132
+#define TFT_COL_12  144
+
 #define TFT_STATUS_COL  60
 
 // security bit locations
@@ -57,6 +72,9 @@
 SoftwareSerial pi(RX, TX);
 Adafruit_SSD1306 screen(OLED_WIDTH, OLED_HEIGHT, &Wire, OLED_RESET);
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
+
+unsigned long memStartTime = millis();
+unsigned long memDelay = 1000;
 
 void displaySysInfo (uint8_t *sysInfo) {
 
@@ -114,7 +132,6 @@ void displaySysInfo (uint8_t *sysInfo) {
 
 void serialPrintSysInfo(uint8_t *sysInfo) {
 
-}
     Serial.println(F("System Info"));
     Serial.print(F("CPU:  "));
     Serial.print(sysInfo[0]);
@@ -136,24 +153,23 @@ void serialPrintSysInfo(uint8_t *sysInfo) {
 void setup() {
     Serial.begin(9600);
 
+    delay(2000);
+    
     // Pi comms setup
 
     pi.begin(9600);
-
+        
     // OLED display setup
 
-    if (!screen.begin(SSD1306_SWITCHCAPVCC, OLED_I2C_ADDR)) {
-        Serial.println(F("I2C OLED attach failure..."));
-        for (;;);
-    }
-
+    screen.begin(SSD1306_SWITCHCAPVCC, OLED_I2C_ADDR);
+    
     screen.clearDisplay();
     screen.display();
 
     screen.setTextSize(2);
     screen.setTextColor(WHITE);
     screen.setCursor(0, 0);
-
+    
     // colour TFT setup
 
     tft.initR(INITR_144GREENTAB);
@@ -172,12 +188,17 @@ void setup() {
 
     tft.setCursor(0, TFT_LINE_4);
     tft.print(F("ALRM: "));
+
+    tft.setCursor(0, TFT_LINE_5);
+    tft.print(F("FMEM: "));
 }
+
+unsigned long test = 0;
 
 void processData (void) {
 
     uint8_t sysInfo[PI_BYTES-1];
-    uint8_t securityByte = 0;
+    byte securityByte = 0;
 
     if (pi.available() == PI_BYTES) {
 
@@ -186,39 +207,63 @@ void processData (void) {
         for (uint8_t i = 0; i < PI_BYTES-1; i++) {
             sysInfo[i] = pi.read();
         }
-        
+
+        int freeMem = freeMemory();
+     
         if (DEBUG) {
             serialPrintSysInfo(sysInfo);
+            Serial.print(F("fmem: "));
+            Serial.println(freeMem);
             Serial.print(F("SEC BYTE: "));
             Serial.println(securityByte);
         }
 
         displaySysInfo(sysInfo);
-        displaySecurityInfo(securityByte);
+        displaySecurityInfo(securityByte, freeMem);
+    }
+    else {
+        /*
+        tft.setCursor(0, TFT_LINE_1);
+        tft.print(F("          "));
+        tft.print(F("NO PI DATA"));
+
+        screen.clearDisplay();
+        screen.setCursor(0, 0);
+        screen.print(F("NO DATA"));
+        screen.display();
+        */
     }
 }
 
-void displaySecurityInfo (uint8_t secByte){
+void displaySecurityInfo (uint8_t secByte, int freeMem){
 
-    const uint8_t fg_colour[2] = { ST77XX_GREEN, ST77XX_WHITE };
-    const uint8_t bg_colour[2] = { ST77XX_BLACK, ST77XX_RED };
-
+    const uint16_t fg_colour[2] = { ST77XX_GREEN, ST77XX_WHITE };
+    const uint16_t bg_colour[2] = { ST77XX_BLACK, ST77XX_RED };
+    char* secText[2] = { "OK ", "NOK" };
+    
     tft.setCursor(TFT_STATUS_COL, TFT_LINE_1);
-    uint8_t bsmt_state = (0xFF >> BIT_BSMT) & 1;
+    uint8_t bsmt_state = (secByte >> BIT_BSMT) & 1;
     tft.setTextColor(fg_colour[bsmt_state], bg_colour[bsmt_state]);
-    tft.print(F("NOK"));
+    tft.print(secText[bsmt_state]);
 
     tft.setCursor(TFT_STATUS_COL, TFT_LINE_2);
-    tft.setTextColor(ST77XX_WHITE, ST77XX_RED);
-    tft.print(F("NOK"));
+    uint8_t door_state = (secByte >> BIT_DOOR) & 1;
+    tft.setTextColor(fg_colour[door_state], bg_colour[door_state]);
+    tft.print(secText[door_state]);
 
     tft.setCursor(TFT_STATUS_COL, TFT_LINE_3);
-    tft.setTextColor(ST77XX_WHITE, ST77XX_RED);
-    tft.print(F("NOK"));
+    uint8_t main_state = (secByte >> BIT_MAIN) & 1;
+    tft.setTextColor(fg_colour[main_state], bg_colour[main_state]);
+    tft.print(secText[main_state]);
 
     tft.setCursor(TFT_STATUS_COL, TFT_LINE_4);
-    tft.setTextColor(ST77XX_GREEN, ST77XX_BLACK);
-    tft.print(F("OK"));
+    uint8_t alrm_state = (secByte >> BIT_ALRM) & 1;
+    tft.setTextColor(fg_colour[alrm_state], bg_colour[alrm_state]);
+    tft.print(secText[alrm_state]);
+
+    tft.setCursor(TFT_STATUS_COL, TFT_LINE_5);
+    tft.setTextColor(ST77XX_WHITE, ST77XX_BLUE);
+    tft.print(freeMem);
 
     tft.setCursor(0, TFT_LINE_7);
     tft.setTextColor(ST77XX_MAGENTA, ST77XX_BLACK);
@@ -226,10 +271,21 @@ void displaySecurityInfo (uint8_t secByte){
 
     tft.setCursor(0, TFT_LINE_8);
     tft.setTextColor(ST77XX_YELLOW, ST77XX_ORANGE);
-    tft.print(F("0b"));
-    tft.print(secByte, BIN);
+
+    for (uint8_t i = 1 << 7; i > 0; i = i / 2){ 
+        (secByte & i)? tft.print(1): tft.print(0); 
+    }
 }
 
 void loop() {
+    if (DEBUG){
+        if (millis() - memStartTime >= memDelay){
+            Serial.print(F("Free Memory: "));
+            Serial.println(freeMemory());
+            memStartTime = millis();
+        }
+    }
     processData();
 }
+
+
