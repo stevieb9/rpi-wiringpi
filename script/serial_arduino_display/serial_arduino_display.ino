@@ -9,16 +9,17 @@
 
 #include <stdio.h>
 
-#define PI_BYTES 6
-#define DEBUG 1
+#define PI_BYTES        6
+#define DEBUG           1
+#define FREE_MEM_DEBUG  1
 
 #define RX 2
 #define TX 3
 
-#define OLED_I2C_ADDR 0x3C
-#define OLED_RESET 4
-#define OLED_WIDTH 128
-#define OLED_HEIGHT 64
+#define OLED_I2C_ADDR   0x3C
+#define OLED_RESET      4
+#define OLED_WIDTH      128
+#define OLED_HEIGHT     64
 
 /* Colour TFT Pins
  *
@@ -35,14 +36,14 @@
 #define TFT_DC  8
 #define TFT_CS  10
 
-#define TFT_LINE_1      0
-#define TFT_LINE_2      16
-#define TFT_LINE_3      32
-#define TFT_LINE_4      48
-#define TFT_LINE_5      64
-#define TFT_LINE_6      80
-#define TFT_LINE_7      96
-#define TFT_LINE_8      112
+#define TFT_LINE_1  0
+#define TFT_LINE_2  16
+#define TFT_LINE_3  32
+#define TFT_LINE_4  48
+#define TFT_LINE_5  64
+#define TFT_LINE_6  80
+#define TFT_LINE_7  96
+#define TFT_LINE_8  112
 
 #define TFT_COL_0   0
 #define TFT_COL_1   12
@@ -58,7 +59,7 @@
 #define TFT_COL_11  132
 #define TFT_COL_12  144
 
-#define TFT_STATUS_COL  60
+#define TFT_STATUS_COL  TFT_COL_5
 
 // security bit locations
 
@@ -75,6 +76,57 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 
 unsigned long memStartTime = millis();
 unsigned long memDelay = 1000;
+
+void setup() {
+    Serial.begin(9600);
+
+    // Pi comms setup
+
+    pi.begin(9600);
+        
+    // OLED display setup
+
+    int freeMem = freeMemory();
+
+    if (freeMem <= 1163){
+        Serial.print(F("Not enough SRAM to load OLED. You have "));
+        Serial.print(freeMem);
+        Serial.println(F(", but we need 1163"));
+    }
+    while (! screen.begin(SSD1306_SWITCHCAPVCC, OLED_I2C_ADDR)){
+        Serial.println(F("Error connecting to OLED"));
+        delay(1000);
+    }
+    
+    screen.clearDisplay();
+    screen.display();
+
+    screen.setTextSize(2);
+    screen.setTextColor(WHITE);
+    screen.setCursor(0, 0);
+    
+    // colour TFT setup
+
+    tft.initR(INITR_144GREENTAB);
+
+    tft.fillScreen(ST77XX_BLACK);
+    tft.setTextSize(2);
+
+    tft.setCursor(0, TFT_LINE_1);
+    tft.print(F("BSMT: "));
+
+    tft.setCursor(0, TFT_LINE_2);
+    tft.print(F("DOOR: "));
+
+    tft.setCursor(0, TFT_LINE_3);
+    tft.print(F("MAIN: "));
+
+    tft.setCursor(0, TFT_LINE_4);
+    tft.print(F("ALRM: "));
+
+    tft.setCursor(0, TFT_LINE_5);
+    tft.print(F("FMEM: "));
+}
 
 void displaySysInfo (uint8_t *sysInfo) {
 
@@ -150,51 +202,6 @@ void serialPrintSysInfo(uint8_t *sysInfo) {
 
 }
 
-void setup() {
-    Serial.begin(9600);
-
-    delay(2000);
-    
-    // Pi comms setup
-
-    pi.begin(9600);
-        
-    // OLED display setup
-
-    screen.begin(SSD1306_SWITCHCAPVCC, OLED_I2C_ADDR);
-    
-    screen.clearDisplay();
-    screen.display();
-
-    screen.setTextSize(2);
-    screen.setTextColor(WHITE);
-    screen.setCursor(0, 0);
-    
-    // colour TFT setup
-
-    tft.initR(INITR_144GREENTAB);
-
-    tft.fillScreen(ST77XX_BLACK);
-    tft.setTextSize(2);
-
-    tft.setCursor(0, TFT_LINE_1);
-    tft.print(F("BSMT: "));
-
-    tft.setCursor(0, TFT_LINE_2);
-    tft.print(F("DOOR: "));
-
-    tft.setCursor(0, TFT_LINE_3);
-    tft.print(F("MAIN: "));
-
-    tft.setCursor(0, TFT_LINE_4);
-    tft.print(F("ALRM: "));
-
-    tft.setCursor(0, TFT_LINE_5);
-    tft.print(F("FMEM: "));
-}
-
-unsigned long test = 0;
-
 void processData (void) {
 
     uint8_t sysInfo[PI_BYTES-1];
@@ -249,9 +256,11 @@ void displaySecurityInfo (uint8_t secByte, int freeMem){
     tft.setTextColor(fg_colour[alrm_state], bg_colour[alrm_state]);
     tft.print(secText[alrm_state]);
 
-    tft.setCursor(TFT_STATUS_COL, TFT_LINE_7);
-    tft.setTextColor(ST77XX_WHITE, ST77XX_BLUE);
-    tft.print(freeMem);
+    if (FREE_MEM_DEBUG){
+        tft.setCursor(TFT_STATUS_COL, TFT_LINE_7);
+        tft.setTextColor(ST77XX_WHITE, ST77XX_BLUE);
+        tft.print(freeMem);
+    }
 
     tft.setCursor(0, TFT_LINE_8);
     tft.setTextColor(ST77XX_YELLOW, ST77XX_ORANGE);
@@ -262,14 +271,6 @@ void displaySecurityInfo (uint8_t secByte, int freeMem){
 }
 
 void loop() {
-    if (DEBUG){
-        if (millis() - memStartTime >= memDelay){
-            Serial.print(F("Free Memory: "));
-            Serial.println(freeMemory());
-            memStartTime = millis();
-        }
-    }
     processData();
 }
-
 
