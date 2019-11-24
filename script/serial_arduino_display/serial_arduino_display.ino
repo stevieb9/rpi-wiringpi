@@ -212,11 +212,12 @@ void displaySecurityInfo (byte secByte, int freeMem){
 
     const uint8_t fg_colour[2] = { ST77XX_GREEN, ST77XX_WHITE };
     const uint8_t bg_colour[2] = { ST77XX_BLACK, ST77XX_RED };
-
+    const char* secText[2] = { "OK", "NOK" };
+    
     tft.setCursor(TFT_STATUS_COL, TFT_LINE_1);
     uint8_t bsmt_state = (0xFF >> BIT_BSMT) & 1;
     tft.setTextColor(fg_colour[bsmt_state], bg_colour[bsmt_state]);
-    tft.print(F("NOK"));
+    tft.print(secText[bsmt_state]);
 
     tft.setCursor(TFT_STATUS_COL, TFT_LINE_2);
     tft.setTextColor(ST77XX_WHITE, ST77XX_RED);
@@ -240,7 +241,6 @@ void displaySecurityInfo (byte secByte, int freeMem){
 
     tft.setCursor(0, TFT_LINE_8);
     tft.setTextColor(ST77XX_YELLOW, ST77XX_ORANGE);
-    tft.print(F("0b"));
     tft.print(secByte, BIN);
 }
 
@@ -254,4 +254,5 @@ void loop() {
     }
     processData();
 }
+
 
