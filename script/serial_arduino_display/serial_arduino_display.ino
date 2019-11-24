@@ -69,6 +69,12 @@
 #define BIT_MAIN    2
 #define BIT_ALRM    6
 
+// globals
+
+const uint16_t tft_sec_fg_colour[2] PROGMEM = { ST77XX_GREEN, ST77XX_WHITE };
+const uint16_t tft_sec_bg_colour[2] PROGMEM = { ST77XX_BLACK, ST77XX_RED };
+const PROGMEM char* const tft_sec_text[2] PROGMEM = { "OK ", "NOK" };
+
 // object instantiation
 
 SoftwareSerial pi(RX, TX);
@@ -193,7 +199,6 @@ void serialPrintSysInfo(uint8_t *sysInfo) {
     Serial.println(testNum);
 
 }
-
 void processData (void) {
 
     uint8_t sysInfo[PI_BYTES-1];
@@ -222,38 +227,47 @@ void processData (void) {
     }
 }
 
+uint8_t _getBitValue (uint8_t byte, uint8_t bit){
+    return (uint8_t) (byte >> bit) & 1;
+}
+
+void _displaySecStatus(uint8_t state){
+    tft.setTextColor(tft_sec_fg_colour[state], tft_sec_bg_colour[state]);
+    tft.print(tft_sec_text[state]);
+}
+
 void displaySecurityInfo (uint8_t secByte, int freeMem){
 
-    const uint16_t fg_colour[2] = { ST77XX_GREEN, ST77XX_WHITE };
-    const uint16_t bg_colour[2] = { ST77XX_BLACK, ST77XX_RED };
-    const char* const secText[2] = { "OK ", "NOK" };
-
+    // basement PIR
+    
     tft.setCursor(TFT_STATUS_COL, TFT_LINE_1);
-    uint8_t bsmt_state = (secByte >> BIT_BSMT) & 1;
-    tft.setTextColor(fg_colour[bsmt_state], bg_colour[bsmt_state]);
-    tft.print(secText[bsmt_state]);
+    _displaySecStatus(_getBitValue(secByte, BIT_BSMT));
 
+    // basement door
+    
     tft.setCursor(TFT_STATUS_COL, TFT_LINE_2);
-    uint8_t door_state = (secByte >> BIT_DOOR) & 1;
-    tft.setTextColor(fg_colour[door_state], bg_colour[door_state]);
-    tft.print(secText[door_state]);
+    _displaySecStatus(_getBitValue(secByte, BIT_DOOR));
 
+    // main floor PIR
+    
     tft.setCursor(TFT_STATUS_COL, TFT_LINE_3);
-    uint8_t main_state = (secByte >> BIT_MAIN) & 1;
-    tft.setTextColor(fg_colour[main_state], bg_colour[main_state]);
-    tft.print(secText[main_state]);
+    _displaySecStatus(_getBitValue(secByte, BIT_MAIN));
 
+    // alarm
+    
     tft.setCursor(TFT_STATUS_COL, TFT_LINE_4);
-    uint8_t alrm_state = (secByte >> BIT_ALRM) & 1;
-    tft.setTextColor(fg_colour[alrm_state], bg_colour[alrm_state]);
-    tft.print(secText[alrm_state]);
+    _displaySecStatus(_getBitValue(secByte, BIT_ALRM));
 
+    // free memory
+    
     if (FREE_MEM_DEBUG){
         tft.setCursor(TFT_STATUS_COL, TFT_LINE_7);
         tft.setTextColor(ST77XX_WHITE, ST77XX_BLUE);
         tft.print(freeMem);
     }
 
+    // security byte binary
+    
     tft.setCursor(0, TFT_LINE_8);
     tft.setTextColor(ST77XX_YELLOW, ST77XX_ORANGE);
 
@@ -265,3 +279,5 @@ void displaySecurityInfo (uint8_t secByte, int freeMem){
 void loop() {
     processData();
 }
+
+
