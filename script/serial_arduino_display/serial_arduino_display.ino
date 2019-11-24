@@ -249,13 +249,9 @@ void displaySecurityInfo (uint8_t secByte, int freeMem){
     tft.setTextColor(fg_colour[alrm_state], bg_colour[alrm_state]);
     tft.print(secText[alrm_state]);
 
-    tft.setCursor(TFT_STATUS_COL, TFT_LINE_5);
+    tft.setCursor(TFT_STATUS_COL, TFT_LINE_7);
     tft.setTextColor(ST77XX_WHITE, ST77XX_BLUE);
     tft.print(freeMem);
-
-    tft.setCursor(0, TFT_LINE_7);
-    tft.setTextColor(ST77XX_MAGENTA, ST77XX_BLACK);
-    tft.print(F("Sec Byte:"));
 
     tft.setCursor(0, TFT_LINE_8);
     tft.setTextColor(ST77XX_YELLOW, ST77XX_ORANGE);
