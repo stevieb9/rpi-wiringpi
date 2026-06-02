@@ -1,8 +1,8 @@
 # Plan: Bring lib/ and t/ Perl into line with the personal Perl style rules
 
-> **NEXT ACTION:** V1 — fix lib/RPi/WiringPi.pm (negation line 79 + alphabetize private subs)
-> **LAST SESSION:** Scanned all lib/ + t/ Perl per the perl.md rules; built this plan. No edits made yet.
-> **ARCHIVE:** See style-archive.md for completed V tasks
+> **NEXT ACTION:** V2 — alphabetize public + private subs in lib/RPi/WiringPi/Core.pm
+> **LAST SESSION:** V1 ✅ — WiringPi.pm line 79 negation fixed + private subs alphabetized; verified (28 subs intact).
+> **ARCHIVE:** See style-archive.md for completed V1
 
 ## Scope & method
 
@@ -47,7 +47,6 @@
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V1 | **lib/RPi/WiringPi.pm**: (a) line 79 `while (!defined` → `while (! defined`; (b) alphabetize the private subs (keep `new`/public block + `DESTROY` as-is). Target private order: `_class_signal_handler, _cleanup_handler, _fatal_exit, _generate_signal_handlers, _setup, _signal_handlers, _vim`. Preserve the `END {}` block and trailing `_vim`/`1;`. | `grep -nE '\(! ?defined' lib/RPi/WiringPi.pm; grep -nE '^sub ' lib/RPi/WiringPi.pm` | line 79 prints `! defined` (with space); private subs (those after `# private`) appear in the target order; total `^sub ` count still **28** (21 public + 7 private) | ⏳ |
 | V2 | **lib/RPi/WiringPi/Core.pm**: alphabetize public subs, then private subs. Target public: `cleanup, export_pin, gpio_layout, identify, io_led, label, pin_scheme, pin_to_gpio, pwm_clock, pwm_mode, pwm_range, pwr_led, register_pin, registered_pins, unexport_pin, unregister_object, unregister_pin`. Target private: `_pin_registration, _pwm_in_use, _rpi_register, _rpi_register_pins, _vim`. | `grep -nE '^sub ' lib/RPi/WiringPi/Core.pm` | sub names read public-block-alpha then private-block-alpha as listed; total `^sub ` count still **22** (17 + 5) | ⏳ |
 | V3 | **lib/RPi/WiringPi/Meta.pm**: alphabetize public subs. Target: `meta, meta_delete, meta_erase, meta_fetch, meta_get, meta_key, meta_key_check, meta_lock, meta_set, meta_store, meta_unlock` then `_vim`. | `grep -nE '^sub ' lib/RPi/WiringPi/Meta.pm` | sub names in the target order; total `^sub ` count still **12** (11 + 1) | ⏳ |
 | V4 | **t/RPiTest.pm**: (a) line 60 `if (!$ENV{RPI_MULTI})` and line 65 `if (!$ENV{RPI_POD})` → `! $ENV{...}`; (b) alphabetize the helper subs. Target: `rpi_check_pin_status, rpi_default_pin_config, rpi_legal_object_count, rpi_legal_pin_count, rpi_multi_check, rpi_oled_available, rpi_oled_unavailable, rpi_pod_check, rpi_reset, rpi_running_test, rpi_sudo_check, rpi_verify_pin_status`. | `grep -nE '\(! ?\$ENV' t/RPiTest.pm; grep -nE '^sub ' t/RPiTest.pm` | lines 60 & 65 print `! $ENV`; subs in target order; total `^sub ` count still **12** | ⏳ |
