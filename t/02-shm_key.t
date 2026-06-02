@@ -11,8 +11,8 @@ rpi_running_test(__FILE__);
 my $pi = RPi::WiringPi->new(label => 't/02-shm_key.t', shm_key => 'rpit');
 is $pi->meta_key, 0x74697072, "meta key successfully accepted in object instantiation";
 
-is (RPi::WiringPi->meta_key_check('rpit'), 1, "'rpit' shm segment exists");
-is (RPi::WiringPi->meta_key_check('blah'), 0, "'blah' shm segment doesn't exist");
+is(RPi::WiringPi->meta_key_check('rpit'), 1, "'rpit' shm segment exists");
+is(RPi::WiringPi->meta_key_check('blah'), 0, "'blah' shm segment doesn't exist");
 
 $pi->cleanup;
 
