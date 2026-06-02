@@ -76,7 +76,7 @@ sub new {
         $self->meta_lock;
         my $meta = $self->meta_fetch;
 
-        while (!defined $self->{uuid}) {
+        while (! defined $self->{uuid}) {
             my $uuid = $self->checksum;
             next if exists $meta->{objects}{$uuid};
             $self->{uuid} = $uuid;
@@ -338,28 +338,6 @@ sub DESTROY {
 
 # private
 
-sub _generate_signal_handlers {
-    my $self = shift;
-
-    if (! %sig_handlers){
-        # set up the signal handler class structure only once
-        $SIG{INT} = \&_class_signal_handler('INT');
-        $SIG{TERM} = \&_class_signal_handler('TERM');
-        $SIG{__DIE__} = sub { _class_signal_handler('__DIE__', @_) };
-    }
-
-    $sig_handlers{'__DIE__'}{$self->uuid} = sub {
-        my @err = @_;
-        print "$_\n" for @err;
-        $self->_cleanup_handler('__DIE__', @err)
-    };
-    $sig_handlers{'INT'}{$self->uuid} = sub {
-        $self->_cleanup_handler('INT')
-    };
-    $sig_handlers{'TERM'}{$self->uuid} = sub {
-        $self->_cleanup_handler('TERM')
-    };
-}
 sub _class_signal_handler {
     # populates the class level signal handler structure
 
@@ -386,9 +364,6 @@ sub _cleanup_handler {
         #FIXME: add an object count per proc in meta, and exit if it's 0
     }
 }
-sub _signal_handlers {
-    return \%sig_handlers;
-}
 sub _fatal_exit {
     my ($self, $fatal) = @_;
     if (defined $fatal){
@@ -397,8 +372,33 @@ sub _fatal_exit {
     $self->{fatal_exit} = $fatal_exit;
     return $self->{fatal_exit};
 }
+sub _generate_signal_handlers {
+    my $self = shift;
+
+    if (! %sig_handlers){
+        # set up the signal handler class structure only once
+        $SIG{INT} = \&_class_signal_handler('INT');
+        $SIG{TERM} = \&_class_signal_handler('TERM');
+        $SIG{__DIE__} = sub { _class_signal_handler('__DIE__', @_) };
+    }
+
+    $sig_handlers{'__DIE__'}{$self->uuid} = sub {
+        my @err = @_;
+        print "$_\n" for @err;
+        $self->_cleanup_handler('__DIE__', @err)
+    };
+    $sig_handlers{'INT'}{$self->uuid} = sub {
+        $self->_cleanup_handler('INT')
+    };
+    $sig_handlers{'TERM'}{$self->uuid} = sub {
+        $self->_cleanup_handler('TERM')
+    };
+}
 sub _setup {
     return $_[0]->{setup};
+}
+sub _signal_handlers {
+    return \%sig_handlers;
 }
 
 END {
