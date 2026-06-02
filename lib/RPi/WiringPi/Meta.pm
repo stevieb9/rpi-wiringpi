@@ -24,6 +24,26 @@ sub meta {
 
     $self->{meta_shm} = $shm;
 }
+sub meta_erase {
+    my ($self, $all) = @_;
+
+    $all //= 0;
+
+    $self->meta_lock;
+
+    my ($clean_store, $storage);
+
+    if ($all){
+        $clean_store = {};
+    }
+    else {
+        $storage = $self->meta_fetch()->{storage};
+        $clean_store = defined $storage ? { storage => $storage } : {};
+    }
+
+    $self->meta_store($clean_store);
+    $self->meta_unlock;
+}
 sub meta_key_check {
     # this is a class method, and must be called on the class prior to creating
     # a Pi object
@@ -81,6 +101,20 @@ sub meta_delete {
     $self->meta_store($shm);
     $self->meta_unlock;
 }
+sub meta_get {
+    my ($self, $name) = @_;
+
+    if (! defined $name){
+        croak "when getting a metadata slot, you must send in a name\n";
+    }
+
+    $self->meta_lock;
+    my $shm = $self->meta_fetch;
+    my $data = { %{ $shm->{storage}{$name} }} if exists $shm->{storage}{$name};
+    $self->meta_unlock;
+
+    return $data;
+}
 sub meta_set {
     my ($self, $name, $data) = @_;
 
@@ -98,40 +132,7 @@ sub meta_set {
     $self->meta_store($shm);
     $self->meta_unlock;
 }
-sub meta_get {
-    my ($self, $name) = @_;
 
-    if (! defined $name){
-        croak "when getting a metadata slot, you must send in a name\n";
-    }
-
-    $self->meta_lock;
-    my $shm = $self->meta_fetch;
-    my $data = { %{ $shm->{storage}{$name} }} if exists $shm->{storage}{$name};
-    $self->meta_unlock;
-
-    return $data;
-}
-sub meta_erase {
-    my ($self, $all) = @_;
-
-    $all //= 0;
-
-    $self->meta_lock;
-
-    my ($clean_store, $storage);
-
-    if ($all){
-        $clean_store = {};
-    }
-    else {
-        $storage = $self->meta_fetch()->{storage};
-        $clean_store = defined $storage ? { storage => $storage } : {};
-    }
-
-    $self->meta_store($clean_store);
-    $self->meta_unlock;
-}
 sub _vim{1;};
 
 1;
