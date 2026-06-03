@@ -75,14 +75,14 @@ select(undef, undef, undef, 0.2);
     }
 }
 
-sub _eeprom {
-    my @bytes = $uno->read_block(MAX_BYTES, 99);
-    return @bytes;
-}
-
 $pi->cleanup;
 
 rpi_check_pin_status();
 #rpi_metadata_clean();
 
 done_testing();
+
+sub _eeprom {
+    my @bytes = $uno->read_block(MAX_BYTES, 99);
+    return @bytes;
+}
