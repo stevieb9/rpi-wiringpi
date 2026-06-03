@@ -78,17 +78,6 @@ is $adc->raw($c) > $high, 1, "R->C: CENTRE is HIGH";
 is $adc->raw($r) < $low, 1, "R->C: right is low";
 display('centre') if DEBUG;
 
-
-sub display {
-    my ($position) = @_;
-    
-    say $position;
-    say "L: " . $adc->raw($l);
-    say "C: " . $adc->raw($c);
-    say "R: " . $adc->raw($r);
-    say "\n";
-}
-
 $expander->cleanup;
 $pi->cleanup;
 
@@ -96,4 +85,14 @@ rpi_check_pin_status();
 #rpi_metadata_clean();
 
 done_testing();
+
+sub display {
+    my ($position) = @_;
+
+    say $position;
+    say "L: " . $adc->raw($l);
+    say "C: " . $adc->raw($c);
+    say "R: " . $adc->raw($r);
+    say "\n";
+}
 
