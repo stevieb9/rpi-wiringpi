@@ -1,8 +1,8 @@
 # Plan: Remove setup_sys() and setup_phys() initialization support
 
-> **NEXT ACTION:** Run V1 — remove the `setup_phys()` dispatch branch in `RPi::WiringPi::new()` (lib/RPi/WiringPi.pm)
-> **LAST SESSION:** Added V9 (review `RPi::Pin` for the removed setup modes) and B2 (RPi::Pin should `use RPi::Const`, named pin-mode constants over integers). V8 covers the `RPi::Const` review. No V tasks executed yet.
-> **ARCHIVE:** See refactor-setup-modes-archive.md for completed V tasks
+> **NEXT ACTION:** V2 — remove the `RPI_MODE_PHYS` branch from `pin_to_gpio()` (Core.pm) and `pin_map()` (Util.pm)
+> **LAST SESSION (2026-06-04):** Ran **V1 — PASS** on new branch `3.18`. Dropped the `/^p/` `setup_phys()` dispatch branch from `RPi::WiringPi::new()` as the coordinated downstream edit for WiringPi::API's V34 (that release removes `setup_phys()`/`setup_sys()`). grep confirms no `SUPER::setup_phys`/`RPI_MODE_PHYS` in WiringPi.pm. Full suite deferred to WiringPi::API 3.1801 install (UPGRADE-3.18.md V33). V2-V9 still pending.
+> **ARCHIVE:** See refactor-setup-modes-archive.md for completed V tasks (V1 archived)
 
 ## Goal
 
@@ -50,7 +50,6 @@ Line numbers below are anchors as of planning time; re-locate by sub/POD name si
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V1 | Remove the `setup_phys()` dispatch branch (`elsif ($self->_setup =~ /^p/) {...}`, ~lines 51-54) from `RPi::WiringPi::new()`. Leave the wpi / gpio / else→`RPI_MODE_UNINIT` branches intact. | `grep -n "SUPER::setup_phys\|RPI_MODE_PHYS" lib/RPi/WiringPi.pm` | No output (code dispatch gone; only setup_sys POD text remains, handled in V4) | ⏳ |
 | V2 | Remove the `RPI_MODE_PHYS` branch from `pin_to_gpio()` in Core.pm (~lines 65-67) and from `pin_map()` in Util.pm (~lines 44-46). Keep the `phys_to_gpio`/`phys_to_wpi` calls inside the WPI/GPIO branches — they are still needed to build the maps. | `grep -n "RPI_MODE_PHYS" lib/RPi/WiringPi/Core.pm lib/RPi/WiringPi/Util.pm` | Only the Core.pm POD line (~421) remains; no executable `RPI_MODE_PHYS` branch in either sub | ⏳ |
 | V3 | Remove the `export_pin()` and `unexport_pin()` subs from Core.pm (~lines 150-157). | `grep -n "sub export_pin\|sub unexport_pin" lib/RPi/WiringPi/Core.pm` | No output | ⏳ |
 | V4 | Remove all setup_sys / setup_phys / SYS / PHYS / export_pin / unexport_pin POD: Core.pm `export_pin`+`unexport_pin` sections (~510-520); `pin_scheme` POD (~411-422) drop "System GPIO", `RPI_MODE_GPIO_SYS`, `RPI_MODE_PHYS` (keep WPI/GPIO/UNINIT); `pin_to_gpio` POD (~424-428) drop the `RPI_MODE_PHYS` mention. WiringPi.pm `export_pin`+`unexport_pin` sections (~896-902). | `grep -rn "setup_sys\|setup_phys\|export_pin\|unexport_pin\|RPI_MODE_PHYS\|RPI_MODE_GPIO_SYS\|System GPIO" lib/` | No output | ⏳ |

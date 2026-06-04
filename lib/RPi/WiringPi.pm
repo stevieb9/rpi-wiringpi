@@ -48,10 +48,6 @@ sub new {
                     $self->SUPER::setup_gpio();
                     $self->pin_scheme(RPI_MODE_GPIO);
                 }
-                elsif ($self->_setup =~ /^p/) {
-                    $self->SUPER::setup_phys();
-                    $self->pin_scheme(RPI_MODE_PHYS);
-                }
                 else {
                     $self->pin_scheme(RPI_MODE_UNINIT);
                 }
