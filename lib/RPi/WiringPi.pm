@@ -180,6 +180,10 @@ sub i2c {
     RPi::I2C->import;
     return RPi::I2C->new($addr, $i2c_device);
 }
+sub last_interrupt {
+    my ($self) = @_;
+    return WiringPi::API::last_interrupt();
+}
 sub lcd {
     my ($self, %args) = @_;
 
@@ -1012,6 +1016,15 @@ elsewhere (eg. in your own event loop).
 Releases every armed interrupt: stops the wiringPi ISR threads and closes the
 event pipe. The object's C<cleanup> calls this for you automatically, so you
 only need it to disarm interrupts while the program keeps running.
+
+=head3 last_interrupt
+
+Returns a hash reference describing the most recently dispatched interrupt event
+- C<{ pin, pin_bcm, edge, status, ts_us }> - or C<undef> if none has fired yet.
+Because the callback only receives C<($edge, $timestamp_us)>, this lets it (or
+your main loop) recover the BCM pin and status; useful when one handler is armed
+on several pins. Like C<auto_dispatch_interrupts>, it reports a process-wide
+value (the last event on any pin), so it lives on the Pi object.
 
 =head3 auto_dispatch_interrupts($bool)
 
