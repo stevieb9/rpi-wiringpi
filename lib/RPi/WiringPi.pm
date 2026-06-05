@@ -109,8 +109,8 @@ sub adc {
     }
 }
 sub auto_dispatch_interrupts {
-    my ($self, $enable) = @_;
-    return WiringPi::API::auto_dispatch_interrupts($enable);
+    my ($self, $enable, $signal) = @_;
+    return WiringPi::API::auto_dispatch_interrupts($enable, $signal);
 }
 sub background_interrupts {
     my ($self, @specs) = @_;
@@ -1058,12 +1058,14 @@ your main loop) recover the BCM pin and status; useful when one handler is armed
 on several pins. Like C<auto_dispatch_interrupts>, it reports a process-wide
 value (the last event on any pin), so it lives on the Pi object.
 
-=head3 auto_dispatch_interrupts($bool)
+=head3 auto_dispatch_interrupts($bool, $signal)
 
 Enables (C<1>) or disables (C<0>) async auto-dispatch for the whole process.
 When enabled, C<< $pin->set_interrupt >> callbacks fire B<automatically> at Perl
 safe points (via C<SIGIO>) with no C<wait_interrupts>/C<dispatch_interrupts>
-loop, and may touch your program's variables with no locking. This is a
+loop, and may touch your program's variables with no locking. The optional
+C<$signal> picks the delivery signal (default C<SIGIO>; pass eg C<'USR1'> to
+avoid clashing with other C<SIGIO> users). This is a
 process-global switch (it affects every armed pin), which is why it lives on the
 Pi object rather than on an individual pin. A long, non-yielding C/XS call defers
 the callback until it returns - use C<< $pin->background_interrupt >> (see
