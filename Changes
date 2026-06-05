@@ -55,6 +55,10 @@ Revision history for Perl extension RPi::WiringPi.
         - auto_dispatch_interrupts() proxy now forwards an optional delivery
           signal (eg. 'USR1'); $pin->set_interrupt() forwards the new
           {auto_dispatch => ...} option
+        - Added lib/INTERRUPTS.md: a guide to interrupts in RPi::WiringPi (arming
+          on a pin, driving/controlling dispatch on the Pi object, hands-off and
+          background handling, the shared-child and results channels, queue
+          sizing, and fork/cleanup behaviour)
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to

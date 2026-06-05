@@ -950,7 +950,10 @@ Removes an already registered pin.
 =head3 cleanup
 
 Cleans up the entire system, resetting all pins and devices back to the state
-we found them in when we initialized the system.
+we found them in when we initialized the system. It also releases any armed
+interrupts (via C<< WiringPi::API::stop_interrupts() >>) - stopping the wiringPi
+ISR threads and closing the event pipe - so you don't have to do that yourself
+at teardown.
 
 Only the process that created the object performs the cleanup: in a forked
 child the call is a no-op, so a child can't reset pins or mutate the shared
