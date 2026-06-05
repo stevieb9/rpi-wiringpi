@@ -180,6 +180,10 @@ sub i2c {
     RPi::I2C->import;
     return RPi::I2C->new($addr, $i2c_device);
 }
+sub interrupt_buffer {
+    my ($self, $bytes) = @_;
+    return WiringPi::API::interrupt_buffer($bytes);
+}
 sub last_interrupt {
     my ($self) = @_;
     return WiringPi::API::last_interrupt();
@@ -1036,6 +1040,14 @@ process-global switch (it affects every armed pin), which is why it lives on the
 Pi object rather than on an individual pin. A long, non-yielding C/XS call defers
 the callback until it returns - use C<< $pin->background_interrupt >> (see
 L<RPi::Pin>) if you need it to fire even then.
+
+=head3 interrupt_buffer($bytes)
+
+Gets (no argument) or sets the capacity of the interrupt queue - the kernel pipe
+that absorbs edge bursts. On overflow the newest edges are dropped (never merged
+or blocked) and counted, so raise this if a fast source outpaces your dispatch.
+May be set before arming and persists across teardown. Process-wide, so it lives
+on the Pi object. See C<interrupt_buffer> in L<WiringPi::API> for details.
 
 =head1 RUNNING TESTS
 

@@ -571,6 +571,14 @@ Use C<auto_dispatch_interrupts> when the handler must update your program's own
 state; use C<background_interrupt> for an independent handler that must fire even
 during long, non-yielding work.
 
+=head3 Bursts and dropped edges
+
+Edges are queued in a kernel pipe until you dispatch them. If a fast source
+outruns your dispatching, the queue fills and the newest edges are B<dropped>
+(never merged into one, never blocked) - and each is counted, so loss is never
+silent. Read the count with C<< WiringPi::API::interrupt_dropped() >>, and if you
+need a deeper queue, enlarge it with C<< $pi->interrupt_buffer($bytes) >>.
+
 =head1 I2C BUS
 
 Allows you to read and write to devices on the I2C bus using the external

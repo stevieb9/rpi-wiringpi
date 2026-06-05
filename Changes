@@ -42,6 +42,9 @@ Revision history for Perl extension RPi::WiringPi.
         - Added last_interrupt() proxy: returns the most recently dispatched
           interrupt event {pin, pin_bcm, edge, status, ts_us}. Process-wide
           (last event on any pin), so it lives on the Pi object
+        - Added interrupt_buffer($bytes) proxy: get/set the interrupt queue
+          (self-pipe) capacity. Documented the burst/dropped-edge policy in the
+          FAQ. Process-wide, so it lives on the Pi object
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
