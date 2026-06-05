@@ -45,6 +45,9 @@ Revision history for Perl extension RPi::WiringPi.
         - Added interrupt_buffer($bytes) proxy: get/set the interrupt queue
           (self-pipe) capacity. Documented the burst/dropped-edge policy in the
           FAQ. Process-wide, so it lives on the Pi object
+        - Added run_interrupt_loop($timeout_ms, $max) and stop_interrupt_loop()
+          proxies: a blocking dispatch loop so you needn't write the wait loop
+          yourself. Process-wide, so they live on the Pi object
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to

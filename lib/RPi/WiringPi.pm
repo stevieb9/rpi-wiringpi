@@ -262,6 +262,10 @@ sub rtc {
     RPi::RTC::DS3231->import;
     return RPi::RTC::DS3231->new($rtc_addr);
 }
+sub run_interrupt_loop {
+    my ($self, $timeout_ms, $max) = @_;
+    return WiringPi::API::run_interrupt_loop($timeout_ms, $max);
+}
 sub serial {
     my ($self, $device, $baud) = @_;
     require RPi::Serial;
@@ -342,6 +346,10 @@ sub stepper_motor {
     }
 
     return RPi::StepperMotor->new(%args);
+}
+sub stop_interrupt_loop {
+    my ($self) = @_;
+    return WiringPi::API::stop_interrupt_loop();
 }
 sub stop_interrupts {
     my ($self) = @_;
@@ -1008,6 +1016,22 @@ all pending interrupt callbacks. Returns the number of callbacks dispatched.
 Call it in a loop to handle interrupts:
 
     $pi->wait_interrupts(1000) while 1;
+
+=head3 run_interrupt_loop($timeout_ms, $max)
+
+A blocking dispatch loop, so you don't have to write the
+C<< wait_interrupts ... while 1 >> yourself. Repeatedly dispatches and returns
+the total number of events handled. It runs until C<< $pi->stop_interrupt_loop >>
+is called (from a callback or a signal handler) or, if you pass C<$max>, until
+that many events have been dispatched. C<$timeout_ms> (default 1000) is just the
+poll granularity.
+
+    $pi->run_interrupt_loop;        # block, dispatching, until stop_interrupt_loop
+
+=head3 stop_interrupt_loop
+
+Breaks out of C<run_interrupt_loop> at the next iteration. Safe to call from a
+callback or a signal handler.
 
 =head3 dispatch_interrupts
 
