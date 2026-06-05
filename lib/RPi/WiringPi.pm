@@ -112,6 +112,10 @@ sub auto_dispatch_interrupts {
     my ($self, $enable) = @_;
     return WiringPi::API::auto_dispatch_interrupts($enable);
 }
+sub background_interrupts {
+    my ($self, @specs) = @_;
+    return WiringPi::API::background_interrupts(@specs);
+}
 sub bmp {
     require RPi::BMP180;
     RPi::BMP180->import;
@@ -1072,6 +1076,15 @@ that absorbs edge bursts. On overflow the newest edges are dropped (never merged
 or blocked) and counted, so raise this if a fast source outpaces your dispatch.
 May be set before arming and persists across teardown. Process-wide, so it lives
 on the Pi object. See C<interrupt_buffer> in L<WiringPi::API> for details.
+
+=head3 background_interrupts([$pin, $edge, $callback, $debounce], ...)
+
+Handles B<many> pins in a B<single> background child (rather than one child per
+pin via C<< $pin->background_interrupt >>). Pass one array-ref spec per pin; the
+returned handle adds C<< $h->arm($pin) >> / C<< $h->disarm($pin) >> (toggling
+pins registered at creation) to the usual C<stop>/C<pid>/C<running>. Because it
+spans several pins it lives on the Pi object, not on a single pin. See
+C<background_interrupts> in L<WiringPi::API> for details.
 
 =head1 RUNNING TESTS
 

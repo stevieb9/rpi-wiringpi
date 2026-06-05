@@ -48,6 +48,10 @@ Revision history for Perl extension RPi::WiringPi.
         - Added run_interrupt_loop($timeout_ms, $max) and stop_interrupt_loop()
           proxies: a blocking dispatch loop so you needn't write the wait loop
           yourself. Process-wide, so they live on the Pi object
+        - Added background_interrupts([$pin,$edge,$cb,$deb], ...) proxy: one
+          shared background child for many pins (handle adds arm/disarm). Spans
+          several pins, so it lives on the Pi object. ($pin->background_interrupt
+          in RPi::Pin also forwards the new {results => 1} option)
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
