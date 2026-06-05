@@ -39,6 +39,9 @@ Revision history for Perl extension RPi::WiringPi.
           so it lives on the Pi object, not on individual pins
         - Documented the hands-off interrupt options (auto_dispatch_interrupts +
           $pin->background_interrupt) in the FAQ and POD
+        - Added last_interrupt() proxy: returns the most recently dispatched
+          interrupt event {pin, pin_bcm, edge, status, ts_us}. Process-wide
+          (last event on any pin), so it lives on the Pi object
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
