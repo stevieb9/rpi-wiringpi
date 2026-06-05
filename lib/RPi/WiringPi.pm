@@ -108,6 +108,10 @@ sub adc {
         return RPi::ADC::ADS->new(%args);
     }
 }
+sub auto_dispatch_interrupts {
+    my ($self, $enable) = @_;
+    return WiringPi::API::auto_dispatch_interrupts($enable);
+}
 sub bmp {
     require RPi::BMP180;
     RPi::BMP180->import;
@@ -121,6 +125,10 @@ sub dac {
     require RPi::DAC::MCP4922;
     RPi::DAC::MCP4922->import;
     return RPi::DAC::MCP4922->new(%args);
+}
+sub dispatch_interrupts {
+    my ($self) = @_;
+    return WiringPi::API::dispatch_interrupts();
 }
 sub dpot {
     my ($self, $cs, $channel) = @_;
@@ -326,6 +334,14 @@ sub stepper_motor {
     }
 
     return RPi::StepperMotor->new(%args);
+}
+sub stop_interrupts {
+    my ($self) = @_;
+    return WiringPi::API::stop_interrupts();
+}
+sub wait_interrupts {
+    my ($self, $timeout_ms) = @_;
+    return WiringPi::API::wait_interrupts($timeout_ms);
 }
 sub DESTROY {
     my ($self) = @_;
@@ -912,9 +928,13 @@ cleanup routines.
 Removes an already registered pin.
  
 =head3 cleanup
- 
+
 Cleans up the entire system, resetting all pins and devices back to the state
 we found them in when we initialized the system.
+
+Only the process that created the object performs the cleanup: in a forked
+child the call is a no-op, so a child can't reset pins or mutate the shared
+metadata on the parent's behalf when it exits.
  
 =head2 ADDITIONAL PI SYSTEM METHODS
  
@@ -964,8 +984,48 @@ Returns current disk and mount information.
  
 Returns various information on both the hardware and OS aspects of the Pi.
  
+=head2 INTERRUPT METHODS
+
+Arm an interrupt on a pin with C<< $pin->set_interrupt($edge, $callback) >>
+(see L<RPi::Pin>). As of C<WiringPi::API> 3.18 the callback must be a code
+reference, and it runs in your own interpreter when you service the interrupt
+rather than in the wiringPi ISR thread. The following methods drive that
+dispatch. See L<Interrupt usage|RPi::WiringPi::FAQ/Interrupt usage> in the
+L<FAQ|RPi::WiringPi::FAQ> for a complete example.
+
+=head3 wait_interrupts($timeout_ms)
+
+Blocks until an edge arrives or C<$timeout_ms> milliseconds elapse, then runs
+all pending interrupt callbacks. Returns the number of callbacks dispatched.
+Call it in a loop to handle interrupts:
+
+    $pi->wait_interrupts(1000) while 1;
+
+=head3 dispatch_interrupts
+
+Runs all pending interrupt callbacks without blocking, and returns the number
+dispatched. Use this instead of C<wait_interrupts> when you already block
+elsewhere (eg. in your own event loop).
+
+=head3 stop_interrupts
+
+Releases every armed interrupt: stops the wiringPi ISR threads and closes the
+event pipe. The object's C<cleanup> calls this for you automatically, so you
+only need it to disarm interrupts while the program keeps running.
+
+=head3 auto_dispatch_interrupts($bool)
+
+Enables (C<1>) or disables (C<0>) async auto-dispatch for the whole process.
+When enabled, C<< $pin->set_interrupt >> callbacks fire B<automatically> at Perl
+safe points (via C<SIGIO>) with no C<wait_interrupts>/C<dispatch_interrupts>
+loop, and may touch your program's variables with no locking. This is a
+process-global switch (it affects every armed pin), which is why it lives on the
+Pi object rather than on an individual pin. A long, non-yielding C/XS call defers
+the callback until it returns - use C<< $pin->background_interrupt >> (see
+L<RPi::Pin>) if you need it to fire even then.
+
 =head1 RUNNING TESTS
- 
+
 Please see L<RUNNING TESTS|RPi::WiringPi::FAQ/RUNNING TESTS> in the
 L<FAQ|RPi::WiringPi::FAQ>.
  

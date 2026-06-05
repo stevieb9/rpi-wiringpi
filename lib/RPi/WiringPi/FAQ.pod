@@ -491,33 +491,85 @@ Examples:
 Built in is the ability to have Perl code you define executed when a pin's edge
 changes (a pin goes from LOW to HIGH or vice-versa). This code acts as an
 interrupt handler. The Interrupt Service Request that listens for the change
-runs in a separate C thread than your application.
+runs in a separate C thread than your application; that thread simply queues
+the event, and your callback runs in your own Perl interpreter when you service
+the interrupt (see "driving dispatch" below).
 
 Interrupts are useful in many cases, but think of a button; you want an action
 to happen when someone presses a physical button on your prototype, but you
 obviously want to be doing other things while waiting for that button press.
 
     # set an interrupt handler for when the pin goes from
-    # LOW to HIGH. The second parameter is the string name
-    # of the Perl subroutine at the bottom of this example
+    # LOW to HIGH. The second parameter is a code reference
+    # to the handler at the bottom of this example
 
-    $pin->interrupt_set(EDGE_RISING, 'handler');
+    $pin->set_interrupt(EDGE_RISING, \&handler);
 
     # HIGH to LOW
 
-    $pin->interrupt_set(EDGE_FALLING, 'handler');
+    $pin->set_interrupt(EDGE_FALLING, \&handler);
 
     # HIGH and LOW (handler will be called on both changes)
 
-    $pin->interrupt_set(EDGE_BOTH, 'handler');
+    $pin->set_interrupt(EDGE_BOTH, \&handler);
+
+    # an inline (anonymous) callback works too. The callback
+    # receives ($edge, $timestamp_us)
+
+    $pin->set_interrupt(EDGE_RISING, sub {
+        my ($edge, $ts_us) = @_;
+        print "edge $edge at $ts_us us\n";
+    });
 
     sub handler {
+        my ($edge, $ts_us) = @_;
         print "in handler\n";
         # do other stuff, perhaps turning on/off other pins
     }
 
-NOTE: If you receive errors about the handler callback not being found, simply
-specify the callback with the full package (eg. C<'main::handler'>).
+NOTE: As of C<WiringPi::API> 3.18, the handler B<must> be a code reference; the
+older string sub-name form (eg. C<'main::handler'>) is no longer accepted.
+
+=head3 Driving interrupt dispatch
+
+Because callbacks now run in your own interpreter rather than from the C thread,
+they fire only when your program services the interrupt. Drive that from your
+main loop:
+
+    while (1) {
+        # wait up to 1000ms for an edge, then run any pending callbacks
+        $pi->wait_interrupts(1000);
+
+        # ... your other work ...
+    }
+
+C<wait_interrupts($timeout_ms)> blocks until an edge arrives (or the timeout
+elapses) and then runs all pending callbacks. If you already block on your own
+(eg. in an event loop), call C<< $pi->dispatch_interrupts >> instead to run any
+queued callbacks without blocking.
+
+Call C<< $pi->stop_interrupts >> to release every armed interrupt (the object's
+C<cleanup> does this for you automatically at teardown).
+
+=head3 Hands-off handling (no dispatch loop)
+
+If you'd rather not write a dispatch loop at all, two options run your handler
+for you:
+
+    # In-process, lock-free: callbacks fire automatically at Perl safe points.
+    # Process-global switch, so it lives on the Pi object.
+    $pi->auto_dispatch_interrupts(1);
+    $pin->set_interrupt(EDGE_RISING, \&handler);   # now fires on its own
+
+    # In a background process: fires even while main is busy in a long call.
+    # The callback runs in the child, so it can't touch your main variables.
+    my $h = $pin->background_interrupt(EDGE_RISING, \&handler);
+    # ... main does its thing ...
+    $h->stop;
+
+Use C<auto_dispatch_interrupts> when the handler must update your program's own
+state; use C<background_interrupt> for an independent handler that must fire even
+during long, non-yielding work.
 
 =head1 I2C BUS
 

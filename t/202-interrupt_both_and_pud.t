@@ -37,7 +37,7 @@ if (! $ENV{NO_BOARD}){
     
     $pin->pull(PUD_DOWN);
 
-    $pin->set_interrupt(EDGE_BOTH, 'main::handler');
+    $pin->set_interrupt(EDGE_BOTH, \&handler);
 
     # trigger the interrupt
 
@@ -47,6 +47,7 @@ if (! $ENV{NO_BOARD}){
     $pin->pull(PUD_DOWN);
     select(undef, undef, undef, 0.02);
 
+    $pi->wait_interrupts(500);
     is $ENV{PI_INTERRUPT}, 2, "both interrupt up/down == 2 ok";
 
     # trigger the interrupt
@@ -56,6 +57,7 @@ if (! $ENV{NO_BOARD}){
     $pin->pull(PUD_DOWN);
     select(undef, undef, undef, 0.02);
 
+    $pi->wait_interrupts(500);
     is $ENV{PI_INTERRUPT}, 4, "both interrupt up/down x2 == 4 ok";
 
     # trigger the interrupt
@@ -65,8 +67,9 @@ if (! $ENV{NO_BOARD}){
     $pin->pull(PUD_DOWN);
     select(undef, undef, undef, 0.02);
 
+    $pi->wait_interrupts(500);
     is $ENV{PI_INTERRUPT}, 6, "both interrupt up/down x3 == 6 ok";
-    
+
 }
 
 $pi->cleanup;

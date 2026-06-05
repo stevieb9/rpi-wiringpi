@@ -20,6 +20,25 @@ Revision history for Perl extension RPi::WiringPi.
           the installed versions (fixes #164)
         - add SYNOPSIS in Meta and add new section for shared storage in FAQ
           (closes #140)
+        - Added wait_interrupts(), dispatch_interrupts() and stop_interrupts()
+          methods to drive the WiringPi::API 3.18 self-pipe interrupt model
+          (callbacks now run in the consuming interpreter, not the ISR thread)
+        - cleanup() now calls stop_interrupts() so armed interrupts (wiringPi
+          ISR threads + the event pipe) are released at teardown
+        - Updated the interrupt handler examples (FAQ + POD) to pass a CODE
+          reference and drive dispatch; the string sub-name form is gone
+        - Updated t/200-202 interrupt tests and defacto_interrupt.pl to the
+          dispatched model
+        - Made cleanup()/DESTROY() fork-aware: they now no-op in a process other
+          than the one that created the object (guarded by the stored {proc}
+          pid), so a forked child - including one from background_interrupt() -
+          no longer resets pins, mutates the shared meta, or stops interrupts on
+          the parent's behalf when it exits
+        - Added auto_dispatch_interrupts($bool) proxy (process-global SIGIO
+          auto-dispatch; callbacks fire with no loop). It's a per-process switch,
+          so it lives on the Pi object, not on individual pins
+        - Documented the hands-off interrupt options (auto_dispatch_interrupts +
+          $pin->background_interrupt) in the FAQ and POD
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to

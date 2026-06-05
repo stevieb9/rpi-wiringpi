@@ -201,6 +201,12 @@ sub unregister_object {
 sub cleanup {
     my ($self) = @_;
 
+    # Only the process that created this object may tear it down. A forked child
+    # (eg. background_interrupt(), or any user fork) shares the object but must
+    # not reset pins, mutate the shared meta, or stop interrupts on the parent's
+    # behalf when it exits.
+    return if defined $self->{proc} && $self->{proc} != $$;
+
     if ($self->_rpi_register_pins) {
 
         $self->meta_lock;
@@ -227,6 +233,10 @@ sub cleanup {
         $self->meta_store($meta);
         $self->meta_unlock;
     }
+
+    # Release any armed interrupts: stops the wiringPi ISR threads and closes
+    # the self-pipe so we don't leak the kernel ISR + fds at teardown
+    WiringPi::API::stop_interrupts();
 
     $self->unregister_object if $self->_rpi_register;
 
