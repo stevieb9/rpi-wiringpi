@@ -52,6 +52,9 @@ Revision history for Perl extension RPi::WiringPi.
           shared background child for many pins (handle adds arm/disarm). Spans
           several pins, so it lives on the Pi object. ($pin->background_interrupt
           in RPi::Pin also forwards the new {results => 1} option)
+        - auto_dispatch_interrupts() proxy now forwards an optional delivery
+          signal (eg. 'USR1'); $pin->set_interrupt() forwards the new
+          {auto_dispatch => ...} option
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
