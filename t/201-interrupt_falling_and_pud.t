@@ -35,7 +35,7 @@ if (! $ENV{NO_BOARD}){
 
     # EDGE_FALLING
 
-    $pin->set_interrupt(EDGE_FALLING, 'main::handler');
+    $pin->set_interrupt(EDGE_FALLING, \&handler);
 
     $pin->pull(PUD_UP);
 
@@ -44,22 +44,25 @@ if (! $ENV{NO_BOARD}){
     $pin->pull(PUD_DOWN);
     $pin->pull(PUD_UP);
 
+    $pi->wait_interrupts(500);
     is $ENV{PI_INTERRUPT}, 1, "1st interrupt ok";
 
     # trigger the interrupt
 
     $pin->pull(PUD_DOWN);
     $pin->pull(PUD_UP);
-    
+
+    $pi->wait_interrupts(500);
     is $ENV{PI_INTERRUPT}, 2, "2nd interrupt ok";
 
     # trigger the interrupt
 
     $pin->pull(PUD_DOWN);
     $pin->pull(PUD_UP);
-    
+
+    $pi->wait_interrupts(500);
     is $ENV{PI_INTERRUPT}, 3, "3rd interrupt ok";
-    
+
     $pin->pull(PUD_DOWN);
 }
 

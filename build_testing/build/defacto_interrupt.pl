@@ -33,10 +33,12 @@ if ($which == 1){
     $p->mode(INPUT);
     $p->pull(PUD_UP);
 
-    $p->interrupt_set(EDGE_FALLING, 'handler');
+    $p->interrupt_set(EDGE_FALLING, \&handler);
 
-    for (1..5){
-        sleep 1;
+    print "push the button now (~10s)...\n";
+
+    for (1..10){
+        $pi->wait_interrupts(1000);
     }
 
     print "hit ENTER...\n";
@@ -55,13 +57,15 @@ elsif ($which == 2){
     my $pi = $mod->new(setup => 'gpio');
     my $p = $pi->pin(21);
 
-    $p->interrupt_set(EDGE_FALLING, 'handler');
+    $p->interrupt_set(EDGE_FALLING, \&handler);
     
     $p->mode(INPUT);
     $p->pull(PUD_UP);
 
-    for (1..5){
-        sleep 1;
+    print "push the button now (~10s)...\n";
+
+    for (1..10){
+        $pi->wait_interrupts(1000);
     }
 
     print "hit ENTER...\n";
@@ -80,13 +84,15 @@ elsif ($which == 3){
     my $pi = $mod->new(setup => 'phys');
     my $p = $pi->pin(40);
 
-    $p->interrupt_set(EDGE_FALLING, 'handler');
+    $p->interrupt_set(EDGE_FALLING, \&handler);
 
     $p->mode(INPUT);
     $p->pull(PUD_UP);
 
-    for (1..5){
-        sleep 1;
+    print "push the button now (~10s)...\n";
+
+    for (1..10){
+        $pi->wait_interrupts(1000);
     }
 
     print "hit ENTER...\n";
@@ -105,13 +111,15 @@ elsif ($which == 4){
     my $pi = $mod->new(setup => 'sys');
     my $p = $pi->pin(21);
 
-    $p->interrupt_set(EDGE_FALLING, 'handler');
+    $p->interrupt_set(EDGE_FALLING, \&handler);
 
     $p->mode(INPUT);
     $p->pull(PUD_UP);
 
-    for (1..5){
-        sleep 1;
+    print "push the button now (~10s)...\n";
+
+    for (1..10){
+        $pi->wait_interrupts(1000);
     }
     print "hit ENTER...\n";
     <STDIN>;
