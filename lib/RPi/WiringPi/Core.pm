@@ -272,7 +272,7 @@ sub _pin_registration {
 
     if ($param{operation} eq 'unregister'){
 
-        if (! $meta->{pins}{$pin_num}{users}{$param{requester}} eq $self->uuid){
+        if ($meta->{pins}{$pin_num}{users}{$param{requester}} ne $self->uuid){
             $self->meta_unlock;
             return;
         }

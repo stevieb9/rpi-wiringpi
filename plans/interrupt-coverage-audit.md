@@ -1,8 +1,8 @@
 # Plan: Audit fixes + comprehensive interrupt test coverage for RPi::WiringPi
 
-> **NEXT ACTION:** Start V1 (fix Core.pm:275 precedence bug)
-> **LAST SESSION:** Plan created from full audit (interrupt code, POD, Core/Util/Meta, test coverage)
-> **ARCHIVE:** See interrupt-coverage-audit-archive.md for completed V tasks
+> **NEXT ACTION:** Start V2 (fix Core.pm:299/:310 `$self->{meta}{pins}` → local `$meta->{pins}` + missing `;`)
+> **LAST SESSION:** V1 done — fixed Core.pm:275 precedence bug (`! ... eq` → `ne`); clean compile, no warning. Created archive file.
+> **ARCHIVE:** See interrupt-coverage-audit-archive.md for completed V tasks (V1)
 
 ## Context
 
@@ -54,7 +54,6 @@ Goals: (1) fix the confirmed bugs and doc discrepancies, (2) bump the distro ver
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V1 | Fix `Core.pm:275` precedence bug: `! $h{...} eq $self->uuid` → ownership guard never fires. Change to `if ($meta->{pins}{$pin_num}{users}{$param{requester}} ne $self->uuid)` (or wrap the negation). Perl emits a precedence warning today. | `perl -Ilib -c lib/RPi/WiringPi/Core.pm` (no warning) | Clean compile, no precedence warning; unregister guard works | ⏳ |
 | V2 | Fix `Core.pm:299` and `:310`: `$self->{meta}{pins}` → local `$meta->{pins}` (rest of sub uses `$meta`). Also add the missing trailing `;` at line 307. | `perl -Ilib -c lib/RPi/WiringPi/Core.pm`; `prove -lv t/110-register.t` | Compiles; register returns correct registered-pins list; t/110 passes | ⏳ |
 | V3 | Add `interrupt_dropped` proxy to `WiringPi.pm` (`return WiringPi::API::interrupt_dropped();`) in alpha order; add `=head3 interrupt_dropped` POD; update `INTERRUPTS.md` to reference `$pi->interrupt_dropped`. | `prove -lv t/500-pod_coverage.t` (RPI_RELEASE_TESTING=1) | New method documented; POD coverage passes | ⏳ |
 | V4 | POD / clarity fixes in `WiringPi.pm`: document `run_interrupt_loop` default `$timeout_ms` (1000) and `$max` in the params block; document `pin()`'s optional `$comment` arg; add a documented dependency note that pin-level `$pin->background_interrupt` needs a future `RPi::Pin` release. Reconcile `INTERRUPTS.md`/`FAQ.pod` wording with actual behavior. | `prove -lv t/510-pod.t t/505-pod_linkcheck.t` (RPI_RELEASE_TESTING=1) | POD valid + links resolve | ⏳ |
@@ -79,7 +78,7 @@ _None yet._
 
 Audit ledger from the read-only investigation. Mark in place as tasks close.
 
-- **F1** (→V1): `Core.pm:275` — `if (! $meta->{pins}{$pin_num}{users}{$param{requester}} eq $self->uuid)` parses as `(! VALUE) eq $uuid`; Perl warns "Possible precedence problem between ! and string eq". The ownership guard in `unregister` is effectively dead (never returns early), so ownership is not enforced. Intended: `ne $self->uuid`.
+- **F1** ✅ RESOLVED (V1): `Core.pm:275` — `if (! $meta->{pins}{$pin_num}{users}{$param{requester}} eq $self->uuid)` parses as `(! VALUE) eq $uuid`; Perl warns "Possible precedence problem between ! and string eq". The ownership guard in `unregister` is effectively dead (never returns early), so ownership is not enforced. Intended: `ne $self->uuid`.
 - **F2** (→V2): `Core.pm:299` & `:310` — `$self->{meta}{pins}` used where the sub fetched a fresh local `$meta`; everywhere else uses `$meta->{pins}`. The duplicate-pin `exists` check (299) never fires, and the returned registered-pins list (310) is computed from the wrong (effectively empty) structure. Line 307 also lacks a trailing semicolon (cosmetic — block-final, compiles OK; agent's "syntax error" claim was overstated).
 - **F3** (→V3): `INTERRUPTS.md` (line 164) tells users to call `WiringPi::API::interrupt_dropped()` directly; there is no `$pi->interrupt_dropped` proxy though every other interrupt control method is wrapped. Inconsistent surface.
 - **F4** (→V4): Pin-level `$pin->background_interrupt(...)` is documented at length in `INTERRUPTS.md` and `FAQ.pod`, but `RPi::Pin` 2.3608 implements only `set_interrupt`/`interrupt_set` — the method does not exist (and `->can` false-positives via inheritance to `WiringPi::API`). Docs are ahead of the dependency.
