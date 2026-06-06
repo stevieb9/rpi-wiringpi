@@ -700,18 +700,23 @@ valid, and it's the default if not sent in.
 Optional, Integer: The I2C address of your display. Defaults to C<0x3C> if not
 sent in.
  
-=head2 pin($pin_num)
- 
+=head2 pin($pin_num, $comment)
+
 Returns a L<RPi::Pin> object, mapped to a specified GPIO pin, which
 you can then perform operations on. See that documentation for full usage
 details.
- 
+
 Parameters:
- 
+
     $pin_num
- 
+
 Mandatory, Integer: The pin number to attach to.
- 
+
+    $comment
+
+Optional, String: A label stored alongside the pin's registration (visible in
+the metadata store and used by the test suite). Defaults to none.
+
 =head2 rtc
  
 Creates a new L<RPi::RTC::DS3231> object which provides access to the C<DS3231>
@@ -1034,10 +1039,22 @@ A blocking dispatch loop, so you don't have to write the
 C<< wait_interrupts ... while 1 >> yourself. Repeatedly dispatches and returns
 the total number of events handled. It runs until C<< $pi->stop_interrupt_loop >>
 is called (from a callback or a signal handler) or, if you pass C<$max>, until
-that many events have been dispatched. C<$timeout_ms> (default 1000) is just the
-poll granularity.
+that many events have been dispatched.
 
     $pi->run_interrupt_loop;        # block, dispatching, until stop_interrupt_loop
+
+Parameters:
+
+    $timeout_ms
+
+Optional, Integer: The per-iteration poll granularity in milliseconds (how long
+each underlying C<wait_interrupts> blocks waiting for an edge). Defaults to
+C<1000>.
+
+    $max
+
+Optional, Integer: The maximum number of events to dispatch before returning. If
+omitted, the loop only ends when C<< $pi->stop_interrupt_loop >> is called.
 
 =head3 stop_interrupt_loop
 
@@ -1102,6 +1119,12 @@ returned handle adds C<< $h->arm($pin) >> / C<< $h->disarm($pin) >> (toggling
 pins registered at creation) to the usual C<stop>/C<pid>/C<running>. Because it
 spans several pins it lives on the Pi object, not on a single pin. See
 C<background_interrupts> in L<WiringPi::API> for details.
+
+B<Dependency note:> the per-pin C<< $pin->background_interrupt >> form referenced
+above is not yet available - L<RPi::Pin> (as of C<2.3608>) implements only
+C<set_interrupt>, so a future C<RPi::Pin> release must ship the method before it
+can be used. Until then, drive multiple pins from a single child with this
+C<< $pi->background_interrupts >> method.
 
 =head1 RUNNING TESTS
 
