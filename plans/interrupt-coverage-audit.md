@@ -75,7 +75,7 @@ Audit ledger from the read-only investigation. Mark in place as tasks close.
 
 ## Backlog
 
-B1: `Util.pm:17` `checksum()` returns `md5_hex(rand())` — weak/low-entropy UUID source (no PID/time/hi-res seed). `new()`'s collision loop masks it, but consider seeding with `Time::HiRes` + `$$` for robustness.
+B1: ✅ DONE 2026-06-06 — `Util.pm` `checksum()` now seeds `md5_hex()` with `$$ . Time::HiRes::time() . rand()` instead of bare `rand()`; output contract (32 hex chars) unchanged. Changes entry added.
 
 B2: `_pin_registration()` (`Core.pm:253-316`) re-`meta_lock`/`meta_fetch`es within an already-locked critical section; could fetch once at entry. Minor.
 

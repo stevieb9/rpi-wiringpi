@@ -10,11 +10,14 @@ use Carp qw(croak);
 use Data::Dumper;
 use Digest::MD5 qw(md5_hex);
 use RPi::Const qw(:all);
+use Time::HiRes qw(time);
 
 our $VERSION = '2.3634';
 
 sub checksum {
-     return md5_hex(rand());
+    # Seed with PID + hi-res time + rand() so concurrent/forked objects don't
+    # collide on a low-entropy rand()-only source
+    return md5_hex($$ . time() . rand());
 }
 sub dump_signal_handlers {
     my ($self) = @_;
