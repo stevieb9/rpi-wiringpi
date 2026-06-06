@@ -55,10 +55,12 @@ Revision history for Perl extension RPi::WiringPi.
         - auto_dispatch_interrupts() proxy now forwards an optional delivery
           signal (eg. 'USR1'); $pin->set_interrupt() forwards the new
           {auto_dispatch => ...} option
-        - Added lib/INTERRUPTS.md: a guide to interrupts in RPi::WiringPi (arming
-          on a pin, driving/controlling dispatch on the Pi object, hands-off and
-          background handling, the shared-child and results channels, queue
-          sizing, and fork/cleanup behaviour)
+        - Added an interrupt guide for RPi::WiringPi (arming on a pin,
+          driving/controlling dispatch on the Pi object, hands-off and background
+          handling, the shared-child and results channels, queue sizing, and
+          fork/cleanup behaviour) in two forms: docs/interrupt-examples.md
+          (markdown) and lib/RPi/WiringPi/INTERRUPTS.pod
+          (perldoc RPi::WiringPi::INTERRUPTS)
         - Bumped the WiringPi::API prerequisite from 2.3616 to 3.1801 (the
           wiringPi 3.18 upgrade: required for the self-pipe interrupt model and
           the i2c_read_word/i2c_setup/shift_reg_setup fixes)
@@ -113,6 +115,12 @@ Revision history for Perl extension RPi::WiringPi.
           (distinct-pin workers, {shared} sampler, {interval}/{once} pacing,
           stop/reap, cleanup-driven stop, forgotten-stop exit reaping) for
           leak-checking under valgrind
+        - Added lib/RPi/WiringPi/WORKERS.pod (perldoc RPi::WiringPi::WORKERS),
+          the OO concurrency/background-worker guide leading with $pi->worker()
+          and demoting raw fork/threads to "under the hood"; cross-linked from
+          the worker() method POD and the FAQ
+        - Added docs/threads-examples.md, the markdown companion to
+          RPi::WiringPi::WORKERS; cross-linked with docs/interrupt-examples.md
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to

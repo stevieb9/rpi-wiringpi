@@ -1171,13 +1171,13 @@ Perl). C<thread> uses an ithread for shared-memory ergonomics and requires
 C<threads> to be loaded (croaks otherwise). Under C<thread> mode, serialise
 shared GPIO access yourself with C<< WiringPi::API::pi_lock >> /
 C<< WiringPi::API::pi_unlock >>; the fork default never locks. See
-L<THREADS|THREADS> for the full threads/worker story.
+L<RPi::WiringPi::WORKERS> for the full OO threads/worker story.
 
 =back
 
 All argument validation happens in the low-level layer, so an invalid C<body>,
 C<interval>, or C<mechanism> croaks before anything is spawned. See
-C<worker> in L<WiringPi::API> and L<WORKERS|WORKERS> for full details.
+C<worker> in L<WiringPi::API> and L<RPi::WiringPi::WORKERS> for full details.
 
 =head1 RUNNING TESTS
 

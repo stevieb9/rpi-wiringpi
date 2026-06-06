@@ -5,7 +5,7 @@ A practical guide to handling GPIO interrupts (edge events) with
 object**:
 
 - **Arm** on a pin object: `$pin->set_interrupt(...)` or
-  `$pin->background_interrupt(...)` (see [RPi::Pin](RPi/Pin.pm)).
+  `$pin->background_interrupt(...)` (see [RPi::Pin](https://metacpan.org/pod/RPi::Pin)).
 - **Drive and control** dispatch on the Pi object `$pi`: `wait_interrupts`,
   `run_interrupt_loop`, `dispatch_interrupts`, `auto_dispatch_interrupts`,
   `stop_interrupts`, `last_interrupt`, `interrupt_buffer`,
@@ -216,6 +216,9 @@ Dispatch and control methods live on the **Pi** object (`$pi`):
 Edge constants (`EDGE_FALLING`=1, `EDGE_RISING`=2, `EDGE_BOTH`=3) and `INPUT`
 come from `RPi::Const qw(:all)`.
 
-See also the [RPi::WiringPi::FAQ](RPi/WiringPi/FAQ.pod) "Interrupt usage"
+See also `perldoc RPi::WiringPi::INTERRUPTS` (this guide in perldoc form),
+[threads-examples.md](threads-examples.md) for running background work with
+`$pi->worker`, the
+[RPi::WiringPi::FAQ](https://metacpan.org/pod/RPi::WiringPi::FAQ) "Interrupt usage"
 section, and the underlying [WiringPi::API](https://metacpan.org/pod/WiringPi::API)
 documentation.
