@@ -105,6 +105,14 @@ Revision history for Perl extension RPi::WiringPi.
           mechanism options, auto-stop on cleanup)
         - Added t/213-worker.t: off-Pi proxy/validation/lifecycle/cleanup-reaping
           assertions plus a PI_BOARD-gated GPIO block driving a real worker
+        - Corrected the FAQ "Perlbrew configuration" note: a threaded Perl is not
+          required for interrupts (the listener runs in an internal C thread) nor
+          for fork-based worker(); perlbrew is recommended for isolation, not
+          required
+        - Added build_testing/valgrind_worker.pl, an OO $pi->worker() exerciser
+          (distinct-pin workers, {shared} sampler, {interval}/{once} pacing,
+          stop/reap, cleanup-driven stop, forgotten-stop exit reaping) for
+          leak-checking under valgrind
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
