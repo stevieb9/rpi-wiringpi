@@ -98,6 +98,7 @@ t/209-interrupt_buffer.t
 t/210-background_interrupts.t
 t/211-interrupt_validation.t
 t/212-pin_background_interrupt.t
+t/213-worker.t
 t/300-i2c_exceptions.t
 t/305-i2c.t
 t/310-dac.t
