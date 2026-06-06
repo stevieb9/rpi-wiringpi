@@ -198,7 +198,11 @@ different scripts and processes easily.
 
 =head2 meta
 
-Instantiates and returns a shared memory object that stores the meta data.
+Instantiates and returns the shared memory object that stores the meta data.
+
+Internally, we tie a scalar to L<IPC::Shareable> holding a single JSON-encoded
+string, which keeps the entire meta data blob within one shared memory segment.
+The returned object is the L<IPC::Shareable> "knot" (the tied object).
 
 =head2 meta_set($name, $href)
 
@@ -268,8 +272,9 @@ C<meta_lock()> and C<meta_unlock()>.
 
 =head2 meta_lock($flags)
 
-Although we do locking on each transaction internally, use this as a wrapper
-around bulk transactions.
+C<meta_fetch()> and C<meta_store()> do not lock on their own, so you must wrap
+your fetch/mutate/store transactions with C<meta_lock()> and C<meta_unlock()>
+to keep them atomic across processes.
 
 Parameters:
 
@@ -287,8 +292,13 @@ Performs an unlock after you're done with C<meta_lock()>.
 
 =head2 meta_key
 
-Returns the shared memory key that links the object to the shared memory
+Returns the integer shared memory key that links the object to the shared memory
 segment.
+
+NOTE: This integer is derived by L<IPC::Shareable> from the string C<shm_key>
+via a CRC32 hash (with signed 32-bit overflow correction), so it is B<not> the
+raw byte-packed value of the string. For example, the default C<rpiw> string key
+resolves to C<1323166506>.
 
 =head2 meta_key_check($key)
 
@@ -298,8 +308,9 @@ Parameters:
 
     $key
 
-Mandatory, String: A four letter key to validate against. This will be converted
-into its integer form internally.
+Mandatory, String: The string key to validate against (eg. C<rpiw>). This is
+converted to its integer segment key internally using the same CRC32 derivation
+that L<IPC::Shareable> uses, then probed for existence without creating it.
 
 Returns: True C<1> if the shared memory segment exists, and false C<0>
 otherwise.
