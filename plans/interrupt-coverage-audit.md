@@ -1,7 +1,7 @@
 # Plan: Audit fixes + comprehensive interrupt test coverage for RPi::WiringPi
 
-> **NEXT ACTION:** Start V6 (`t/203-dispatch_interrupts.t`) — FIRST HARDWARE TEST. **D1 must be decided first**: rpi_check_pin_status() fails 51 default-mode checks on this Pi 5 board, and every interrupt test ends with it.
-> **LAST SESSION:** V5 done — $VERSION 2.3634 → 3.1800, Changes header + V1-V4 entries appended; compile clean. Deferred the test-coverage Changes entry to V16. All non-hardware tasks (V1-V5) complete.
+> **NEXT ACTION:** Start V6 (`t/203-dispatch_interrupts.t`, first hardware test). D1 is now resolved — `rpi_check_pin_status()` passes clean on this Pi 5 board, so V6-V16 teardown checks will give honest PASS/FAIL.
+> **LAST SESSION:** Resolved D1 — split `rpi_default_pin_config()` into three board-specific tables (pi3/pi4/pi5) dispatched by new `rpi_board_tag()` (uses `pi_rp1_model()` → pi5; `pi_board_id()` model code 17/19/20 → pi4; else pi3). Pi 5 table built from live `get_alt`/`read_pin` capture (RP1 funcsel 31 = null). `t/202` now PASS 43/43 incl. all pin-status checks (was 51 failures). No checks relaxed.
 > **ARCHIVE:** See interrupt-coverage-audit-archive.md for completed V tasks (V1-V5)
 
 ## Context
@@ -68,7 +68,7 @@ Goals: (1) fix the confirmed bugs and doc discrepancies, (2) bump the distro ver
 
 ## Discovery Tracking
 
-- **D1** (during V2): `t/RPiTest.pm` `rpi_check_pin_status()` reports 51 failures on this Pi 5 / `rpi-2712` board — its hardcoded `rpi_default_pin_config()` alt-mode table predates the RP1 GPIO peripheral, so `get_alt()` returns values (incl. `31`/`invalid mode 31`) that don't match. The *register* logic (what V2 fixes) passes cleanly; this is a teardown-check mismatch only. **Does not block V2, but will surface in every hardware interrupt test (V6–V16) that ends with `rpi_check_pin_status()`.** Needs a decision: update the config table for Pi 5, or relax/skip the alt-mode checks on this board. Awaiting user direction.
+- **D1** (during V2) — ✅ RESOLVED 2026-06-05: `t/RPiTest.pm` `rpi_check_pin_status()` reported 51 failures on this Pi 5 / `rpi-2712` board — its single hardcoded `rpi_default_pin_config()` alt-mode table predated the RP1 GPIO peripheral, so `get_alt()` returned values (incl. `31` = RP1 null funcsel) that didn't match. **Fix (no checks relaxed, per user):** split the config into three board-specific tables — `pi3`, `pi4` (both legacy BCM 0-7 alt encoding, identical), and `pi5` (RP1 funcsel, captured live from the board) — selected at runtime by new exported `rpi_board_tag()`: `pi_rp1_model()` truthy → `pi5`; else `pi_board_id()->{model}` ∈ {17,19,20} → `pi4`; else `pi3`. Verified: `t/202` PASS 43/43 incl. all 20 checked pins. V6-V16 teardown checks now valid.
 
 ## Review Findings
 

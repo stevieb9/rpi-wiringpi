@@ -18,6 +18,7 @@ our @EXPORT = qw(
     rpi_check_pin_status
     rpi_verify_pin_status
     rpi_default_pin_config
+    rpi_board_tag
     rpi_reset
 );
 
@@ -199,135 +200,134 @@ sub rpi_verify_pin_status {
     return $incorrect_config ? 0 : 1;
 }
 
-# fetch the default pin state and mode
+# identify which board family we're running on, so the correct default pin
+# config table can be loaded. The legacy BCM boards (Pi 3, Pi 4) share the
+# classic 0-7 alt-mode encoding from get_alt(); the Pi 5 / RP1 peripheral uses
+# a different funcsel scheme (e.g. 31 == "null / no peripheral function").
+
+sub rpi_board_tag {
+    return 'pi5' if WiringPi::API::pi_rp1_model();
+
+    my $info  = WiringPi::API::pi_board_id();
+    my $model = ref $info ? $info->{model} : -1;
+
+    # wiringPi model codes: 17 == 4B, 19 == 400, 20 == CM4
+    return 'pi4' if grep { $model == $_ } (17, 19, 20);
+
+    # everything else legacy (3B/3B+/3A+/CM3/Zero etc.)
+    return 'pi3';
+}
+
+# fetch the default pin state and mode for the detected board
 
 sub rpi_default_pin_config {
-    # default pin configurations
 
-    my $pin_conf = {
-      '3' => {
-               'alt' => 4,
-               'state' => 1
-             },
-      '4' => {
-               'state' => 1,
-               'alt' => 0
-             },
-      '17' => {
-                'state' => 1,
-                'alt' => 0
-              },
-      '15' => {
-                # alt 4 (ALT0) when Serial bluetooth disabled
-                'state' => 1,
-                'alt' => 4
-              },
-      '23' => {
-                'state' => 0,
-                'alt' => 0
-              },
-      '25' => {
-                'state' => 0,
-                'alt' => 0
-              },
-      '24' => {
-                'alt' => 0,
-                'state' => 0
-              },
-      '13' => {
-                'state' => 0, # state: HIGH:   due to the dpot test (t/50)
-                'alt' => 0    # mode:  OUTPUT: due to the dpot test (t/50)
-              },
-      '1' => {
-               'state' => 1,
-               'alt' => 0
-             },
-      '27' => {
-                # hot due to LCD
-                'state' => 1,
-                'alt' => 0
-              },
-      '16' => {
-                'state' => 0,
-                'alt' => 0
-              },
-      '18' => {
-                'state' => 0,
-                'alt' => 0
-              },
-      '22' => {
-                'alt' => 0,
-                'state' => 1
-              },
-#FIXME: removed due to inherent flipping
-#      '26' => {
-#                #FIXME: don't know why this one goes from
-#                # INPUT to ALT0
-#                'state' => 0,
-#                'alt' => 4
-#              },
-      '6' => {
-               'state' => 1,
-               'alt' => 0
-             },
-      '7' => {
-               'alt' => 1,
-               'state' => 1
-             },
-      '0' => {
-               'alt' => 0,
-               'state' => 1
-             },
-      '2' => {
-               'state' => 1,
-               'alt' => 4
-             },
-      '21' => {
-                'alt' => 0,
-                'state' => 0
-              },
-      '20' => {
-                'alt' => 0,
-                'state' => 0
-              },
-      '14' => {
-                # alt 4 (ALT0) when Serial bluetooth disabled
-                'state' => 1,
-                'alt' => 4
-              },
-      '11' => {
-                'alt' => 4,
-                'state' => 0
-              },
-
-#FIXME: removed due to inherent flipping
-#      '12' => {
-#                'alt' => 0,
-#                'state' => 0
-#              },
-      '10' => {
-                'alt' => 4,
-                'state' => 0
-              },
-              '5' => {
-               'alt' => 0,
-               'state' => 1
-             },
-      '9' => {
-               'alt' => 4,
-               'state' => 0
-             },
-      '8' => {
-               'state' => 1,
-               'alt' => 1
-             },
-      '19' => {
-                'alt' => 0,
-                'state' => 0
-            },
+    # Pi 3 (BCM2837) - classic 0-7 alt-mode encoding (ALT0 == 4)
+    my $pi3 = {
+      '0'  => { 'alt' => 0, 'state' => 1 },
+      '1'  => { 'alt' => 0, 'state' => 1 },
+      '2'  => { 'alt' => 4, 'state' => 1 },
+      '3'  => { 'alt' => 4, 'state' => 1 },
+      '4'  => { 'alt' => 0, 'state' => 1 },
+      '5'  => { 'alt' => 0, 'state' => 1 },
+      '6'  => { 'alt' => 0, 'state' => 1 },
+      '7'  => { 'alt' => 1, 'state' => 1 },
+      '8'  => { 'alt' => 1, 'state' => 1 },
+      '9'  => { 'alt' => 4, 'state' => 0 },
+      '10' => { 'alt' => 4, 'state' => 0 },
+      '11' => { 'alt' => 4, 'state' => 0 },
+#FIXME: 12 removed due to inherent flipping
+      '13' => { 'alt' => 0, 'state' => 0 }, # OUTPUT/HIGH due to the dpot test (t/50)
+      # 14/15: alt 4 (ALT0) when Serial bluetooth disabled
+      '14' => { 'alt' => 4, 'state' => 1 },
+      '15' => { 'alt' => 4, 'state' => 1 },
+      '16' => { 'alt' => 0, 'state' => 0 },
+      '17' => { 'alt' => 0, 'state' => 1 },
+      '18' => { 'alt' => 0, 'state' => 0 },
+      '19' => { 'alt' => 0, 'state' => 0 },
+      '20' => { 'alt' => 0, 'state' => 0 },
+      '21' => { 'alt' => 0, 'state' => 0 },
+      '22' => { 'alt' => 0, 'state' => 1 },
+      '23' => { 'alt' => 0, 'state' => 0 },
+      '24' => { 'alt' => 0, 'state' => 0 },
+      '25' => { 'alt' => 0, 'state' => 0 },
+#FIXME: 26 removed due to inherent flipping
+      '27' => { 'alt' => 0, 'state' => 1 }, # hot due to LCD
     };
 
-    return $pin_conf;
+    # Pi 4 (BCM2711) - shares the legacy 0-7 alt-mode encoding with the Pi 3
+    my $pi4 = {
+      '0'  => { 'alt' => 0, 'state' => 1 },
+      '1'  => { 'alt' => 0, 'state' => 1 },
+      '2'  => { 'alt' => 4, 'state' => 1 },
+      '3'  => { 'alt' => 4, 'state' => 1 },
+      '4'  => { 'alt' => 0, 'state' => 1 },
+      '5'  => { 'alt' => 0, 'state' => 1 },
+      '6'  => { 'alt' => 0, 'state' => 1 },
+      '7'  => { 'alt' => 1, 'state' => 1 },
+      '8'  => { 'alt' => 1, 'state' => 1 },
+      '9'  => { 'alt' => 4, 'state' => 0 },
+      '10' => { 'alt' => 4, 'state' => 0 },
+      '11' => { 'alt' => 4, 'state' => 0 },
+#FIXME: 12 removed due to inherent flipping
+      '13' => { 'alt' => 0, 'state' => 0 }, # OUTPUT/HIGH due to the dpot test (t/50)
+      # 14/15: alt 4 (ALT0) when Serial bluetooth disabled
+      '14' => { 'alt' => 4, 'state' => 1 },
+      '15' => { 'alt' => 4, 'state' => 1 },
+      '16' => { 'alt' => 0, 'state' => 0 },
+      '17' => { 'alt' => 0, 'state' => 1 },
+      '18' => { 'alt' => 0, 'state' => 0 },
+      '19' => { 'alt' => 0, 'state' => 0 },
+      '20' => { 'alt' => 0, 'state' => 0 },
+      '21' => { 'alt' => 0, 'state' => 0 },
+      '22' => { 'alt' => 0, 'state' => 1 },
+      '23' => { 'alt' => 0, 'state' => 0 },
+      '24' => { 'alt' => 0, 'state' => 0 },
+      '25' => { 'alt' => 0, 'state' => 0 },
+#FIXME: 26 removed due to inherent flipping
+      '27' => { 'alt' => 0, 'state' => 1 }, # hot due to LCD
+    };
+
+    # Pi 5 (RP1) - RP1 funcsel encoding; 31 == "null / no peripheral function"
+    my $pi5 = {
+      '0'  => { 'alt' => 0,  'state' => 1 },
+      '1'  => { 'alt' => 0,  'state' => 1 },
+      '2'  => { 'alt' => 0,  'state' => 1 },
+      '3'  => { 'alt' => 0,  'state' => 1 },
+      '4'  => { 'alt' => 31, 'state' => 0 },
+      '5'  => { 'alt' => 31, 'state' => 0 },
+      '6'  => { 'alt' => 31, 'state' => 0 },
+      '7'  => { 'alt' => 1,  'state' => 1 },
+      '8'  => { 'alt' => 1,  'state' => 1 },
+      '9'  => { 'alt' => 0,  'state' => 0 },
+      '10' => { 'alt' => 0,  'state' => 0 },
+      '11' => { 'alt' => 0,  'state' => 0 },
+#FIXME: 12 removed due to inherent flipping
+      '13' => { 'alt' => 31, 'state' => 0 }, # OUTPUT/HIGH due to the dpot test (t/50)
+      # 14/15: RP1 reports null funcsel (31) at default, not ALT0
+      '14' => { 'alt' => 31, 'state' => 0 },
+      '15' => { 'alt' => 31, 'state' => 0 },
+      '16' => { 'alt' => 31, 'state' => 0 },
+      '17' => { 'alt' => 1,  'state' => 0 },
+      '18' => { 'alt' => 0,  'state' => 0 },
+      '19' => { 'alt' => 31, 'state' => 0 },
+      '20' => { 'alt' => 31, 'state' => 0 },
+      '21' => { 'alt' => 31, 'state' => 0 },
+      '22' => { 'alt' => 1,  'state' => 0 },
+      '23' => { 'alt' => 1,  'state' => 0 },
+      '24' => { 'alt' => 31, 'state' => 0 },
+      '25' => { 'alt' => 31, 'state' => 0 },
+#FIXME: 26 removed due to inherent flipping
+      '27' => { 'alt' => 1,  'state' => 0 }, # hot due to LCD
+    };
+
+    my %config = (
+        pi3 => $pi3,
+        pi4 => $pi4,
+        pi5 => $pi5,
+    );
+
+    return $config{ rpi_board_tag() };
 }
 
 # reset the pins and meta data to default
