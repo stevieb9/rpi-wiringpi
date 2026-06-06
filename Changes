@@ -77,6 +77,18 @@ Revision history for Perl extension RPi::WiringPi.
           (2.3608 ships only set_interrupt)
         - Bumped the distribution VERSION to 3.1800 to match the WiringPi::API
           3.18 upgrade
+        - Split RPiTest's default pin-config into per-board tables (Pi 3 / Pi 4
+          / Pi 5) selected at runtime by a new rpi_board_tag() helper, so
+          rpi_check_pin_status() validates correctly on the RP1 (Pi 5) GPIO
+          peripheral instead of failing the legacy BCM alt-mode checks
+        - Bumped the RPi::Pin prerequisite from 2.3608 to 2.3609 for the real
+          pin-level background_interrupt() (with its {results => 1} channel)
+        - Added comprehensive interrupt test coverage (t/203-t/212):
+          dispatch_interrupts(), last_interrupt(), stop_interrupts(),
+          run_interrupt_loop()/stop_interrupt_loop(), auto_dispatch_interrupts()
+          (SIGIO + SIGUSR1), interrupt_buffer(), background_interrupts() (with
+          arm/disarm gating), propagated-croak validation, and the pin-level
+          $pin->background_interrupt() results channel
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to

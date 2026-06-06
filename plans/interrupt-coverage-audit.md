@@ -1,8 +1,8 @@
 # Plan: Audit fixes + comprehensive interrupt test coverage for RPi::WiringPi
 
-> **NEXT ACTION:** Start V6 (`t/203-dispatch_interrupts.t`, first hardware test). D1 is now resolved — `rpi_check_pin_status()` passes clean on this Pi 5 board, so V6-V16 teardown checks will give honest PASS/FAIL.
-> **LAST SESSION:** Resolved D1 — split `rpi_default_pin_config()` into three board-specific tables (pi3/pi4/pi5) dispatched by new `rpi_board_tag()` (uses `pi_rp1_model()` → pi5; `pi_board_id()` model code 17/19/20 → pi4; else pi3). Pi 5 table built from live `get_alt`/`read_pin` capture (RP1 funcsel 31 = null). `t/202` now PASS 43/43 incl. all pin-status checks (was 51 failures). No checks relaxed.
-> **ARCHIVE:** See interrupt-coverage-audit-archive.md for completed V tasks (V1-V5)
+> **NEXT ACTION:** 🎉 ALL V TASKS COMPLETE (V1-V16). No further V work. Remaining open items are backlog only (B1-B4) — none required. Suggested wrap-up if desired: `git add` the new `t/203`-`t/212`, `t/RPiTest.pm`, `Makefile.PL`, `MANIFEST`, `Changes`, and the plan/archive, then commit (user commits manually). Note RPi::Pin 2.3609 was installed locally to satisfy the pin-level background_interrupt test.
+> **LAST SESSION:** V14-V16 done (batch of 3) — `t/211` validation PASS 59/59 (19 propagated croaks), `t/212` pin-level background_interrupt PASS (real functional, RPi::Pin 2.3609 installed + prereq bumped), V16 MANIFEST + Changes + full range `t/200-t/212` PASS (13 files / 600 tests). F7 resolved. D2 resolved earlier.
+> **ARCHIVE:** See interrupt-coverage-audit-archive.md for completed V tasks (V1-V16)
 
 ## Context
 
@@ -54,20 +54,11 @@ Goals: (1) fix the confirmed bugs and doc discrepancies, (2) bump the distro ver
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V6 | `t/203-dispatch_interrupts.t` — non-blocking `dispatch_interrupts()`: returns dispatched count, fires callback without `wait_interrupts`; returns 0 when nothing pending. | `prove -lv t/203-dispatch_interrupts.t` | PASS; counts match | ⏳ |
-| V7 | `t/204-last_interrupt.t` — `last_interrupt()` hashref fields `{pin,pin_bcm,edge,status,ts_us}`; `pin_bcm==18`; `edge` tracks armed type (RISING→FALLING); `ts_us` positive + monotonically increasing. | `prove -lv t/204-last_interrupt.t` | PASS | ⏳ |
-| V8 | `t/205-stop_interrupts.t` — after `stop_interrupts` further edges don't dispatch (count frozen, `wait_interrupts` returns 0); re-arming resumes dispatch. | `prove -lv t/205-stop_interrupts.t` | PASS | ⏳ |
-| V9 | `t/206-run_interrupt_loop_max.t` — pre-fill N rising edges, `run_interrupt_loop(200,N)` returns N and count==N; `(100,1)` returns 1. `alarm` watchdog guards against hang. | `prove -lv t/206-run_interrupt_loop_max.t` | PASS; terminates via `$max` | ⏳ |
-| V10 | `t/207-stop_interrupt_loop.t` — callback calls `stop_interrupt_loop` at threshold; loop (no `$max`) returns with count==threshold not the full burst. `alarm` watchdog. | `prove -lv t/207-stop_interrupt_loop.t` | PASS; terminates via callback | ⏳ |
-| V11 | `t/208-auto_dispatch_interrupts.t` — `auto_dispatch_interrupts(1,'IO')`, observe counter advance in a **sleep-only** poll loop (no dispatch call) proving async SIGIO delivery; repeat with `'USR1'`. MUST `auto_dispatch_interrupts(0)` after each block before cleanup. | `prove -lv t/208-auto_dispatch_interrupts.t` | PASS; handlers torn down, `rpi_check_pin_status` clean | ⏳ |
-| V12 | `t/209-interrupt_buffer.t` — get baseline; set larger, assert get `>=` requested (kernel page-rounds, no exact-equality assert); functional burst counted without drops; restore baseline at end. | `prove -lv t/209-interrupt_buffer.t` | PASS | ⏳ |
-| V13 | `t/210-background_interrupts.t` — `background_interrupts([18,EDGE_RISING,\&cb,0])`: `running` true, `pid` positive; parent drives edges, drain child via `->read`/`->fh`; `disarm(18)`/`arm(18)` stop/resume results; `arm(99)`/`disarm(99)` croak; `stop` reaps (`running` false). | `prove -lv t/210-background_interrupts.t` | PASS; no zombie; pins clean | ⏳ |
-| V14 | `t/211-interrupt_validation.t` — propagated-croak coverage via `eval{...}; like $@, qr/.../`. **Confirm each regex against `WiringPi/API.pm` croak strings before finalizing** (designed regexes are provisional). Covers: bad edge/callback/debounce on `$pin->set_interrupt`; `interrupt_buffer(0/-5/'x')`; `run_interrupt_loop` 0/non-numeric timeout & max; `auto_dispatch_interrupts(2/'x'/1,'NOPE')`; `background_interrupts` empty/non-arrayref/bad pin/edge/callback/debounce. | `prove -lv t/211-interrupt_validation.t` | PASS; all croaks asserted | ⏳ |
-| V15 | `t/212-pin_background_interrupt.t` — `skip_all` because `RPi::Pin` 2.3608 has no real pin-level `background_interrupt` (`->can` false-positives via `@ISA` to `WiringPi::API`). Include explanatory `note` documenting the dependency gap so it auto-activates when RPi::Pin ships the method. | `prove -lv t/212-pin_background_interrupt.t` | Skips cleanly with documented reason | ⏳ |
-| V16 | Add `t/203`–`t/212` to `MANIFEST` (alpha/numeric order); run the whole interrupt range + author tests together to confirm no regressions and pins reset between files. **Also append the deferred `Changes` entry for the new interrupt test coverage (V5 added the V1-V4 entries but left tests out since they didn't exist yet).** | `prove -l t/203-* t/204-* t/205-* t/206-* t/207-* t/208-* t/209-* t/210-* t/211-* t/212-*`; `RPI_RELEASE_TESTING=1 prove -l t/500-* t/515-*` | All PASS; MANIFEST check passes | ⏳ |
+| — | _All V tasks complete (V1-V16). See archive._ | — | — | ✅ |
 
 ## Discovery Tracking
 
+- **D2** (during V13) — ✅ RESOLVED 2026-06-05: The plural `background_interrupts()` handle (`WiringPi::API::BackgroundInterrupts`) has **no results channel** — its `_new` calls `SUPER::_new($pid)` without a `results_fh`, so the inherited `->read`/`->fh` always return undef (confirmed by probe). Only the **singular** `background_interrupt(..., {results=>1})` wires a results pipe. **Resolution (user: "do it your way"):** V13 verifies real edge-flow + `arm`/`disarm` gating via **temp-file IPC** (child callback appends a byte per processed edge to `/dev/shm/...`; parent tallies) instead of the nonexistent `->read`/`->fh`. The directly-observable contract (`running`/`pid`/`arm(99)`+`disarm(99)` croak/`stop` reaps) is also asserted. The underlying upstream gap (dead inherited `read`/`fh` on the plural handle) is logged as **B4** for a possible future `WiringPi::API` fix.
 - **D1** (during V2) — ✅ RESOLVED 2026-06-05: `t/RPiTest.pm` `rpi_check_pin_status()` reported 51 failures on this Pi 5 / `rpi-2712` board — its single hardcoded `rpi_default_pin_config()` alt-mode table predated the RP1 GPIO peripheral, so `get_alt()` returned values (incl. `31` = RP1 null funcsel) that didn't match. **Fix (no checks relaxed, per user):** split the config into three board-specific tables — `pi3`, `pi4` (both legacy BCM 0-7 alt encoding, identical), and `pi5` (RP1 funcsel, captured live from the board) — selected at runtime by new exported `rpi_board_tag()`: `pi_rp1_model()` truthy → `pi5`; else `pi_board_id()->{model}` ∈ {17,19,20} → `pi4`; else `pi3`. Verified: `t/202` PASS 43/43 incl. all 20 checked pins. V6-V16 teardown checks now valid.
 
 ## Review Findings
@@ -80,7 +71,7 @@ Audit ledger from the read-only investigation. Mark in place as tasks close.
 - **F4** ✅ RESOLVED (V4): Pin-level `$pin->background_interrupt(...)` is documented at length in `INTERRUPTS.md` and `FAQ.pod`, but `RPi::Pin` 2.3608 implements only `set_interrupt`/`interrupt_set` — the method does not exist (and `->can` false-positives via inheritance to `WiringPi::API`). Docs are ahead of the dependency.
 - **F5** ✅ RESOLVED (V4): `run_interrupt_loop` POD mentions the default `$timeout_ms` 1000 only in passing prose, not the params block; `pin()` POD omits its optional `$comment` arg.
 - **F6** ✅ RESOLVED (V5): Version `2.3634` (and `Changes` header) predate the 3.18 API upgrade (`WiringPi::API` prereq bumped to 3.1801, branch `3.18`). Version scheme mismatch.
-- **F7** (→V6-V16): Interrupt test coverage gap — only `wait_interrupts` + `$pin->set_interrupt` are exercised (t/200-202); all other dispatch/control methods and every param-validation path are untested.
+- **F7** ✅ RESOLVED (V6-V16): Interrupt test coverage gap — only `wait_interrupts` + `$pin->set_interrupt` were exercised (t/200-202); all other dispatch/control methods and every param-validation path were untested. Now covered by t/203-t/212 (dispatch/last/stop/loop/auto-dispatch/buffer/background/validation/pin-level background) — full range PASS, 600 tests.
 
 ## Backlog
 
@@ -90,9 +81,11 @@ B2: `_pin_registration()` (`Core.pm:253-316`) re-`meta_lock`/`meta_fetch`es with
 
 B3: `WiringPi.pm:20` `$signal_debug` is hardcoded `0` and never set true — dead toggle; either wire it to an env var or remove.
 
+B4: `WiringPi::API::BackgroundInterrupts` (plural `background_interrupts` handle) inherits `read`/`fh` from the base `BackgroundInterrupt` class, but its `_new` calls `SUPER::_new($pid)` without a `results_fh`, so both methods are permanently `undef` — the API advertises a results channel the plural handle can never deliver. Only the singular `background_interrupt(..., {results=>1})` wires one. Consider either wiring a real per-spec results channel into the plural child (`_bg_shared_loop`) or overriding/removing the dead `read`/`fh` on the plural class so the surface doesn't lie. (Surfaced as D2 during V13; V13 verifies edge-flow + arm/disarm gating via temp-file IPC instead. Upstream change lives in the installed `WiringPi::API`, out of this repo.)
+
 ## Explicitly NOT doing
 
 - Adding an explicit validation layer to the interrupt proxies — user chose to keep them as pure pass-throughs and test the propagated `WiringPi::API` croaks instead.
-- Implementing pin-level `$pin->background_interrupt` — it belongs in the external `RPi::Pin` distribution, not here; we skip its test (V15) and flag the dependency.
+- Implementing pin-level `$pin->background_interrupt` — it belongs in the external `RPi::Pin` distribution, not here. (Update 2026-06-05: `RPi::Pin` 2.3609 now implements it; per user decision V15 becomes a real functional test against that version rather than a skip. We still don't implement the method in this distro.)
 - Forcing `interrupt_dropped` buffer-overflow drops in a test — timing-dependent and flaky on real hardware; V12 asserts the no-drop happy path only.
 - Fixing `RPi::Pin::interrupt_set`'s double-pin bug — that defect lives in the external `RPi::Pin` module, out of this repo's scope.
