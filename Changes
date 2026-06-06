@@ -1,6 +1,6 @@
 Revision history for Perl extension RPi::WiringPi.
 
-2.3634  UNREL
+3.1800  UNREL
         - bump prereq of RPi::I2C to 2.3608
         - added t/01-validate_test_suite_config.t; resets meta data and hardware
           pin configuration in the event of previous test run failures, and
@@ -62,6 +62,21 @@ Revision history for Perl extension RPi::WiringPi.
         - Bumped the WiringPi::API prerequisite from 2.3616 to 3.1801 (the
           wiringPi 3.18 upgrade: required for the self-pipe interrupt model and
           the i2c_read_word/i2c_setup/shift_reg_setup fixes)
+        - Fixed the unregister ownership guard in _pin_registration(): a
+          negation-precedence bug (! ... eq) left the guard dead, so a pin's
+          ownership was never enforced on unregister; now uses ne
+        - Fixed _pin_registration() to read the local meta structure for the
+          duplicate-pin check and the returned registered-pins list, which
+          previously consulted a stale $self->{meta} and so never fired / came
+          back empty
+        - Added interrupt_dropped() proxy: the running count of interrupt edges
+          dropped on queue overflow. Process-wide, so it lives on the Pi object
+        - Documented run_interrupt_loop()'s $timeout_ms (default 1000) and $max
+          params and pin()'s optional $comment, and noted that the per-pin
+          $pin->background_interrupt form awaits a future RPi::Pin release
+          (2.3608 ships only set_interrupt)
+        - Bumped the distribution VERSION to 3.1800 to match the WiringPi::API
+          3.18 upgrade
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to

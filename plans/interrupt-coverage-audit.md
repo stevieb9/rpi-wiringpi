@@ -1,8 +1,8 @@
 # Plan: Audit fixes + comprehensive interrupt test coverage for RPi::WiringPi
 
-> **NEXT ACTION:** Start V5 (bump $VERSION 2.3634 → 3.18xx in WiringPi.pm; update Changes header + entries for V1-V4 + new tests). NOTE: D1 (rpi_check_pin_status mismatch on Pi 5) deferred — revisit before hardware tests V6–V16.
-> **LAST SESSION:** V4 done — POD/clarity fixes (run_interrupt_loop params, pin() $comment, background_interrupt dependency note) + reconciled INTERRUPTS.md/FAQ.pod; t/510-pod.t + t/505-pod_linkcheck.t PASS (installed Test::Pod + Test::Pod::LinkCheck).
-> **ARCHIVE:** See interrupt-coverage-audit-archive.md for completed V tasks (V1-V4)
+> **NEXT ACTION:** Start V6 (`t/203-dispatch_interrupts.t`) — FIRST HARDWARE TEST. **D1 must be decided first**: rpi_check_pin_status() fails 51 default-mode checks on this Pi 5 board, and every interrupt test ends with it.
+> **LAST SESSION:** V5 done — $VERSION 2.3634 → 3.1800, Changes header + V1-V4 entries appended; compile clean. Deferred the test-coverage Changes entry to V16. All non-hardware tasks (V1-V5) complete.
+> **ARCHIVE:** See interrupt-coverage-audit-archive.md for completed V tasks (V1-V5)
 
 ## Context
 
@@ -54,7 +54,6 @@ Goals: (1) fix the confirmed bugs and doc discrepancies, (2) bump the distro ver
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V5 | Bump `$VERSION` in `lib/RPi/WiringPi.pm` from `2.3634` to a 3.18xx value (e.g. `3.1800` — confirm exact at execution); update the `Changes` top section header to match and add entries (capitalized, appended at bottom of current section) for V1-V4 fixes and the new interrupt tests. | `grep VERSION lib/RPi/WiringPi.pm`; `head Changes` | Version + Changes reflect 3.18xx; entries appended in order | ⏳ |
 | V6 | `t/203-dispatch_interrupts.t` — non-blocking `dispatch_interrupts()`: returns dispatched count, fires callback without `wait_interrupts`; returns 0 when nothing pending. | `prove -lv t/203-dispatch_interrupts.t` | PASS; counts match | ⏳ |
 | V7 | `t/204-last_interrupt.t` — `last_interrupt()` hashref fields `{pin,pin_bcm,edge,status,ts_us}`; `pin_bcm==18`; `edge` tracks armed type (RISING→FALLING); `ts_us` positive + monotonically increasing. | `prove -lv t/204-last_interrupt.t` | PASS | ⏳ |
 | V8 | `t/205-stop_interrupts.t` — after `stop_interrupts` further edges don't dispatch (count frozen, `wait_interrupts` returns 0); re-arming resumes dispatch. | `prove -lv t/205-stop_interrupts.t` | PASS | ⏳ |
@@ -65,7 +64,7 @@ Goals: (1) fix the confirmed bugs and doc discrepancies, (2) bump the distro ver
 | V13 | `t/210-background_interrupts.t` — `background_interrupts([18,EDGE_RISING,\&cb,0])`: `running` true, `pid` positive; parent drives edges, drain child via `->read`/`->fh`; `disarm(18)`/`arm(18)` stop/resume results; `arm(99)`/`disarm(99)` croak; `stop` reaps (`running` false). | `prove -lv t/210-background_interrupts.t` | PASS; no zombie; pins clean | ⏳ |
 | V14 | `t/211-interrupt_validation.t` — propagated-croak coverage via `eval{...}; like $@, qr/.../`. **Confirm each regex against `WiringPi/API.pm` croak strings before finalizing** (designed regexes are provisional). Covers: bad edge/callback/debounce on `$pin->set_interrupt`; `interrupt_buffer(0/-5/'x')`; `run_interrupt_loop` 0/non-numeric timeout & max; `auto_dispatch_interrupts(2/'x'/1,'NOPE')`; `background_interrupts` empty/non-arrayref/bad pin/edge/callback/debounce. | `prove -lv t/211-interrupt_validation.t` | PASS; all croaks asserted | ⏳ |
 | V15 | `t/212-pin_background_interrupt.t` — `skip_all` because `RPi::Pin` 2.3608 has no real pin-level `background_interrupt` (`->can` false-positives via `@ISA` to `WiringPi::API`). Include explanatory `note` documenting the dependency gap so it auto-activates when RPi::Pin ships the method. | `prove -lv t/212-pin_background_interrupt.t` | Skips cleanly with documented reason | ⏳ |
-| V16 | Add `t/203`–`t/212` to `MANIFEST` (alpha/numeric order); run the whole interrupt range + author tests together to confirm no regressions and pins reset between files. | `prove -l t/203-* t/204-* t/205-* t/206-* t/207-* t/208-* t/209-* t/210-* t/211-* t/212-*`; `RPI_RELEASE_TESTING=1 prove -l t/500-* t/515-*` | All PASS; MANIFEST check passes | ⏳ |
+| V16 | Add `t/203`–`t/212` to `MANIFEST` (alpha/numeric order); run the whole interrupt range + author tests together to confirm no regressions and pins reset between files. **Also append the deferred `Changes` entry for the new interrupt test coverage (V5 added the V1-V4 entries but left tests out since they didn't exist yet).** | `prove -l t/203-* t/204-* t/205-* t/206-* t/207-* t/208-* t/209-* t/210-* t/211-* t/212-*`; `RPI_RELEASE_TESTING=1 prove -l t/500-* t/515-*` | All PASS; MANIFEST check passes | ⏳ |
 
 ## Discovery Tracking
 
@@ -80,7 +79,7 @@ Audit ledger from the read-only investigation. Mark in place as tasks close.
 - **F3** ✅ RESOLVED (V3): `INTERRUPTS.md` (line 164) tells users to call `WiringPi::API::interrupt_dropped()` directly; there is no `$pi->interrupt_dropped` proxy though every other interrupt control method is wrapped. Inconsistent surface.
 - **F4** ✅ RESOLVED (V4): Pin-level `$pin->background_interrupt(...)` is documented at length in `INTERRUPTS.md` and `FAQ.pod`, but `RPi::Pin` 2.3608 implements only `set_interrupt`/`interrupt_set` — the method does not exist (and `->can` false-positives via inheritance to `WiringPi::API`). Docs are ahead of the dependency.
 - **F5** ✅ RESOLVED (V4): `run_interrupt_loop` POD mentions the default `$timeout_ms` 1000 only in passing prose, not the params block; `pin()` POD omits its optional `$comment` arg.
-- **F6** (→V5): Version `2.3634` (and `Changes` header) predate the 3.18 API upgrade (`WiringPi::API` prereq bumped to 3.1801, branch `3.18`). Version scheme mismatch.
+- **F6** ✅ RESOLVED (V5): Version `2.3634` (and `Changes` header) predate the 3.18 API upgrade (`WiringPi::API` prereq bumped to 3.1801, branch `3.18`). Version scheme mismatch.
 - **F7** (→V6-V16): Interrupt test coverage gap — only `wait_interrupts` + `$pin->set_interrupt` are exercised (t/200-202); all other dispatch/control methods and every param-validation path are untested.
 
 ## Backlog
