@@ -41,10 +41,14 @@ L<RPi::Const> module.
 
 =head2 Perlbrew configuration
 
-If you want to avoid using your system installed Perl installation to use this
-software (or you want to use interrupts), you should do some pre-configuration
-of your system. Note that the system installed Perl does not use threads, which
-is required for interrupts to function.
+L<perlbrew|http://perlbrew.pl> lets you run this software under your own,
+up-to-date Perl instead of the system Perl, which keeps your project isolated
+from the OS toolchain. It is recommended, but B<not> required - and in
+particular you do B<not> need a threaded Perl. Interrupts run their listener in
+an internal C thread and dispatch your callbacks in your own interpreter (see
+L</"Interrupt usage">), and background work via C<< $pi->worker >> is fork-based
+by default (see L<RPi::WiringPi> and L<WiringPi::API>). A threaded Perl is only
+needed if you opt in to C<< worker(..., {mechanism =E<gt> 'thread'}) >>.
 
 As your normal, every day user, install L<perlbrew|http://perlbrew.pl>:
 

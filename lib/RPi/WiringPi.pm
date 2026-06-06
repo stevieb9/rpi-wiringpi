@@ -367,6 +367,15 @@ sub wait_interrupts {
     my ($self, $timeout_ms) = @_;
     return WiringPi::API::wait_interrupts($timeout_ms);
 }
+sub worker {
+    my ($self, $body, $opts) = @_;
+
+    # Let the low-level layer do all argument validation (no duplicated croaks).
+    # Track the returned handle on the object so cleanup()/DESTROY can reap it.
+    my $handle = WiringPi::API::worker($body, $opts);
+    push @{ $self->{workers} }, $handle;
+    return $handle;
+}
 sub DESTROY {
     my ($self) = @_;
     $self->cleanup if ! $self->{clean};
@@ -1117,6 +1126,58 @@ above is not yet available - L<RPi::Pin> (as of C<2.3608>) implements only
 C<set_interrupt>, so a future C<RPi::Pin> release must ship the method before it
 can be used. Until then, drive multiple pins from a single child with this
 C<< $pi->background_interrupts >> method.
+
+=head3 worker(\&body, \%opts)
+
+Runs C<\&body> as a hands-off background task, hiding the spawn mechanism, the
+loop, and the lifecycle - the GPIO sibling of C<background_interrupts>. By
+default it forks a child (no C<use threads> required) that runs C<body>
+repeatedly, and returns a C<WiringPi::API::Worker> handle:
+
+    pin_mode(2, 1);                                   # OUTPUT, once in main
+
+    my $w = $pi->worker(sub {
+        digital_write(2, 1); sleep 1;
+        digital_write(2, 0); sleep 1;
+    });
+
+    # ... main does its own work ...
+
+    $w->stop;                                         # idempotent
+
+The handle carries C<< $w->stop >> (idempotent), C<< $w->pid >>, and
+C<< $w->running >>, matching the interrupt handle. You normally need not call
+C<stop> at all: C<< $pi->cleanup >> (and therefore C<DESTROY>) automatically
+stops every worker started through this method, and a forked child never reaps
+the parent's workers.
+
+C<\%opts> mirrors C<WiringPi::API::worker()> exactly:
+
+=over 4
+
+=item * C<< once => 1 >> - run C<body> a single time instead of looping.
+
+=item * C<< interval => $secs >> - pace each pass (periodic sampler/blink)
+instead of letting C<body> set its own cadence.
+
+=item * C<< shared => 1 >> - publish C<body>'s return value as a lossy latest
+value; read it from the parent with C<< $w->value >>.
+
+=item * C<< results => 1 >> - stream every defined return value back; drain it
+with C<< $w->read >> or select on C<< $w->fh >>.
+
+=item * C<< mechanism => 'fork' | 'thread' >> - default C<fork> (works on any
+Perl). C<thread> uses an ithread for shared-memory ergonomics and requires
+C<threads> to be loaded (croaks otherwise). Under C<thread> mode, serialise
+shared GPIO access yourself with C<< WiringPi::API::pi_lock >> /
+C<< WiringPi::API::pi_unlock >>; the fork default never locks. See
+L<THREADS|THREADS> for the full threads/worker story.
+
+=back
+
+All argument validation happens in the low-level layer, so an invalid C<body>,
+C<interval>, or C<mechanism> croaks before anything is spawned. See
+C<worker> in L<WiringPi::API> and L<WORKERS|WORKERS> for full details.
 
 =head1 RUNNING TESTS
 
