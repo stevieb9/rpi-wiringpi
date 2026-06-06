@@ -5,6 +5,7 @@
 ## Archived V Tasks
 
 - V1: Fix `Core.pm:275` precedence bug (`! $h{...} eq $self->uuid` → `ne $self->uuid`) — ✅ 2026-06-05 attempt 1: PASS
+- V2: Fix `Core.pm:299`/`:310` `$self->{meta}{pins}` → local `$meta->{pins}` + trailing `;` at :307 — ✅ 2026-06-05 attempt 1: PASS
 
 ## Archived Fixes
 

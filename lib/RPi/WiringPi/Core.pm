@@ -296,7 +296,7 @@ sub _pin_registration {
     }
 
     if ($param{operation} eq 'register'){
-        if (exists $self->{meta}{pins}->{$pin_num}){
+        if (exists $meta->{pins}{$pin_num}){
             $self->meta_unlock;
             croak "pin $pin_num is already in use, can't continue...\n";
         }
@@ -304,10 +304,10 @@ sub _pin_registration {
         $meta->{pins}{$pin_num}{state} = $param{state};
         $meta->{pins}{$pin_num}{mode} = $param{mode};
         $meta->{pins}{$pin_num}{comment} = $pin->comment;
-        $meta->{pins}{$pin_num}{users}{$param{requester}}++
+        $meta->{pins}{$pin_num}{users}{$param{requester}}++;
     }
 
-    my @registered_pins = keys %{ $self->{meta}{pins} };
+    my @registered_pins = keys %{ $meta->{pins} };
 
     $self->meta_store($meta);
     $self->meta_unlock;
