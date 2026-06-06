@@ -89,6 +89,12 @@ you need it to fire even then, use a background process (below).
 
 ## Background handling (one process, fires even while main is busy)
 
+> **Dependency note:** the per-pin `$pin->background_interrupt` form shown in this
+> section is not available yet — `RPi::Pin` (as of `2.3608`) implements only
+> `set_interrupt`. A future `RPi::Pin` release must ship the method first. Until
+> then, use the multi-pin `$pi->background_interrupts` form
+> ([below](#many-pins-in-one-background-child)), which works today.
+
 `$pin->background_interrupt` forks a child that runs the handler on each edge
 while your main program does anything it likes. The handler runs in the child,
 so it **can't** touch your main variables — use it for independent work (drive a
