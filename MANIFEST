@@ -27,6 +27,7 @@ build_testing/stepper_motor.pl
 build_testing/sysinfo_faq_examples.pl
 build_testing/test_suite_stepper.pl
 build_testing/tripwire.pl
+build_testing/valgrind_worker.pl
 Changes
 docs/atmega-328p_bootloader.txt
 docs/breadboard/adc_basic_example_bb.jpg
