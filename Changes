@@ -97,6 +97,12 @@ Revision history for Perl extension RPi::WiringPi.
           schemes, coordinated with the WiringPi::API 3.18 removal of those modes
         - Removed export_pin() and unexport_pin(), which existed solely to
           support the setup_sys() scheme
+        - Added worker() method, a hands-off background-task proxy to
+          WiringPi::API::worker() that tracks the returned handle on the object
+        - cleanup() (and DESTROY) now stops every worker() handle tracked on the
+          object, respecting the forked-child process guard
+        - Documented the worker() method (handle, once/interval/shared/results/
+          mechanism options, auto-stop on cleanup)
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to

@@ -227,6 +227,14 @@ sub cleanup {
     # the self-pipe so we don't leak the kernel ISR + fds at teardown
     WiringPi::API::stop_interrupts();
 
+    # Stop any background workers started via $pi->worker. stop() is idempotent
+    # (a no-op on an already-stopped handle), and the forked-child proc guard
+    # above keeps a child from reaping the parent's workers.
+    for my $worker (@{ $self->{workers} || [] }) {
+        $worker->stop if $worker;
+    }
+    $self->{workers} = [];
+
     $self->unregister_object if $self->_rpi_register;
 
     $self->{clean} = 1;
