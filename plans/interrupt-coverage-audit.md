@@ -1,8 +1,8 @@
 # Plan: Audit fixes + comprehensive interrupt test coverage for RPi::WiringPi
 
-> **NEXT ACTION:** Start V3 (add `interrupt_dropped` proxy + POD to WiringPi.pm; update INTERRUPTS.md). NOTE: D1 (rpi_check_pin_status mismatch on Pi 5) needs a user decision before hardware tests V6–V16.
-> **LAST SESSION:** V2 done — Core.pm register fixes; register-logic assertions pass (t/110 ok 1-7,48,49,90,91). Discovered D1: rpi_check_pin_status() fails 51 default-mode checks on this Pi 5 board (unrelated to V2).
-> **ARCHIVE:** See interrupt-coverage-audit-archive.md for completed V tasks (V1-V2)
+> **NEXT ACTION:** Start V4 (POD/clarity fixes in WiringPi.pm + reconcile INTERRUPTS.md/FAQ.pod). NOTE: D1 (rpi_check_pin_status mismatch on Pi 5) deferred — revisit before hardware tests V6–V16.
+> **LAST SESSION:** V3 done — added `interrupt_dropped` proxy + POD to WiringPi.pm, updated INTERRUPTS.md; t/500-pod_coverage.t PASS (installed Test::Pod::Coverage/Pod::Coverage from CPAN to run it).
+> **ARCHIVE:** See interrupt-coverage-audit-archive.md for completed V tasks (V1-V3)
 
 ## Context
 
@@ -54,7 +54,6 @@ Goals: (1) fix the confirmed bugs and doc discrepancies, (2) bump the distro ver
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V3 | Add `interrupt_dropped` proxy to `WiringPi.pm` (`return WiringPi::API::interrupt_dropped();`) in alpha order; add `=head3 interrupt_dropped` POD; update `INTERRUPTS.md` to reference `$pi->interrupt_dropped`. | `prove -lv t/500-pod_coverage.t` (RPI_RELEASE_TESTING=1) | New method documented; POD coverage passes | ⏳ |
 | V4 | POD / clarity fixes in `WiringPi.pm`: document `run_interrupt_loop` default `$timeout_ms` (1000) and `$max` in the params block; document `pin()`'s optional `$comment` arg; add a documented dependency note that pin-level `$pin->background_interrupt` needs a future `RPi::Pin` release. Reconcile `INTERRUPTS.md`/`FAQ.pod` wording with actual behavior. | `prove -lv t/510-pod.t t/505-pod_linkcheck.t` (RPI_RELEASE_TESTING=1) | POD valid + links resolve | ⏳ |
 | V5 | Bump `$VERSION` in `lib/RPi/WiringPi.pm` from `2.3634` to a 3.18xx value (e.g. `3.1800` — confirm exact at execution); update the `Changes` top section header to match and add entries (capitalized, appended at bottom of current section) for V1-V4 fixes and the new interrupt tests. | `grep VERSION lib/RPi/WiringPi.pm`; `head Changes` | Version + Changes reflect 3.18xx; entries appended in order | ⏳ |
 | V6 | `t/203-dispatch_interrupts.t` — non-blocking `dispatch_interrupts()`: returns dispatched count, fires callback without `wait_interrupts`; returns 0 when nothing pending. | `prove -lv t/203-dispatch_interrupts.t` | PASS; counts match | ⏳ |
@@ -79,7 +78,7 @@ Audit ledger from the read-only investigation. Mark in place as tasks close.
 
 - **F1** ✅ RESOLVED (V1): `Core.pm:275` — `if (! $meta->{pins}{$pin_num}{users}{$param{requester}} eq $self->uuid)` parses as `(! VALUE) eq $uuid`; Perl warns "Possible precedence problem between ! and string eq". The ownership guard in `unregister` is effectively dead (never returns early), so ownership is not enforced. Intended: `ne $self->uuid`.
 - **F2** ✅ RESOLVED (V2): `Core.pm:299` & `:310` — `$self->{meta}{pins}` used where the sub fetched a fresh local `$meta`; everywhere else uses `$meta->{pins}`. The duplicate-pin `exists` check (299) never fires, and the returned registered-pins list (310) is computed from the wrong (effectively empty) structure. Line 307 also lacks a trailing semicolon (cosmetic — block-final, compiles OK; agent's "syntax error" claim was overstated).
-- **F3** (→V3): `INTERRUPTS.md` (line 164) tells users to call `WiringPi::API::interrupt_dropped()` directly; there is no `$pi->interrupt_dropped` proxy though every other interrupt control method is wrapped. Inconsistent surface.
+- **F3** ✅ RESOLVED (V3): `INTERRUPTS.md` (line 164) tells users to call `WiringPi::API::interrupt_dropped()` directly; there is no `$pi->interrupt_dropped` proxy though every other interrupt control method is wrapped. Inconsistent surface.
 - **F4** (→V4): Pin-level `$pin->background_interrupt(...)` is documented at length in `INTERRUPTS.md` and `FAQ.pod`, but `RPi::Pin` 2.3608 implements only `set_interrupt`/`interrupt_set` — the method does not exist (and `->can` false-positives via inheritance to `WiringPi::API`). Docs are ahead of the dependency.
 - **F5** (→V4): `run_interrupt_loop` POD mentions the default `$timeout_ms` 1000 only in passing prose, not the params block; `pin()` POD omits its optional `$comment` arg.
 - **F6** (→V5): Version `2.3634` (and `Changes` header) predate the 3.18 API upgrade (`WiringPi::API` prereq bumped to 3.1801, branch `3.18`). Version scheme mismatch.

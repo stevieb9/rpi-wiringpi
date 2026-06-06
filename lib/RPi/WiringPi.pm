@@ -188,6 +188,10 @@ sub interrupt_buffer {
     my ($self, $bytes) = @_;
     return WiringPi::API::interrupt_buffer($bytes);
 }
+sub interrupt_dropped {
+    my ($self) = @_;
+    return WiringPi::API::interrupt_dropped();
+}
 sub last_interrupt {
     my ($self) = @_;
     return WiringPi::API::last_interrupt();
@@ -1081,6 +1085,14 @@ that absorbs edge bursts. On overflow the newest edges are dropped (never merged
 or blocked) and counted, so raise this if a fast source outpaces your dispatch.
 May be set before arming and persists across teardown. Process-wide, so it lives
 on the Pi object. See C<interrupt_buffer> in L<WiringPi::API> for details.
+
+=head3 interrupt_dropped
+
+Returns the running total of interrupt events dropped because the queue (see
+C<interrupt_buffer>) overflowed. A non-zero count means a source is outpacing
+your dispatch - raise C<interrupt_buffer> or dispatch more often. Process-wide,
+so it lives on the Pi object. See C<interrupt_dropped> in L<WiringPi::API> for
+details.
 
 =head3 background_interrupts([$pin, $edge, $callback, $debounce], ...)
 

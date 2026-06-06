@@ -161,7 +161,7 @@ dispatching the queue fills and the **newest** edges are dropped (never merged,
 never blocked) and counted — so loss is never silent:
 
 ```perl
-my $lost = WiringPi::API::interrupt_dropped();   # 0 unless the pipe overflowed
+my $lost = $pi->interrupt_dropped;               # 0 unless the pipe overflowed
 $pi->interrupt_buffer(1 << 20);                  # enlarge the queue (~1 MiB)
 my $size = $pi->interrupt_buffer;                # read the current capacity
 ```
@@ -204,6 +204,7 @@ Dispatch and control methods live on the **Pi** object (`$pi`):
 | `background_interrupts([$pin,$edge,$cb[,$deb]], ...)` | one shared child for many pins (+ `arm`/`disarm`) |
 | `last_interrupt` | hashref of the most recent dispatched event |
 | `interrupt_buffer([$bytes])` | get/set the event-queue capacity |
+| `interrupt_dropped` | running count of edges dropped on queue overflow |
 | `stop_interrupts` | release every armed interrupt |
 
 Edge constants (`EDGE_FALLING`=1, `EDGE_RISING`=2, `EDGE_BOTH`=3) and `INPUT`
