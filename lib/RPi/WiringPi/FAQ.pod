@@ -47,8 +47,9 @@ from the OS toolchain. It is recommended, but B<not> required - and in
 particular you do B<not> need a threaded Perl. Interrupts run their listener in
 an internal C thread and dispatch your callbacks in your own interpreter (see
 L</"Interrupt usage">), and background work via C<< $pi->worker >> is fork-based
-by default (see L<RPi::WiringPi> and L<WiringPi::API>). A threaded Perl is only
-needed if you opt in to C<< worker(..., {mechanism =E<gt> 'thread'}) >>.
+by default (see L<RPi::WiringPi::WORKERS>, L<RPi::WiringPi> and L<WiringPi::API>). A
+threaded Perl is only needed if you opt in to
+C<< worker(..., {mechanism =E<gt> 'thread'}) >>.
 
 As your normal, every day user, install L<perlbrew|http://perlbrew.pl>:
 
