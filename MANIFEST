@@ -88,6 +88,16 @@ t/155-sig_die.t
 t/200-interrupt_rising_and_pud.t
 t/201-interrupt_falling_and_pud.t
 t/202-interrupt_both_and_pud.t
+t/203-dispatch_interrupts.t
+t/204-last_interrupt.t
+t/205-stop_interrupts.t
+t/206-run_interrupt_loop_max.t
+t/207-stop_interrupt_loop.t
+t/208-auto_dispatch_interrupts.t
+t/209-interrupt_buffer.t
+t/210-background_interrupts.t
+t/211-interrupt_validation.t
+t/212-pin_background_interrupt.t
 t/300-i2c_exceptions.t
 t/305-i2c.t
 t/310-dac.t
