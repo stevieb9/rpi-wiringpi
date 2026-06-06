@@ -1,8 +1,8 @@
 # Plan: Remove setup_sys() and setup_phys() initialization support
 
-> **NEXT ACTION:** V7 — final verification sweep across lib/ and the edited test (grep + podchecker)
-> **LAST SESSION (2026-06-06):** Ran **V2–V6 — all PASS** (user-authorized batch, single commit). Removed the `RPI_MODE_PHYS` branch from `pin_to_gpio()`/`pin_map()`, deleted `export_pin()`/`unexport_pin()` subs, stripped all SYS/PHYS/export POD from Core.pm + WiringPi.pm, trimmed t/106-pin_map.t to GPIO/WPI assertions, and added the Changes entry (to the live `3.1800 UNREL` section, not the `2.3634 UNREL` the plan named). FAQ.pod checked each task — no references, no edit needed. lib/ grep sweep clean; podchecker "pod syntax OK" on all three modules. V7–V9 still pending.
-> **ARCHIVE:** See refactor-setup-modes-archive.md for completed V tasks (V1–V6 archived)
+> **NEXT ACTION:** None — all V tasks (V1–V9) and backlog B2 complete. Two separate commits to make: (1) **rpi-wiringpi** V2–V6 code/POD/test/Changes edits; (2) **rpi-pin** B2 RPi::Const adoption (lib/RPi/Pin.pm, Makefile.PL, Changes).
+> **LAST SESSION (2026-06-06):** Implemented **B2** in `~/repos/rpi-pin`: `Pin.pm` now `use RPi::Const qw(:all)`; `mode()`/`pwm()` validate against INPUT/OUTPUT/PWM_OUT/GPIO_CLOCK, `pull()` against PUD_OFF/PUD_DOWN/PUD_UP (also fixed pull()'s backwards inline comment). Added `RPi::Const 1.04` prereq (1.05 is UNREL, so pinned to released 1.04). Behavior-preserving — constants resolve to the same 0/1/2/3 + 0/1/2; `perl -c` OK; affected tests SKIP in this env (need RPI_SUBMODULE_TESTING). B2 retired.
+> **ARCHIVE:** See refactor-setup-modes-archive.md for completed V tasks (V1–V9 archived) and B2.
 
 ## Goal
 
@@ -50,19 +50,18 @@ Line numbers below are anchors as of planning time; re-locate by sub/POD name si
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V7 | Final verification sweep across lib/ and the edited test. | `grep -rn "setup_sys\|setup_phys\|RPI_MODE_PHYS\|RPI_MODE_GPIO_SYS\|export_pin\|unexport_pin" lib/ t/106-pin_map.t; podchecker lib/RPi/WiringPi.pm lib/RPi/WiringPi/Core.pm lib/RPi/WiringPi/Util.pm` | grep prints nothing; podchecker reports "pod syntax OK" for all three modules | ⏳ |
-| V8 | **Review `RPi::Const` for the removed setup modes (cross-distribution)** — `RPI_MODE_PHYS` (3) and `RPI_MODE_GPIO_SYS` (2) back the deleted `setup_phys()` / `setup_sys()` modes; they live in the separate `RPi::Const` distro and are pulled in here via `use RPi::Const qw(:all)`. With V1–V7 done they are no longer referenced by RPi::WiringPi. Review them upstream: confirm no use remains here, then decide keep / deprecate / document-as-unused — do **not** remove unilaterally, other consumers may import them. Not checked out locally (`~/repos`) or installed on this perl, so treat as a tracking review and log the decision in Discovery Tracking. | here: `grep -rn "RPI_MODE_PHYS\|RPI_MODE_GPIO_SYS" lib/` (expect none); then in an `RPi::Const` checkout: `grep -n "RPI_MODE_PHYS\|RPI_MODE_GPIO_SYS" lib/RPi/Const.pm` | this repo clean; the two constants located in `RPi::Const` and a keep/deprecate/document decision recorded in Discovery Tracking | ⏳ |
-| V9 | **Review `RPi::Pin` for the removed setup modes (cross-distribution)** — `RPi::Pin` is the per-pin object (`$pi->pin(...)`, built at `WiringPi.pm:238`). Check it for any dependency on the removed `setup_phys()` / `setup_sys()` modes: references to `RPI_MODE_PHYS` / `RPI_MODE_GPIO_SYS`, PHYS/SYS pin schemes, or sys-mode `export`/`unexport` pin handling. Confirm none remain (or track the cleanup). Like V8 it's the user's own module and is not checked out (`~/repos`) or installed on this perl, so treat as a tracking review and log the decision in Discovery Tracking. See **B2** for the related constant-adoption recommendation. | (in an `RPi::Pin` checkout) `grep -rn "setup_sys\|setup_phys\|RPI_MODE_PHYS\|RPI_MODE_GPIO_SYS\|export\|unexport" lib/` | `RPi::Pin` reviewed; nothing depends on the removed modes (or cleanup tracked); decision recorded in Discovery Tracking | ⏳ |
 
 ## Discovery Tracking
 
-_None yet._
+- **V8 decision (2026-06-06) — KEEP `RPI_MODE_PHYS` / `RPI_MODE_GPIO_SYS` in `RPi::Const`.** Located in `~/repos/rpi-const`: defined in `lib/RPi/Const.pm:153-154`, exported via the `:mode` tag and `:all`, documented in POD (`:269-270`), and asserted in `t/27-const_mode.t` + `t/30-const_all.t`. This repo (rpi-wiringpi) is clean — no references remain. A `~/repos` sweep found no other local consumer; only `RPi::Const`'s own files match. Decision: do **not** remove or deprecate — they're part of `RPi::Const`'s published public API (separate CPAN distro; external consumers may import them), and the values map to real historical wiringPi scheme numbers (2 = SYS, 3 = PHYS), so they stay meaningful as reference. No edits made to `RPi::Const`.
+
+- **V9 decision (2026-06-06) — `RPi::Pin` has NO dependency on the removed modes; nothing to clean up.** Reviewed `~/repos/rpi-pin/lib/RPi/Pin.pm`. Sweep for `setup_sys`/`setup_phys`/`RPI_MODE_PHYS`/`RPI_MODE_GPIO_SYS`/`export`/`unexport`/`PHYS`/`SYS` over `lib/` → no matches. `Pin.pm` does not `use RPi::Const` in code (only in the POD SYNOPSIS, `:171`); it uses BCM/GPIO numbering only (`:200`). `mode()` (`:40-52`) validates against magic ints `0/1/2/3` = INPUT/OUTPUT/PWM_OUT/GPIO_CLOCK — these are *pin modes*, not the removed *setup schemes*, so they are unaffected. No sys-mode export/unexport handling exists. Decision: no changes needed in `RPi::Pin` for this cleanup. The magic-int → named-constant modernization (`:47` hard-codes `0/1/2/3`) is real but remains backlog item **B2**, out of scope here. No edits made to `RPi::Pin`.
 
 ## Backlog
 
-B2: `RPi::Pin` modernization — make `RPi::Pin` `use RPi::Const` and switch its pin-mode values (INPUT / OUTPUT / PWM_OUT / GPIO_CLOCK / SOFT_PWM_OUT / ...) and pull values from magic integers to the named constants. `RPi::WiringPi` already passes these constants into `RPi::Pin->mode()` (e.g. `WiringPi.pm:274`, `:439`), so having `RPi::Pin` use them internally keeps the whole stack consistent. Separate from the removed-setup-modes cleanup; surfaced during the `RPi::Pin` review (V9). Both `RPi::Const` and `RPi::Pin` are the user's own modules.
-
 _(B1 retired — promoted to V8.)_
+
+_(B2 retired — implemented 2026-06-06; see archive.)_
 
 ## Explicitly NOT doing
 
