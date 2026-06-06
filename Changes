@@ -92,6 +92,11 @@ Revision history for Perl extension RPi::WiringPi.
         - Strengthened checksum() UUID entropy: now seeds md5_hex() with the PID
           and hi-res time in addition to rand(), so forked/concurrent objects
           don't draw from a low-entropy rand()-only source
+        - Removed setup_phys() and setup_sys() initialization support, along with
+          the PHYS (RPI_MODE_PHYS) and System GPIO (RPI_MODE_GPIO_SYS) pin
+          schemes, coordinated with the WiringPi::API 3.18 removal of those modes
+        - Removed export_pin() and unexport_pin(), which existed solely to
+          support the setup_sys() scheme
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
