@@ -4,25 +4,35 @@ use strict;
 use warnings;
 
 use Carp qw(croak);
-use IPC::ShareLite qw(:flock);
+use IPC::Shareable qw(:flock);
 use JSON::XS;
+use String::CRC32 qw(crc32);
 
 our $VERSION = '2.3634';
 
-use constant SHM_SIZE => 65536;
+# Mirrors IPC::Shareable's signed 32-bit key_t overflow correction (_shm_key)
+use constant MAX_KEY_INT_SIZE => 0x80000000;
 
 sub meta {
     my ($self) = @_;
 
-    return $self->{meta_shm} if exists $self->{meta_shm};
+    return $self->{meta_knot} if exists $self->{meta_knot};
 
-    my $shm = IPC::ShareLite->new(
-        -key     => $self->{shm_key},
-        -create  => 1,
-        -destroy => 0,
-    ) or die "can't create shared memory segment: $!";
+    # Tie a SCALAR holding our own JSON string (not a HASH). This keeps the
+    # entire blob in a single segment; tying a HASH (or storing a ref) would
+    # make IPC::Shareable fan each nested structure out into its own segment.
 
-    $self->{meta_shm} = $shm;
+    my $blob;
+    my $knot = tie $blob, 'IPC::Shareable', {
+        key     => $self->{shm_key},
+        create  => 1,
+        destroy => 0,
+    } or die "can't create shared memory segment: $!";
+
+    $self->{meta_scalar} = \$blob;
+    $self->{meta_knot}   = $knot;
+
+    return $knot;
 }
 sub meta_erase {
     my ($self, $all) = @_;
@@ -54,13 +64,19 @@ sub meta_key_check {
         croak "meta_key_check() requires a key sent in...\n";
     }
 
-    $key = unpack('i', pack('A4', $key));
-    my $shm_check = shmget($key, SHM_SIZE, 0);
+    # Derive the integer segment key exactly as IPC::Shareable does (CRC32 of
+    # the string key, with signed 32-bit overflow correction), then probe for
+    # the segment's existence without creating it.
+
+    my $int = crc32($key);
+    $int -= MAX_KEY_INT_SIZE if $int >= MAX_KEY_INT_SIZE;
+
+    my $shm_check = shmget($int, 0, 0);
     return defined $shm_check ? 1 : 0;
 }
 sub meta_key {
     my ($self) = @_;
-    return $self->meta->key;
+    return $self->meta->seg->key;
 }
 sub meta_lock {
     my ($self, $flags) = @_;
@@ -73,11 +89,17 @@ sub meta_unlock {
 }
 sub meta_fetch {
     my ($self) = @_;
-    my $json;
-    $json = $self->meta->fetch;
-    $json = "{}" if $json eq '';
-    my $perl = decode_json $json;
-    return $perl
+
+    $self->meta;
+
+    # decode_json always returns a fresh, fully detached structure, so callers
+    # may safely mutate nested keys before calling meta_store(). A new segment
+    # reads back as undef.
+
+    my $json = ${ $self->{meta_scalar} };
+    $json = '{}' if ! defined $json || $json eq '';
+
+    return decode_json $json;
 }
 sub meta_store {
     my ($self, $data) = @_;
@@ -86,7 +108,12 @@ sub meta_store {
         croak "meta_store() requires a hash reference sent in...\n";
     }
 
-    $self->meta->store(encode_json $data) or die $!;
+    $self->meta;
+
+    # Store a single JSON string (a non-ref scalar) so the whole blob lives in
+    # one segment. IPC::Shareable croaks itself if it exceeds the segment size.
+
+    ${ $self->{meta_scalar} } = encode_json $data;
 }
 sub meta_delete {
     my ($self, $name) = @_;

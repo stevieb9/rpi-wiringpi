@@ -1,8 +1,9 @@
 # Plan: Convert RPi::WiringPi shared-memory backend from IPC::ShareLite to IPC::Shareable
 
-> **NEXT ACTION:** V1 — swap the dependency in `Makefile.PL`
-> **LAST SESSION:** Plan created (Option A confirmed). Analyzed all shm usage; IPC::ShareLite is used in exactly one file (`lib/RPi/WiringPi/Meta.pm`); IPC::Shareable 1.17 is installed, ShareLite is not. Added V10 + a Risks note on the single-segment 64KB cap (a shared bound, not a regression).
-> **ARCHIVE:** See SHAREABLE-archive.md for completed V tasks
+> **NEXT ACTION:** V3 — no-XS functional gate: write `build_testing/meta_shareable_check.pl` and run it.
+> **ENV:** Work runs **on the Raspberry Pi itself** (perlbrew 5.42.0), NOT a Mac. `WiringPi::API` (XS) loads here, so the full suite is runnable locally — the plan's old Mac/Pi gating is moot. Pre-migration state on this box: `IPC::ShareLite 0.17` IS installed (so `Meta.pm` loads today — the "build-unblock" was Mac-only); `IPC::Shareable 1.17` + `String::CRC32 2.100` now installed; `JSON::XS 4.04` present.
+> **LAST SESSION:** V2 PASS — `Meta.pm` rewritten to tie a SCALAR holding a JSON string: `meta` ties `IPC::Shareable` (caching `\$blob` in `{meta_scalar}`, knot in `{meta_knot}`), `meta_fetch`/`meta_store` decode/encode the scalar, `meta_key` reads `seg->key`, `meta_key_check` uses `crc32` + `MAX_KEY_INT_SIZE` overflow correction + `shmget($int,0,0)`; `meta_set/get/delete/erase` untouched; `perl -c` clean. Earlier: V1 PASS (Makefile.PL dep swap). Reason: IPC::Shareable does NOT squash nested structures into one segment — a tied HASH stores each nested hashref in its own segment ("each nested structure utilizes an additional shared memory segment"). For this deeply-nested metadata blob that means N segments (risking SHMMNI) AND a shallow `{ %{ $tied } }` copy would leave nested values still tied (live writes). Tying a SCALAR with an explicit `encode_json` string keeps ShareLite's exact single-segment, detached-copy, whole-blob-replace semantics. `JSON::XS` therefore stays. Updated mapping table, the detached-copy rationale, Risks, Decisions, V1/V2/V3/V10.
+> **ARCHIVE:** See SHAREABLE-archive.md for completed V tasks (V1-V2)
 
 ---
 
@@ -48,43 +49,48 @@ $self->meta_unlock;
 
 **Confirmed facts driving this plan:**
 - `grep` shows IPC::ShareLite appears **only** in `lib/RPi/WiringPi/Meta.pm`. No other module touches SysV directly.
-- `IPC::Shareable` **1.17 is installed**; `IPC::ShareLite` is **not** — so `Meta.pm` cannot even load today. Migration is also a build-unblock.
+- Module availability is **per-machine**. On the **Pi (where we work)**: `IPC::ShareLite 0.17` IS installed (so `Meta.pm` loads today), while `IPC::Shareable` and `String::CRC32` were NOT — installed as a pre-V1 step. (The original plan's "Shareable installed / ShareLite missing / Meta.pm can't load / build-unblock" line described the Mac and does not apply here.)
 - `pimeta`/`pimetaerase` are referenced only in `lib/RPi/WiringPi/FAQ.pod` (docs), not as real scripts.
 - IPC::Shareable's `END`/`_end` block removes a segment **only** when its `destroy` attribute is true (`lib/IPC/Shareable.pm:2190`). There is **no** per-object `DESTROY` remover. So `destroy => 0` preserves the segment exactly like ShareLite's `-destroy => 0`.
 - `IPC::Shareable::SharedMem` exposes a public integer-key accessor `->key` (`SharedMem.pm:95`).
 - IPC::Shareable's `:flock` exports `LOCK_EX/SH/NB/UN` with the same numeric values as `Fcntl` flock — `meta_lock(LOCK_EX)` maps 1:1.
-- IPC::Shareable defaults to the JSON serializer and a 65536-byte segment (`SHM_BUFSIZ`). The current code passes no `-size` to ShareLite, so it uses ShareLite's own default (also ~65536) — default segment sizes line up. Behavior *at* the cap differs, though (see Risks / V10): IPC::Shareable croaks once the JSON exceeds the segment, whereas ShareLite's >64KB behavior is unverified here (not installed). Both are effectively bounded by the segment size for this single-blob design, so it is **not** a regression for the small RPi metadata.
+- IPC::Shareable defaults to the JSON serializer and a 65536-byte segment (`SHM_BUFSIZ`). The current code passes no `-size` to ShareLite, so it uses ShareLite's own default (also ~65536) — default segment sizes line up. Behavior *at* the cap differs, though (see Risks / V10): IPC::Shareable croaks once the serialized payload exceeds the segment, whereas ShareLite's >64KB behavior is unverified here (not installed). For the **tie-a-scalar** design adopted here, the whole blob lives in one segment exactly like ShareLite, so it is **not** a regression for the small RPi metadata.
+- **IPC::Shareable does NOT collapse nested structures into one segment.** Per its docs: *"When using nested data structures, each nested structure utilizes an additional shared memory segment. The entire structure is not squashed into a single segment."* This is why we **tie a SCALAR holding a JSON string** rather than tying a HASH and storing the blob natively — a native HASH tie would fan this nested blob out across many segments (risking the system `SHMMNI` cap) and would hand callers tied nested refs (live shared-memory writes through `$meta->{pins}{...}`).
 
 ## Method mapping (ShareLite → Shareable), all within `Meta.pm`
 
-| Method | Today (ShareLite) | After (IPC::Shareable) |
+| Method | Today (ShareLite) | After (IPC::Shareable, tie-a-scalar) |
 |--------|-------------------|------------------------|
-| `meta` | `IPC::ShareLite->new(-key,-create,-destroy)` cached in `{meta_shm}` | `tie my %h,'IPC::Shareable',{key=>$shm_key,create=>1,destroy=>0}`; cache tied ref in `{meta_hash}` and knot in `{meta_knot}` |
-| `meta_lock($flags)` | `$self->meta->lock($flags//LOCK_EX)` | `$self->{meta_knot}->lock($flags//LOCK_EX)` |
-| `meta_unlock` | `$self->meta->unlock` | `$self->{meta_knot}->unlock` |
-| `meta_fetch` | `decode_json($shm->fetch \|\| '{}')` | `return { %{ $self->{meta_hash} } }` (detached copy; `{}` when empty) |
-| `meta_store($href)` | `$shm->store(encode_json $href)` | `%{ $self->{meta_hash} } = %$href` (whole-blob replace) |
-| `meta_key` | `$self->meta->key` → `0x74697072` for `'rpit'` | `$self->{meta_knot}->seg->key` → **1473559184** for `'rpit'` (CRC32-derived) |
+| `meta` | `IPC::ShareLite->new(-key,-create,-destroy)` cached in `{meta_shm}` | `my $knot = tie my $blob,'IPC::Shareable',{key=>$shm_key,create=>1,destroy=>0}`; cache `\$blob` in `{meta_scalar}` and the knot in `{meta_knot}`; return the knot |
+| `meta_lock($flags)` | `$self->meta->lock($flags//LOCK_EX)` | `$self->meta->lock($flags//LOCK_EX)` (knot's `lock`) |
+| `meta_unlock` | `$self->meta->unlock` | `$self->meta->unlock` (knot's `unlock`) |
+| `meta_fetch` | `decode_json($shm->fetch \|\| '{}')` | `my $j = ${ $self->{meta_scalar} }; return (defined $j && length $j) ? decode_json($j) : {}` (always detached — JSON decode yields fresh data) |
+| `meta_store($href)` | `$shm->store(encode_json $href)` | `${ $self->{meta_scalar} } = encode_json($href)` (whole-blob replace, single segment) |
+| `meta_key` | `$self->meta->key` → `0x74697072` for `'rpit'` | `$self->meta->seg->key` → **1473559184** for `'rpit'` (CRC32-derived) |
 | `meta_key_check($key)` | `shmget(unpack('i',pack('A4',$key)),65536,0)` | `shmget(<crc32($key) w/ overflow correction>, 0, 0)` |
 | `meta_set/get/delete/erase` | lock→fetch→mutate→store→unlock | **unchanged** — they ride on the four primitives above |
 
-Imports: replace `use IPC::ShareLite qw(:flock)` with `use IPC::Shareable qw(:flock)`; drop the direct `use JSON::XS` (serialization now lives in IPC::Shareable); add `use String::CRC32 qw(crc32)` for `meta_key_check`'s standalone (no-object) key derivation.
+**Why a scalar, not a hash:** storing an explicit `encode_json` **string** in a tied SCALAR keeps the entire blob in ONE segment (mirroring ShareLite) and sidesteps IPC::Shareable's per-nested-ref segment fan-out. It also makes `meta_fetch`'s detached-copy guarantee trivially correct (every `decode_json` returns brand-new, fully-untied data — safe to mutate nested keys before `meta_store`). A native HASH tie would break both properties (see Risks).
+
+Imports: replace `use IPC::ShareLite qw(:flock)` with `use IPC::Shareable qw(:flock)`; **keep `use JSON::XS`** (we still hand-serialize the blob to a string ourselves); add `use String::CRC32 qw(crc32)` for `meta_key_check`'s standalone (no-object) key derivation.
 
 New integer keys (for updating `t/02-shm_key.t`): `rpit` → **1473559184** (`0x57d4ba90`), `rpiw` → 1323166506, `blah` → 1311334748 (must still report "doesn't exist").
 
 ## Why `meta_fetch` returns a detached copy and neither primitive locks internally
 
-- Callers mutate **nested** structures (`$meta->{pins}{$n}{...}`, `delete $meta->{objects}{$uuid}`) on the returned ref and only then call `meta_store`. A tied hash's `FETCH` returns deserialized nested data, so a top-level `{ %{ $tied } }` copy is safe to mutate; `meta_store` then writes the whole blob back. Returning the *live* tied ref would silently drop nested-only mutations.
+- Callers mutate **nested** structures (`$meta->{pins}{$n}{...}`, `delete $meta->{objects}{$uuid}`) on the returned ref and only then call `meta_store`. With the **scalar-of-JSON** design, `meta_fetch` runs `decode_json` on the stored string, which returns a brand-new, fully **untied** structure every time — nested mutations are purely local until `meta_store` re-serializes and writes the whole blob back. (This is exactly ShareLite's behavior.) **Note:** had we tied a HASH instead, `FETCH` would return *tied* nested refs and a shallow `{ %{ $tied } }` copy would leak live shared-memory writes — which is the core reason we tie a scalar.
 - `meta_fetch`/`meta_store` must **not** take their own lock: callers already wrap them in `meta_lock`/`meta_unlock`. IPC::Shareable's `lock()` *releases* a differing lock before acquiring a new one, so an internal `LOCK_SH` inside `meta_fetch` would break a caller's surrounding `LOCK_EX`. (This matches ShareLite, whose `fetch`/`store` also didn't lock.)
-- Under an `LOCK_EX` held by the caller, IPC::Shareable buffers writes and flushes on `unlock` — strictly better than the old per-call store, and transparent to callers.
+- Under an `LOCK_EX` held by the caller, IPC::Shareable buffers the scalar write and flushes on `unlock` — strictly better than the old per-call store, and transparent to callers.
 
 ## Risks / watch-items
 
-- **`$self->{meta}{pins}` latent bug** (`Core.pm:289,300`): code reads `$self->{meta}` as if it were the blob, but that slot is never populated (the cache is `{meta_shm}`), so those reads are effectively no-ops today. Do **not** name the new tied ref `$self->{meta}` — that would silently change behavior. Preserve the bug; track the real fix as **B2**.
+- **(Resolved) former `$self->{meta}{pins}` bug** — already fixed in commit `c50f8f8`; `_pin_registration` now uses the local `my $meta = $self->meta_fetch` throughout and there are no `$self->{meta}` slot reads left in `lib/`. Still, do **not** name the new cache slot `$self->{meta}` (keep `{meta_scalar}`/`{meta_knot}`) to avoid reintroducing confusion. B2 retired.
 - **Key value changes** (CRC32 vs `pack`): only `t/02-shm_key.t` hard-codes the integer; update it (V4). No external consumer depends on the value.
 - **Cross-process sharing** (`t/multi/*.pl`, `t/111`, `t/15x`): must still see each other's writes and clean up on death. Covered by V5/V7.
-- **macOS vs Pi**: the WiringPi XS won't load on the dev Mac, so full `make test` is Pi-only. V2/V3 are Mac-runnable gates that exercise `Meta.pm` without loading the XS; V4–V8 run on the Pi.
-- **Segment-size cap** (whole blob in one segment): both backends store the entire JSON blob in a single 64KB segment, so neither grows unboundedly — this is **not new** with IPC::Shareable. The only divergence is at the cap: IPC::Shareable *croaks* (`"Length of shared data exceeds shared segment size"`, `Shareable.pm:1277`) once the JSON exceeds the segment, where ShareLite may behave differently (couldn't verify — not installed). The RPi metadata (pins/objects + small user `storage`) is far under 64KB, but we should prove the headroom and pin down the cap behavior — covered by V10. Mitigation if ever needed: pass a larger `size` to the tie in `meta()`.
+- **Environment (Pi, not Mac)**: all work runs on the Raspberry Pi where `WiringPi::API` loads, so the **entire suite is runnable locally** — the original Mac/Pi split no longer applies. V2/V3/V10 remain useful as fast **no-XS gates** (they exercise `Meta.pm` without pulling in the hardware modules), but they're a convenience here, not a necessity.
+- **Nested-structure segment fan-out** (the reason for tie-a-scalar): IPC::Shareable gives **each nested ref its own segment** when you store native structures. This is NOT a HASH-only behavior — scalar `STORE` does it too: `_magic_tie($knot,$val) if ref($val) && $knot->_need_tie($val)` (`Shareable.pm` STORE), which `tie`s each nested ref into a child segment. So storing a hashref into the tied scalar would *also* fan out (and hand callers tied nested refs). The only way to stay single-segment is to hand IPC::Shareable a **non-ref scalar** — hence our own `encode_json` string is **mandatory**, not just convenient. If anyone later "simplifies" `meta_store`/`meta_fetch` to assign a structure (hash or ref) instead of a string, this regression returns — keep the serialize-to-string boundary.
+- **Double serialization is expected and benign** (correctness-wise): a plain string stored in a tied scalar is itself re-serialized by IPC::Shareable (wrapped as `{ '__sv__' => $val }` then JSON-encoded), so our JSON blob is JSON-encoded a second time. It round-trips cleanly. The only practical cost is **size inflation** — the second pass escapes every `"`, so the bytes actually written to the segment run ~20–40% larger than our raw JSON, lowering the *effective* 64KB headroom. Measure the as-stored size, not raw JSON length (see V10).
+- **Segment-size cap** (whole blob in one segment): with the scalar-of-JSON design both backends store the entire JSON blob in a single 64KB segment, so neither grows unboundedly — this is **not new** with IPC::Shareable. The only divergence is at the cap: IPC::Shareable *croaks* (`"Length of shared data exceeds shared segment size"`, `Shareable.pm:1277`) once the serialized string exceeds the segment, where ShareLite may behave differently (couldn't verify — not installed). The RPi metadata (pins/objects + small user `storage`) is far under 64KB, but we should prove the headroom and pin down the cap behavior — covered by V10. Mitigation if ever needed: pass a larger `size` to the tie in `meta()`.
 
 ## Execution rules
 
@@ -112,26 +118,20 @@ New integer keys (for updating `t/02-shm_key.t`): `rpit` → **1473559184** (`0x
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V1 | Swap dependency: `Makefile.PL` requires `IPC::Shareable` (>= 1.17) not `IPC::ShareLite`; reassess `JSON::XS` (now transitive via IPC::Shareable) | `perl Makefile.PL 2>&1 \| tail; grep -E 'IPC::(Shareable\|ShareLite)' Makefile.PL` | `Makefile.PL` lists `IPC::Shareable`, no `IPC::ShareLite`; `perl Makefile.PL` runs without "prerequisite missing" for IPC::Shareable | ⏳ |
-| V2 | Rewrite `Meta.pm` backend: `use IPC::Shareable qw(:flock)` + `String::CRC32`; reimplement `meta`, `meta_key`, `meta_lock`, `meta_unlock`, `meta_fetch`, `meta_store`, `meta_key_check` per the mapping table; leave `meta_set/get/delete/erase` logic intact; do NOT use `$self->{meta}` as the tied-ref slot | `perl -Ilib -c lib/RPi/WiringPi/Meta.pm` | `syntax OK` | ⏳ |
-| V3 | Mac-runnable functional gate: new `build_testing/meta_shareable_check.pl` blesses a minimal object into `RPi::WiringPi::Meta` (no WiringPi XS) and round-trips lock/fetch/store, set/get/delete, erase(0/1), key, key_check(present/absent), and a fork to prove cross-process visibility | `perl -Ilib build_testing/meta_shareable_check.pl` | All assertions pass on macOS; segment auto-persists (not destroyed) between two runs | ⏳ |
+| V3 | No-XS functional gate (runs anywhere, incl. this Pi): new `build_testing/meta_shareable_check.pl` blesses a minimal object into `RPi::WiringPi::Meta` (no WiringPi XS) and round-trips lock/fetch/store, set/get/delete, erase(0/1), key, key_check(present/absent), a nested-mutation round-trip (mutate `$meta->{pins}{N}{...}` then store/fetch to prove detachment), and a fork to prove cross-process visibility; also assert exactly **one** shm segment is used for the blob | `perl -Ilib build_testing/meta_shareable_check.pl` | All assertions pass; nested mutation persists only after `meta_store`; a single segment backs the blob; segment auto-persists (not destroyed) between two runs | ⏳ |
 | V4 | Update `t/02-shm_key.t`: expect `meta_key == 1473559184` for `'rpit'`; keep `meta_key_check('rpit')==1` and `('blah')==0` | (Pi) `prove -lv t/02-shm_key.t` | pass | ⏳ |
 | V5 | Meta data tests on hardware | (Pi) `prove -l t/03-meta.t t/05-checksum_uuid.t t/110-register.t t/111-metadata_multi_pi_single_script.t` | all pass | ⏳ |
 | V6 | Object/pin registration + cleanup paths (Core.pm/WiringPi.pm) | (Pi) `prove -l t/100-identification_and_label.t t/105-pin.t t/106-pin_map.t t/150-cleanup.t` | all pass; no pins left registered after cleanup | ⏳ |
 | V7 | Signal-handler + multi-process death/cleanup (cross-process shm sharing) | (Pi) `RPI_MULTI=1 prove -l t/153-sig_handlers.t t/154-sig_die_multi.t t/155-sig_die.t` (and exercise `t/multi/{die,int,full}_{master,slave}.pl`) | masters see slaves' meta writes; cleanup-on-die removes only the dying object's entries | ⏳ |
 | V8 | Full regression sweep on the Pi | (Pi) `RPI_<all>=1 make test` | whole suite green (no new skips/failures vs. pre-migration baseline) | ⏳ |
 | V9 | Docs + housekeeping: update `Meta.pm` POD (key is now CRC32-derived; `meta_key_check` note), reconcile FAQ.pod `pimeta` text, add `Changes` entry at bottom of current section, update/retire `build_testing` Sharelite scratch files | `perl -Ilib -c lib/RPi/WiringPi/Meta.pm; podchecker lib/RPi/WiringPi/Meta.pm` | compiles; POD clean; `Changes` notes the backend swap | ⏳ |
-| V10 | Segment-size headroom + cap behavior (Mac-runnable): extend the V3 harness to (a) store a worst-case-ish blob (~40 objects + 40 pins + a few KB of user `storage`) and confirm it round-trips with large headroom under 64KB; (b) deliberately overflow the segment and confirm IPC::Shareable croaks cleanly (no silent truncation/corruption); decide whether to bump `size` in `meta()` | `perl -Ilib build_testing/meta_shareable_check.pl --size` | realistic blob fits with wide margin and round-trips; oversized store croaks with a clear message, segment left intact | ⏳ |
+| V10 | Segment-size headroom + cap behavior (no-XS gate): extend the V3 harness to (a) store a worst-case-ish blob (~40 objects + 40 pins + a few KB of user `storage`) and confirm it round-trips with large headroom under 64KB **in a single segment**, measuring the **as-stored (double-serialized) byte size** vs. our raw JSON length to quantify the escaping inflation; (b) deliberately overflow the segment and confirm IPC::Shareable croaks cleanly (no silent truncation/corruption); decide whether to bump `size` in `meta()` | `perl -Ilib build_testing/meta_shareable_check.pl --size` | realistic blob fits with wide margin in one segment and round-trips; report shows as-stored bytes (inflated) under cap; oversized store croaks with a clear message, segment left intact | ⏳ |
 
 ## Discovery Tracking
 
 _None yet._
 
 ## Backlog
-
-B1: Optimize `meta_fetch` to a single segment decode. `{ %{ $tied } }` triggers one `FETCH` (full decode) per top-level key when unlocked (~6×). A one-shot snapshot helper would cut that to one decode.
-
-B2: Fix the pre-existing `$self->{meta}{pins}` latent bug in `Core.pm` `_pin_registration` (lines 289, 300) — that slot is never populated, so the "pin already in use" guard and the returned pin list are dead. Decide whether to back them with `meta_fetch` or the tied hash.
 
 B3: Add an explicit admin/removal tool to replace the documented `pimeta`/`pimetaerase`, built on `IPC::Shareable->remove` / `shm_segments` (no real script exists today).
 
@@ -140,12 +140,13 @@ B4: Update or retire the dev-scratch files that reference the old API: `build_te
 ## Explicitly NOT doing
 
 - **Option B — native-tie rewrite of every caller.** Rejected: replacing `meta_fetch`/`meta_store` with direct tied-hash access would touch `Core.pm`, `WiringPi.pm`, `RPiTest.pm`, every `t/multi/*.pl`, and several `t/*.t`, for no behavioral gain. The `meta_*` shim keeps the blast radius inside `Meta.pm`.
-- **Fixing the `$self->{meta}{pins}` latent bug as part of this migration** — preserve current behavior so the migration stays behavior-neutral; tracked as B2.
+- **B2 (former `$self->{meta}{pins}` bug)** — retired: already fixed independently in commit `c50f8f8`, so there's nothing left for the migration to preserve or repair. The `B2` slot is retired (never reused).
 - **Preserving the old integer key `0x74697072`** — IPC::Shareable derives keys via CRC32 by design; the key value changes and that's fine since the segment is internal and discovered by `shm_key` string, not by hard-coded int.
+- **Tying a HASH and storing the blob natively (former B1 / original mapping)** — rejected. IPC::Shareable allocates a separate segment per nested ref, so a native HASH tie fans this blob across many segments (SHMMNI risk) and returns tied nested refs to callers (live writes through `$meta->{...}`). The scalar-of-JSON design stores one segment and one decode per fetch, so the old B1 "single segment decode" optimization is moot by construction. The `B1` slot is retired (never reused).
 
 ## Decisions
 
-- Tie a **HASH** (`var => 'HASH'` is the default) with `key => $self->{shm_key}, create => 1, destroy => 0`. `create=>1` = attach-or-create; `destroy=>0` = never auto-remove (matches ShareLite and the END-block guard at `Shareable.pm:2190`).
-- `meta_fetch` returns a **detached** top-level copy; `meta_store` does a **whole-blob replace**; **neither locks internally** (callers own the lock). Rationale documented above.
-- `meta_key` reads `->{meta_knot}->seg->key` (public `SharedMem::key`). `meta_key_check` uses `crc32` + overflow-correction (mirroring `IPC::Shareable::_shm_key`) then `shmget($int, 0, 0)` for a content-independent existence probe.
+- Tie a **SCALAR** holding an `encode_json` **string** (NOT a HASH) with `key => $self->{shm_key}, create => 1, destroy => 0`. `create=>1` = attach-or-create; `destroy=>0` = never auto-remove (matches ShareLite and the END-block guard at `Shareable.pm:2190`). A scalar-of-string keeps the whole blob in ONE segment and avoids IPC::Shareable's per-nested-ref segment fan-out; a HASH tie was rejected for that reason.
+- `meta_fetch` `decode_json`s the scalar to a **fully detached** structure; `meta_store` `encode_json`s a **whole-blob replace** into the scalar; **neither locks internally** (callers own the lock). Rationale documented above.
+- `meta_key` reads `$self->meta->seg->key` (public `SharedMem::key` on the knot). `meta_key_check` uses `crc32` + overflow-correction (mirroring `IPC::Shareable::_shm_key`) then `shmget($int, 0, 0)` for a content-independent existence probe.
 - Minimum `IPC::Shareable` version: **1.17** (installed; ships JSON-default serializer, `:flock`, `SharedMem::key`, and the destroy-guarded END block this plan relies on).
