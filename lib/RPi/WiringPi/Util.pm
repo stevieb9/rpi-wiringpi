@@ -44,9 +44,6 @@ sub pin_map {
         elsif ($scheme == RPI_MODE_GPIO){
             $pin = $self->phys_to_gpio($_);
         }
-        elsif ($scheme == RPI_MODE_PHYS){
-            $pin = $_;
-        }
         $map{$_} = $pin;
     }
     $self->{pin_map_cache}{$scheme} = \%map;

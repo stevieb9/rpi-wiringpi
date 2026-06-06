@@ -934,14 +934,6 @@ Set/get the PWM mode.
  
 Set/get the PWM clock.
  
-=head3 export_pin
- 
-Exports a pin if running under the C<setup_sys()> initialization scheme.
- 
-=head3 unexport_pin
- 
-Un-exports a pin if running under the C<setup_sys()> initialization scheme.
- 
 =head3 registered_pins
  
 Returns an array reference of all pin numbers currently registered in the

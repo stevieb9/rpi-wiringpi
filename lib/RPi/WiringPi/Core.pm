@@ -62,9 +62,6 @@ sub pin_to_gpio {
     if ($scheme == RPI_MODE_WPI){
         return $self->wpi_to_gpio($pin);
     }
-    elsif ($scheme == RPI_MODE_PHYS){
-        return $self->phys_to_gpio($pin);
-    }
     elsif ($scheme == RPI_MODE_GPIO){
         return $pin;
     }
@@ -146,14 +143,6 @@ sub pwm_mode {
     $self->_pwm_in_use(1);
 
     return defined $self->{pwm_mode} ? $self->{pwm_mode} : 1;
-}
-sub export_pin {
-    my ($self, $pin) = @_;
-    system "sudo", "gpio", "export", $self->pin_to_gpio($pin), "in";
-}
-sub unexport_pin {
-    my ($self, $pin) = @_;
-    system "sudo", "gpio", "unexport", $self->pin_to_gpio($pin);
 }
 sub registered_pins {
     return $_[0]->_pin_registration;
@@ -419,23 +408,19 @@ will be the empty string.
 =head2 pin_scheme([$scheme])
 
 Returns the current pin mapping in use. Returns C<0> for C<wiringPi> scheme,
-C<1> for GPIO, C<2> for System GPIO, C<3> for physical board and C<-1> if a
-scheme has not yet been configured (ie. one of the C<setup*()> methods has
-not yet been called).
+C<1> for GPIO, and C<-1> if a scheme has not yet been configured (ie. one of
+the C<setup*()> methods has not yet been called).
 
 If using L<RPi::Const>, these map out to:
 
     0  => RPI_MODE_WPI
     1  => RPI_MODE_GPIO
-    2  => RPI_MODE_GPIO_SYS # unused in RPi::WiringPi
-    3  => RPI_MODE_PHYS
     -1 => RPI_MODE_UNINIT
 
 =head2 pin_to_gpio($pin, [$scheme])
 
 Dynamically converts the specified pin from the specified scheme
-C<RPI_MODE_WPI> (wiringPi), or C<RPI_MODE_PHYS> (physical board numbering
-scheme) to the GPIO number format.
+C<RPI_MODE_WPI> (wiringPi) to the GPIO number format.
 
 If C<$scheme> is not sent in, we'll attempt to fetch the scheme currently in
 use and use that.
@@ -516,18 +501,6 @@ Parameters:
     $divisor
 
 Mandatory, Integer: An unsigned integer to set the pulse width to.
-
-=head2 export_pin($pin_num)
-
-Exports a pin. Only needed if using the C<setup_sys()> initialization method.
-
-Pin number must be the C<GPIO> pin number representation.
-
-=head2 unexport_pin($pin_num)
-
-Unexports a pin. Only needed if using the C<setup_sys()> initialization method.
-
-Pin number must be the C<GPIO> pin number representation.
 
 =head2 registered_pins()
 

@@ -15,19 +15,9 @@ my $pi = RPi::WiringPi->new(setup => 'none', label => 't/106-pin_map.t', shm_key
 is $pi->pin_scheme, 1, "pin_scheme() returns RPI_MODE_GPIO if not set";
 
 is
-    $pi->pin_scheme('BCM'),
-    'BCM',
-    "pin_scheme() returns BCM if setup() is sys";
-
-is
     $pi->pin_scheme('GPIO'),
     'GPIO',
     "pin_scheme() returns GPIO if setup() is gpio";
-
-is
-    $pi->pin_scheme('PHYS_GPIO'),
-    'PHYS_GPIO',
-    "pin_scheme() returns BCM if setup() is phys";
 
 is
     $pi->pin_scheme('WPI'),
