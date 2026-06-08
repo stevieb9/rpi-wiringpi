@@ -18,6 +18,7 @@ our $VERSION = '3.1800';
 
 my $fatal_exit = 1;
 my %sig_handlers;
+my %prev_sig;
 my $signal_debug = 0;
 
 # Weak registry of live, registered objects (keyed by uuid) so the END block
@@ -415,23 +416,40 @@ sub DESTROY {
 # private
 
 sub _class_signal_handler {
-    # populates the class level signal handler structure
+    # The process-global INT/TERM handler. Cleans up every live object, chains to
+    # any handler the caller had installed before us, then honours fatal_exit.
 
-    my $signal = shift;
+    my ($signal, @args) = @_;
 
     # During global destruction the object graph is torn down in an arbitrary
     # order; dispatching per-object handlers here would call methods on
     # already-freed objects. Bail out — END-time cleanup has already run.
     return if ${^GLOBAL_PHASE} eq 'DESTRUCT';
 
+    # Reset every live object's hardware first (the safety guarantee).
     for (keys %{ $sig_handlers{$signal} }){
-        &{ $sig_handlers{$signal}->{$_} }(@_);
+        &{ $sig_handlers{$signal}->{$_} }(@args);
+    }
+
+    # Chain to a handler the caller installed before we took over, so we don't
+    # silently swallow their signal handling.
+    if (ref $prev_sig{$signal} eq 'CODE'){
+        $prev_sig{$signal}->(@args);
+    }
+
+    # fatal_exit (default true): once cleanup is done, terminate with the
+    # signal's default disposition so the exit status is correct (and END still
+    # runs). fatal_exit => 0 cleans up and lets the program carry on.
+    if ($fatal_exit){
+        $SIG{$signal} = 'DEFAULT';
+        kill $signal, $$;
     }
 }
 sub _cleanup_handler {
-    # the actual sig handler methods
+    # Per-object signal cleanup. The terminate/continue decision lives in
+    # _class_signal_handler (after all objects are cleaned), not here.
 
-    my ($self, $sig, @err) = @_;
+    my ($self, $sig) = @_;
 
     if ($signal_debug){
         print "running '$sig' handler for: " . $self->uuid .
@@ -440,10 +458,6 @@ sub _cleanup_handler {
 
     delete $sig_handlers{$sig}{$self->uuid};
     $self->cleanup;
-
-    if ($self->_fatal_exit) {
-        #FIXME: add an object count per proc in meta, and exit if it's 0
-    }
 }
 sub _fatal_exit {
     my ($self, $fatal) = @_;
@@ -457,17 +471,17 @@ sub _generate_signal_handlers {
     my $self = shift;
 
     if (! %sig_handlers){
-        # set up the signal handler class structure only once
-        $SIG{INT} = \&_class_signal_handler('INT');
-        $SIG{TERM} = \&_class_signal_handler('TERM');
-        $SIG{__DIE__} = sub { _class_signal_handler('__DIE__', @_) };
+        # Install our INT/TERM handlers once. We deliberately do NOT trap
+        # $SIG{__DIE__}: resetting the hardware on a crash or normal exit is
+        # already handled by the END block and DESTROY, so trapping every die
+        # would only risk tearing things down on a caught, handled exception.
+        # Preserve any handler the caller already set so we can chain to it.
+        for my $sig (qw(INT TERM)){
+            $prev_sig{$sig} = $SIG{$sig} if ref $SIG{$sig} eq 'CODE';
+            $SIG{$sig} = sub { _class_signal_handler($sig, @_) };
+        }
     }
 
-    $sig_handlers{'__DIE__'}{$self->uuid} = sub {
-        my @err = @_;
-        print "$_\n" for @err;
-        $self->_cleanup_handler('__DIE__', @err)
-    };
     $sig_handlers{'INT'}{$self->uuid} = sub {
         $self->_cleanup_handler('INT')
     };
@@ -544,9 +558,9 @@ We always and only use the C<GPIO> pin numbering scheme.
 This module is essentially a 'manager' for the sub-modules (ie. components).
 You can use the component modules directly, but retrieving components through
 this module instead has many benefits. We maintain a registry of pins and other
-data. We also trap C<$SIG{__DIE__}> and C<$SIG{INT}>, so that in the event of a
-crash, we can reset the Pi back to default settings, so components are not left
-in an inconsistent state. Component modules do none of these things.
+data, and reset the Pi back to default settings when your program ends (on
+normal exit, on an uncaught C<die()>, and on C<SIGINT>/C<SIGTERM>), so components
+are not left in an inconsistent state. Component modules do none of these things.
  
 There are a basic set of constants that can be imported. See
 L<RPi::Const>.
@@ -574,16 +588,19 @@ another (for example, production scripts can operate at the same time as test
 scripts, and both use their own shared memory pool).
 
     fatal_exit => $bool
- 
-Optional: We trap all C<die()> calls and clean up for safety reasons. If a
-call to C<die()> is trapped, by default, we clean up, and then C<exit()>. Set
-C<fatal_exit> to false (C<0>) to perform the cleanup, and then continue running
-your script.
- 
-We recommend only disabling this feature if you're doing unit test work, want to
-allow other exit traps to catch, allow the Pi to continue on working after a
-fatal error etc. If disabled, you will be responsible for doing your own cleanup
-of the Pi hardware configuration on exit.
+
+Optional: Controls what happens when we trap a C<SIGINT> (Ctrl-C) or C<SIGTERM>.
+In both cases we first reset the Pi hardware to a safe state. By default
+(C<fatal_exit> true), we then re-raise the signal so the program terminates as it
+normally would. Set C<fatal_exit> to false (C<0>) to perform the cleanup and then
+B<continue running> your script (eg. for unit-test work, or to allow your own
+signal handling to take over).
+
+Note that this only affects trapped signals. Hardware cleanup on a normal exit or
+on an uncaught C<die()> always happens automatically (via the object's C<END>/
+C<DESTROY> handling); we do B<not> trap C<$SIG{__DIE__}>, so a C<die()> you catch
+yourself with C<eval> will not disturb your pins. Any C<$SIG{INT}>/C<$SIG{TERM}>
+handler you installed before creating the object is chained to, not replaced.
 
     rpi_register => $bool
 

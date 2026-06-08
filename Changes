@@ -156,6 +156,17 @@ Revision history for Perl extension RPi::WiringPi.
           OS) and raspi_config() (now reads /boot/firmware/config.txt). Updated
           the t/403/404/406/407 sysinfo tests for the corrected output and made
           them board/OS-agnostic, with additional assertions
+        - Reworked the crash/signal handling. We no longer trap $SIG{__DIE__}
+          (which fired on every die, including a caught eval { die }, silently
+          resetting your pins); hardware cleanup on a crash or normal exit is
+          handled by the END/DESTROY path instead. $SIG{INT}/$SIG{TERM} are now
+          installed correctly (the old form raised "Not a subroutine reference"
+          when a signal fired) and chain to any handler you installed first
+        - fatal_exit now actually works (it was a no-op): on a trapped INT/TERM
+          we reset the hardware, then either re-raise to terminate (default) or,
+          with fatal_exit => 0, continue running. POD updated to match
+        - Stopped pin cleanup's pinctrl shell-out from clobbering the program's
+          exit status (local $?/$! in _restore_pin_alt)
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to

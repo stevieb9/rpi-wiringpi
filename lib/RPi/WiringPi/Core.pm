@@ -322,6 +322,9 @@ sub _restore_pin_alt {
     my ($self, $pin_num, $alt) = @_;
 
     if ($alt == 31 && WiringPi::API::pi_rp1_model()) {
+        # localize $?/$! so this shell-out (which often runs from cleanup at
+        # program exit) can't clobber the script's own exit status.
+        local ($?, $!);
         if (system('pinctrl', 'set', $pin_num, 'no') != 0) {
             warn "couldn't restore GPIO $pin_num to 'no function' (alt 31) via " .
                  "pinctrl; is pinctrl installed and are you in the 'gpio' group?\n";
