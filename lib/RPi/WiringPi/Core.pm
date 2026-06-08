@@ -213,7 +213,7 @@ sub cleanup {
 
         for my $pin (keys %{$meta->{pins}}) {
             if (exists $meta->{pins}->{$pin}{users}{$self->uuid}) {
-                WiringPi::API::pinModeAlt($pin, $meta->{pins}->{$pin}{alt});
+                $self->_restore_pin_alt($pin, $meta->{pins}->{$pin}{alt});
                 WiringPi::API::digitalWrite($pin, $meta->{pins}->{$pin}{state});
                 delete $meta->{pins}->{$pin};
             }
@@ -310,6 +310,26 @@ sub _pin_registration {
     $self->meta_unlock;
 
     return \@registered_pins;
+}
+sub _restore_pin_alt {
+    # Restores a pin to a previously captured alt mode. wiringPi's pinModeAlt()
+    # cannot set alt mode 31 ("no function") — the pristine default for many
+    # Pi 5 / RP1 GPIO pins — so for that one case we fall back to pinctrl, which
+    # can. Every other mode (and every legacy Pi 3/4 pin, which never reports
+    # alt 31) goes through pinModeAlt exactly as before, so this is a no-op
+    # change off the RP1.
+
+    my ($self, $pin_num, $alt) = @_;
+
+    if ($alt == 31 && WiringPi::API::pi_rp1_model()) {
+        if (system('pinctrl', 'set', $pin_num, 'no') != 0) {
+            warn "couldn't restore GPIO $pin_num to 'no function' (alt 31) via " .
+                 "pinctrl; is pinctrl installed and are you in the 'gpio' group?\n";
+        }
+        return;
+    }
+
+    WiringPi::API::pinModeAlt($pin_num, $alt);
 }
 sub _pwm_in_use {
     my $self = shift;
