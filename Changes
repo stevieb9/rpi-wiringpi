@@ -167,6 +167,13 @@ Revision history for Perl extension RPi::WiringPi.
           with fatal_exit => 0, continue running. POD updated to match
         - Stopped pin cleanup's pinctrl shell-out from clobbering the program's
           exit status (local $?/$! in _restore_pin_alt)
+        - Completed the Pi 5/RP1 pin-restore fix: on the RP1, get_alt() returns a
+          mode enum, not a classic alt number, so pinModeAlt() could not restore
+          INPUT (0) or OUTPUT (1) — only alt 31 was handled before. cleanup() and
+          RPiTest's rpi_reset() now restore INPUT/OUTPUT via pinMode() (and "no
+          function" via pinctrl), so a pin left in OUTPUT (eg. by a worker) is
+          properly returned to its default. t/213-worker.t now asserts BCM18 is
+          restored; clears the cascade that failed t/400-407 in a full sweep
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to

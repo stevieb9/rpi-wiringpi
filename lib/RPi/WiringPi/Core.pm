@@ -312,24 +312,31 @@ sub _pin_registration {
     return \@registered_pins;
 }
 sub _restore_pin_alt {
-    # Restores a pin to a previously captured alt mode. wiringPi's pinModeAlt()
-    # cannot set alt mode 31 ("no function") — the pristine default for many
-    # Pi 5 / RP1 GPIO pins — so for that one case we fall back to pinctrl, which
-    # can. Every other mode (and every legacy Pi 3/4 pin, which never reports
-    # alt 31) goes through pinModeAlt exactly as before, so this is a no-op
-    # change off the RP1.
+    # Restores a pin to a previously captured alt mode. On the Raspberry Pi 5 /
+    # RP1, get_alt() returns a *mode* enum rather than a classic alt-function
+    # number, so pinModeAlt() can't round-trip the simple cases: INPUT (0) and
+    # OUTPUT (1) must be restored via pinMode(), and "no function" (31, which
+    # pinModeAlt rejects outright) via pinctrl. Real alt functions still
+    # round-trip through pinModeAlt(). Off the RP1, get_alt()'s classic encoding
+    # lines up with pinModeAlt(), so legacy Pi 3/4 behaviour is unchanged.
 
     my ($self, $pin_num, $alt) = @_;
 
-    if ($alt == 31 && WiringPi::API::pi_rp1_model()) {
-        # localize $?/$! so this shell-out (which often runs from cleanup at
-        # program exit) can't clobber the script's own exit status.
-        local ($?, $!);
-        if (system('pinctrl', 'set', $pin_num, 'no') != 0) {
-            warn "couldn't restore GPIO $pin_num to 'no function' (alt 31) via " .
-                 "pinctrl; is pinctrl installed and are you in the 'gpio' group?\n";
+    if (WiringPi::API::pi_rp1_model()) {
+        if ($alt == 0 || $alt == 1) {
+            WiringPi::API::pinMode($pin_num, $alt);     # 0 = INPUT, 1 = OUTPUT
+            return;
         }
-        return;
+        if ($alt == 31) {
+            # localize $?/$! so this shell-out (which often runs from cleanup at
+            # program exit) can't clobber the script's own exit status.
+            local ($?, $!);
+            if (system('pinctrl', 'set', $pin_num, 'no') != 0) {
+                warn "couldn't restore GPIO $pin_num to 'no function' (alt 31) via " .
+                     "pinctrl; is pinctrl installed and are you in the 'gpio' group?\n";
+            }
+            return;
+        }
     }
 
     WiringPi::API::pinModeAlt($pin_num, $alt);
