@@ -10,6 +10,7 @@ use parent 'RPi::WiringPi::Meta';
 use Carp qw(croak confess);
 use Data::Dumper;
 use RPi::Const qw(:all);
+use Scalar::Util qw(weaken);
 
 our $VERSION = '3.1800';
 
@@ -18,6 +19,25 @@ our $VERSION = '3.1800';
 my $fatal_exit = 1;
 my %sig_handlers;
 my $signal_debug = 0;
+
+# Weak registry of live, registered objects (keyed by uuid) so the END block
+# below can clean up anything the user never explicitly cleanup()'d while the
+# IPC::Shareable segment is still alive — before global destruction tears it
+# down. The strong refs in %sig_handlers keep these objects alive until exit.
+my %objects;
+
+END {
+    # Reap any object that was never explicitly cleaned. Running here (END
+    # phase) keeps the shared-memory segment intact, so cleanup() actually
+    # resets the pins and unregisters the object, and leaves DESTROY nothing
+    # to do at global destruction — avoiding "during global destruction"
+    # warnings from operating on a half-torn-down segment.
+    for my $uuid (keys %objects) {
+        my $obj = $objects{$uuid} or next;
+        next if $obj->{clean};
+        eval { $obj->cleanup; 1 };
+    }
+}
 
 # core
 
@@ -88,6 +108,11 @@ sub new {
         $self->meta_unlock;
 
         $self->_generate_signal_handlers;
+
+        # Track for END-time cleanup (weak, so we never extend the object's
+        # life ourselves — %sig_handlers already holds it until exit).
+        $objects{$self->uuid} = $self;
+        weaken $objects{$self->uuid};
     }
 
     return $self;
@@ -378,6 +403,12 @@ sub worker {
 }
 sub DESTROY {
     my ($self) = @_;
+
+    # At global destruction the IPC::Shareable segment may already be gone, so
+    # cleanup() can't run reliably; the END block above has already reaped any
+    # live objects. Skip here to avoid noisy teardown warnings.
+    return if ${^GLOBAL_PHASE} eq 'DESTRUCT';
+
     $self->cleanup if ! $self->{clean};
 }
 
@@ -387,6 +418,11 @@ sub _class_signal_handler {
     # populates the class level signal handler structure
 
     my $signal = shift;
+
+    # During global destruction the object graph is torn down in an arbitrary
+    # order; dispatching per-object handlers here would call methods on
+    # already-freed objects. Bail out — END-time cleanup has already run.
+    return if ${^GLOBAL_PHASE} eq 'DESTRUCT';
 
     for (keys %{ $sig_handlers{$signal} }){
         &{ $sig_handlers{$signal}->{$_} }(@_);
