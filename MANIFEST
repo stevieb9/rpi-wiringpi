@@ -6,7 +6,7 @@ build_testing/adc.pl
 build_testing/alt_mode.pl
 build_testing/api_servo.pl
 build_testing/baseline_setup.pl
-build_testing/benchmark/sharelite_vs_memfile.pl
+build_testing/benchmark/shareable_vs_memfile.pl
 build_testing/benchmark/startup.pl
 build_testing/bmp.pl
 build_testing/hc12/hc12-receive.pl
@@ -20,7 +20,6 @@ build_testing/pot_adc.pl
 build_testing/registered_pins.pl
 build_testing/rtc.pl
 build_testing/sg90_servo.pl
-build_testing/shared_data.pl
 build_testing/shift.pl
 build_testing/spi.pl
 build_testing/stepper_motor.pl
@@ -87,8 +86,6 @@ t/114-metadata_multi_pi_multi_script_sigint.t
 t/140-pwm_spi_adc.t
 t/150-cleanup.t
 t/153-sig_handlers.t
-t/154-sig_die_multi.t
-t/155-sig_die.t
 t/200-interrupt_rising_and_pud.t
 t/201-interrupt_falling_and_pud.t
 t/202-interrupt_both_and_pud.t

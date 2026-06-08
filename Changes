@@ -144,6 +144,18 @@ Revision history for Perl extension RPi::WiringPi.
           emptying it like meta_erase(); a later meta_* call transparently
           recreates a fresh segment. bin/pimetaerase gained an optional fourth
           'remove' argument that removes the segment after erasing
+        - Fixed pin cleanup on the Raspberry Pi 5: wiringPi's pinModeAlt() cannot
+          set alt mode 31 ("no function", the pristine default for many RP1
+          GPIO pins), so cleanup() left those pins in their last-used mode. We
+          now fall back to pinctrl for the alt-31 case (gated on alt == 31 and
+          pi_rp1_model(), so legacy Pi 3/4 behaviour is unchanged). RPiTest's
+          rpi_reset() got the same fallback. Requires gpio-group membership
+          (documented in the FAQ)
+        - Bumped the RPi::SysInfo prerequisite from 1.00 to 1.01, which fixes
+          gpio_info() (now uses pinctrl; raspi-gpio was removed from current Pi
+          OS) and raspi_config() (now reads /boot/firmware/config.txt). Updated
+          the t/403/404/406/407 sysinfo tests for the corrected output and made
+          them board/OS-agnostic, with additional assertions
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to

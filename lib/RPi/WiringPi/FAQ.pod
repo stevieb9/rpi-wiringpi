@@ -88,8 +88,14 @@ Now, you can do everything with the normal user account, using their personal
 installation of Perl, and you just need C<sudo> to run your scripts, leaving
 your default system installation intact.
 
-NOTE: If you get errors about "Permission Denied" accessing C</dev/mem> or
-C</dev/gpiomem>, you need to add the C<pi> user to the C<gpio> group:
+NOTE: Your user account B<must> be a member of the C<gpio> group for
+non-privileged access to the GPIO peripheral (through C</dev/gpiomem>). On
+current Raspberry Pi OS the default user is already in this group, but if you
+run as a different user you must add it yourself. This is also required on the
+Raspberry Pi 5, where cleanup restores certain pins to their default "no
+function" state by shelling out to C<pinctrl> (which likewise needs C<gpio>
+group membership). If you see "Permission Denied" errors accessing C</dev/mem>
+or C</dev/gpiomem>, add your user to the group and log back in:
 
     sudo adduser pi gpio
 

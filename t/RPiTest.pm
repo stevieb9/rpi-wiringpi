@@ -359,7 +359,15 @@ sub rpi_reset {
 
     if (! $valid_pin_config){
         for my $pin (keys %$pin_defaults) {
-            WiringPi::API::pinModeAlt($pin, $pin_defaults->{$pin}{alt});
+            # pinModeAlt() can't set alt 31 ("no function", the Pi 5/RP1 default
+            # for many pins); fall back to pinctrl for that case so the reset
+            # actually restores those pins. Legacy boards never hit this branch.
+            if ($pin_defaults->{$pin}{alt} == 31 && WiringPi::API::pi_rp1_model()){
+                system('pinctrl', 'set', $pin, 'no');
+            }
+            else {
+                WiringPi::API::pinModeAlt($pin, $pin_defaults->{$pin}{alt});
+            }
             WiringPi::API::digitalWrite($pin, $pin_defaults->{$pin}{state});
         }
     }
