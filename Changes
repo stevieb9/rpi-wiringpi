@@ -174,6 +174,11 @@ Revision history for Perl extension RPi::WiringPi.
           function" via pinctrl), so a pin left in OUTPUT (eg. by a worker) is
           properly returned to its default. t/213-worker.t now asserts BCM18 is
           restored; clears the cascade that failed t/400-407 in a full sweep
+        - Made t/107-alt_modes.t board-aware: its "default mode is INPUT" check
+          now reads the per-board default (INPUT on Pi 3/4, "no function"/alt 31
+          on Pi 5), and the classic ALT0-5 round-trip block is skipped on the
+          Pi 5 / RP1, whose funcsel scheme doesn't match it (alt 1/2 don't take).
+          Pi 3/4 behaviour is unchanged
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
