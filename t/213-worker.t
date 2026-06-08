@@ -117,7 +117,7 @@ my $mod = 'RPi::WiringPi';
 # ---------------------------------------------------------------------------
 
 SKIP: {
-    skip "set PI_BOARD=1 (and wire nothing to BCM18) to run the GPIO worker tests", 5
+    skip "set PI_BOARD=1 (and wire nothing to BCM18) to run the GPIO worker tests", 6
         unless $ENV{PI_BOARD};
 
     my $pi = $mod->new(label => 't/213-worker.t', shm_key => 'rpit');
@@ -148,6 +148,7 @@ SKIP: {
 
     ok(! $w->running, 'cleanup() stopped the GPIO worker');
     is(waitpid($pid, 1), -1, 'cleanup-stopped GPIO worker left no zombie');  # WNOHANG
+    is(WiringPi::API::get_alt(18), 0, 'cleanup() restored BCM18 to its INPUT default');
 }
 
 done_testing();
