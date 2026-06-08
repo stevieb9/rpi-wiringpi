@@ -54,6 +54,24 @@ sub meta_erase {
     $self->meta_store($clean_store);
     $self->meta_unlock;
 }
+sub meta_remove {
+    # Removes the underlying shared memory segment (and its semaphore set)
+    # entirely, not just its contents. Unlike meta_erase(), which empties the
+    # blob but leaves the segment allocated (destroy => 0), this frees the SysV
+    # segment so it no longer appears in ipcs. A later meta() call transparently
+    # creates a fresh segment.
+
+    my ($self) = @_;
+
+    return if ! exists $self->{meta_knot};
+
+    $self->{meta_knot}->remove;
+
+    delete $self->{meta_knot};
+    delete $self->{meta_scalar};
+
+    return 1;
+}
 sub meta_key_check {
     # this is a class method, and must be called on the class prior to creating
     # a Pi object
@@ -327,7 +345,21 @@ Optional, Bool: If true, we'll delete the user-based C<storage> shared memory
 data along with the software's internal data, and if false, we'll leave that
 user data intact. Defaults to false (C<0>).
 
-=head1 AUTHOR
+=head2 meta_remove
+
+Removes the underlying shared memory segment (and its semaphore set) entirely,
+freeing the SysV resources so the segment no longer appears in C<ipcs>.
+
+This differs from L</meta_erase($all)>, which only empties the stored data but
+leaves the segment allocated (it's created with C<destroy =E<gt> 0> so it
+persists across processes). Use C<meta_remove()> when you're truly finished with
+the segment and want to reclaim it.
+
+NOTE: A subsequent call to any C<meta_*> method transparently creates a fresh,
+empty segment, so this is safe to call mid-process.
+
+Returns: True C<1> if a segment was removed, or C<undef> if there was no live
+segment to remove.
 
 Steve Bertrand, E<lt>steveb@cpan.orgE<gt>
 

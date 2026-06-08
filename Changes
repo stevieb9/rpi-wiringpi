@@ -131,6 +131,19 @@ Revision history for Perl extension RPi::WiringPi.
           deeply nested user data) round-trips and stays in a single shared
           memory segment, guarding against IPC::Shareable per-nested-ref
           segment fan-out
+        - Retired the broken build_testing/shared_data.pl scratch script and
+          updated build_testing/benchmark/sharelite_vs_memfile.pl (renamed to
+          shareable_vs_memfile.pl) onto IPC::Shareable, removing the last
+          references to the dropped IPC::ShareLite backend
+        - Removed t/154-sig_die_multi.t and t/155-sig_die.t: both asserted that a
+          caught eval { die } resets pins to INPUT, which the module does not
+          provide (cleanup restores each pin's captured original mode, not
+          INPUT). Real process-death cleanup remains covered by t/112/113/114
+        - Added meta_remove() to RPi::WiringPi::Meta, which frees the underlying
+          shared memory segment (and semaphore) entirely rather than only
+          emptying it like meta_erase(); a later meta_* call transparently
+          recreates a fresh segment. bin/pimetaerase gained an optional fourth
+          'remove' argument that removes the segment after erasing
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
