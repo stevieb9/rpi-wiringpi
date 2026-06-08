@@ -105,6 +105,41 @@ my $pi = RPi::WiringPi->new(
     is $data->{c}[2], undef, "erase with 'all' on c ok";
 }
 
+{ # single shm segment (no fan-out)
+
+    # The tie-a-scalar backend keeps the ENTIRE meta blob as one JSON string in
+    # a single shared memory segment. A native HASH/ref tie would instead fan
+    # each nested structure out into its own segment, so prove a deeply nested
+    # payload both round-trips intact AND leaves exactly one IPC::Shareable
+    # segment registered in the process.
+
+    my $nested = {
+        a    => { b => { c => [1, 2, { d => 'deep' }] } },
+        list => [ map {{ n => $_ }} 1 .. 10 ],
+    };
+
+    $pi->meta_set('nested', $nested);
+
+    my $got = $pi->meta_get('nested');
+    is $got->{a}{b}{c}[2]{d}, 'deep', "deeply nested value round-trips through meta";
+    is $got->{list}[9]{n}, 10, "nested array-of-hashes round-trips through meta";
+
+    my $segs = IPC::Shareable::global_register();
+    is scalar(keys %$segs), 1, "whole nested meta blob lives in one shm segment (no fan-out)";
+
+    # A whole-blob meta_store() of nested data must stay single-segment too.
+    $pi->meta_lock;
+    my $m = $pi->meta_fetch;
+    $m->{storage}{whole_store} = { x => { y => [ { z => 1 } ] } };
+    $pi->meta_store($m);
+    $pi->meta_unlock;
+
+    $segs = IPC::Shareable::global_register();
+    is scalar(keys %$segs), 1, "meta_store() of a nested blob stays in one segment";
+
+    $pi->meta_erase(1);
+}
+
 $pi->cleanup;
 
 rpi_check_pin_status();
