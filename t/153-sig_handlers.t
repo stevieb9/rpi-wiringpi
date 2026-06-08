@@ -16,21 +16,28 @@ my $pi = $mod->new(label => 't/153-sig_handlers.t', shm_key => 'rpit');
 
 my $sh = $pi->signal_handlers;
 
-is keys(%{ $sh }), 3, "there are three sig handlers set ok";
+# We trap INT and TERM only. __DIE__ is intentionally NOT trapped: hardware
+# cleanup on a crash or normal exit is handled by END/DESTROY, so a caught
+# eval { die } never disturbs the pins.
 
-for ('__DIE__', 'TERM', 'INT'){
+is keys(%{ $sh }), 2, "there are two sig handlers set (INT, TERM) ok";
+ok ! exists $sh->{'__DIE__'}, "__DIE__ is not trapped";
+
+for ('INT', 'TERM'){
     is exists($sh->{$_}), 1, "$_ is a valid handler";
     my $uuid = $pi->uuid;
     is ref $sh->{$_}{$uuid}, 'CODE', "$_ has a handler for UUID $uuid";
+    is ref $SIG{$_}, 'CODE', "\$SIG{$_} is installed as a code ref";
 }
 
 $pi->cleanup;
 
 $sh = $pi->signal_handlers;
 
-is keys(%{ $sh }), 3, "after proper cleanup, there are three sig handlers set";
+is keys(%{ $sh }), 2, "after proper cleanup, there are two sig handlers set";
+ok ! exists $sh->{'__DIE__'}, "__DIE__ is still not trapped after cleanup()";
 
-for ('__DIE__', 'TERM', 'INT'){
+for ('INT', 'TERM'){
     is exists($sh->{$_}), 1, "$_ is a valid handler after clean cleanup()";
     my $uuid = $pi->uuid;
     is ref $sh->{$_}{$uuid}, 'CODE', "$_ has a handler for UUID $uuid after clean cleanup()";
