@@ -184,6 +184,14 @@ Revision history for Perl extension RPi::WiringPi.
           file or directory" noise and left the LEDs undriven. Resolved via
           pi_rp1_model(); restore triggers are now board-correct (PWR default
           is "none" on Pi 5, "input" on earlier boards)
+        - Bumped the RPi::SysInfo prereq to 1.02, which adds the inherited
+          pi_model() method (normalized board name, Pi 0-5) plus the camera
+          (libcamera), core_temp (thermal-zone) and network_info (ip addr)
+          fallbacks for current Raspberry Pi OS
+        - Added t/408-sysinfo_pi_model.t covering the inherited pi_model()
+        - Documented pi_model() in the SYNOPSIS, method list and FAQ
+        - Corrected the FAQ/POD to show config.txt at both /boot/firmware (Bookworm
+          and later) and /boot (older), and network_info using ifconfig or ip addr
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to

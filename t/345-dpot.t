@@ -27,7 +27,7 @@ rpi_running_test(__FILE__);
 
 my $pi = RPi::WiringPi->new(label => 't/345-dpot.t', shm_key => 'rpit');
 
-my $adc = $pi->adc;
+my $adc = $pi->adc(addr => 0x48);   # ADS1115 #1 (dpot wiper on ch 1)
 my $pot = $pi->dpot(DPOT_CS, DPOT_CH);
 
 my @values = (
