@@ -57,39 +57,64 @@ use constant {
 if (! $ENV{NO_BOARD}) {
     my $pi = $mod->new(label => 't/325-servo.t', shm_key => 'rpit');
 
+    # Always release pin 18 even if the sweep croaks or we're interrupted
+    # mid-run. A leaked registration in the shared meta poisons every later
+    # test file that uses pin 18 (t/150, t/200-213, etc.)
+    my $cleaned = 0;
+
+    my $cleanup = sub {
+        return if $cleaned;
+        $cleaned = 1;
+        $pi->cleanup;
+    };
+
+    local $SIG{INT}  = sub { $cleanup->(); exit 1; };
+    local $SIG{TERM} = sub { $cleanup->(); exit 1; };
+
     my $adc = $pi->adc;
 
     my $servo = $pi->servo(18);
     my $o;
 
-    $servo->pwm(LEFT);
+    my $ok = eval {
+        $servo->pwm(LEFT);
 
-    sleep 5;
+        sleep 5;
 
-    for (LEFT .. RIGHT){
-        # sweep all the way left to right
-        $servo->pwm($_);
+        for (LEFT .. RIGHT){
+            # Sweep all the way left to right
+            $servo->pwm($_);
+            $o = $adc->percent(ANALOG);
+            is $o >= -1, 1, "output ok on cycle $_ on right";
+            is $o < MAX_IN, 1, "output ok on cycle $_ on right\n";
+            select(undef, undef, undef, DELAY);
+        }
+
+        for (reverse LEFT .. RIGHT){
+            # Sweep all the way right to left
+            $servo->pwm($_);
+            $o = $adc->percent(ANALOG);
+            is $o >= -1, 1, "output ok on cycle $_ on left";
+            is $o < MAX_IN, 1, "output ok on cycle $_ on left\n";
+            select(undef, undef, undef, DELAY);
+        }
+
+        1;
+    };
+
+    my $err = $@;
+
+    $cleanup->();
+
+    if ($ok) {
         $o = $adc->percent(ANALOG);
-        is $o >= -1, 1, "output ok on cycle $_ on right";
-        is $o < MAX_IN, 1, "output ok on cycle $_ on right\n";
-        select(undef, undef, undef, DELAY);
-    }
-
-    for (reverse LEFT .. RIGHT){
-        # sweep all the way right to left
-        $servo->pwm($_);
+        is $o < 1, 1, "PWM pin cleaned up ok";
         $o = $adc->percent(ANALOG);
-        is $o >= -1, 1, "output ok on cycle $_ on left";
-        is $o < MAX_IN, 1, "output ok on cycle $_ on left\n";
-        select(undef, undef, undef, DELAY);
+        is $o < 1, 1, "PWM pin cleaned up ok";
     }
-
-    $pi->cleanup;
-    
-    $o = $adc->percent(ANALOG);
-    is $o < 1, 1, "PWM pin cleaned up ok";
-    $o = $adc->percent(ANALOG);
-    is $o < 1, 1, "PWM pin cleaned up ok";
+    else {
+        fail("servo sweep died before completion: $err");
+    }
 
     rpi_check_pin_status();
 
