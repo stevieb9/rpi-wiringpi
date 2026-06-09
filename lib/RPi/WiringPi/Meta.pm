@@ -23,11 +23,12 @@ sub meta {
     # make IPC::Shareable fan each nested structure out into its own segment.
 
     my $blob;
+
     my $knot = tie $blob, 'IPC::Shareable', {
         key     => $self->{shm_key},
         create  => 1,
         destroy => 0,
-    } or die "can't create shared memory segment: $!";
+    } or die "Can't create shared memory segment: $!";
 
     $self->{meta_scalar} = \$blob;
     $self->{meta_knot}   = $knot;
@@ -43,7 +44,7 @@ sub meta_erase {
 
     my ($clean_store, $storage);
 
-    if ($all){
+    if ($all) {
         $clean_store = {};
     }
     else {
