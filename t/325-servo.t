@@ -13,8 +13,19 @@ rpi_sudo_check();
 my $mod = 'RPi::WiringPi';
 
 if ($> == 0){
-    $ENV{PI_BOARD} = 1;
+    $ENV{PI_BOARD}  = 1;
+    $ENV{RPI_ADC}   = 1;
+    $ENV{RPI_SERVO} = 1;
 }
+
+if (! $ENV{RPI_SERVO}){
+    plan skip_all => "RPI_SERVO environment variable not set\n";
+}
+
+if (! $ENV{RPI_ADC}){
+    plan skip_all => "RPI_ADC environment variable not set\n";
+}
+
 if (! $ENV{PI_BOARD}){
     $ENV{NO_BOARD} = 1;
     plan skip_all => "Not on a Pi board\n";
@@ -22,7 +33,9 @@ if (! $ENV{PI_BOARD}){
 
 if ($> != 0){
     print "enforcing sudo for PWM tests...\n";
-    system("sudo", "perl", "-I", "blib/lib", $0);
+    # Re-exec with $^X (the running perl) so sudo doesn't fall back to the
+    # system perl, which lacks our perlbrew-installed prerequisites
+    system("sudo", $^X, "-I", "blib/lib", $0);
     exit;
 }
 

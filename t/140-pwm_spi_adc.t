@@ -27,7 +27,9 @@ if (! $ENV{PI_BOARD}){
 
 if ($> != 0 && $ENV{RPI_SUDO}){
     print "enforcing sudo for PWM tests...\n";
-    system("sudo", "perl", "-I", "blib/lib", $0);
+    # Re-exec with $^X (the running perl) so sudo doesn't fall back to the
+    # system perl, which lacks our perlbrew-installed prerequisites
+    system("sudo", $^X, "-I", "blib/lib", $0);
     exit;
 }
 
