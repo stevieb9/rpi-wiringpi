@@ -25,22 +25,10 @@ my $signal_debug = 0;
 # below can clean up anything the user never explicitly cleanup()'d while the
 # IPC::Shareable segment is still alive — before global destruction tears it
 # down. The strong refs in %sig_handlers keep these objects alive until exit.
+
 my %objects;
 
-END {
-    # Reap any object that was never explicitly cleaned. Running here (END
-    # phase) keeps the shared-memory segment intact, so cleanup() actually
-    # resets the pins and unregisters the object, and leaves DESTROY nothing
-    # to do at global destruction — avoiding "during global destruction"
-    # warnings from operating on a half-torn-down segment.
-    for my $uuid (keys %objects) {
-        my $obj = $objects{$uuid} or next;
-        next if $obj->{clean};
-        eval { $obj->cleanup; 1 };
-    }
-}
-
-# core
+# Core
 
 sub new {
     my ($self, %args) = @_;
@@ -48,13 +36,11 @@ sub new {
 
     if (! $ENV{NO_BOARD}){
         if (my $scheme = $ENV{RPI_PIN_MODE}){
-            # this checks if another application has already run
-            # a setup routine
-
+            # This checks if another application has already run a setup routine
             $self->pin_scheme($scheme);
         }
         else {
-            # we default to gpio mode
+            # We default to gpio mode
 
             if (! defined $self->{setup}) {
                 $self->SUPER::setup_gpio();
@@ -74,9 +60,8 @@ sub new {
                 }
             }
         }
-        # set the env var so we can catch multiple
-        # setup calls properly
 
+        # Set the env var so we can catch multiple setup calls properly
         $ENV{RPI_PIN_MODE} = $self->pin_scheme;
     }
 
@@ -88,7 +73,7 @@ sub new {
     $self->meta($self->{shm_key});
 
     if ($self->_rpi_register) {
-        # register all objects for collision detection and safety shutdown
+        # Register all objects for collision detection and safety shutdown
 
         $self->meta_lock;
         my $meta = $self->meta_fetch;
@@ -103,6 +88,7 @@ sub new {
             proc  => $self->{proc},
             label => $self->{label}
         };
+
         $meta->{object_count}++;
 
         $self->meta_store($meta);
@@ -112,6 +98,7 @@ sub new {
 
         # Track for END-time cleanup (weak, so we never extend the object's
         # life ourselves — %sig_handlers already holds it until exit).
+
         $objects{$self->uuid} = $self;
         weaken $objects{$self->uuid};
     }
@@ -124,7 +111,9 @@ sub adc {
     if (defined $args{model} && $args{model} eq 'MCP3008'){
         require RPi::ADC::MCP3008;
         RPi::ADC::MCP3008->import;
+
         my $pin = $self->pin($args{channel}, "MCP3008 ADC CS");
+
         return RPi::ADC::MCP3008->new($pin->num);
     }
     else {
@@ -134,14 +123,6 @@ sub adc {
         return RPi::ADC::ADS->new(%args);
     }
 }
-sub auto_dispatch_interrupts {
-    my ($self, $enable, $signal) = @_;
-    return WiringPi::API::auto_dispatch_interrupts($enable, $signal);
-}
-sub background_interrupts {
-    my ($self, @specs) = @_;
-    return WiringPi::API::background_interrupts(@specs);
-}
 sub bmp {
     require RPi::BMP180;
     RPi::BMP180->import;
@@ -149,16 +130,16 @@ sub bmp {
 }
 sub dac {
     my ($self, %args) = @_;
+
     $self->pin($args{cs}, 'MCP4922 DAC CS');
     $self->pin($args{shdn}, 'MCP4922 DAC Shutdown') if defined $args{shdn};
+
     $args{model} = 'MCP4922' if ! defined $args{model};
+
     require RPi::DAC::MCP4922;
     RPi::DAC::MCP4922->import;
+
     return RPi::DAC::MCP4922->new(%args);
-}
-sub dispatch_interrupts {
-    my ($self) = @_;
-    return WiringPi::API::dispatch_interrupts();
 }
 sub dpot {
     my ($self, $cs, $channel) = @_;
@@ -210,23 +191,10 @@ sub i2c {
     RPi::I2C->import;
     return RPi::I2C->new($addr, $i2c_device);
 }
-sub interrupt_buffer {
-    my ($self, $bytes) = @_;
-    return WiringPi::API::interrupt_buffer($bytes);
-}
-sub interrupt_dropped {
-    my ($self) = @_;
-    return WiringPi::API::interrupt_dropped();
-}
-sub last_interrupt {
-    my ($self) = @_;
-    return WiringPi::API::last_interrupt();
-}
 sub lcd {
     my ($self, %args) = @_;
 
-    # pre-register all pins so we can clean them up
-    # accordingly upon cleanup
+    # Pre-register all pins so we can clean them up= accordingly upon cleanup
 
     for (qw(rs strb d0 d1 d2 d3 d4 d5 d6 d7)){
         if (! exists $args{$_} || $args{$_} !~ /^\d+$/){
@@ -256,7 +224,7 @@ sub oled {
 
     if (! exists $models{$model}){
         die "oled() requires one of the following models sent in: " .
-              "128x64, 128x32 or 96x16\n";
+            "128x64, 128x32 or 96x16\n";
     }
 
     if ($model eq '128x64'){
@@ -274,7 +242,7 @@ sub pin {
     my $gpio = $self->pin_to_gpio($pin_num);
 
     if ($self->_rpi_register && $self->_rpi_register_pins) {
-        # both object and pin registration is enabled
+        # Both object and pin registration is enabled
 
         if (grep {$gpio == $_} @{$self->registered_pins}) {
             croak "\npin $pin_num is already in use... can't create second object\n";
@@ -284,7 +252,7 @@ sub pin {
     my $pin = RPi::Pin->new($pin_num, $comment);
 
     if ($self->_rpi_register && $self->_rpi_register_pins) {
-        # register the pin
+        # Register the pin
         $self->register_pin($pin);
     }
 
@@ -296,10 +264,6 @@ sub rtc {
     RPi::RTC::DS3231->import;
     return RPi::RTC::DS3231->new($rtc_addr);
 }
-sub run_interrupt_loop {
-    my ($self, $timeout_ms, $max) = @_;
-    return WiringPi::API::run_interrupt_loop($timeout_ms, $max);
-}
 sub serial {
     my ($self, $device, $baud) = @_;
     require RPi::Serial;
@@ -309,7 +273,7 @@ sub serial {
 sub servo {
     my ($self, $pin_num, %config) = @_;
 
-    if ($> != 0){
+    if ($> != 0) {
         die "\n\nat this time, servo() requires PWM functionality, and PWM " .
             "requires your script to be run as the 'root' user (sudo)\n\n";
     }
@@ -360,7 +324,7 @@ sub stepper_motor {
     require RPi::StepperMotor;
     RPi::StepperMotor->import;
 
-    if (! exists $args{pins}){
+    if (! exists $args{pins}) {
         die "steppermotor() requires an arrayref of pins sent in\n";
     }
 
@@ -381,6 +345,37 @@ sub stepper_motor {
 
     return RPi::StepperMotor->new(%args);
 }
+
+# Interrupts
+
+sub auto_dispatch_interrupts {
+    my ($self, $enable, $signal) = @_;
+    return WiringPi::API::auto_dispatch_interrupts($enable, $signal);
+}
+sub background_interrupts {
+    my ($self, @specs) = @_;
+    return WiringPi::API::background_interrupts(@specs);
+}
+sub dispatch_interrupts {
+    my ($self) = @_;
+    return WiringPi::API::dispatch_interrupts();
+}
+sub interrupt_buffer {
+    my ($self, $bytes) = @_;
+    return WiringPi::API::interrupt_buffer($bytes);
+}
+sub interrupt_dropped {
+    my ($self) = @_;
+    return WiringPi::API::interrupt_dropped();
+}
+sub last_interrupt {
+    my ($self) = @_;
+    return WiringPi::API::last_interrupt();
+}
+sub run_interrupt_loop {
+    my ($self, $timeout_ms, $max) = @_;
+    return WiringPi::API::run_interrupt_loop($timeout_ms, $max);
+}
 sub stop_interrupt_loop {
     my ($self) = @_;
     return WiringPi::API::stop_interrupt_loop();
@@ -393,54 +388,51 @@ sub wait_interrupts {
     my ($self, $timeout_ms) = @_;
     return WiringPi::API::wait_interrupts($timeout_ms);
 }
+
+# Threads
+
 sub worker {
     my ($self, $body, $opts) = @_;
 
-    # Let the low-level layer do all argument validation (no duplicated croaks).
-    # Track the returned handle on the object so cleanup()/DESTROY can reap it.
+    # Track the returned handle on the object so cleanup()/DESTROY can reap it
+
     my $handle = WiringPi::API::worker($body, $opts);
     push @{ $self->{workers} }, $handle;
     return $handle;
 }
-sub DESTROY {
-    my ($self) = @_;
 
-    # At global destruction the IPC::Shareable segment may already be gone, so
-    # cleanup() can't run reliably; the END block above has already reaped any
-    # live objects. Skip here to avoid noisy teardown warnings.
-    return if ${^GLOBAL_PHASE} eq 'DESTRUCT';
-
-    $self->cleanup if ! $self->{clean};
-}
-
-# private
+# Private
 
 sub _class_signal_handler {
-    # The process-global INT/TERM handler. Cleans up every live object, chains to
-    # any handler the caller had installed before us, then honours fatal_exit.
+    # The process-global INT/TERM handler. Cleans up every live object, chains
+    # to any handler the caller had installed before us, then honours fatal_exit
 
     my ($signal, @args) = @_;
 
     # During global destruction the object graph is torn down in an arbitrary
     # order; dispatching per-object handlers here would call methods on
     # already-freed objects. Bail out — END-time cleanup has already run.
+
     return if ${^GLOBAL_PHASE} eq 'DESTRUCT';
 
     # Reset every live object's hardware first (the safety guarantee).
+
     for (keys %{ $sig_handlers{$signal} }){
         &{ $sig_handlers{$signal}->{$_} }(@args);
     }
 
     # Chain to a handler the caller installed before we took over, so we don't
     # silently swallow their signal handling.
+
     if (ref $prev_sig{$signal} eq 'CODE'){
         $prev_sig{$signal}->(@args);
     }
 
     # fatal_exit (default true): once cleanup is done, terminate with the
     # signal's default disposition so the exit status is correct (and END still
-    # runs). fatal_exit => 0 cleans up and lets the program carry on.
-    if ($fatal_exit){
+    # runs). fatal_exit => 0 cleans up and lets the program carry on
+
+    if ($fatal_exit) {
         $SIG{$signal} = 'DEFAULT';
         kill $signal, $$;
     }
@@ -451,9 +443,9 @@ sub _cleanup_handler {
 
     my ($self, $sig) = @_;
 
-    if ($signal_debug){
+    if ($signal_debug) {
         print "running '$sig' handler for: " . $self->uuid .
-            " with fatal_exit = " . $self->_fatal_exit . "\n";
+              " with fatal_exit = " . $self->_fatal_exit . "\n";
     }
 
     delete $sig_handlers{$sig}{$self->uuid};
@@ -461,9 +453,11 @@ sub _cleanup_handler {
 }
 sub _fatal_exit {
     my ($self, $fatal) = @_;
-    if (defined $fatal){
+
+    if (defined $fatal) {
         $fatal_exit = $fatal;
     }
+
     $self->{fatal_exit} = $fatal_exit;
     return $self->{fatal_exit};
 }
@@ -476,6 +470,7 @@ sub _generate_signal_handlers {
         # already handled by the END block and DESTROY, so trapping every die
         # would only risk tearing things down on a caught, handled exception.
         # Preserve any handler the caller already set so we can chain to it.
+
         for my $sig (qw(INT TERM)){
             $prev_sig{$sig} = $SIG{$sig} if ref $SIG{$sig} eq 'CODE';
             $SIG{$sig} = sub { _class_signal_handler($sig, @_) };
@@ -485,6 +480,7 @@ sub _generate_signal_handlers {
     $sig_handlers{'INT'}{$self->uuid} = sub {
         $self->_cleanup_handler('INT')
     };
+
     $sig_handlers{'TERM'}{$self->uuid} = sub {
         $self->_cleanup_handler('TERM')
     };
@@ -496,10 +492,33 @@ sub _signal_handlers {
     return \%sig_handlers;
 }
 
+sub DESTROY {
+    my ($self) = @_;
+
+    # At global destruction the IPC::Shareable segment may already be gone, so
+    # cleanup() can't run reliably; the END block has already reaped any live
+    # objects. Skip here to avoid noisy teardown warnings.
+
+    return if ${^GLOBAL_PHASE} eq 'DESTRUCT';
+
+    $self->cleanup if ! $self->{clean};
+}
 END {
+    # Reap any object that was never explicitly cleaned. Running here (END
+    # phase) keeps the shared-memory segment intact, so cleanup() actually
+    # resets the pins and unregisters the object, and leaves DESTROY nothing
+    # to do at global destruction — avoiding "during global destruction"
+    # warnings from operating on a half-torn-down segment.
+
+    for my $uuid (keys %objects) {
+        my $obj = $objects{$uuid} or next;
+        next if $obj->{clean};
+        eval { $obj->cleanup; 1 };
+    }
 }
 
 sub _vim{};
+
 1;
 __END__
 
@@ -528,17 +547,17 @@ Please see the L<FAQ|RPi::WiringPi::FAQ> for full usage details.
     my $file_system = $pi->file_system;
     my $hw_details  = $pi->pi_details;
  
-    # pin
+    # Pin
  
     my $pin = $pi->pin(5);
     $pin->mode(OUTPUT);
     $pin->write(ON);
  
-    my $num = $pin->num;
-    my $mode = $pin->mode;
-    my $state = $pin->read;
+    my $num     = $pin->num;
+    my $mode    = $pin->mode;
+    my $state   = $pin->read;
  
-    # cleanup all pins and reset them to default before exiting your program
+    # Cleanup all pins and reset them to default before exiting your program
  
     $pi->cleanup;
  

@@ -15,8 +15,6 @@ use Time::HiRes qw(time);
 our $VERSION = '2.3634';
 
 sub checksum {
-    # Seed with PID + hi-res time + rand() so concurrent/forked objects don't
-    # collide on a low-entropy rand()-only source
     return md5_hex($$ . time() . rand());
 }
 sub dump_signal_handlers {
@@ -30,7 +28,7 @@ sub pin_map {
 
     return {} if $scheme eq RPI_MODE_UNINIT;
 
-    if (defined $self->{pin_map_cache}{$scheme}){
+    if (defined $self->{pin_map_cache}{$scheme}) {
         return $self->{pin_map_cache}{$scheme};
     }
 
@@ -46,6 +44,7 @@ sub pin_map {
         }
         $map{$_} = $pin;
     }
+
     $self->{pin_map_cache}{$scheme} = \%map;
 
     return \%map;
@@ -60,6 +59,7 @@ sub uuid {
 }
 
 sub _vim{1;};
+
 1;
 
 __END__

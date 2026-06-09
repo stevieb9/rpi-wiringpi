@@ -95,7 +95,7 @@ sub pwr_led {
 sub pwm_range {
     my ($self, $range) = @_;
 
-    if ($> != 0){
+    if ($> != 0) {
         die "\nPWM requires your script to be run as the 'root' user (sudo)\n";
     }
 
@@ -112,11 +112,11 @@ sub pwm_range {
 sub pwm_clock {
     my ($self, $divisor) = @_;
 
-    if ($> != 0){
+    if ($> != 0) {
         die "\nPWM requires your script to be run as the 'root' user (sudo)\n";
     }
 
-    if (defined $divisor){
+    if (defined $divisor) {
         $self->{pwm_clock} = $divisor;
         $self->pwm_set_clock($divisor);
     }
@@ -128,11 +128,11 @@ sub pwm_clock {
 sub pwm_mode {
     my ($self, $mode) = @_;
 
-    if ($> != 0){
+    if ($> != 0) {
         die "\nPWM requires your script to be run as the 'root' user (sudo)\n";
     }
 
-    if (defined $mode && ($mode == 0 || $mode == PWM_DEFAULT_MODE)){
+    if (defined $mode && ($mode == 0 || $mode == PWM_DEFAULT_MODE)) {
         $self->{pwm_mode} = $mode;
         $self->pwm_set_mode($mode);
     }
@@ -194,6 +194,7 @@ sub cleanup {
     # (eg. background_interrupt(), or any user fork) shares the object but must
     # not reset pins, mutate the shared meta, or stop interrupts on the parent's
     # behalf when it exits.
+
     return if defined $self->{proc} && $self->{proc} != $$;
 
     if ($self->_rpi_register_pins) {
@@ -203,10 +204,12 @@ sub cleanup {
 
         if ($meta->{pwm}{in_use} && $meta->{pwm}{users}{$self->uuid}) {
             delete $meta->{pwm}{users}{$self->uuid};
+
             if (! keys %{ $meta->{pwm}{users} }){
                 WiringPi::API::pwmSetMode(PWM_DEFAULT_MODE);
                 WiringPi::API::pwmSetClock(PWM_DEFAULT_CLOCK);
                 WiringPi::API::pwmSetRange(PWM_DEFAULT_RANGE);
+
                 $meta->{pwm}->{in_use} = 0;
             }
         }
@@ -225,11 +228,13 @@ sub cleanup {
 
     # Release any armed interrupts: stops the wiringPi ISR threads and closes
     # the self-pipe so we don't leak the kernel ISR + fds at teardown
+
     WiringPi::API::stop_interrupts();
 
     # Stop any background workers started via $pi->worker. stop() is idempotent
     # (a no-op on an already-stopped handle), and the forked-child proc guard
     # above keeps a child from reaping the parent's workers.
+
     for my $worker (@{ $self->{workers} || [] }) {
         $worker->stop if $worker;
     }
@@ -239,16 +244,17 @@ sub cleanup {
 
     $self->{clean} = 1;
 }
+
 sub _rpi_register {
     # allow defeating the entire registration process (objects and pins)
     return $_[0]->{rpi_register} // 1;
 }
 sub _rpi_register_pins {
-    # allow defeating the shared memory pin registration
+    # Allow defeating the shared memory pin registration
     return $_[0]->{rpi_register_pins} // 1;
 }
 sub _pin_registration {
-    # manages the registration duties for pins
+    # Manages the registration duties for pins
 
     my ($self, %param) = @_;
 
@@ -269,11 +275,11 @@ sub _pin_registration {
 
     if ($param{operation} eq 'unregister'){
 
-        if (! exists $meta->{pins}{$pin_num}{users}{$param{requester}}){
+        if (! exists $meta->{pins}{$pin_num}{users}{$param{requester}}) {
             $self->meta_unlock;
             return;
         }
-        if (exists $meta->{pins}{$pin_num}){
+        if (exists $meta->{pins}{$pin_num}) {
             $pin->mode_alt($meta->{pins}{$pin_num}{alt});
             $pin->write($meta->{pins}{$pin_num}{state});
             $pin->mode($meta->{pins}{$pin_num}{mode});
@@ -297,6 +303,7 @@ sub _pin_registration {
             $self->meta_unlock;
             croak "pin $pin_num is already in use, can't continue...\n";
         }
+
         $meta->{pins}{$pin_num}{alt} = $param{alt};
         $meta->{pins}{$pin_num}{state} = $param{state};
         $meta->{pins}{$pin_num}{mode} = $param{mode};
@@ -324,12 +331,13 @@ sub _restore_pin_alt {
 
     if (WiringPi::API::pi_rp1_model()) {
         if ($alt == 0 || $alt == 1) {
-            WiringPi::API::pinMode($pin_num, $alt);     # 0 = INPUT, 1 = OUTPUT
+            WiringPi::API::pinMode($pin_num, $alt); # 0 = INPUT, 1 = OUTPUT
             return;
         }
         if ($alt == 31) {
-            # localize $?/$! so this shell-out (which often runs from cleanup at
+            # Localize $?/$! so this shell-out (which often runs from cleanup at
             # program exit) can't clobber the script's own exit status.
+
             local ($?, $!);
             if (system('pinctrl', 'set', $pin_num, 'no') != 0) {
                 warn "couldn't restore GPIO $pin_num to 'no function' (alt 31) via " .
@@ -355,7 +363,9 @@ sub _pwm_in_use {
         $self->meta_unlock;
     }
 }
+
 sub _vim{1;};
+
 1;
 
 __END__
