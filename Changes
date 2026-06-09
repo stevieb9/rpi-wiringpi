@@ -179,6 +179,11 @@ Revision history for Perl extension RPi::WiringPi.
           on Pi 5), and the classic ALT0-5 round-trip block is skipped on the
           Pi 5 / RP1, whose funcsel scheme doesn't match it (alt 1/2 don't take).
           Pi 3/4 behaviour is unchanged
+        - Made io_led() and pwr_led() board-aware: Pi 5 / RP1 names its LEDs
+          ACT/PWR rather than led0/led1, which produced "tee: .../led0: No such
+          file or directory" noise and left the LEDs undriven. Resolved via
+          pi_rp1_model(); restore triggers are now board-correct (PWR default
+          is "none" on Pi 5, "input" on earlier boards)
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
