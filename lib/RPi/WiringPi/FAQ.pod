@@ -798,7 +798,7 @@ We'll get right into the code:
     # this can be any number outside of existing GPIO
 
     my $base = 100;
-    
+
     # the number of pins on the register(s) you plan on
     # using. Maximum eight per register
 
@@ -1216,12 +1216,13 @@ default, L<RPi::WiringPi> uses C<rpiw>.
 
 =head2 Test file reference
 
-Every test in the suite requires the base variables C<PI_BOARD> and
-C<RPI_OBJECT_COUNT> to run at all (set C<RPI_PIN_COUNT=0> as well for a clean
-registration baseline); see L</Base information> below. The C<Additional env
-vars> column lists only the I<extra> variables a given test needs on top of
-those - if it reads C<(none)>, the base variables are sufficient. Tests marked
-C<RPI_SUDO> re-run themselves under C<sudo> automatically.
+Every test in the suite requires C<PI_BOARD> to run at all; see L</Base
+information> below. C<RPI_OBJECT_COUNT> and C<RPI_PIN_COUNT> are optional and
+default to C<0> when unset (only needed if an auto-startup object pre-exists in
+shared memory). The C<Additional env vars> column lists only the I<extra>
+variables a given test needs on top of C<PI_BOARD> - if it reads C<(none)>,
+C<PI_BOARD> alone is sufficient. Tests marked C<RPI_SUDO> re-run themselves under
+C<sudo> automatically.
 
     Test file                                    What it tests                        Additional env vars
     -------------------------------------------- ------------------------------------ --------------------
@@ -1597,17 +1598,18 @@ C<RPI_PIN_COUNT> is the number of valid, existing pin objects being used across
 processes before the test suite starts. Auto-startup scripts may have valid
 registrations for example.
 
-Both C<RPI_OBJECT_COUNT> and C<RPI_PIN_COUNT> B<must be set to a numeric value>,
-even if that value is C<0> (the normal case, where nothing else is registered in
-shared memory). The registration tests (eg. C<t/110-register.t>) compare the
-live object/pin counts found in shared memory against these variables. If a
-variable is left unset, it reads as C<undef> rather than C<0>, and you'll see
-spurious failures such as C<< got '0', expected undef >>. Likewise, the value
-must reflect reality: setting C<RPI_OBJECT_COUNT=1> when no auto-startup object
-is actually registered produces C<< got '0', expected '1' >> style failures.
-When running an individual test by hand, prefix it accordingly, eg.:
+Both C<RPI_OBJECT_COUNT> and C<RPI_PIN_COUNT> are B<optional>; when unset they
+default to C<0> (the normal case, where nothing else is registered in shared
+memory). They are not a run gate - C<PI_BOARD> decides whether the suite runs.
+Only set them if an auto-startup script genuinely holds registrations before the
+suite starts; the value must then reflect reality, since the registration tests
+(eg. C<t/110-register.t>) compare the live object/pin counts in shared memory
+against these variables. Setting C<RPI_OBJECT_COUNT=1> when no auto-startup
+object is actually registered produces C<< got '0', expected '1' >> style
+failures - so when in doubt, leave them unset (or C<0>). Running an individual
+test by hand needs only:
 
-    PI_BOARD=1 RPI_OBJECT_COUNT=0 RPI_PIN_COUNT=0 prove -lv t/110-register.t
+    PI_BOARD=1 prove -lv t/110-register.t
 
 C<RPI_POD> enables and disables POD tests.
 

@@ -34,9 +34,11 @@ if (! $ENV{PI_BOARD} && ! $ENV{SUDO_USER}){
     $ENV{NO_BOARD} = 1;
     plan skip_all => "Not on a Pi board";
 }
-if (! defined $ENV{RPI_OBJECT_COUNT} && ! $ENV{SUDO_USER}){
-    plan skip_all => "RPI_OBJECT_COUNT env var not set";
-}
+
+# RPI_OBJECT_COUNT / RPI_PIN_COUNT are optional baseline overrides, not a run
+# gate. PI_BOARD above already decides whether we're allowed to run; the count
+# helpers default to 0 (a clean shared segment) when these are unset, so there's
+# no need to force the user to define them just to get the suite to run.
 
 # relevant testing variables
 
