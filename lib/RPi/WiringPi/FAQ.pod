@@ -1490,6 +1490,18 @@ C<RPI_PIN_COUNT> is the number of valid, existing pin objects being used across
 processes before the test suite starts. Auto-startup scripts may have valid
 registrations for example.
 
+Both C<RPI_OBJECT_COUNT> and C<RPI_PIN_COUNT> B<must be set to a numeric value>,
+even if that value is C<0> (the normal case, where nothing else is registered in
+shared memory). The registration tests (eg. C<t/110-register.t>) compare the
+live object/pin counts found in shared memory against these variables. If a
+variable is left unset, it reads as C<undef> rather than C<0>, and you'll see
+spurious failures such as C<< got '0', expected undef >>. Likewise, the value
+must reflect reality: setting C<RPI_OBJECT_COUNT=1> when no auto-startup object
+is actually registered produces C<< got '0', expected '1' >> style failures.
+When running an individual test by hand, prefix it accordingly, eg.:
+
+    PI_BOARD=1 RPI_OBJECT_COUNT=0 RPI_PIN_COUNT=0 prove -lv t/110-register.t
+
 C<RPI_POD> enables and disables POD tests.
 
 C<RPI_SUDO> enables and disables PWM tests.
