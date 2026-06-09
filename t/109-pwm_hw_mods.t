@@ -29,6 +29,8 @@ if ($> != 0){
     exit;
 }
 
+rpi_i2c_check();
+
 rpi_running_test(__FILE__);
 
 use constant {
