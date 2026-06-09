@@ -1363,6 +1363,20 @@ environment variable:
 
     export RPI_MCP4922=1
 
+=head3 Servo Testing
+
+The servo test (C<t/325-servo.t>) drives a servo on GPIO 18 via hardware PWM
+and reads its position back through an ADC, sweeping the horn fully left to
+right and back again. Because it uses PWM, it requires C<sudo> (see
+C<RPI_SUDO>), and because it reads the ADC, it requires C<RPI_ADC>. Wire the
+servo and ADC per the test platform, then set all three of the following:
+
+    export RPI_SERVO=1
+    export RPI_ADC=1
+    export RPI_SUDO=1
+
+These tests skip by default unless C<RPI_SERVO> is set.
+
 =head3 Stepper Motor Testing
 
 The test for this uses three photo resistors, with a laser on the stepper.
@@ -1472,6 +1486,7 @@ column unit, leave those last two digits off.
     RPI_SERIAL=1
     RPI_HCSR04=0
     RPI_STEPPER=1
+    RPI_SERVO=1
     BB_RPI_LCD=5,6,4,17,27,22,4,20
     RPI_RTC=1
     RPI_MCP23017=1
@@ -1505,6 +1520,10 @@ When running an individual test by hand, prefix it accordingly, eg.:
 C<RPI_POD> enables and disables POD tests.
 
 C<RPI_SUDO> enables and disables PWM tests.
+
+C<RPI_SERVO> enables and disables the servo tests. These also require
+C<RPI_ADC> (to read servo position back) and C<RPI_SUDO> (servos are driven
+with hardware PWM).
 
 =head2 I2C Test Platform Connections
 
