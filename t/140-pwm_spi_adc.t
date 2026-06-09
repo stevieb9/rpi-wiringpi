@@ -38,7 +38,7 @@ rpi_i2c_check();
 rpi_running_test(__FILE__);
 
 my $pi = $mod->new(label => 't/140-pwm_spi_adc.t', shm_key => 'rpit');
-my $adc = $pi->adc;
+my $adc = $pi->adc(addr => 0x48);   # ADS1115 #1 (PWM feedback on ch 0)
 
 my $adc_in = 0;
 

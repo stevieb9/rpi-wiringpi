@@ -546,7 +546,8 @@ Please see the L<FAQ|RPi::WiringPi::FAQ> for full usage details.
     my $net_info    = $pi->network_info;
     my $file_system = $pi->file_system;
     my $hw_details  = $pi->pi_details;
- 
+    my $pi_model    = $pi->pi_model;
+
     # Pin
  
     my $pin = $pi->pin(5);
@@ -849,7 +850,8 @@ See the linked documentation for full documentation on usage, or the
 L<RPi::WiringPi::FAQ> for usage examples.
  
 NOTE: Bluetooth on the Pi overlays the serial pins (14, 15) on the Pi. To use
-serial, you must disable bluetooth in the C</boot/config.txt> file:
+serial, you must disable bluetooth in the C</boot/firmware/config.txt> file
+(C</boot/config.txt> on releases before Bookworm):
  
     dtoverlay=pi3-disable-bt-overlay
  
@@ -1075,11 +1077,15 @@ pins.
  
 =head3 raspi_config
  
-Returns a list of all configured parameters in the C</boot/config.txt> file.
+Returns the live C<vcgencmd get_config> values plus the non-comment directives
+from the active C<config.txt> (C</boot/firmware/config.txt> on Bookworm and
+later, falling back to C</boot/config.txt> on older releases).
  
 =head3 network_info
  
-Returns the network configuration of the Pi.
+Returns the network configuration of the Pi, via C<ifconfig> where the
+C<net-tools> package is installed, falling back to C<ip addr> where it is not
+(as on current Raspberry Pi OS Lite).
  
 =head3 file_system
  
@@ -1088,6 +1094,12 @@ Returns current disk and mount information.
 =head3 pi_details
  
 Returns various information on both the hardware and OS aspects of the Pi.
+
+=head3 pi_model
+
+Returns the normalized Raspberry Pi board name (eg. C<Raspberry Pi 5 Model B
+Rev 1.1>), read from the devicetree model with a C</proc/cpuinfo> revision-code
+decode fallback. Works across the Pi 0 through 5.
  
 =head2 INTERRUPT METHODS
 

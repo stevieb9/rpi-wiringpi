@@ -47,7 +47,7 @@ use constant {
 
 my $pi = $mod->new(label => 't/109-pwm_hw_mods.t', shm_key => 'rpit');
 
-my $adc = $pi->adc;
+my $adc = $pi->adc(addr => 0x48);   # ADS1115 #1 (PWM feedback on ch 0)
 
 if (! $ENV{NO_BOARD}) {
 

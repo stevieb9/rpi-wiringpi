@@ -1,0 +1,417 @@
+{
+ "modules": {
+  "test_platform": {
+   "ports": {},
+   "cells": {
+    "J1": {
+     "type": "J1 Raspberry_Pi_40pin",
+     "port_directions": {
+      "19:GPIO10/MOSI": "output",
+      "21:GPIO9/MISO": "input",
+      "23:GPIO11/SCLK": "output",
+      "32:GPIO12": "output",
+      "33:GPIO13": "output",
+      "36:GPIO16": "output",
+      "37:GPIO26": "output",
+      "38:GPIO20": "output",
+      "40:GPIO21": "output"
+     },
+     "connections": {
+      "19:GPIO10/MOSI": [
+       2
+      ],
+      "21:GPIO9/MISO": [
+       3
+      ],
+      "23:GPIO11/SCLK": [
+       4
+      ],
+      "32:GPIO12": [
+       6
+      ],
+      "33:GPIO13": [
+       7
+      ],
+      "36:GPIO16": [
+       10
+      ],
+      "37:GPIO26": [
+       5
+      ],
+      "38:GPIO20": [
+       9
+      ],
+      "40:GPIO21": [
+       8
+      ]
+     },
+     "attributes": {}
+    },
+    "U2": {
+     "type": "U2 74HC595",
+     "port_directions": {
+      "DS": "input",
+      "SHCP": "input",
+      "STCP": "input",
+      "Q1": "output",
+      "VCC": "input",
+      "GND": "input"
+     },
+     "connections": {
+      "DS": [
+       8
+      ],
+      "SHCP": [
+       9
+      ],
+      "STCP": [
+       10
+      ],
+      "Q1": [
+       14
+      ],
+      "VCC": [
+       15
+      ],
+      "GND": [
+       16
+      ]
+     },
+     "attributes": {}
+    },
+    "U3": {
+     "type": "U3 MCP3008",
+     "port_directions": {
+      "CLK": "input",
+      "DOUT": "output",
+      "DIN": "input",
+      "CS": "input",
+      "CH1": "input",
+      "CH2": "input",
+      "CH3": "input",
+      "VDD": "input",
+      "DGND": "input"
+     },
+     "connections": {
+      "CLK": [
+       4
+      ],
+      "DOUT": [
+       3
+      ],
+      "DIN": [
+       2
+      ],
+      "CS": [
+       5
+      ],
+      "CH1": [
+       12
+      ],
+      "CH2": [
+       14
+      ],
+      "CH3": [
+       13
+      ],
+      "VDD": [
+       17
+      ],
+      "DGND": [
+       18
+      ]
+     },
+     "attributes": {}
+    },
+    "U4": {
+     "type": "U4 MCP4922",
+     "port_directions": {
+      "CS": "input",
+      "SCK": "input",
+      "SDI": "input",
+      "VOUTA": "output",
+      "VOUTB": "output",
+      "VDD": "input",
+      "AVSS": "input"
+     },
+     "connections": {
+      "CS": [
+       6
+      ],
+      "SCK": [
+       4
+      ],
+      "SDI": [
+       2
+      ],
+      "VOUTA": [
+       12
+      ],
+      "VOUTB": [
+       13
+      ],
+      "VDD": [
+       19
+      ],
+      "AVSS": [
+       20
+      ]
+     },
+     "attributes": {}
+    },
+    "U5": {
+     "type": "U5 MCP42010",
+     "port_directions": {
+      "CS": "input",
+      "SCK": "input",
+      "SI": "input",
+      "PW0": "output",
+      "VDD": "input",
+      "VSS": "input"
+     },
+     "connections": {
+      "CS": [
+       7
+      ],
+      "SCK": [
+       4
+      ],
+      "SI": [
+       2
+      ],
+      "PW0": [
+       11
+      ],
+      "VDD": [
+       21
+      ],
+      "VSS": [
+       22
+      ]
+     },
+     "attributes": {}
+    },
+    "M1": {
+     "type": "M1 ADS1115_0x48",
+     "port_directions": {
+      "A1": "input",
+      "VDD": "input",
+      "GND": "input"
+     },
+     "connections": {
+      "A1": [
+       11
+      ],
+      "VDD": [
+       23
+      ],
+      "GND": [
+       24
+      ]
+     },
+     "attributes": {}
+    },
+    "PF_U2_16": {
+     "type": "PWR_3V3",
+     "port_directions": {
+      "P": "output"
+     },
+     "connections": {
+      "P": [
+       15
+      ]
+     },
+     "attributes": {}
+    },
+    "PF_U2_8": {
+     "type": "PWR_GND",
+     "port_directions": {
+      "P": "output"
+     },
+     "connections": {
+      "P": [
+       16
+      ]
+     },
+     "attributes": {}
+    },
+    "PF_U3_16": {
+     "type": "PWR_3V3",
+     "port_directions": {
+      "P": "output"
+     },
+     "connections": {
+      "P": [
+       17
+      ]
+     },
+     "attributes": {}
+    },
+    "PF_U3_9": {
+     "type": "PWR_GND",
+     "port_directions": {
+      "P": "output"
+     },
+     "connections": {
+      "P": [
+       18
+      ]
+     },
+     "attributes": {}
+    },
+    "PF_U4_1": {
+     "type": "PWR_3V3",
+     "port_directions": {
+      "P": "output"
+     },
+     "connections": {
+      "P": [
+       19
+      ]
+     },
+     "attributes": {}
+    },
+    "PF_U4_12": {
+     "type": "PWR_GND",
+     "port_directions": {
+      "P": "output"
+     },
+     "connections": {
+      "P": [
+       20
+      ]
+     },
+     "attributes": {}
+    },
+    "PF_U5_8": {
+     "type": "PWR_3V3",
+     "port_directions": {
+      "P": "output"
+     },
+     "connections": {
+      "P": [
+       21
+      ]
+     },
+     "attributes": {}
+    },
+    "PF_U5_4": {
+     "type": "PWR_GND",
+     "port_directions": {
+      "P": "output"
+     },
+     "connections": {
+      "P": [
+       22
+      ]
+     },
+     "attributes": {}
+    },
+    "PF_M1_VDD": {
+     "type": "PWR_3V3",
+     "port_directions": {
+      "P": "output"
+     },
+     "connections": {
+      "P": [
+       23
+      ]
+     },
+     "attributes": {}
+    },
+    "PF_M1_GND": {
+     "type": "PWR_GND",
+     "port_directions": {
+      "P": "output"
+     },
+     "connections": {
+      "P": [
+       24
+      ]
+     },
+     "attributes": {}
+    }
+   },
+   "netnames": {
+    "SPI_MOSI": {
+     "bits": [
+      2
+     ],
+     "hide_name": 0
+    },
+    "SPI_MISO": {
+     "bits": [
+      3
+     ],
+     "hide_name": 0
+    },
+    "SPI_SCLK": {
+     "bits": [
+      4
+     ],
+     "hide_name": 0
+    },
+    "CS_ADC": {
+     "bits": [
+      5
+     ],
+     "hide_name": 0
+    },
+    "CS_DAC": {
+     "bits": [
+      6
+     ],
+     "hide_name": 0
+    },
+    "CS_DPOT": {
+     "bits": [
+      7
+     ],
+     "hide_name": 0
+    },
+    "SR_DATA": {
+     "bits": [
+      8
+     ],
+     "hide_name": 0
+    },
+    "SR_CLK": {
+     "bits": [
+      9
+     ],
+     "hide_name": 0
+    },
+    "SR_LATCH": {
+     "bits": [
+      10
+     ],
+     "hide_name": 0
+    },
+    "DPOT_WIPER": {
+     "bits": [
+      11
+     ],
+     "hide_name": 0
+    },
+    "DAC_A_CH1": {
+     "bits": [
+      12
+     ],
+     "hide_name": 0
+    },
+    "DAC_B_CH3": {
+     "bits": [
+      13
+     ],
+     "hide_name": 0
+    },
+    "SR_Q_CH2": {
+     "bits": [
+      14
+     ],
+     "hide_name": 0
+    }
+   }
+  }
+ }
+}

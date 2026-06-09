@@ -133,7 +133,8 @@ To test your I2C bus:
 
 First thing you need to do is enable the I2C bus. You can do so in
 C<raspi-config>, or ensure the C<ram=i2c_arm> directive is set to C<on> in the
-C</boot/config.txt> file:
+C</boot/firmware/config.txt> file (C</boot/config.txt> on releases before
+Bookworm):
 
     dtparam=i2c_arm=on
 
@@ -155,7 +156,8 @@ variable before running the suite:
 Often, the default speed of the I2C bus master is too fast for an Arduino. If
 you do not get any results, try changing the speed. On a Raspberry Pi, you do
 that by setting the C<dtparam=i2c_arm_baudrate> directive in the
-C</boot/config.txt> file:
+C</boot/firmware/config.txt> file (C</boot/config.txt> on releases before
+Bookworm):
 
     dtparam=i2c_arm_baudrate=10000
 
@@ -163,7 +165,8 @@ C</boot/config.txt> file:
 
 First thing you need to do is enable the SPI bus. You can do so in
 C<raspi-config>, or ensure the C<dtparam=spi> directive is set to C<on> in the
-C</boot/config.txt> file:
+C</boot/firmware/config.txt> file (C</boot/config.txt> on releases before
+Bookworm):
 
     dtparam=spi=on
 
@@ -180,7 +183,8 @@ functionality will not operate correctly without this being done.
 
 First, in C<raspi-config>, in the C<Serial> section in C<Interfacing Options>,
 disable "login shell" on the serial interface, then disable Bluetooth by editing
-the C</boot/config.txt>, and add the following line:
+C</boot/firmware/config.txt> (C</boot/config.txt> on releases before Bookworm),
+and add the following line:
 
     dtoverlay=pi3-disable-bt-overlay
 
@@ -317,6 +321,10 @@ Example output:
     GPIO 4: level=0 fsel=1 func=OUTPUT
     GPIO 6: level=0 fsel=1 func=OUTPUT
 
+The example above shows the legacy C<raspi-gpio> output. On current Raspberry Pi
+OS (and on the Pi 5, where C<raspi-gpio> never existed) the data is collected
+with C<pinctrl>, whose lines instead read like C<< 2: ip pu | hi // GPIO2 = input >>.
+
 =head3 Boot configuration settings
 
     say $pi->raspi_config;
@@ -341,7 +349,9 @@ Example output (significantly snipped for brevity):
 
     say $pi->network_info;
 
-This method simply returns the information from the C<ifconfig> system call.
+This method returns the output of C<ifconfig> where the C<net-tools> package is
+installed, falling back to C<ip addr> where it is not (as on current Raspberry
+Pi OS Lite). Both forms carry the interface C<inet>/C<inet6> addresses.
 
 =head3 File system information
 
@@ -368,18 +378,32 @@ Example output:
 
     Raspberry Pi 3 Model B Rev 1.2
 
-    PRETTY_NAME="Raspbian GNU/Linux 9 (stretch)"
-    NAME="Raspbian GNU/Linux"
-    VERSION_ID="9"
-    VERSION="9 (stretch)"
+    PRETTY_NAME="Debian GNU/Linux 12 (bookworm)"
+    NAME="Debian GNU/Linux"
+    VERSION_ID="12"
+    VERSION="12 (bookworm)"
 
-    Linux pi-test 4.14.98-v7+ #1200 SMP Tue Feb 12 20:27:48 GMT 2019 armv7l GNU/Linux
+    Linux pi-test 6.6.31+rpt-rpi-v8 #1 SMP PREEMPT Debian 1:6.6.31-1+rpt1 (2024-05-29) aarch64 GNU/Linux
 
-    Hardware        : BCM2835
     Revision        : a22082
     Serial          : 000000005d916dc3
-    Throttled flag  : throttled=0x50000
-    Camera          : supported=0 detected=0
+    Model           : Raspberry Pi 3 Model B Rev 1.2
+    Board           : Raspberry Pi 3 Model B Rev 1.2
+    SoC / RAM       : BCM2837, 1GB, Embest
+    Throttled flag  : throttled=0x0
+    Camera          : none detected (libcamera)
+
+=head3 Pi model name
+
+    say $pi->pi_model;
+
+Example output:
+
+    Raspberry Pi 3 Model B Rev 1.2
+
+This is the normalized board name, read from the devicetree model with a
+C</proc/cpuinfo> revision-code decode fallback. It works across the Pi 0 through
+5 (the Pi 5's RP1-based board included).
 
 =head1 PIN
 
@@ -654,7 +678,8 @@ usage information.
 =head2 Note
 
 Bluetooth on the Pi overlays the serial pins (14, 15) on the Pi. To use
-serial, you must disable bluetooth in the C</boot/config.txt> file:
+serial, you must disable bluetooth in the C</boot/firmware/config.txt> file (C</boot/config.txt> on releases before
+Bookworm):
 
     dtoverlay=pi3-disable-bt-overlay
 
@@ -1345,7 +1370,8 @@ I2C between the Pi and the Arduino, and connect a ground pin on the Arduino to
 the ground bus on the Pi.
 
 The Arudino has a slower I2C bus than the Pi, so we must lower our bus speed.
-Add the following line to the C</boot/config.txt> file, then reboot:
+Add the following line to the C</boot/firmware/config.txt> file (C</boot/config.txt> on releases before
+Bookworm), then reboot:
 
     dtparam=i2c_arm_baudrate=10000
 
@@ -1366,7 +1392,8 @@ These tests will skip by default otherwise.
 
 Note that you must enable serial in C<raspi-config>, disable "terminal over
 serial", and then reboot after adding the following line in the
-C</boot/config.txt> file (this disabled Bluetooth on the Serial interface):
+C</boot/firmware/config.txt> file (C</boot/config.txt> on releases before
+Bookworm) (this disabled Bluetooth on the Serial interface):
 
     dtoverlay=pi3-disable-bt-overlay
 
@@ -1626,8 +1653,7 @@ hardware test platform:
 
     0x04  Arduino Metro Mini
     0x05  ATMega-328P IC (not always in I2C mode, so not always available)
-    0x20  GPIO Expander 1
-    0x21  GPIO Expander 2
+    0x20  GPIO Expander (one MCP23017; expander test + stepper)
     0x3c  OLED (main case)
     0x48  ADC ADS 1 (main case)
     0x49  ADC ADS 2 (2nd case)
