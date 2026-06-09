@@ -12,6 +12,7 @@ our @EXPORT = qw(
     rpi_sudo_check
     rpi_multi_check
     rpi_pod_check
+    rpi_i2c_check
     rpi_running_test
     rpi_oled_available
     rpi_oled_unavailable
@@ -44,10 +45,16 @@ my $oled_lock = '/dev/shm/oled_unavailable.rpi-wiringpi';
 # fetch the number of pre-existing objects and pins in use
 
 sub rpi_legal_object_count {
-    return $ENV{RPI_OBJECT_COUNT}; # crontab-run scripts
+    # Pre-existing objects registered in the shared 'rpit' segment by external,
+    # long-running processes (eg. crontab-run scripts). Defaults to 0 (a clean
+    # segment) when RPI_OBJECT_COUNT is unset; set the var to override.
+    return $ENV{RPI_OBJECT_COUNT} // 0;
 }
 sub rpi_legal_pin_count {
-    return $ENV{RPI_PIN_COUNT}; # crontab-run scripts
+    # Pre-existing pins registered in the shared 'rpit' segment by external,
+    # long-running processes. Defaults to 0 when RPI_PIN_COUNT is unset, so a
+    # clean machine compares against 0 rather than undef; set the var to override.
+    return $ENV{RPI_PIN_COUNT} // 0;
 }
 
 # various test run checks
@@ -65,6 +72,15 @@ sub rpi_multi_check {
 sub rpi_pod_check {
     if (!$ENV{RPI_POD}) {
         plan skip_all => "RPI_POD environment variable not set\n";
+    }
+}
+sub rpi_i2c_check {
+    # Gate tests that require a live I2C bus (e.g. the ADS1115 ADC). Without
+    # this, a test that unconditionally touches I2C dies mid-run when the bus
+    # is disabled, leaving stale metadata in shared memory that cascades into
+    # subsequent tests.
+    if (! $ENV{RPI_I2C}) {
+        plan skip_all => "RPI_I2C environment variable not set\n";
     }
 }
 
