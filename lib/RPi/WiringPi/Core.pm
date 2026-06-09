@@ -34,17 +34,20 @@ sub identify {
 sub io_led {
     my ($self, $tweak) = @_;
 
+    my $led  = $self->_led('io');
+    my $path = "/sys/class/leds/$led->{name}";
+
     if ($tweak){
-        # stop disk activity from operating the green LED
-        `echo none | sudo tee /sys/class/leds/led0/trigger`;
-        # turn on the green LED full-time
-        `echo 1 | sudo tee /sys/class/leds/led0/brightness`;
+        # Stop disk activity from operating the green LED
+        `echo none | sudo tee $path/trigger`;
+        # Turn on the green LED full-time
+        `echo 1 | sudo tee $path/brightness`;
     }
     else {
-        # turn off the green LED from being on full-time
-        `echo 0 | sudo tee /sys/class/leds/led0/brightness`;
-        # start disk activity operating the green LED
-        `echo mmc0 | sudo tee /sys/class/leds/led0/trigger`;
+        # Turn off the green LED from being on full-time
+        `echo 0 | sudo tee $path/brightness`;
+        # Restore disk activity operating the green LED
+        `echo $led->{trigger} | sudo tee $path/trigger`;
     }
 }
 sub label {
@@ -83,13 +86,16 @@ sub pin_scheme {
 sub pwr_led {
     my ($self, $tweak) = @_;
 
+    my $led  = $self->_led('pwr');
+    my $path = "/sys/class/leds/$led->{name}";
+
     if ($tweak){
-        # turn off the red power LED
-        `echo 0 | sudo tee /sys/class/leds/led1/brightness`;
+        # Turn off the red power LED
+        `echo 0 | sudo tee $path/brightness`;
     }
     else {
-        # low power input to operate the red power LED
-        `echo input | sudo tee /sys/class/leds/led1/trigger`;
+        # Restore the red power LED to its default behavior
+        `echo $led->{trigger} | sudo tee $path/trigger`;
     }
 }
 sub pwm_range {
@@ -245,6 +251,23 @@ sub cleanup {
     $self->{clean} = 1;
 }
 
+sub _led {
+    my ($self, $led) = @_;
+
+    # Pi 5 / RP1 exposes its LEDs as ACT (activity) and PWR (power); earlier
+    # boards use led0 and led1. The default restore trigger differs too.
+    my %map = WiringPi::API::pi_rp1_model()
+        ? (
+            io  => { name => 'ACT', trigger => 'mmc0' },
+            pwr => { name => 'PWR', trigger => 'none' },
+        )
+        : (
+            io  => { name => 'led0', trigger => 'mmc0' },
+            pwr => { name => 'led1', trigger => 'input' },
+        );
+
+    return $map{$led};
+}
 sub _rpi_register {
     # allow defeating the entire registration process (objects and pins)
     return $_[0]->{rpi_register} // 1;
