@@ -8,7 +8,7 @@ use IPC::Shareable qw(:flock);
 use JSON::XS;
 use String::CRC32 qw(crc32);
 
-our $VERSION = '2.3634';
+our $VERSION = '3.1801_01';
 
 # Mirrors IPC::Shareable's signed 32-bit key_t overflow correction (_shm_key)
 use constant MAX_KEY_INT_SIZE => 0x80000000;
@@ -74,7 +74,7 @@ sub meta_remove {
     return 1;
 }
 sub meta_key_check {
-    # this is a class method, and must be called on the class prior to creating
+    # This is a class method, and must be called on the class prior to creating
     # a Pi object
 
     my ($class, $key) = @_;
@@ -111,7 +111,7 @@ sub meta_fetch {
 
     $self->meta;
 
-    # decode_json always returns a fresh, fully detached structure, so callers
+    # decode_json() always returns a fresh, fully detached structure, so callers
     # may safely mutate nested keys before calling meta_store(). A new segment
     # reads back as undef.
 
@@ -262,18 +262,18 @@ Mandatory, String: The key name for the user defined data to delete.
 
 =head2 meta_fetch
 
-NOTE: For most use cases, users should use the L</meta_get($name)> method as
+B<NOTE>: For most use cases, users should use the L</meta_get($name)> method as
 opposed to this one. The data held in the shared memory is critical to proper
 operation of the software.
 
 Fetches and returns the shared memory data as a hash reference.
 
-NOTE that you should always wrap the C<meta_fetch()> call with calls to
+B<NOTE>: You should always wrap the C<meta_fetch()> call with calls to
 C<meta_lock()> and C<meta_unlock()>.
 
 =head2 meta_store($data)
 
-NOTE: For most use cases, users should use the L</meta_get($name)> method as
+B<NOTE>: For most use cases, users should use the L</meta_get($name)> method as
 opposed to this one. The data held in the shared memory is critical to proper
 operation of the software.
 
@@ -286,7 +286,7 @@ Parameters:
 Mandatory, Hash Reference. The data to store (should be a modified version that
 was retrieved using C<meta_fetch()>).
 
-NOTE that you should always wrap the C<meta_store()> call with calls to
+B<NOTE>: You should always wrap the C<meta_store()> call with calls to
 C<meta_lock()> and C<meta_unlock()>.
 
 =head2 meta_lock($flags)
@@ -314,7 +314,7 @@ Performs an unlock after you're done with C<meta_lock()>.
 Returns the integer shared memory key that links the object to the shared memory
 segment.
 
-NOTE: This integer is derived by L<IPC::Shareable> from the string C<shm_key>
+B<NOTE>: This integer is derived by L<IPC::Shareable> from the string C<shm_key>
 via a CRC32 hash (with signed 32-bit overflow correction), so it is B<not> the
 raw byte-packed value of the string. For example, the default C<rpiw> string key
 resolves to C<1323166506>.
@@ -356,7 +356,7 @@ leaves the segment allocated (it's created with C<destroy =E<gt> 0> so it
 persists across processes). Use C<meta_remove()> when you're truly finished with
 the segment and want to reclaim it.
 
-NOTE: A subsequent call to any C<meta_*> method transparently creates a fresh,
+B<NOTE>: A subsequent call to any C<meta_*> method transparently creates a fresh,
 empty segment, so this is safe to call mid-process.
 
 Returns: True C<1> if a segment was removed, or C<undef> if there was no live
@@ -366,7 +366,7 @@ Steve Bertrand, E<lt>steveb@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2016-2019 by Steve Bertrand
+Copyright (C) 2016-2026 by Steve Bertrand
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.18.2 or,
