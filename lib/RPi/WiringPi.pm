@@ -12,7 +12,7 @@ use Data::Dumper;
 use RPi::Const qw(:all);
 use Scalar::Util qw(weaken);
 
-our $VERSION = '3.1800';
+our $VERSION = '3.1801_01';
 
 # class variables
 
@@ -571,7 +571,7 @@ L<WiringPi::API|https://metacpan.org/pod/WiringPi::API>
 module, and various other custom device specific  modules.
  
 L<wiringPi|http://wiringpi.com> must be installed prior to installing/using
-this module (v2.36+).
+this module (v3.18).
  
 We always and only use the C<GPIO> pin numbering scheme.
  
@@ -582,8 +582,7 @@ data, and reset the Pi back to default settings when your program ends (on
 normal exit, on an uncaught C<die()>, and on C<SIGINT>/C<SIGTERM>), so components
 are not left in an inconsistent state. Component modules do none of these things.
  
-There are a basic set of constants that can be imported. See
-L<RPi::Const>.
+There are a basic set of constants that can be imported. See L<RPi::Const>.
  
 It's handy to have access to a pin mapping conversion chart. There's an
 excellent pin scheme map for reference at
@@ -1279,7 +1278,7 @@ Steve Bertrand, E<lt>steveb@cpan.orgE<gt>
  
 =head1 COPYRIGHT AND LICENSE
  
-Copyright (C) 2016-2019 by Steve Bertrand
+Copyright (C) 2016-2026 by Steve Bertrand
  
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.18.2 or,
