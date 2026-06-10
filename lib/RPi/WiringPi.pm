@@ -848,12 +848,17 @@ serial bus.
 See the linked documentation for full documentation on usage, or the
 L<RPi::WiringPi::FAQ> for usage examples.
  
-NOTE: Bluetooth on the Pi overlays the serial pins (14, 15) on the Pi. To use
-serial, you must disable bluetooth in the C</boot/firmware/config.txt> file
-(C</boot/config.txt> on releases before Bookworm):
- 
+NOTE: On the Pi 3 and Pi 4, Bluetooth occupies the primary UART, leaving the
+header pins (14, 15) on the mini-UART (C</dev/ttyS0>). To put the full PL011
+UART back on the header you must disable Bluetooth in the
+C</boot/firmware/config.txt> file (C</boot/config.txt> on releases before
+Bookworm):
+
     dtoverlay=pi3-disable-bt-overlay
- 
+
+On the Pi 5, Bluetooth has its own dedicated UART, so no C<disable-bt> overlay
+is needed; simply enable the header UART (C</dev/ttyAMA0>) with C<enable_uart=1>.
+
 =head2 servo($pin_num)
  
 This method configures PWM clock and divisor to operate a typical 50Hz servo,

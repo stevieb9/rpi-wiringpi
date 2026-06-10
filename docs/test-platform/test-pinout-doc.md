@@ -410,9 +410,11 @@ for break-out test points on the PCB:
    needed, just don't add pull resistors that would fight the idle level.
 
 6. **Serial vs Bluetooth:** the UART loopback (GPIO14→15) needs the primary
-   UART on the header (`/dev/ttyS0`), i.e. Bluetooth moved off the GPIO UART
-   (`dtoverlay=disable-bt` / mini-UART config). Pi-5 specifics differ from the
-   FAQ's Pi-3 note — verify on target.
+   UART on the header. On the **Pi 5 (RP1)** the header UART is `/dev/ttyAMA0`
+   and is enabled with `enable_uart=1` alone — Bluetooth has its own dedicated
+   UART, so no `disable-bt` overlay is required (that overlay is a Pi 3/4 step,
+   where the header would otherwise sit on the mini-UART `/dev/ttyS0`). With the
+   UART enabled, GPIO14/15 report funcsel `3` and idle high.
 
 7. **Mixed power rails (3V3 / 5V):** all Pi logic and every I2C/SPI sensor IC
    plus the 74HC595 run at **3V3**. The **5V** parts are the HD44780 LCD, the
@@ -428,23 +430,26 @@ for break-out test points on the PCB:
 
 From `rpi_default_pin_config()` — the at-rest mode/state every wired pin must
 return to after a test run (used to detect a dirty board). Alt `31` = RP1
-"null / no peripheral function"; alt `0` = GPIO input. GPIO12 and GPIO26 are
-*excluded* (shown below): as chip-selects they idle/flip and have no stable
-default to check against.
+"null / no peripheral function"; alt `0` = GPIO input. With the SPI, I2C and
+UART buses enabled, the dedicated bus pins report their peripheral funcsel
+rather than GPIO: **GPIO2/3 (I2C) = `7`**, **GPIO9/10/11 (SPI) = `4`**, and
+**GPIO14/15 (UART) = `3`** (UART idles high). GPIO12 and GPIO26 are *excluded*
+(shown below): as chip-selects they idle/flip and have no stable default to
+check against.
 
 | BCM | alt | state | | BCM | alt | state | | BCM | alt | state |
 |----:|----:|------:|-|----:|----:|------:|-|----:|----:|------:|
-| 0  | 0  | 1 | | 11 | 0  | 0 | | 22 | 1  | 0 |
+| 0  | 0  | 1 | | 11 | 4  | 0 | | 22 | 1  | 0 |
 | 1  | 0  | 1 | | 13 | 31 | 0 | | 23 | 1  | 0 |
-| 2  | 0  | 1 | | 14 | 31 | 0 | | 24 | 31 | 0 |
-| 3  | 0  | 1 | | 15 | 31 | 0 | | 25 | 31 | 0 |
+| 2  | 7  | 1 | | 14 | 3  | 1 | | 24 | 31 | 0 |
+| 3  | 7  | 1 | | 15 | 3  | 1 | | 25 | 31 | 0 |
 | 4  | 31 | 0 | | 16 | 31 | 0 | | 27 | 1  | 0 |
 | 5  | 31 | 0 | | 17 | 1  | 0 | |    |    |   |
 | 6  | 31 | 0 | | 18 | 0  | 0 | | **12** | excluded (CS flip) |
 | 7  | 1  | 1 | | 19 | 31 | 0 | | **26** | excluded (CS flip) |
 | 8  | 1  | 1 | | 20 | 31 | 0 | |        |    |   |
-| 9  | 0  | 0 | | 21 | 31 | 0 | |        |    |   |
-| 10 | 0  | 0 | |    |    |   | |        |    |   |
+| 9  | 4  | 0 | | 21 | 31 | 0 | |        |    |   |
+| 10 | 4  | 0 | |    |    |   | |        |    |   |
 
 > On Pi 5, wiringPi cannot *set* alt 31, so once a sweep touches an alt-31-default
 > pin it can't be auto-restored mid-run — reset such pins with `pinctrl` between

@@ -192,6 +192,26 @@ Revision history for Perl extension RPi::WiringPi.
         - Documented pi_model() in the SYNOPSIS, method list and FAQ
         - Corrected the FAQ/POD to show config.txt at both /boot/firmware (Bookworm
           and later) and /boot (older), and network_info using ifconfig or ip addr
+        - Updated RPiTest's Pi 5 default pin-config for the now-enabled SPI, I2C
+          and UART buses: GPIO2/3 (I2C) report funcsel 7, GPIO9/10/11 (SPI)
+          report 4, and GPIO14/15 (UART) report 3 and idle high. Previously these
+          encoded the bus-disabled values (0/0/31), so rpi_check_pin_status()
+          mis-validated once the interfaces were turned on
+        - Tightened the GPIO14/15 check in rpi_check_pin_status() and
+          rpi_verify_pin_status(): dropped the "alt == 2" escape hatch (a
+          serial-disabled workaround) now that the enabled UART reports a
+          deterministic funcsel, folding 14/15 into the standard per-board check
+        - Fixed rpi_check_pin_status() to emit the "I2C locked ... skipping pins
+          2 and 3" note only when the OLED lock file is actually present; it
+          previously printed unconditionally
+        - Re-enabled t/315-serial.t by removing its blanket skip_all, and removed
+          two meta_lock(name => ..., state => ...) calls that used a non-existent
+          signature (meta_lock takes a single lock flag) and crashed the test;
+          the RPI_SERIAL gate (and TX/RX loopback requirement) still govern it
+        - Reconciled the Pi 5 default-pin table and serial/Bluetooth note in
+          docs/test-platform/test-pinout-doc.md, the serial POD note in
+          RPi::WiringPi, and fixed a "ram=i2c_arm" typo in the FAQ, to match the
+          enabled-bus pin values
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
