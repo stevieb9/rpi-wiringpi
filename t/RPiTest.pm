@@ -146,7 +146,9 @@ sub rpi_check_pin_status {
 
     my $oled_locked = -e '/dev/shm/oled_in_use';
 
-    note "I2C locked due to external OLED software running; skipping pins 2 and 3";
+    if ($oled_locked) {
+        note "I2C locked due to external OLED software running; skipping pins 2 and 3";
+    }
 
     my @gpio_pins;
 
@@ -163,13 +165,6 @@ sub rpi_check_pin_status {
     my $config = rpi_default_pin_config();
 
     for (@gpio_pins){
-        if ($_ == 14 || $_ == 15){
-            # serial pins
-            my $alt = get_alt($_);
-            ok $alt == $config->{$_}{alt} || $alt == 2, "pin $_ set back to default mode ($alt) ok";
-            is read_pin($_), $config->{$_}{state}, "pin $_ set back to default state ($config->{$_}{state}) ok";
-            next;
-        }
         is get_alt($_), $config->{$_}{alt}, "pin $_ set back to default mode ($config->{$_}{alt}) ok";
         is read_pin($_), $config->{$_}{state}, "pin $_ set back to default state ($config->{$_}{state}) ok";
     }
@@ -201,15 +196,6 @@ sub rpi_verify_pin_status {
     my $incorrect_config = 0;
 
     for (@gpio_pins){
-        if ($_ == 14 || $_ == 15){
-            # serial pins
-            my $alt = get_alt($_);
-
-            $incorrect_config++ if $alt != $config->{$_}{alt} && $alt != 2;
-            $incorrect_config++ if read_pin($_) != $config->{$_}{state};
-            next;
-        }
-        
         $incorrect_config++ if get_alt($_) != $config->{$_}{alt};
         $incorrect_config++ if read_pin($_) != $config->{$_}{state};
 
@@ -325,21 +311,23 @@ sub rpi_default_pin_config {
     my $pi5 = {
       '0'  => { 'alt' => 0,  'state' => 1 },
       '1'  => { 'alt' => 0,  'state' => 1 },
-      '2'  => { 'alt' => 0,  'state' => 1 },
-      '3'  => { 'alt' => 0,  'state' => 1 },
+      # 2/3: I2C funcsel (7) when the I2C bus is enabled
+      '2'  => { 'alt' => 7,  'state' => 1 },
+      '3'  => { 'alt' => 7,  'state' => 1 },
       '4'  => { 'alt' => 31, 'state' => 0 },
       '5'  => { 'alt' => 31, 'state' => 0 },
       '6'  => { 'alt' => 31, 'state' => 0 },
       '7'  => { 'alt' => 1,  'state' => 1 },
       '8'  => { 'alt' => 1,  'state' => 1 },
-      '9'  => { 'alt' => 0,  'state' => 0 },
-      '10' => { 'alt' => 0,  'state' => 0 },
-      '11' => { 'alt' => 0,  'state' => 0 },
+      # 9/10/11: SPI funcsel (4) when the SPI bus is enabled
+      '9'  => { 'alt' => 4,  'state' => 0 },
+      '10' => { 'alt' => 4,  'state' => 0 },
+      '11' => { 'alt' => 4,  'state' => 0 },
 #FIXME: 12 removed due to inherent flipping
       '13' => { 'alt' => 31, 'state' => 0 }, # OUTPUT/HIGH due to the dpot test (t/345)
-      # 14/15: RP1 reports null funcsel (31) at default, not ALT0
-      '14' => { 'alt' => 31, 'state' => 0 },
-      '15' => { 'alt' => 31, 'state' => 0 },
+      # 14/15: UART funcsel (3) when the header UART is enabled; line idles high
+      '14' => { 'alt' => 3,  'state' => 1 },
+      '15' => { 'alt' => 3,  'state' => 1 },
       '16' => { 'alt' => 31, 'state' => 0 },
       '17' => { 'alt' => 1,  'state' => 0 },
       '18' => { 'alt' => 0,  'state' => 0 },
