@@ -12,7 +12,7 @@ use Digest::MD5 qw(md5_hex);
 use RPi::Const qw(:all);
 use Time::HiRes qw(time);
 
-our $VERSION = '2.3634';
+our $VERSION = '3.1801_01';
 
 sub checksum {
     return md5_hex($$ . time() . rand());
@@ -135,7 +135,7 @@ Steve Bertrand, E<lt>steveb@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2016-2019 by Steve Bertrand
+Copyright (C) 2016-2026 by Steve Bertrand
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.18.2 or,
