@@ -13,7 +13,7 @@ use Data::Dumper;
 use Digest::MD5 qw(md5_hex);
 use RPi::Const qw(:all);
 
-our $VERSION = '2.3634';
+our $VERSION = '3.1801_01';
 
 sub gpio_layout {
     return $_[0]->gpio_layout;
@@ -50,6 +50,21 @@ sub io_led {
         `echo $led->{trigger} | sudo tee $path/trigger`;
     }
 }
+sub pwr_led {
+    my ($self, $tweak) = @_;
+
+    my $led  = $self->_led('pwr');
+    my $path = "/sys/class/leds/$led->{name}";
+
+    if ($tweak){
+        # Turn off the red power LED
+        `echo 0 | sudo tee $path/brightness`;
+    }
+    else {
+        # Restore the red power LED to its default behavior
+        `echo $led->{trigger} | sudo tee $path/trigger`;
+    }
+}
 sub label {
     my ($self, $label) = @_;
     $self->{label} = $label if defined $label;
@@ -69,7 +84,7 @@ sub pin_to_gpio {
         return $pin;
     }
     if ($scheme == RPI_MODE_UNINIT){
-        croak "setup not run; pin mapping scheme not initialized\n";
+        croak "Setup not run; pin mapping scheme not initialized\n";
     }
 }
 sub pin_scheme {
@@ -82,21 +97,6 @@ sub pin_scheme {
     return defined $ENV{RPI_PIN_MODE}
         ? $ENV{RPI_PIN_MODE}
         : RPI_MODE_UNINIT;
-}
-sub pwr_led {
-    my ($self, $tweak) = @_;
-
-    my $led  = $self->_led('pwr');
-    my $path = "/sys/class/leds/$led->{name}";
-
-    if ($tweak){
-        # Turn off the red power LED
-        `echo 0 | sudo tee $path/brightness`;
-    }
-    else {
-        # Restore the red power LED to its default behavior
-        `echo $led->{trigger} | sudo tee $path/trigger`;
-    }
 }
 sub pwm_range {
     my ($self, $range) = @_;
@@ -255,7 +255,8 @@ sub _led {
     my ($self, $led) = @_;
 
     # Pi 5 / RP1 exposes its LEDs as ACT (activity) and PWR (power); earlier
-    # boards use led0 and led1. The default restore trigger differs too.
+    # boards use led0 and led1. The default restore trigger differs too
+
     my %map = WiringPi::API::pi_rp1_model()
         ? (
             io  => { name => 'ACT', trigger => 'mmc0' },
@@ -269,7 +270,7 @@ sub _led {
     return $map{$led};
 }
 sub _rpi_register {
-    # allow defeating the entire registration process (objects and pins)
+    # Allow defeating the entire registration process (objects and pins)
     return $_[0]->{rpi_register} // 1;
 }
 sub _rpi_register_pins {
@@ -297,7 +298,6 @@ sub _pin_registration {
     my $pin_num = $self->pin_to_gpio($pin->num);
 
     if ($param{operation} eq 'unregister'){
-
         if (! exists $meta->{pins}{$pin_num}{users}{$param{requester}}) {
             $self->meta_unlock;
             return;
@@ -362,8 +362,9 @@ sub _restore_pin_alt {
             # program exit) can't clobber the script's own exit status.
 
             local ($?, $!);
+
             if (system('pinctrl', 'set', $pin_num, 'no') != 0) {
-                warn "couldn't restore GPIO $pin_num to 'no function' (alt 31) via " .
+                warn "Couldn't restore GPIO $pin_num to 'no function' (alt 31) via " .
                      "pinctrl; is pinctrl installed and are you in the 'gpio' group?\n";
             }
             return;
@@ -414,6 +415,21 @@ usage details.
 
 Returns the GPIO layout which indicates the board revision number.
 
+=head2 identify($seconds)
+
+This method wraps the L<io_led()|/io_led($tweak)> and
+L<pwr_led()|/pwr_led($tweak)> methods.
+
+Parameters:
+
+    $seconds
+
+Optional, Integer: The number of seconds to remain in "identify" state. Defaults
+to C<5>.
+
+In "identify" state, the green disk I/O LED will remain on constantly, and the
+red power LED will stay off for the duration.
+
 =head2 io_led($tweak)
 
 This is a helper method to better help you identify which Raspberry Pi board
@@ -446,21 +462,6 @@ Parameters:
 Optional: Sending in a true value (eg: C<1>) will turn the red power LED off.
 Sending in a false value (or omitting the parameter) will restore the power LED
 back to default state.
-
-=head2 identify($seconds)
-
-This method wraps the L<io_led()|/io_led($tweak)> and
-L<pwr_led()|/pwr_led($tweak)> methods.
-
-Parameters:
-
-    $seconds
-
-Optional, Integer: The number of seconds to remain in "identify" state. Defaults
-to C<5>.
-
-In "identify" state, the green disk I/O LED will remain on constantly, and the
-red power LED will stay off for the duration.
 
 =head2 label($label)
 
@@ -578,7 +579,7 @@ Mandatory, Integer: An unsigned integer to set the pulse width to.
 Returns an array reference where each element is the GPIO pin number of each
 currently registerd pin.
 
-=head2 register_pin($pin_obj)
+=head2 register_pin($pin_obj, $comment)
 
 Registers a pin within the system for error checking, and proper resetting of
 the pins in use when required.
@@ -588,6 +589,10 @@ Parameters:
     $pin_obj
 
 Mandatory: An object instance of L<RPi::Pin> class.
+
+    $comment
+
+Optional, String: A descriptive string to help identify the pin's purpose.
 
 =head2 unregister_pin($pin_obj)
 
@@ -612,12 +617,10 @@ routine.
 =head2 cleanup
 
 Resets all registered pins back to default settings as they were before your
-program started. It's important that this method be called in each application.
+program started. It also stops and cleans up any active interrupt handlers and
+worker threads.
 
-=head2 tidy
-
-Performs a basic cleanup. This should only be used in situations when you know
-for fact that no pins or anything have been used in your script.
+B<Note>: It's important that this method be called in each application.
 
 =head1 ENVIRONMENT VARIABLES
 
@@ -639,7 +642,7 @@ Steve Bertrand, E<lt>steveb@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2016-2019 by Steve Bertrand
+Copyright (C) 2016-2026 by Steve Bertrand
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.18.2 or,

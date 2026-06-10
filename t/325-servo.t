@@ -62,6 +62,7 @@ if (! $ENV{NO_BOARD}) {
     # Always release pin 18 even if the sweep croaks or we're interrupted
     # mid-run. A leaked registration in the shared meta poisons every later
     # test file that uses pin 18 (t/150, t/200-213, etc.)
+
     my $cleaned = 0;
 
     my $cleanup = sub {
