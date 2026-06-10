@@ -2,7 +2,7 @@
 
 Baseline wiring reference for designing a unit-test PCB.
 
-Sources reconciled: `t/README`, every `t/*.t` and `t/multi/*.pl`, `t/RPiTest.pm`
+Sources reconciled: this directory's `README`, every `t/*.t` and `t/multi/*.pl`, `t/RPiTest.pm`
 (`rpi_default_pin_config`, `rpi_check_pin_status`), and `lib/RPi/WiringPi.pm` +
 `lib/RPi/WiringPi/FAQ.pod`. Where the README was incomplete or ambiguous, the
 test code is treated as authoritative.
@@ -43,7 +43,7 @@ ordinary GPIO — see §9.4.
 
 | BCM | Phys | Wired | Net / role                         | Device                         | Tests |
 |----:|-----:|:-----:|------------------------------------|--------------------------------|-------|
-|   2 |  3   | ★ | **I2C SDA** (shared bus)              | all I2C devices                | 305,320,330,340,420-422,900-920,450 |
+|   2 |  3   | ★ | **I2C SDA** (shared bus)              | all I2C devices                | 305,320,330,340,420-422,900-909,920,450 |
 |   3 |  5   | ★ | **I2C SCL** (shared bus)              | all I2C devices                | (as above) |
 |   4 |  7   | ★ | LCD D4                                | HD44780 LCD                    | 925 |
 |   5 | 29   | ★ | LCD RS                                | HD44780 LCD                    | 925 |
@@ -79,28 +79,34 @@ ordinary GPIO — see §9.4.
 Three views: the bare 40-pin header (native Pi functions), then the same header
 with each pin's test-platform fixture, then a bus-topology floorplan. Rendered
 (colour-coded by supply rail) as **`test-pinout-overview.jpg`** (bus/block view)
-and **`test-pinout-detail.jpg`** (pin-by-pin); regenerate with
-`scripts/gen-pinout-images.py`.
+and **`test-pinout-detail.jpg`** (pin-by-pin).
 
-For the full electrical schematic:
+For the full electrical schematic — the JPEG/PDF outputs live in this directory,
+and every vector **SVG** lives in the **`svg/`** sub-directory:
+
 - **`test-platform-schematic-A3.pdf`** / **`-A4.pdf`** — multi-page vector PDF
   (title/contents page + whole board + one page each for I2C / SPI / stepper /
-  display). Best single file to read/print; build with `scripts/gen-pdf.py`.
-- **Per-subsystem sheets** (clearest — start here): **`sheet-i2c`**, **`sheet-spi`**,
-  **`sheet-stepper`**, **`sheet-display`** (`.svg`/`.jpg`). Wire-routed, with each
-  device's supply drawn as proper schematic power symbols (**▽ +3V3 / +5V** rail
-  symbols and standard **ground** glyphs).
-- **`test-pinout-schematic-signals.svg`/`.jpg`** — the whole board on one
+  display). Best single file to read/print.
+- **`svg/sheet-i2c.svg`**, **`svg/sheet-spi.svg`**, **`svg/sheet-stepper.svg`**,
+  **`svg/sheet-display.svg`** — per-subsystem sheets (clearest — start here).
+  Wire-routed, with each device's supply drawn as proper schematic power symbols
+  (**▽ +3V3 / +5V** rail symbols and standard **ground** glyphs).
+- **`svg/test-pinout-schematic-signals.svg`** — the whole board on one
   wire-routed sheet (signals + per-device power flags).
-- **`test-pinout-schematic-wired.svg`/`.jpg`** — fully **wire-routed**, including
-  the +3V3/+5V/GND nets (busier/taller). Both are orthogonally routed via
-  netlistsvg/ELK; the SVGs are vector — open and zoom to read.
-- **`test-pinout-schematic.svg`/`.jpg`** — the same design in net-label style.
-- **`test-platform.net`** — KiCad-importable netlist (24 components, 41 nets);
-  every connection, datasheet-accurate pinouts.
+- **`svg/test-pinout-schematic-wired.svg`** — fully **wire-routed**, including
+  the +3V3/+5V/GND nets (busier/taller). The wire-routed sheets are orthogonally
+  routed via netlistsvg/ELK; the SVGs are vector — open and zoom to read.
+- **`svg/test-pinout-schematic.svg`** (and the raster **`test-pinout-schematic.jpg`**)
+  — the same design in net-label style.
+- **`facts/test-platform.net`** — KiCad-importable netlist (24 components, 41
+  nets); every connection, datasheet-accurate pinouts.
 
-Generate with `scripts/gen-schematic.py` (emits the netlist + net-label SVG +
-the netlistsvg JSON); the wired SVG is rendered by `netlistsvg` from that JSON.
+Regenerate everything above with **`scripts/gen-test-platform.pl`**: it drives
+the Python generators (`gen-pinout-images.py`, `gen-schematic.py`, `gen-pdf.py`)
+and `netlistsvg`, then files the outputs into this directory and `svg/` — it
+never writes to `t/`. The schematic PDFs and the wire-routed SVGs require
+`netlistsvg` on `PATH`; without it the script still produces the pinout JPEGs,
+the net-label schematic and the netlist, and skips the rest with a warning.
 
 **The bare 40-pin header (J8) — native functions.** Standard Raspberry Pi pinout,
 for orientation only (no test wiring). Pin 1 is the square pad; odd pins are the
@@ -217,10 +223,10 @@ authoritative list from FAQ.pod "I2C Test Platform Connections":
 
 | Addr | Device                    | Pwr  | Tests        | Notes |
 |------|---------------------------|------|--------------|-------|
-| 0x04 | Arduino Metro Mini        | 5V † | 300, 305     | I2C slave sketch in `docs/sketch` |
+| 0x04 | Arduino Metro Mini        | 5V † | 300‡, 305    | I2C slave sketch in `docs/sketch` |
 | 0x05 | ATMega-328P (standalone)  | 5V † | —            | only when in I2C mode (optional) |
 | 0x20 | MCP23017 GPIO expander    | 3V3  | 330, 450     | one chip: GPA4-7↔GPB4-7 loopback; GPA0-3 → stepper |
-| 0x3c | OLED SSD1306 128×64       | 3V3  | 900-920      | on the Pi I2C bus |
+| 0x3c | OLED SSD1306 128×64       | 3V3  | 900-909, 920 | on the Pi I2C bus |
 | 0x48 | ADS1115 ADC #1            | 3V3  | 109,140,325,345 | A0=PWM/servo, A1=dpot wiper |
 | 0x49 | ADS1115 ADC #2            | 3V3  | 450          | A0/A1/A2 = stepper photo resistors R/C/L |
 | 0x57 | AT24C32 EEPROM            | 3V3  | 420-422      | same breakout board as the RTC |
@@ -229,6 +235,10 @@ authoritative list from FAQ.pod "I2C Test Platform Connections":
 
 † The 5V Arduino/ATMega join the bus through a 3V3↔5V I2C level-shifter (assumed
 present in this design), keeping the Pi's SDA/SCL at 3V3.
+
+‡ `t/300` is the I2C *exception* test — it probes a deliberately-absent address
+(0x99) to verify error handling, so it does not actually communicate with the
+Arduino at 0x04. Listed here only because it lives in the I2C test group.
 
 ```
             +3V3 ── pull-ups ──┐         ┌──────────┬──────────┬─────── ... (all I2C devices)

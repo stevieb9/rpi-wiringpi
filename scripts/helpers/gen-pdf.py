@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Assemble the per-subsystem schematic SVGs into multi-page A3 and A4 PDFs
-with a title/contents page.  Run (in the schematic venv) from the repo root,
-after scripts/gen-schematic.py + netlistsvg have produced the sheet SVGs:
-    /tmp/sch-venv/bin/python scripts/gen-pdf.py
+with a title/contents page.  Normally invoked via scripts/gen-test-platform.pl;
+to run standalone (in the schematic venv) from the repo root, after
+scripts/helpers/gen-schematic.py + netlistsvg have produced the sheet SVGs:
+    /tmp/sch-venv/bin/python scripts/helpers/gen-pdf.py
 Outputs: t/test-platform-schematic-A3.pdf, -A4.pdf
 """
 import cairosvg, io, datetime
@@ -36,7 +37,7 @@ TITLE = f'''<svg xmlns="http://www.w3.org/2000/svg" width="1190.55pt" height="84
 <path d="M450,690 v14 M438,704 h24 M442,710 h16 M447,716 h6" fill="none" stroke="#111" stroke-width="1.5"/>
 <text x="430" y="676" font-size="16">GND</text>
 <text x="150" y="745" font-size="15">3V3 logic throughout.  5V parts: LCD, stepper (ULN2003), servo, Arduino (via BSS138 shifter).</text>
-<text x="150" y="772" font-size="13">Pinouts datasheet-verified · single-sourced from t/test-platform.net · generated {date}</text>
+<text x="150" y="772" font-size="13">Pinouts datasheet-verified · single-sourced from facts/test-platform.net · generated {date}</text>
 </svg>'''
 
 def page(svg_url=None, svg_str=None):

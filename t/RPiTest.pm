@@ -255,7 +255,7 @@ sub rpi_default_pin_config {
       '10' => { 'alt' => 4, 'state' => 0 },
       '11' => { 'alt' => 4, 'state' => 0 },
 #FIXME: 12 removed due to inherent flipping
-      '13' => { 'alt' => 0, 'state' => 0 }, # OUTPUT/HIGH due to the dpot test (t/50)
+      '13' => { 'alt' => 0, 'state' => 0 }, # OUTPUT/HIGH due to the dpot test (t/345)
       # 14/15: alt 4 (ALT0) when Serial bluetooth disabled
       '14' => { 'alt' => 4, 'state' => 1 },
       '15' => { 'alt' => 4, 'state' => 1 },
@@ -288,7 +288,7 @@ sub rpi_default_pin_config {
       '10' => { 'alt' => 4, 'state' => 0 },
       '11' => { 'alt' => 4, 'state' => 0 },
 #FIXME: 12 removed due to inherent flipping
-      '13' => { 'alt' => 0, 'state' => 0 }, # OUTPUT/HIGH due to the dpot test (t/50)
+      '13' => { 'alt' => 0, 'state' => 0 }, # OUTPUT/HIGH due to the dpot test (t/345)
       # 14/15: alt 4 (ALT0) when Serial bluetooth disabled
       '14' => { 'alt' => 4, 'state' => 1 },
       '15' => { 'alt' => 4, 'state' => 1 },
@@ -321,7 +321,7 @@ sub rpi_default_pin_config {
       '10' => { 'alt' => 0,  'state' => 0 },
       '11' => { 'alt' => 0,  'state' => 0 },
 #FIXME: 12 removed due to inherent flipping
-      '13' => { 'alt' => 31, 'state' => 0 }, # OUTPUT/HIGH due to the dpot test (t/50)
+      '13' => { 'alt' => 31, 'state' => 0 }, # OUTPUT/HIGH due to the dpot test (t/345)
       # 14/15: RP1 reports null funcsel (31) at default, not ALT0
       '14' => { 'alt' => 31, 'state' => 0 },
       '15' => { 'alt' => 31, 'state' => 0 },

@@ -5,8 +5,9 @@ Emits:
   t/test-platform.net          -- KiCad-importable netlist (every connection)
   t/test-pinout-schematic.svg  -- rendered schematic (net-label style)
   t/test-pinout-schematic.jpg
-Pinouts are datasheet-verified (see comments).  Run from repo root with the
-schematic venv:  /tmp/sch-venv/bin/python scripts/gen-schematic.py
+Pinouts are datasheet-verified (see comments).  Normally invoked via
+scripts/gen-test-platform.pl; to run standalone, from the repo root with the
+schematic venv:  /tmp/sch-venv/bin/python scripts/helpers/gen-schematic.py
 Style: bare ICs for logic (74HC595/MCP3008/MCP4922/MCP42010/MCP23017), module
 blocks for sensor breakouts + level-shifter + stepper driver board.
 """
