@@ -24,7 +24,8 @@ my $pi = $mod->new(label => 't/315-serial.t', shm_key => 'rpit');
 
 $pi->meta_lock(name => 'serial', state => 1);
 
-my $s = $pi->serial("/dev/ttyS0", 115200);
+my $dev = rpi_serial_device();
+my $s = $pi->serial($dev, 115200);
 
 isa_ok $s, 'RPi::Serial';
 

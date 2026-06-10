@@ -20,6 +20,7 @@ our @EXPORT = qw(
     rpi_verify_pin_status
     rpi_default_pin_config
     rpi_board_tag
+    rpi_serial_device
     rpi_reset
 );
 
@@ -234,6 +235,20 @@ sub rpi_board_tag {
 
     # everything else legacy (3B/3B+/3A+/CM3/Zero etc.)
     return 'pi3';
+}
+
+# Return the GPIO-header serial device for the detected board. The Pi 3/4 leave
+# GPIO 14/15 on the mini-UART (/dev/ttyS0) unless Bluetooth is disabled; the
+# Pi 5 always exposes the header UART as /dev/ttyAMA0 (Bluetooth has its own).
+
+sub rpi_serial_device {
+    my %device = (
+        pi3 => '/dev/ttyS0',
+        pi4 => '/dev/ttyS0',
+        pi5 => '/dev/ttyAMA0',
+    );
+
+    return $device{ rpi_board_tag() } // '/dev/ttyAMA0';
 }
 
 # fetch the default pin state and mode for the detected board
