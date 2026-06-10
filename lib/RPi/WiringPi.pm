@@ -274,7 +274,7 @@ sub servo {
     my ($self, $pin_num, %config) = @_;
 
     if ($> != 0) {
-        die "\n\nat this time, servo() requires PWM functionality, and PWM " .
+        die "\n\nAt this time, servo() requires PWM functionality, and PWM " .
             "requires your script to be run as the 'root' user (sudo)\n\n";
     }
 
