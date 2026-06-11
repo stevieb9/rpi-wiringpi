@@ -250,7 +250,7 @@ LCD displays connected to your Raspberry Pi.
 Please see the linked documentation for information regarding the parameters
 required.
 
-## oled(\[$model\], \[$i2c\_addr\])
+## oled(\[$model\], \[$i2c\_addr\], \[$display\_splash\_page\])
 
 Returns a specific `RPi::OLED::SSD1306` OLED display object, allowing you to
 display text, characters and shapes to the screen.
@@ -260,18 +260,21 @@ Currently, only the `128x64` size model is offered, see the
 
 Parameters:
 
-       $model
-    
+    $model
 
 Optional, String: The screen size of the OLED you've got. Valid options are
 `128x64`, `128x32` and `96x16`. Currently, only the `128x64` option is
 valid, and it's the default if not sent in.
 
-       $i2c_addr
-    
+    $i2c_addr
 
 Optional, Integer: The I2C address of your display. Defaults to `0x3C` if not
 sent in.
+
+    $display_splash_page
+
+Optional, Bool: Whether to display the splash page when the display is
+initialized. Defaults to true (`1`); send in `0` to skip it.
 
 ## pin($pin\_num, $comment)
 
@@ -717,10 +720,9 @@ spans several pins it lives on the Pi object, not on a single pin. See
 `background_interrupts` in [WiringPi::API](https://metacpan.org/pod/WiringPi%3A%3AAPI) for details.
 
 **Dependency note:** the per-pin `$pin->background_interrupt` form referenced
-above is not yet available - [RPi::Pin](https://metacpan.org/pod/RPi%3A%3APin) (as of `2.3608`) implements only
-`set_interrupt`, so a future `RPi::Pin` release must ship the method before it
-can be used. Until then, drive multiple pins from a single child with this
-`$pi->background_interrupts` method.
+above requires [RPi::Pin](https://metacpan.org/pod/RPi%3A%3APin) `2.3609` or greater (the version this distribution
+already requires). To drive multiple pins from a single background child rather
+than one child per pin, use this `$pi->background_interrupts` method.
 
 ### worker(\\&body, \\%opts)
 

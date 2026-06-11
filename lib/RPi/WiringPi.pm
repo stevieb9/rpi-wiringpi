@@ -797,27 +797,32 @@ LCD displays connected to your Raspberry Pi.
 Please see the linked documentation for information regarding the parameters
 required.
  
-=head2 oled([$model], [$i2c_addr])
- 
+=head2 oled([$model], [$i2c_addr], [$display_splash_page])
+
 Returns a specific C<RPi::OLED::SSD1306> OLED display object, allowing you to
 display text, characters and shapes to the screen.
- 
+
 Currently, only the C<128x64> size model is offered, see the
 L<RPi::OLED::SSD1306::128_64> documentation for full usage details.
- 
+
 Parameters:
- 
+
     $model
- 
+
 Optional, String: The screen size of the OLED you've got. Valid options are
 C<128x64>, C<128x32> and C<96x16>. Currently, only the C<128x64> option is
 valid, and it's the default if not sent in.
- 
+
     $i2c_addr
- 
+
 Optional, Integer: The I2C address of your display. Defaults to C<0x3C> if not
 sent in.
- 
+
+    $display_splash_page
+
+Optional, Bool: Whether to display the splash page when the display is
+initialized. Defaults to true (C<1>); send in C<0> to skip it.
+
 =head2 pin($pin_num, $comment)
 
 Returns a L<RPi::Pin> object, mapped to a specified GPIO pin, which
@@ -1247,10 +1252,9 @@ spans several pins it lives on the Pi object, not on a single pin. See
 C<background_interrupts> in L<WiringPi::API> for details.
 
 B<Dependency note:> the per-pin C<< $pin->background_interrupt >> form referenced
-above is not yet available - L<RPi::Pin> (as of C<2.3608>) implements only
-C<set_interrupt>, so a future C<RPi::Pin> release must ship the method before it
-can be used. Until then, drive multiple pins from a single child with this
-C<< $pi->background_interrupts >> method.
+above requires L<RPi::Pin> C<2.3609> or greater (the version this distribution
+already requires). To drive multiple pins from a single background child rather
+than one child per pin, use this C<< $pi->background_interrupts >> method.
 
 =head3 worker(\&body, \%opts)
 

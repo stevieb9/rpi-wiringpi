@@ -217,7 +217,7 @@ different scripts and processes easily.
 
 =head1 SYNOPSIS
 
-    my $pi = RPi::WiringPi;
+    my $pi = RPi::WiringPi->new;
 
     my %data = (a => 1, b => 2, c => [1, 2, 3]);
 
@@ -381,6 +381,8 @@ empty segment, so this is safe to call mid-process.
 
 Returns: True C<1> if a segment was removed, or C<undef> if there was no live
 segment to remove.
+
+=head1 AUTHOR
 
 Steve Bertrand, E<lt>steveb@cpan.orgE<gt>
 

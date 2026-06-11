@@ -10,11 +10,11 @@ object-oriented [RPi::WiringPi](https://metacpan.org/pod/RPi%3A%3AWiringPi). The
 
 This document is **edge-only and uses no** `use threads` - general
 concurrency/worker examples (`$pi->worker`) live in
-[RPi::WiringPi::WORKERS](https://metacpan.org/pod/RPi%3A%3AWiringPi%3A%3AWORKERS) / `docs/threads-examples.md`. Callbacks fire in your
+[RPi::WiringPi::WORKERS](https://metacpan.org/pod/RPi%3A%3AWiringPi%3A%3AWORKERS) / `docs/examples/threads-examples.md`. Callbacks fire in your
 own interpreter when you service dispatch, so they work on **any** Perl, threaded
 or not.
 
-This is the `perldoc` form of `docs/interrupt-examples.md`. See [RPi::WiringPi](https://metacpan.org/pod/RPi%3A%3AWiringPi)
+This is the `perldoc` form of `docs/examples/interrupt-examples.md`. See [RPi::WiringPi](https://metacpan.org/pod/RPi%3A%3AWiringPi)
 for the per-method reference, and the underlying [WiringPi::API](https://metacpan.org/pod/WiringPi%3A%3AAPI) for the
 low-level functional API.
 
@@ -100,10 +100,10 @@ you need it to fire even then, use a background process (below).
 # BACKGROUND HANDLING (ONE PROCESS, FIRES EVEN WHILE MAIN IS BUSY)
 
 **Dependency note:** the per-pin `$pin->background_interrupt` form shown in
-this section is not available yet - [RPi::Pin](https://metacpan.org/pod/RPi%3A%3APin) (as of `2.3608`) implements only
-`set_interrupt`. A future `RPi::Pin` release must ship the method first. Until
-then, use the multi-pin `$pi->background_interrupts` form
-(["MANY PINS IN ONE BACKGROUND CHILD"](#many-pins-in-one-background-child)), which works today.
+this section requires [RPi::Pin](https://metacpan.org/pod/RPi%3A%3APin) `2.3609` or greater (the version this
+distribution already requires). To handle several pins, the multi-pin
+`$pi->background_interrupts` form (["MANY PINS IN ONE BACKGROUND CHILD"](#many-pins-in-one-background-child))
+runs them all from a single child instead of one child per pin.
 
 `$pin->background_interrupt` forks a child that runs the handler on each edge
 while your main program does anything it likes. The handler runs in the child, so
@@ -249,7 +249,7 @@ come from `RPi::Const qw(:all)`.
 
 [RPi::WiringPi](https://metacpan.org/pod/RPi%3A%3AWiringPi), [RPi::WiringPi::WORKERS](https://metacpan.org/pod/RPi%3A%3AWiringPi%3A%3AWORKERS) (running background work with
 `$pi->worker`), the [RPi::WiringPi::FAQ](https://metacpan.org/pod/RPi%3A%3AWiringPi%3A%3AFAQ) "Interrupt usage" section,
-`docs/interrupt-examples.md`, and the underlying [WiringPi::API](https://metacpan.org/pod/WiringPi%3A%3AAPI).
+`docs/examples/interrupt-examples.md`, and the underlying [WiringPi::API](https://metacpan.org/pod/WiringPi%3A%3AAPI).
 
 # AUTHOR
 
