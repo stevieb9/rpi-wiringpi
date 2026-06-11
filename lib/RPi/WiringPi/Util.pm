@@ -26,7 +26,7 @@ sub pin_map {
 
     $scheme = $self->pin_scheme if ! defined $scheme;
 
-    return {} if $scheme eq RPI_MODE_UNINIT;
+    return {} if $scheme == RPI_MODE_UNINIT;
 
     if (defined $self->{pin_map_cache}{$scheme}) {
         return $self->{pin_map_cache}{$scheme};

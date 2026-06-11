@@ -304,6 +304,9 @@ Revision history for Perl extension RPi::WiringPi.
         - bin/pinmap now skips physical pins absent from the pin map instead
           of warning on an uninitialized value; bin/pimetaerase cosmetic
           defined-or fixes (// instead of //=)
+        - Pin scheme comparisons are now consistently numeric; pin_map() in
+          Util.pm compared the scheme enum with eq while everything else
+          uses == (no behavior change)
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
