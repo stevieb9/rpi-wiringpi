@@ -13,7 +13,7 @@ rpi_sudo_check();
 my $mod = 'RPi::WiringPi';
 
 if ($> == 0){
-    $ENV{PI_BOARD} = 1;
+    $ENV{RPI_BOARD} = 1;
     $ENV{RPI_ADC} = 1;
 }
 
@@ -21,7 +21,7 @@ if (! $ENV{RPI_ADC}){
     plan skip_all => "RPI_ADC environment variable not set\n";
 }
 
-if (! $ENV{PI_BOARD}){
+if (! $ENV{RPI_BOARD}){
     $ENV{NO_BOARD} = 1;
     plan skip_all => "Not on a Pi board\n";
 }

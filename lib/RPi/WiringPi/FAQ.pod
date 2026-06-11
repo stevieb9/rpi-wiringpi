@@ -1281,12 +1281,12 @@ default, L<RPi::WiringPi> uses C<rpiw>.
 
 =head2 Test file reference
 
-Every test in the suite requires C<PI_BOARD> to run at all; see L</Base
+Every test in the suite requires C<RPI_BOARD> to run at all; see L</Base
 information> below. C<RPI_OBJECT_COUNT> and C<RPI_PIN_COUNT> are optional and
 default to C<0> when unset (only needed if an auto-startup object pre-exists in
 shared memory). The C<Additional env vars> column lists only the I<extra>
-variables a given test needs on top of C<PI_BOARD> - if it reads C<(none)>,
-C<PI_BOARD> alone is sufficient. Tests marked C<RPI_SUDO> re-run themselves under
+variables a given test needs on top of C<RPI_BOARD> - if it reads C<(none)>,
+C<RPI_BOARD> alone is sufficient. Tests marked C<RPI_SUDO> re-run themselves under
 C<sudo> automatically.
 
     Test file                                    What it tests                        Additional env vars
@@ -1376,7 +1376,7 @@ Before running the tests, you need to set a special environment variable so that
 we know we're on a Pi board. This ensures CPAN testers won't run the tests
 across all of its platforms:
 
-    export PI_BOARD=1
+    export RPI_BOARD=1
 
 Personally, I set all the environment variables in my C</etc/environment> file.
 
@@ -1578,7 +1578,7 @@ Now you can carry on installing L<Test::BrewBuild> in the normal way:
 
     cpanm Test::BrewBuild
 
-First, on the Pi you're running, you need to set the C<PI_BOARD> environment
+First, on the Pi you're running, you need to set the C<RPI_BOARD> environment
 variable to ensure all tests run. I set this to C<1> in C</etc/environment>.
 
 NEXT, install C<Test::BrewBuild>. Then, start the C<bbtester> software in the
@@ -1632,7 +1632,7 @@ environment variables for the full test platform. For LCD, the last two digits
 (4, 20) are for four row, 20 column units. If you only have a two row by 16
 column unit, leave those last two digits off.
 
-    PI_BOARD=1
+    RPI_BOARD=1
     RPI_RELEASE_TESTING=1
     RPI_OBJECT_COUNT=0
     RPI_PIN_COUNT=0
@@ -1671,7 +1671,7 @@ registrations for example.
 
 Both C<RPI_OBJECT_COUNT> and C<RPI_PIN_COUNT> are B<optional>; when unset they
 default to C<0> (the normal case, where nothing else is registered in shared
-memory). They are not a run gate - C<PI_BOARD> decides whether the suite runs.
+memory). They are not a run gate - C<RPI_BOARD> decides whether the suite runs.
 Only set them if an auto-startup script genuinely holds registrations before the
 suite starts; the value must then reflect reality, since the registration tests
 (eg. C<t/110-register.t>) compare the live object/pin counts in shared memory
@@ -1680,7 +1680,7 @@ object is actually registered produces C<< got '0', expected '1' >> style
 failures - so when in doubt, leave them unset (or C<0>). Running an individual
 test by hand needs only:
 
-    PI_BOARD=1 prove -lv t/110-register.t
+    RPI_BOARD=1 prove -lv t/110-register.t
 
 C<RPI_SUDO> enables and disables PWM tests.
 

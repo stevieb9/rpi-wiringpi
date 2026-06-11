@@ -328,6 +328,10 @@ Revision history for Perl extension RPi::WiringPi.
           stabilization), t/330 (register reset); t/210's disarm quiet
           windows and t/925's human-visible display pause are deliberate and
           now documented as such
+        - The test suite board gate is now RPI_BOARD, renamed from PI_BOARD
+          across the entire RPi:: ecosystem; the old name is no longer
+          honored. Update /etc/environment (or wherever the suite gate is
+          set) accordingly. FAQ and Core POD updated
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
