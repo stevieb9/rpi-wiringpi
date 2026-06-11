@@ -311,6 +311,9 @@ Revision history for Perl extension RPi::WiringPi.
           tree in WiringPi.pm and Core.pm (depth-first; WiringPi::API is
           searched before Meta/Util/RPi::SysInfo), including why
           use mro 'c3' is not currently a drop-in change (comments only)
+        - The interrupt tests (t/200-209) now count callback fires in a file
+          lexical instead of $ENV{PI_INTERRUPT}, which read as if it were an
+          env var gate like PI_BOARD/RPI_*
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to

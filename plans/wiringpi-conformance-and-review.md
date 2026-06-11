@@ -1,8 +1,8 @@
 # Plan: RPi sibling API-conformance to new WiringPi::API + rpi-wiringpi review
 
-> **NEXT ACTION:** 🤚 V24 (USER) is the only open task — all Claude-owned V tasks are complete. Backlog B8-B15 remains for future promotion (user directive 2026-06-11: work backlog in numeric order; B8 is next).
-> **LAST SESSION:** V38 done (B7 promoted, user chose document-over-c3) — MRO comment blocks added at the `use parent` declarations in WiringPi.pm (full DFS linearization, cross-branch override rule, why `use mro 'c3'` is not drop-in: hierarchy is C3-inconsistent, verified live) and Core.pm (pointer note). Symbol table audit: only meaningful cross-branch name is `new()` (WiringPi::API vs RPi::SysInfo), shadowed by RPi::WiringPi's own new(). F40 resolved; Changes updated. Uncommitted.
-> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1-V14, V20-V23, V25-V38 (less 🤚V24)
+> **NEXT ACTION:** 🤚 V24 (USER) is the only open task — all Claude-owned V tasks are complete. Backlog B8, B10-B15 remains (numeric order per user directive 2026-06-11; B8 skipped 2026-06-11 — user confirmed it stays deferred to the future major version — so B10 is next).
+> **LAST SESSION:** V39 done (B9 promoted) — t/200-209 interrupt callback counter renamed from `$ENV{PI_INTERRUPT}` to file lexical `$interrupts` (t/207's inline callback just dropped its dead env write; t/208's poll_until closures now spin on the lexical). Full t/200-209 live run: 465 tests green. Changes updated. Uncommitted.
+> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1-V14, V20-V23, V25-V39 (less 🤚V24)
 
 ## Context
 
@@ -100,7 +100,7 @@ _New test findings (V22):_
 - ✅ RESOLVED (V29) **F35** [med] (→V29): `t/140-pwm_spi_adc.t`, `t/109-pwm_hw_mods.t`, `t/325-servo.t` set PI_BOARD/RPI_ADC/RPI_SERVO under root but then `rpi_i2c_check()` skips unless `RPI_I2C` (the ADS1115 feedback is I2C) — `RPI_I2C` is not auto-set, so root runs silently skip these. Auto-set or document.
 - ✅ RESOLVED (V30) **F36** [med] (→V30): only `t/325-servo.t:66-75` guards cleanup with eval+INT/TERM; other device tests (t/310/335/345/305/925) skip `$pi->cleanup` if an assertion dies mid-loop, leaking pin/CS registration into shared meta. Adopt the guard or `END { $pi->cleanup if $pi }`.
 - ✅ RESOLVED (V30) **F37** [med] (→V30): all tests share `shm_key 'rpit'` and many drive the same physical pins (GPIO18 in 12+ tests; 12/26 in several), and t/110-114 assert absolute object/pin counts — the suite is implicitly serial-only; `prove -j` would corrupt counts and fight over pins. Document the `-j1` requirement.
-- (low/cosmetic test items folded to backlog: B9 `PI_INTERRUPT` in-process counter naming, B10 pod tests double-gated on `RPI_RELEASE_TESTING`+`RPI_POD`, B11 t/109↔t/140 near-duplicate with divergent acceptance bands, B12 fixed-`sleep` brittleness → poll-until loops.)
+- (low/cosmetic test items folded to backlog: B9 `PI_INTERRUPT` in-process counter naming ✅ RESOLVED (V39), B10 pod tests double-gated on `RPI_RELEASE_TESTING`+`RPI_POD`, B11 t/109↔t/140 near-duplicate with divergent acceptance bands, B12 fixed-`sleep` brittleness → poll-until loops.)
 
 _From the completeness debate (challenger Claude Fable 5, executed checks; see proposal/wiringpi-plan-completeness-audit.md):_
 - ✅ RESOLVED (V31) **F41** [RELEASE-BLOCKING] (→V31): `MANIFEST:40,46,151` list `docs/interrupt-examples.md`, `docs/threads-examples.md`, `t/README` — none exist (`ls` fails on all three; the two examples moved to `docs/examples/`, which are NOT in MANIFEST). `make distdir`→`manicopy` croaks → the 3.1802 tarball can't be cut, and post-F26 the POD links point at files the tarball wouldn't ship. Same file-move as F26. Verified by originator.
@@ -121,8 +121,6 @@ _From the V33 residual exhaustive pass (4 parallel reviewers over all 69 t/*.t +
 ## Backlog
 
 B8: Normalize `PI_BOARD`/`PI_INTERRUPT` → `RPI_*` prefix in a future major version with back-compat (F13).
-
-B9: Rename the in-process `$ENV{PI_INTERRUPT}` callback counter (t/200–209) to a lexical to stop implying it's an env gate.
 
 B10: Drop the redundant `rpi_pod_check()`/`RPI_POD` second gate from t/500/505/510 so `RPI_RELEASE_TESTING` alone enables POD checks (or document the dual requirement).
 

@@ -12,13 +12,12 @@ rpi_running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
 
-BEGIN {
-    my $c;
+# In-process interrupt callback counter (a file lexical, not an env var gate)
 
-    sub handler {
-        $c++;
-        $ENV{PI_INTERRUPT} = $c;
-    }
+my $interrupts = 0;
+
+sub handler {
+    $interrupts++;
 }
 
 my $pi = $mod->new(
@@ -60,7 +59,7 @@ if (! $ENV{NO_BOARD}){
     my $dispatched = $pi->dispatch_interrupts();
 
     is $dispatched, $edges, "dispatch_interrupts() returned $edges dispatched ok";
-    is $ENV{PI_INTERRUPT}, $edges,
+    is $interrupts, $edges,
         "callback fired $edges times without wait_interrupts ok";
 
     # nothing left pending - a second drain reports zero
@@ -68,7 +67,7 @@ if (! $ENV{NO_BOARD}){
     my $empty = $pi->dispatch_interrupts();
 
     is $empty, 0, "dispatch_interrupts() returns 0 when nothing pending ok";
-    is $ENV{PI_INTERRUPT}, $edges, "callback not re-fired on empty drain ok";
+    is $interrupts, $edges, "callback not re-fired on empty drain ok";
 }
 
 $pi->cleanup;

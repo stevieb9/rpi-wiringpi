@@ -12,13 +12,12 @@ rpi_running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
 
-BEGIN {
-    my $c;
+# In-process interrupt callback counter (a file lexical, not an env var gate)
 
-    sub handler {
-        $c++;
-        $ENV{PI_INTERRUPT} = $c;
-    }
+my $interrupts = 0;
+
+sub handler {
+    $interrupts++;
 }
 
 my $pi = $mod->new(
@@ -68,7 +67,7 @@ if (! $ENV{NO_BOARD}){
     select(undef, undef, undef, 0.1);
 
     is $pi->dispatch_interrupts(), $edges, "burst of $edges all dispatched ok";
-    is $ENV{PI_INTERRUPT}, $edges, "callback fired $edges times ok";
+    is $interrupts, $edges, "callback fired $edges times ok";
     is $pi->interrupt_dropped(), 0, "no interrupts dropped ok";
 
     # restore the baseline capacity
