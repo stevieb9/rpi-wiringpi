@@ -44,6 +44,8 @@
 
 - V39: interrupt test counter lexical (B9 promoted) — t/200-206/208/209 BEGIN-scoped `$ENV{PI_INTERRUPT} = $c` handler replaced with file lexical `my $interrupts = 0` (clarifying comment added); t/207's inline callback dropped its never-read env write; t/208's `|| 0` guards and poll_until closures converted to the lexical; zero `PI_INTERRUPT` references remain repo-wide — ✅ 2026-06-11 attempt 1: PASS (full t/200-209 live on pin 18: 10 files, 465 tests green incl. t/207 fork-burst and t/208 SIGIO/SIGUSR1 auto-dispatch)
 
+- V40: POD test single gate (B10 promoted; drop-the-gate option) — `rpi_pod_check()` calls removed from t/500/505/510 so `RPI_RELEASE_TESTING` alone enables POD tests; the now-dead `rpi_pod_check()` sub and its `@EXPORT` entry removed from RPiTest.pm; FAQ.pod updated (3 test-table rows, `RPI_POD=1` dropped from the /etc/environment example, description paragraph removed) and docs/pod/FAQ.md regenerated via gen-pod-md.pl — ✅ 2026-06-11 attempt 1: PASS (env -u RPI_POD RPI_RELEASE_TESTING=1: all 3 files run rather than skip, 26 tests green — same count as V28's dual-gated run; zero RPI_POD references remain in t/+lib/)
+
 ## Archived Fixes
 
 - Fix 5: problem discovered during V13 — rpi-serial `t/serial_rx.t` was an orphaned manual dev script in t/ (no Test::More/plan, infinite loop, hardcoded /dev/ttyUSB0, calls `rx()` which commit ad3e4bc deliberately removed); it broke `prove t` with exit 9. Not in MANIFEST, referenced nowhere — deleted. Resolved 2026-06-10 as part of V13.

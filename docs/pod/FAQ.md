@@ -1345,9 +1345,9 @@ variables a given test needs on top of `PI_BOARD` - if it reads `(none)`,
     421-eeprom_read_write_byte_croak.t           EEPROM byte r/w error handling       RPI_EEPROM
     422-eeprom_read_write_byte.t                 EEPROM byte read/write               RPI_EEPROM
     450-stepper.t                                Stepper motor (read via ADC)         RPI_STEPPER
-    500-pod_coverage.t                           POD coverage (author)                RPI_RELEASE_TESTING, RPI_POD
-    505-pod_linkcheck.t                          POD link check (author)              RPI_RELEASE_TESTING, RPI_POD
-    510-pod.t                                    POD syntax (author)                  RPI_RELEASE_TESTING, RPI_POD
+    500-pod_coverage.t                           POD coverage (author)                RPI_RELEASE_TESTING
+    505-pod_linkcheck.t                          POD link check (author)              RPI_RELEASE_TESTING
+    510-pod.t                                    POD syntax (author)                  RPI_RELEASE_TESTING
     515-manifest.t                               MANIFEST check (author)              RPI_RELEASE_TESTING
     900-oled_new.t                               OLED object creation                 RPI_OLED
     901-oled_string.t                            OLED draw string                     RPI_OLED
@@ -1633,7 +1633,6 @@ column unit, leave those last two digits off.
 
     PI_BOARD=1
     RPI_RELEASE_TESTING=1
-    RPI_POD=1
     RPI_OBJECT_COUNT=0
     RPI_PIN_COUNT=0
     RPI_SUDO=1
@@ -1681,8 +1680,6 @@ failures - so when in doubt, leave them unset (or `0`). Running an individual
 test by hand needs only:
 
     PI_BOARD=1 prove -lv t/110-register.t
-
-`RPI_POD` enables and disables POD tests.
 
 `RPI_SUDO` enables and disables PWM tests.
 

@@ -17,7 +17,6 @@ our @EXPORT = qw(
     rpi_legal_pin_count
     rpi_sudo_check
     rpi_multi_check
-    rpi_pod_check
     rpi_i2c_check
     rpi_running_test
     rpi_oled_available
@@ -76,11 +75,6 @@ sub rpi_sudo_check {
 sub rpi_multi_check {
     if (!$ENV{RPI_MULTI}) {
         plan skip_all => "RPI_MULTI environment variable not set\n";
-    }
-}
-sub rpi_pod_check {
-    if (!$ENV{RPI_POD}) {
-        plan skip_all => "RPI_POD environment variable not set\n";
     }
 }
 sub rpi_i2c_check {

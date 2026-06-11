@@ -314,6 +314,9 @@ Revision history for Perl extension RPi::WiringPi.
         - The interrupt tests (t/200-209) now count callback fires in a file
           lexical instead of $ENV{PI_INTERRUPT}, which read as if it were an
           env var gate like PI_BOARD/RPI_*
+        - RPI_RELEASE_TESTING alone now enables the POD tests (t/500/505/510);
+          the redundant RPI_POD second gate and rpi_pod_check() are removed,
+          and the FAQ env var documentation updated to match
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to

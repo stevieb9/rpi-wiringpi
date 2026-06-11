@@ -1,8 +1,8 @@
 # Plan: RPi sibling API-conformance to new WiringPi::API + rpi-wiringpi review
 
-> **NEXT ACTION:** 🤚 V24 (USER) is the only open task — all Claude-owned V tasks are complete. Backlog B8, B10-B15 remains (numeric order per user directive 2026-06-11; B8 skipped 2026-06-11 — user confirmed it stays deferred to the future major version — so B10 is next).
-> **LAST SESSION:** V39 done (B9 promoted) — t/200-209 interrupt callback counter renamed from `$ENV{PI_INTERRUPT}` to file lexical `$interrupts` (t/207's inline callback just dropped its dead env write; t/208's poll_until closures now spin on the lexical). Full t/200-209 live run: 465 tests green. Changes updated. Uncommitted.
-> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1-V14, V20-V23, V25-V39 (less 🤚V24)
+> **NEXT ACTION:** 🤚 V24 (USER) is the only open task — all Claude-owned V tasks are complete. Backlog B8, B11-B15 remains (numeric order per user directive 2026-06-11; B8 skipped — deferred to the future major version — so B11 is next).
+> **LAST SESSION:** V40 done (B10 promoted) — RPI_POD second gate dropped from t/500/505/510 (RPI_RELEASE_TESTING alone now enables POD tests); dead rpi_pod_check() + its export removed from RPiTest.pm; FAQ.pod env-var docs updated (3 table rows, env list, description paragraph) and docs/pod md regenerated. Live run with RPI_RELEASE_TESTING=1 only: all 3 files run (not skip), 26 tests green. Changes updated. Uncommitted.
+> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1-V14, V20-V23, V25-V40 (less 🤚V24)
 
 ## Context
 
@@ -100,7 +100,7 @@ _New test findings (V22):_
 - ✅ RESOLVED (V29) **F35** [med] (→V29): `t/140-pwm_spi_adc.t`, `t/109-pwm_hw_mods.t`, `t/325-servo.t` set PI_BOARD/RPI_ADC/RPI_SERVO under root but then `rpi_i2c_check()` skips unless `RPI_I2C` (the ADS1115 feedback is I2C) — `RPI_I2C` is not auto-set, so root runs silently skip these. Auto-set or document.
 - ✅ RESOLVED (V30) **F36** [med] (→V30): only `t/325-servo.t:66-75` guards cleanup with eval+INT/TERM; other device tests (t/310/335/345/305/925) skip `$pi->cleanup` if an assertion dies mid-loop, leaking pin/CS registration into shared meta. Adopt the guard or `END { $pi->cleanup if $pi }`.
 - ✅ RESOLVED (V30) **F37** [med] (→V30): all tests share `shm_key 'rpit'` and many drive the same physical pins (GPIO18 in 12+ tests; 12/26 in several), and t/110-114 assert absolute object/pin counts — the suite is implicitly serial-only; `prove -j` would corrupt counts and fight over pins. Document the `-j1` requirement.
-- (low/cosmetic test items folded to backlog: B9 `PI_INTERRUPT` in-process counter naming ✅ RESOLVED (V39), B10 pod tests double-gated on `RPI_RELEASE_TESTING`+`RPI_POD`, B11 t/109↔t/140 near-duplicate with divergent acceptance bands, B12 fixed-`sleep` brittleness → poll-until loops.)
+- (low/cosmetic test items folded to backlog: B9 `PI_INTERRUPT` in-process counter naming ✅ RESOLVED (V39), B10 pod tests double-gated on `RPI_RELEASE_TESTING`+`RPI_POD` ✅ RESOLVED (V40), B11 t/109↔t/140 near-duplicate with divergent acceptance bands, B12 fixed-`sleep` brittleness → poll-until loops.)
 
 _From the completeness debate (challenger Claude Fable 5, executed checks; see proposal/wiringpi-plan-completeness-audit.md):_
 - ✅ RESOLVED (V31) **F41** [RELEASE-BLOCKING] (→V31): `MANIFEST:40,46,151` list `docs/interrupt-examples.md`, `docs/threads-examples.md`, `t/README` — none exist (`ls` fails on all three; the two examples moved to `docs/examples/`, which are NOT in MANIFEST). `make distdir`→`manicopy` croaks → the 3.1802 tarball can't be cut, and post-F26 the POD links point at files the tarball wouldn't ship. Same file-move as F26. Verified by originator.
@@ -121,8 +121,6 @@ _From the V33 residual exhaustive pass (4 parallel reviewers over all 69 t/*.t +
 ## Backlog
 
 B8: Normalize `PI_BOARD`/`PI_INTERRUPT` → `RPI_*` prefix in a future major version with back-compat (F13).
-
-B10: Drop the redundant `rpi_pod_check()`/`RPI_POD` second gate from t/500/505/510 so `RPI_RELEASE_TESTING` alone enables POD checks (or document the dual requirement).
 
 B11: Cross-reference / reconcile the near-duplicate PWM tests t/109 (asserts below MAX_IN) vs t/140 (asserts per-PWM windows) so a recalibration updates both. Also fix t/109's vacuous `is $o >= -1, 1` lower bounds while in there (F52).
 
