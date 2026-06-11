@@ -112,8 +112,7 @@ sub pwm_range {
 
     $self->_pwm_in_use(1);
 
-    #FIXME: add const
-    return defined $self->{pwm_range} ? $self->{pwm_range} : 1023;
+    return defined $self->{pwm_range} ? $self->{pwm_range} : PWM_DEFAULT_RANGE;
 }
 sub pwm_clock {
     my ($self, $divisor) = @_;
@@ -150,7 +149,7 @@ sub pwm_mode {
         $self->_pwm_in_use(1);
     }
 
-    return defined $self->{pwm_mode} ? $self->{pwm_mode} : 1;
+    return defined $self->{pwm_mode} ? $self->{pwm_mode} : PWM_DEFAULT_MODE;
 }
 sub registered_pins {
     return $_[0]->_pin_registration;

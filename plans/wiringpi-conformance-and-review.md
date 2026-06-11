@@ -1,8 +1,8 @@
 # Plan: RPi sibling API-conformance to new WiringPi::API + rpi-wiringpi review
 
-> **NEXT ACTION:** V24 — version bump 3.1801_01→3.1802 in 4 modules + reconcile Makefile.PL WiringPi::API prereq (F15); note release-ordering caveat (installed API is trial 3.1802_01).
-> **LAST SESSION:** V23 done — all 5 HIGH bugs fixed in Core.pm/WiringPi.pm (F16 SUPER::gpio_layout, F17 pwm_mode getter + in-use mark moved to set path, F18 `||` guard, F19 per-uuid pin cleanup, F42 defined-check on RPI_PIN_MODE). Changes updated (5 entries). Verified: 331 tests pass (t/100/105/106/110/150/153 + more); live root checks of F16/F17/F18/F42 all green. t/109+t/140 still skip on RPI_I2C (F35→V29; ADS1115 dark per V10 note). Uncommitted.
-> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1-V14, V20-V23, V31
+> **NEXT ACTION:** V26 — robustness fixes: meta lock exception-safety (F20), meta_get conditional-`my` UB (F21), signal handler restore/leak (F22), `_fatal_exit` global (F23), io_led/pwr_led backtick sudo (F24). (V24 version bump is 🤚 USER-owned — skip it.)
+> **LAST SESSION:** V25 done — F10 constified: `pwm_range` default → PWM_DEFAULT_RANGE, `pwm_mode` fallback → PWM_DEFAULT_MODE; FIXME removed. Changes updated. Verified live as root (1023/1) + t/105/t/150 pass (t/109 still RPI_I2C-gated → V29). Uncommitted.
+> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1-V14, V20-V23, V25, V31
 
 ## Context
 
@@ -41,8 +41,7 @@ Empirical conformance check for Part A = build + run each dependent sibling's te
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V24 | **Version bump** — set `$VERSION` `3.1801_01`→`3.1802` in WiringPi.pm/Core.pm/Util.pm/Meta.pm; reconcile `Makefile.PL` `WiringPi::API` prereq (F15). **Caveat:** installed reference is `3.1802_01` (a *trial* with underscore); rpi-wiringpi 3.1802 cannot be released against a dev-only API CPAN can't index — a non-trial WiringPi::API must ship first | `cd ~/repos/rpi-wiringpi && grep -rn "3.1801_01" lib/` | All four modules at 3.1802; prereq reconciled; release-ordering noted | ⏳ |
-| V25 | **Constify magic defaults** (F10) — Core.pm `1023`→`PWM_DEFAULT_RANGE` (the `#FIXME: add const` at ~line 115) and `pwm_mode` fallback `1`→`PWM_DEFAULT_MODE` | `cd ~/repos/rpi-wiringpi && PI_BOARD=1 RPI_OBJECT_COUNT=<n> prove -bl t/109*` | No magic numbers; tests pass | ⏳ |
+| V24 | **Version bump** — set `$VERSION` `3.1801_01`→`3.1802` in WiringPi.pm/Core.pm/Util.pm/Meta.pm; reconcile `Makefile.PL` `WiringPi::API` prereq (F15). **Caveat:** installed reference is `3.1802_01` (a *trial* with underscore); rpi-wiringpi 3.1802 cannot be released against a dev-only API CPAN can't index — a non-trial WiringPi::API must ship first | `cd ~/repos/rpi-wiringpi && grep -rn "3.1801_01" lib/` | All four modules at 3.1802; prereq reconciled; release-ordering noted | 🤚 USER — Steve will do this manually once all libraries are up to date. Claude: do NOT execute; skip to next ⏳ |
 | V26 | **Robustness fixes** in rpi-wiringpi: meta lock not exception-safe → stale lock (F20), `meta_get` conditional-`my` UB (F21), signal handlers never restored / non-CODE dispositions dropped / leak (F22), `_fatal_exit` process-global last-writer-wins (F23), `io_led`/`pwr_led` backtick `sudo` with no error check (F24) | `cd ~/repos/rpi-wiringpi && PI_BOARD=1 RPI_OBJECT_COUNT=<n> prove -bl t/03* t/100* t/150* t/153*` | Lock guaranteed-release; handlers restored; led failures surfaced; tests pass | ⏳ |
 | V27 | **README + generated md regen** — regenerate README from current WiringPi.pm POD (fixes stale signal/cleanup/version/`new()` text, F25) and run `perl scripts/gen-pod-md.pl` to refresh stale `docs/pod/WiringPi.md` + `FAQ.md` (F14) | `cd ~/repos/rpi-wiringpi && perl scripts/gen-pod-md.pl && git status` | README matches POD; pod/*.md in sync | ⏳ |
 | V28 | **POD source fixes** — broken example-doc paths in INTERRUPTS.pod/FAQ.pod (F26), invalid `RPi::WiringPi;` constructor in Meta.pm/FAQ (F27), `my gps`/`$ruler`/`$sensor` example errors (F28), Meta.pm missing `=head1 AUTHOR` (F29), `oled()` undocumented 3rd param (F30), `pwm_mode` 0/1 mapping vs constants (F31), RPi::Pin 2.3609 `background_interrupt` caveat (F32) | `cd ~/repos/rpi-wiringpi && RPI_RELEASE_TESTING=1 RPI_POD=1 prove -bl t/500* t/505* t/510*` | POD examples valid; links resolve; POD tests pass | ⏳ |
@@ -71,7 +70,7 @@ Permanent audit ledger. Mark in place as resolved; never renumber.
 **Part B — rpi-wiringpi review (V20–V22 complete; findings below).** Severity in brackets.
 
 _Seeded findings, confirmed/refined by review:_
-- **F10** [low] (→V25): `Core.pm:115` `#FIXME: add const` — magic `1023` default should be `PWM_DEFAULT_RANGE` (RPi::Const, == 1023). Same smell at `pwm_mode` fallback `: 1` (→ `PWM_DEFAULT_MODE`). Value is correct; constify for consistency.
+- ✅ RESOLVED (V25) **F10** [low] (→V25): `Core.pm:115` `#FIXME: add const` — magic `1023` default should be `PWM_DEFAULT_RANGE` (RPi::Const, == 1023). Same smell at `pwm_mode` fallback `: 1` (→ `PWM_DEFAULT_MODE`). Value is correct; constify for consistency.
 - **F11** [low] (→V29): `t/300-i2c_exceptions.t:19` skip message says `RPI_ARUDINO` though the gate (line 18) correctly reads `RPI_ARDUINO` — diagnostic tells user to set a nonexistent var.
 - **F12** [med] (→V29): `t/RPiTest.pm:258,273,291,306,326,341` delete GPIO 12 & 26 from every board's `rpi_default_pin_config` with a bare `#FIXME` — so `rpi_verify_pin_status` never reset-checks them. But 12 = MCP4922 DAC CS and 26 = MCP3008 ADC CS (per `docs/test-platform/test-pinout-doc.md:56,70`), actively driven by t/310/335 — i.e. the two pins most likely left asserted are the two excluded. **Root cause of the "stale hardware state" failures.** Restore real idle values or document + add targeted assertion.
 - **F13** [low] (→backlog B8): `PI_BOARD`/`PI_INTERRUPT` use the `PI_` prefix vs the prevailing `RPI_*`. Verified **no dead gate** — purely cosmetic. Normalize only in a future major with back-compat.
