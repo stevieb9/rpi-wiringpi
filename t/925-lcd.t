@@ -57,6 +57,9 @@ $lcd->print("hello, world!");
 $lcd->position(0, 1);
 $lcd->print("line two!");
 
+# Deliberate human-visible pause (not a settle window) - the text just
+# printed is meant to be eyeballed on the panel before it's cleared
+
 sleep 2;
 
 $lcd->clear;

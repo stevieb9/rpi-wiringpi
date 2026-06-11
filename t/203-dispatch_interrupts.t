@@ -34,8 +34,8 @@ if (! $ENV{NO_BOARD}){
 
     # dispatch_interrupts() is non-blocking: it drains whatever the ISR thread
     # has already queued and fires the callbacks, with no wait_interrupts() in
-    # the loop. Pre-fill a known number of rising edges, settle so the ISR
-    # thread has written every record, then drain in a single call.
+    # the loop. Pre-fill a known number of rising edges, then poll-drain
+    # (bounded) until the ISR thread has delivered every record.
 
     my $edges = 3;
 
@@ -52,13 +52,18 @@ if (! $ENV{NO_BOARD}){
         select(undef, undef, undef, 0.02);
     }
 
-    # let the ISR thread finish queuing every edge before we drain
+    # Poll-drain: accumulate non-blocking drains until every edge has been
+    # dispatched, or ~2s elapses (replaces a fixed 0.1s settle window)
 
-    select(undef, undef, undef, 0.1);
+    my $dispatched = 0;
 
-    my $dispatched = $pi->dispatch_interrupts();
+    for (1 .. 40){
+        $dispatched += $pi->dispatch_interrupts();
+        last if $dispatched >= $edges;
+        select(undef, undef, undef, 0.05);
+    }
 
-    is $dispatched, $edges, "dispatch_interrupts() returned $edges dispatched ok";
+    is $dispatched, $edges, "dispatch_interrupts() dispatched $edges total ok";
     is $interrupts, $edges,
         "callback fired $edges times without wait_interrupts ok";
 

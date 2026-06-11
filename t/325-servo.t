@@ -82,7 +82,18 @@ if (! $ENV{NO_BOARD}) {
     my $ok = eval {
         $servo->pwm(LEFT);
 
-        sleep 5;
+        # Poll (bounded ~6s) until the servo's feedback settles at LEFT -
+        # two consecutive reads within half a percent of each other -
+        # instead of a fixed sleep 5
+
+        my $prev = $adc->percent(ANALOG);
+
+        for (1 .. 60){
+            select(undef, undef, undef, 0.1);
+            my $cur = $adc->percent(ANALOG);
+            last if abs($cur - $prev) < 0.5;
+            $prev = $cur;
+        }
 
         for (LEFT .. RIGHT){
             # Sweep all the way left to right

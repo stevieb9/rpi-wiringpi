@@ -596,9 +596,28 @@ my $o = $pi->expander(0x20);
 
 { # default_registers.t
 
-    # let GPIO state registers reset after toggling pullups
+    # Poll (bounded ~6s) until the GPIO state registers reset after the
+    # pullup toggling above, instead of a fixed sleep; the per-register
+    # assertions below still run in full
 
-    sleep 3;
+    for (1 .. 60){
+        my $settled = 1;
+
+        for my $reg (0x00 .. 0x15){
+            my $want =
+                ($reg == MCP23017_IODIRA || $reg == MCP23017_IODIRB)
+                ? 0xFF
+                : 0x00;
+
+            if ($o->register($reg) != $want){
+                $settled = 0;
+                last;
+            }
+        }
+
+        last if $settled;
+        select(undef, undef, undef, 0.1);
+    }
 
     for (0x00..0x15){
         if ($_ == MCP23017_IODIRA || $_ == MCP23017_IODIRB){

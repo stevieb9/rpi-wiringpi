@@ -322,6 +322,12 @@ Revision history for Perl extension RPi::WiringPi.
           so a hardware recalibration updates both tests in one place; t/109's
           unfailable `>= -1` lower bounds replaced with real duty-tracking
           windows (the flat ceiling of 40 is now ~17 at peak)
+        - Fixed settle sleeps replaced with bounded poll-until loops where a
+          pollable condition exists: t/203 (poll-drain), t/210 (drive-until-
+          tally on re-arm), t/305 (eeprom readback), t/325 (servo feedback
+          stabilization), t/330 (register reset); t/210's disarm quiet
+          windows and t/925's human-visible display pause are deliberate and
+          now documented as such
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
