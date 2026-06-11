@@ -1,8 +1,8 @@
 # Plan: RPi sibling API-conformance to new WiringPi::API + rpi-wiringpi review
 
-> **NEXT ACTION:** V30 — test robustness: cleanup-on-death guards in device tests (F36); document the serial-only `-j1` requirement (F37). (V24 version bump is 🤚 USER-owned — skip it.)
-> **LAST SESSION:** V29 done — F11 RPI_ARDUINO skip-msg typo; F33 t/920 now checks the real /dev/shm lock path; F12 pins 12/26 restored to all 3 board tables + all 4 verification lists as mode-only checks (`state => undef`; level depends on attached device — root cause of the old "flipping"); rpi_check/verify/reset all honour undef state; F34 verify now note()s the offending pin+field; F35 rpi_i2c_check skip msg documents the ADS1115 requirement. Sweep grew 1389→1443 tests, all pass (12/26 mode asserts now in every footer). Uncommitted.
-> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1-V14, V20-V23, V25-V29, V31
+> **NEXT ACTION:** V32 — `new()` `setup` param (F47): case-insensitive matching + croak on unrecognized; document in POD. (V24 version bump is 🤚 USER-owned — skip it.)
+> **LAST SESSION:** V30 done — F36: END cleanup guard (`END { $pi->cleanup if $pi && ! $pi->{clean}; }`) added to t/305/310/335/345/925 (live experiment first proved the V26 _meta_txn work already made the library END reap reliable on mid-test death — guard is belt-and-braces); all 5 syntax-check + gate-skip clean. F37: serial-only/-j1 warning documented in t/RPiTest.pm header. Full sweep 1443 tests pass. Uncommitted.
+> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1-V14, V20-V23, V25-V30
 
 ## Context
 
@@ -42,7 +42,6 @@ Empirical conformance check for Part A = build + run each dependent sibling's te
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
 | V24 | **Version bump** — set `$VERSION` `3.1801_01`→`3.1802` in WiringPi.pm/Core.pm/Util.pm/Meta.pm; reconcile `Makefile.PL` `WiringPi::API` prereq (F15). **Caveat:** installed reference is `3.1802_01` (a *trial* with underscore); rpi-wiringpi 3.1802 cannot be released against a dev-only API CPAN can't index — a non-trial WiringPi::API must ship first | `cd ~/repos/rpi-wiringpi && grep -rn "3.1801_01" lib/` | All four modules at 3.1802; prereq reconciled; release-ordering noted | 🤚 USER — Steve will do this manually once all libraries are up to date. Claude: do NOT execute; skip to next ⏳ |
-| V30 | **Test robustness** — adopt the `t/325` eval+idempotent-cleanup+INT/TERM guard (or `END { $pi->cleanup }`) in device tests that leak on death (F36); document the serial-only `-j1` requirement given shared `shm_key 'rpit'` + fixed pins (F37) | `cd ~/repos/rpi-wiringpi && PI_BOARD=1 RPI_OBJECT_COUNT=<n> prove -bl t/310* t/335* t/345* t/305* t/925*` | Cleanup runs on failure; serial requirement documented; tests pass | ⏳ |
 | V32 | **`new()` `setup` param** (F47) — make `:50`/`:54`/`:58` match `^w`/`^g`/`^n`(one) **case-insensitively** and croak on truly-unrecognized values (do NOT blanket-croak — `'none'` is the intended uninit sentinel the suite uses); document `setup` (w/g/none + default) in WiringPi.pm POD | `cd ~/repos/rpi-wiringpi && PI_BOARD=1 RPI_OBJECT_COUNT=<n> prove -bl t/106*` + grep POD for `setup` | Unrecognized croaks; `'none'`/`'GPIO'`/`'Gpio'` all work; documented | ⏳ |
 | V33 | **Residual exhaustive pass** (F46) — full per-file line-by-line read of all 69 `t/*.t`, AND an exhaustive re-read of the large modules `WiringPi.pm` (~1290 lines) + `Core.pm` (~649) since the single-pass review proved non-exhaustive (yielded F22/F23/F42/F47) | manual review pass; append any new F# | No further material findings, or new F# logged | ⏳ |
 
@@ -101,8 +100,8 @@ _New test findings (V22):_
 - ✅ RESOLVED (V29) **F33** [med] (→V29): `t/920-oled_cleanup.t:19` checks `-e '/tmp/oled_unavailable.rpi-wiringpi'` but the lock is at `/dev/shm/...` (RPiTest.pm:46) — the test passes vacuously, never verifying the lock was removed.
 - ✅ RESOLVED (V29) **F34** [med] (→V29): `t/RPiTest.pm:198-203` `rpi_verify_pin_status` returns 0 on first mismatch without saying which pin; combined with F12 it can't see 12/26. Report the offending pin via `note()`.
 - ✅ RESOLVED (V29) **F35** [med] (→V29): `t/140-pwm_spi_adc.t`, `t/109-pwm_hw_mods.t`, `t/325-servo.t` set PI_BOARD/RPI_ADC/RPI_SERVO under root but then `rpi_i2c_check()` skips unless `RPI_I2C` (the ADS1115 feedback is I2C) — `RPI_I2C` is not auto-set, so root runs silently skip these. Auto-set or document.
-- **F36** [med] (→V30): only `t/325-servo.t:66-75` guards cleanup with eval+INT/TERM; other device tests (t/310/335/345/305/925) skip `$pi->cleanup` if an assertion dies mid-loop, leaking pin/CS registration into shared meta. Adopt the guard or `END { $pi->cleanup if $pi }`.
-- **F37** [med] (→V30): all tests share `shm_key 'rpit'` and many drive the same physical pins (GPIO18 in 12+ tests; 12/26 in several), and t/110-114 assert absolute object/pin counts — the suite is implicitly serial-only; `prove -j` would corrupt counts and fight over pins. Document the `-j1` requirement.
+- ✅ RESOLVED (V30) **F36** [med] (→V30): only `t/325-servo.t:66-75` guards cleanup with eval+INT/TERM; other device tests (t/310/335/345/305/925) skip `$pi->cleanup` if an assertion dies mid-loop, leaking pin/CS registration into shared meta. Adopt the guard or `END { $pi->cleanup if $pi }`.
+- ✅ RESOLVED (V30) **F37** [med] (→V30): all tests share `shm_key 'rpit'` and many drive the same physical pins (GPIO18 in 12+ tests; 12/26 in several), and t/110-114 assert absolute object/pin counts — the suite is implicitly serial-only; `prove -j` would corrupt counts and fight over pins. Document the `-j1` requirement.
 - (low/cosmetic test items folded to backlog: B9 `PI_INTERRUPT` in-process counter naming, B10 pod tests double-gated on `RPI_RELEASE_TESTING`+`RPI_POD`, B11 t/109↔t/140 near-duplicate with divergent acceptance bands, B12 fixed-`sleep` brittleness → poll-until loops.)
 
 _From the completeness debate (challenger Claude Fable 5, executed checks; see proposal/wiringpi-plan-completeness-audit.md):_

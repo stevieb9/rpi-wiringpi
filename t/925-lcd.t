@@ -28,6 +28,11 @@ my $pi = RPi::WiringPi->new(
     shm_key => 'rpit'
 );
 
+# Belt-and-braces: if an assertion or library call dies mid-run, release the
+# pins/registration this object holds (the library END reap is best-effort)
+
+END { $pi->cleanup if $pi && ! $pi->{clean}; }
+
 my %args = (
     cols => 20,
     rows => 4,
