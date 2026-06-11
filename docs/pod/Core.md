@@ -236,7 +236,7 @@ non-Raspberry Pi boards.
 Set to true, will bypass the `wiringPi` board checks. False will re-enable
 them.
 
-## PI\_BOARD
+## RPI\_BOARD
 
 Useful only for unit testing. Tells us that we're on Pi hardware.
 

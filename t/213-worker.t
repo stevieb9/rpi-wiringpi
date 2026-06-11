@@ -12,7 +12,7 @@ use WiringPi::API qw(read_pin write_pin);
 # $pi->worker() is a thin proxy onto WiringPi::API::worker(): it forks a child
 # that runs arbitrary Perl, tracks the returned handle on the object, and reaps
 # it in cleanup(). Every block above the final one touches no hardware and runs
-# off-Pi; the PI_BOARD-gated block at the end drives a real pin through a worker.
+# off-Pi; the RPI_BOARD-gated block at the end drives a real pin through a worker.
 
 my $mod = 'RPi::WiringPi';
 
@@ -110,15 +110,15 @@ my $mod = 'RPi::WiringPi';
 }
 
 # ---------------------------------------------------------------------------
-# Real hardware (opt-in via PI_BOARD). The OO object does GPIO setup once; the
+# Real hardware (opt-in via RPI_BOARD). The OO object does GPIO setup once; the
 # forked worker inherits the mapped GPIO and drives BCM18, which the parent
 # (sharing the hardware) reads back. cleanup() then stops the worker as part of
 # normal object teardown. Driving an unwired output pin is electrically safe.
 # ---------------------------------------------------------------------------
 
 SKIP: {
-    skip "set PI_BOARD=1 (and wire nothing to BCM18) to run the GPIO worker tests", 6
-        unless $ENV{PI_BOARD};
+    skip "set RPI_BOARD=1 (and wire nothing to BCM18) to run the GPIO worker tests", 6
+        unless $ENV{RPI_BOARD};
 
     my $pi = $mod->new(label => 't/213-worker.t', shm_key => 'rpit');
 

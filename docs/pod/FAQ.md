@@ -1280,12 +1280,12 @@ default, [RPi::WiringPi](https://metacpan.org/pod/RPi%3A%3AWiringPi) uses `rpiw`
 
 ## Test file reference
 
-Every test in the suite requires `PI_BOARD` to run at all; see ["Base
+Every test in the suite requires `RPI_BOARD` to run at all; see ["Base
 information"](#base-information) below. `RPI_OBJECT_COUNT` and `RPI_PIN_COUNT` are optional and
 default to `0` when unset (only needed if an auto-startup object pre-exists in
 shared memory). The `Additional env vars` column lists only the _extra_
-variables a given test needs on top of `PI_BOARD` - if it reads `(none)`,
-`PI_BOARD` alone is sufficient. Tests marked `RPI_SUDO` re-run themselves under
+variables a given test needs on top of `RPI_BOARD` - if it reads `(none)`,
+`RPI_BOARD` alone is sufficient. Tests marked `RPI_SUDO` re-run themselves under
 `sudo` automatically.
 
     Test file                                    What it tests                        Additional env vars
@@ -1375,7 +1375,7 @@ Before running the tests, you need to set a special environment variable so that
 we know we're on a Pi board. This ensures CPAN testers won't run the tests
 across all of its platforms:
 
-    export PI_BOARD=1
+    export RPI_BOARD=1
 
 Personally, I set all the environment variables in my `/etc/environment` file.
 
@@ -1577,7 +1577,7 @@ Now you can carry on installing [Test::BrewBuild](https://metacpan.org/pod/Test%
 
     cpanm Test::BrewBuild
 
-First, on the Pi you're running, you need to set the `PI_BOARD` environment
+First, on the Pi you're running, you need to set the `RPI_BOARD` environment
 variable to ensure all tests run. I set this to `1` in `/etc/environment`.
 
 NEXT, install `Test::BrewBuild`. Then, start the `bbtester` software in the
@@ -1631,7 +1631,7 @@ environment variables for the full test platform. For LCD, the last two digits
 (4, 20) are for four row, 20 column units. If you only have a two row by 16
 column unit, leave those last two digits off.
 
-    PI_BOARD=1
+    RPI_BOARD=1
     RPI_RELEASE_TESTING=1
     RPI_OBJECT_COUNT=0
     RPI_PIN_COUNT=0
@@ -1670,7 +1670,7 @@ registrations for example.
 
 Both `RPI_OBJECT_COUNT` and `RPI_PIN_COUNT` are **optional**; when unset they
 default to `0` (the normal case, where nothing else is registered in shared
-memory). They are not a run gate - `PI_BOARD` decides whether the suite runs.
+memory). They are not a run gate - `RPI_BOARD` decides whether the suite runs.
 Only set them if an auto-startup script genuinely holds registrations before the
 suite starts; the value must then reflect reality, since the registration tests
 (eg. `t/110-register.t`) compare the live object/pin counts in shared memory
@@ -1679,7 +1679,7 @@ object is actually registered produces `got '0', expected '1'` style
 failures - so when in doubt, leave them unset (or `0`). Running an individual
 test by hand needs only:
 
-    PI_BOARD=1 prove -lv t/110-register.t
+    RPI_BOARD=1 prove -lv t/110-register.t
 
 `RPI_SUDO` enables and disables PWM tests.
 

@@ -1,8 +1,8 @@
 # Plan: RPi sibling API-conformance to new WiringPi::API + rpi-wiringpi review
 
-> **NEXT ACTION:** 🤚 V24 (USER) is the only open task — all Claude-owned V tasks are complete. Backlog B8, B15-B16 remains (numeric order per user directive 2026-06-11; B8 skipped — deferred to the future major version — so B15 is next, in the rpi-pin sibling).
-> **LAST SESSION:** V44 done (B14 promoted; F45 note) — gen-schematic.py's two bare `open(path,'w').write(...)` sites now use `with open(...)` + OSError → clean `sys.exit` message; `import sys` added. Verified: py_compile clean; scratch-dir run wrote all 6 outputs through the new writers; no-t/-dir run exits 1 with the clean message (no traceback). No Changes entry — scripts/ is dev tooling excluded from the dist via MANIFEST.SKIP. Uncommitted.
-> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1-V14, V20-V23, V25-V44 (less 🤚V24)
+> **NEXT ACTION:** 🤚 V24 (USER) is the only open task — all Claude-owned V tasks are complete. Backlog: only B16 remains (needs a POWERED rig — servo feedback calibration; blocked while devices are dark). USER TODO: set `RPI_BOARD=1` on the rigs (`/etc/environment`); the old `PI_BOARD=1` is now inert.
+> **LAST SESSION:** V46 done (B8 promoted; F13) — **hard rename** `PI_BOARD` → `RPI_BOARD` across all 7 repos (user decision: rigs are new, legacy name decommissioned outright, NO dual-read); rpi-pin t/40's `PI_INTERRUPT` counter → file lexical (last `PI_*` var anywhere). FAQ/Core POD renamed + md regenerated; Changes updated in all 7 repos; B8.md stamped EXECUTED. Verified live with `RPI_BOARD=1` only: rpi-wiringpi subset 219 tests incl. t/213 HW worker; legacy `PI_BOARD=1` now skips (intended); rpi-sysinfo full 244; wiringpi-api + rpi-dht11 subsets; rpi-pin sudo re-exec 7 tests incl. new lexical. Zero `PI_BOARD`/`PI_INTERRUPT` in code ecosystem-wide. Uncommitted in all 7 repos.
+> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1-V14, V20-V23, V25-V46 (less 🤚V24)
 
 ## Context
 
@@ -66,7 +66,7 @@ _Seeded findings, confirmed/refined by review:_
 - ✅ RESOLVED (V25) **F10** [low] (→V25): `Core.pm:115` `#FIXME: add const` — magic `1023` default should be `PWM_DEFAULT_RANGE` (RPi::Const, == 1023). Same smell at `pwm_mode` fallback `: 1` (→ `PWM_DEFAULT_MODE`). Value is correct; constify for consistency.
 - ✅ RESOLVED (V29) **F11** [low] (→V29): `t/300-i2c_exceptions.t:19` skip message says `RPI_ARUDINO` though the gate (line 18) correctly reads `RPI_ARDUINO` — diagnostic tells user to set a nonexistent var.
 - ✅ RESOLVED (V29) **F12** [med] (→V29): `t/RPiTest.pm:258,273,291,306,326,341` delete GPIO 12 & 26 from every board's `rpi_default_pin_config` with a bare `#FIXME` — so `rpi_verify_pin_status` never reset-checks them. But 12 = MCP4922 DAC CS and 26 = MCP3008 ADC CS (per `docs/test-platform/test-pinout-doc.md:56,70`), actively driven by t/310/335 — i.e. the two pins most likely left asserted are the two excluded. **Root cause of the "stale hardware state" failures.** Restore real idle values or document + add targeted assertion.
-- **F13** [low] (→backlog B8): `PI_BOARD`/`PI_INTERRUPT` use the `PI_` prefix vs the prevailing `RPI_*`. Verified **no dead gate** — purely cosmetic. Normalize only in a future major with back-compat.
+- ✅ RESOLVED (V46) **F13** [low] (→backlog B8): `PI_BOARD`/`PI_INTERRUPT` use the `PI_` prefix vs the prevailing `RPI_*`. Verified **no dead gate** — purely cosmetic. Normalize only in a future major with back-compat. Resolved 2026-06-11 as a HARD rename (no back-compat) per user decision — rigs are new and unaffected; see B8.md.
 - ✅ RESOLVED (V27) **F14** [med] (→V27): `docs/pod/WiringPi.md:342` and `docs/pod/FAQ.md:134` are stale vs source POD (e.g. md still has old serial NOTE; FAQ md keeps a `ram=i2c_arm` typo since fixed to `dtparam=i2c_arm` in source). Core/Util/Meta/INTERRUPTS/WORKERS md are in sync. Run `scripts/gen-pod-md.pl`.
 - **F15** [med] (→V24): `$VERSION = '3.1801_01'` in all four lib modules (WiringPi.pm:15, Core.pm:16, Util.pm:15, Meta.pm:11) while `Changes` top is `3.1802 UNREL`. Since `Makefile.PL` uses `VERSION_FROM` the dist would ship as trial 3.1801_01. Also confirm `Makefile.PL:65` `WiringPi::API => 3.1801` prereq is intended.
 
@@ -119,10 +119,6 @@ _From the V33 residual exhaustive pass (4 parallel reviewers over all 69 t/*.t +
 - ✅ RESOLVED (V41) **F52** [low] (→B11): `t/109:84,95` lower-bound assertions `is $o >= -1, 1` are effectively vacuous (percent can't go below 0); fold into the B11 t/109↔t/140 acceptance-band reconciliation. Fixed in V41: each sweep cycle now asserts the shared duty-tracking window from `rpi_pwm_adc_window()`.
 
 ## Backlog
-
-B8: Normalize `PI_BOARD`/`PI_INTERRUPT` → `RPI_*` prefix in a future major version with back-compat (F13).
-
-B15: rpi-pin t/15-pwm.t + t/40-interrupt_and_pud.t re-exec via `system('sudo', 'perl', $0)` when not root — bare `sudo perl` resolves to the system perl (no perlbrew/blib) and dies with "Can't locate RPi/Pin.pm". Use `$^X` and propagate -Iblib paths/env, or document that the suite must run as root (discovered during V7).
 
 B16: t/325-servo.t sweep assertions carry the F52 pattern fixed in t/109 by V41 — vacuous `is $o >= -1, 1` lower bounds and a flat `< MAX_IN` (40) ceiling. Needs servo-feedback calibration windows (the feedback is a servo pot, not PWM duty, so `rpi_pwm_adc_window()` doesn't directly apply); calibrate on a powered rig (discovered during V42).
 

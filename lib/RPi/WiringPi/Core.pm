@@ -661,7 +661,7 @@ non-Raspberry Pi boards.
 Set to true, will bypass the C<wiringPi> board checks. False will re-enable
 them.
 
-=head2 PI_BOARD
+=head2 RPI_BOARD
 
 Useful only for unit testing. Tells us that we're on Pi hardware.
 
