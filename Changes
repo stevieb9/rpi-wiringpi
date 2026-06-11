@@ -230,6 +230,24 @@ Revision history for Perl extension RPi::WiringPi.
         - pwm_range()/pwm_mode() default return values now use the
           PWM_DEFAULT_RANGE/PWM_DEFAULT_MODE constants instead of the magic
           numbers 1023/1 (resolves the long-standing FIXME)
+        - All shared-memory critical sections now run under an internal
+          _meta_txn() wrapper that guarantees meta_unlock() runs even if the
+          section dies (a die between lock and unlock previously held the
+          exclusive lock indefinitely across processes)
+        - Fixed conditional-my declaration in meta_get() ("my $x = ... if ...")
+          which is undefined behaviour and could leak a value between calls
+        - Signal handlers are now restored when the last Pi object is cleaned
+          up: cleanup() releases the object's INT/TERM entries (also freeing
+          the closure that kept the object alive), and the pre-existing
+          disposition (including 'IGNORE'/'DEFAULT'/sub-name forms, which were
+          previously dropped) is reinstated
+        - fatal_exit is now strictly per-object: the trapped-signal handler
+          re-raises only if every live object has it true, instead of a
+          process-global last-writer-wins flag that a second object's setting
+          would flip for all
+        - io_led()/pwr_led() sysfs writes now check the command exit status
+          and warn on failure instead of silently no-opping via unchecked
+          backticks
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to

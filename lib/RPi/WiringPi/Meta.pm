@@ -40,20 +40,19 @@ sub meta_erase {
 
     $all //= 0;
 
-    $self->meta_lock;
+    $self->_meta_txn(sub {
+        my ($clean_store, $storage);
 
-    my ($clean_store, $storage);
+        if ($all) {
+            $clean_store = {};
+        }
+        else {
+            $storage = $self->meta_fetch()->{storage};
+            $clean_store = defined $storage ? { storage => $storage } : {};
+        }
 
-    if ($all) {
-        $clean_store = {};
-    }
-    else {
-        $storage = $self->meta_fetch()->{storage};
-        $clean_store = defined $storage ? { storage => $storage } : {};
-    }
-
-    $self->meta_store($clean_store);
-    $self->meta_unlock;
+        $self->meta_store($clean_store);
+    });
 }
 sub meta_remove {
     # Removes the underlying shared memory segment (and its semaphore set)
@@ -102,6 +101,25 @@ sub meta_lock {
     $flags = LOCK_EX if ! defined $flags;
     $self->meta->lock($flags);
 }
+sub _meta_txn {
+    # Runs $code with the meta lock held, guaranteeing the lock is released
+    # even if $code dies (a die between lock and unlock would otherwise hold
+    # the exclusive lock indefinitely across processes). Any error is
+    # re-thrown after the unlock
+
+    my ($self, $code, $flags) = @_;
+
+    $self->meta_lock($flags);
+
+    my @ret = eval { $code->() };
+    my $err = $@;
+
+    $self->meta_unlock;
+
+    die $err if $err;
+
+    return wantarray ? @ret : $ret[0];
+}
 sub meta_unlock {
     my ($self) = @_;
     $self->meta->unlock;
@@ -141,11 +159,11 @@ sub meta_delete {
         croak "when setting a metadata slot, you must send in a name\n";
     }
 
-    $self->meta_lock;
-    my $shm = $self->meta_fetch;
-    delete $shm->{storage}{$name};
-    $self->meta_store($shm);
-    $self->meta_unlock;
+    $self->_meta_txn(sub {
+        my $shm = $self->meta_fetch;
+        delete $shm->{storage}{$name};
+        $self->meta_store($shm);
+    });
 }
 sub meta_get {
     my ($self, $name) = @_;
@@ -154,12 +172,14 @@ sub meta_get {
         croak "when getting a metadata slot, you must send in a name\n";
     }
 
-    $self->meta_lock;
-    my $shm = $self->meta_fetch;
-    my $data = { %{ $shm->{storage}{$name} }} if exists $shm->{storage}{$name};
-    $self->meta_unlock;
+    return $self->_meta_txn(sub {
+        my $shm = $self->meta_fetch;
 
-    return $data;
+        my $data;
+        $data = { %{ $shm->{storage}{$name} } } if exists $shm->{storage}{$name};
+
+        return $data;
+    });
 }
 sub meta_set {
     my ($self, $name, $data) = @_;
@@ -172,11 +192,11 @@ sub meta_set {
         croak "when setting a metadata slot, you must supply a hash reference\n";
     }
 
-    $self->meta_lock;
-    my $shm = $self->meta_fetch;
-    $shm->{storage}{$name} = { %$data };
-    $self->meta_store($shm);
-    $self->meta_unlock;
+    $self->_meta_txn(sub {
+        my $shm = $self->meta_fetch;
+        $shm->{storage}{$name} = { %$data };
+        $self->meta_store($shm);
+    });
 }
 
 sub _vim{1;};

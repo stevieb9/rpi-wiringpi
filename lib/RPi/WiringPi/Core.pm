@@ -39,15 +39,15 @@ sub io_led {
 
     if ($tweak){
         # Stop disk activity from operating the green LED
-        `echo none | sudo tee $path/trigger`;
+        $self->_led_cmd("echo none | sudo tee $path/trigger");
         # Turn on the green LED full-time
-        `echo 1 | sudo tee $path/brightness`;
+        $self->_led_cmd("echo 1 | sudo tee $path/brightness");
     }
     else {
         # Turn off the green LED from being on full-time
-        `echo 0 | sudo tee $path/brightness`;
+        $self->_led_cmd("echo 0 | sudo tee $path/brightness");
         # Restore disk activity operating the green LED
-        `echo $led->{trigger} | sudo tee $path/trigger`;
+        $self->_led_cmd("echo $led->{trigger} | sudo tee $path/trigger");
     }
 }
 sub pwr_led {
@@ -58,11 +58,11 @@ sub pwr_led {
 
     if ($tweak){
         # Turn off the red power LED
-        `echo 0 | sudo tee $path/brightness`;
+        $self->_led_cmd("echo 0 | sudo tee $path/brightness");
     }
     else {
         # Restore the red power LED to its default behavior
-        `echo $led->{trigger} | sudo tee $path/trigger`;
+        $self->_led_cmd("echo $led->{trigger} | sudo tee $path/trigger");
     }
 }
 sub label {
@@ -185,14 +185,14 @@ sub unregister_object {
 
     return if ! $self->_rpi_register;
 
-    $self->meta_lock;
-    my $meta = $self->meta_fetch;
+    $self->_meta_txn(sub {
+        my $meta = $self->meta_fetch;
 
-    delete $meta->{objects}->{$self->uuid};
-    $meta->{object_count} = keys %{ $meta->{objects} };
+        delete $meta->{objects}->{$self->uuid};
+        $meta->{object_count} = keys %{ $meta->{objects} };
 
-    $self->meta_store($meta);
-    $self->meta_unlock;
+        $self->meta_store($meta);
+    });
 }
 sub cleanup {
     my ($self) = @_;
@@ -206,37 +206,37 @@ sub cleanup {
 
     if ($self->_rpi_register_pins) {
 
-        $self->meta_lock;
-        my $meta = $self->meta_fetch;
+        $self->_meta_txn(sub {
+            my $meta = $self->meta_fetch;
 
-        if ($meta->{pwm}{in_use} && $meta->{pwm}{users}{$self->uuid}) {
-            delete $meta->{pwm}{users}{$self->uuid};
+            if ($meta->{pwm}{in_use} && $meta->{pwm}{users}{$self->uuid}) {
+                delete $meta->{pwm}{users}{$self->uuid};
 
-            if (! keys %{ $meta->{pwm}{users} }){
-                WiringPi::API::pwmSetMode(PWM_DEFAULT_MODE);
-                WiringPi::API::pwmSetClock(PWM_DEFAULT_CLOCK);
-                WiringPi::API::pwmSetRange(PWM_DEFAULT_RANGE);
+                if (! keys %{ $meta->{pwm}{users} }){
+                    WiringPi::API::pwmSetMode(PWM_DEFAULT_MODE);
+                    WiringPi::API::pwmSetClock(PWM_DEFAULT_CLOCK);
+                    WiringPi::API::pwmSetRange(PWM_DEFAULT_RANGE);
 
-                $meta->{pwm}->{in_use} = 0;
-            }
-        }
-
-        for my $pin (keys %{$meta->{pins}}) {
-            if (exists $meta->{pins}->{$pin}{users}{$self->uuid}) {
-                delete $meta->{pins}->{$pin}{users}{$self->uuid};
-
-                # Reset and drop the pin only when no other object still owns it
-
-                if (! keys %{ $meta->{pins}->{$pin}{users} }) {
-                    $self->_restore_pin_alt($pin, $meta->{pins}->{$pin}{alt});
-                    WiringPi::API::digitalWrite($pin, $meta->{pins}->{$pin}{state});
-                    delete $meta->{pins}->{$pin};
+                    $meta->{pwm}->{in_use} = 0;
                 }
             }
-        }
 
-        $self->meta_store($meta);
-        $self->meta_unlock;
+            for my $pin (keys %{$meta->{pins}}) {
+                if (exists $meta->{pins}->{$pin}{users}{$self->uuid}) {
+                    delete $meta->{pins}->{$pin}{users}{$self->uuid};
+
+                    # Reset and drop the pin only when no other object still owns it
+
+                    if (! keys %{ $meta->{pins}->{$pin}{users} }) {
+                        $self->_restore_pin_alt($pin, $meta->{pins}->{$pin}{alt});
+                        WiringPi::API::digitalWrite($pin, $meta->{pins}->{$pin}{state});
+                        delete $meta->{pins}->{$pin};
+                    }
+                }
+            }
+
+            $self->meta_store($meta);
+        });
     }
 
     # Release any armed interrupts: stops the wiringPi ISR threads and closes
@@ -254,6 +254,13 @@ sub cleanup {
     $self->{workers} = [];
 
     $self->unregister_object if $self->_rpi_register;
+
+    # Drop this object's signal-cleanup entries (and restore the original
+    # handlers once the last object is gone)
+
+    if ($self->_rpi_register && $self->can('_release_signal_handlers')) {
+        $self->_release_signal_handlers;
+    }
 
     $self->{clean} = 1;
 }
@@ -276,6 +283,16 @@ sub _led {
 
     return $map{$led};
 }
+sub _led_cmd {
+    # Runs an LED sysfs write via the shell, surfacing failures instead of
+    # silently no-opping (eg. when sudo isn't available or isn't passwordless)
+
+    my ($self, $cmd) = @_;
+
+    if (system("$cmd > /dev/null") != 0) {
+        warn "LED command '$cmd' failed; is sudo configured on this system?\n";
+    }
+}
 sub _rpi_register {
     # Allow defeating the entire registration process (objects and pins)
     return $_[0]->{rpi_register} // 1;
@@ -293,60 +310,58 @@ sub _pin_registration {
 
     my $pin = $param{pin};
 
-    $self->meta_lock;
-    my $meta = $self->meta_fetch;
+    # The whole transaction runs under _meta_txn so the lock is released even
+    # if a croak (or a die from a pin method) fires mid-section
 
-    if (! defined $pin){
+    return $self->_meta_txn(sub {
+        my $meta = $self->meta_fetch;
+
+        if (! defined $pin){
+            my @registered_pins = keys %{ $meta->{pins} };
+            return \@registered_pins;
+        }
+
+        my $pin_num = $self->pin_to_gpio($pin->num);
+
+        if ($param{operation} eq 'unregister'){
+            if (! exists $meta->{pins}{$pin_num}{users}{$param{requester}}) {
+                return;
+            }
+            if (exists $meta->{pins}{$pin_num}) {
+                $pin->mode_alt($meta->{pins}{$pin_num}{alt});
+                $pin->write($meta->{pins}{$pin_num}{state});
+                $pin->mode($meta->{pins}{$pin_num}{mode});
+
+                delete $meta->{pins}{$pin_num};
+
+                $self->meta_store($meta);
+
+                return;
+            }
+        }
+
+        if (! exists $param{state} && ! exists $param{alt}) {
+            croak "_pin_registration() requires both 'alt' and 'state' params\n";
+        }
+
+        if ($param{operation} eq 'register'){
+            if (exists $meta->{pins}{$pin_num}){
+                croak "pin $pin_num is already in use, can't continue...\n";
+            }
+
+            $meta->{pins}{$pin_num}{alt} = $param{alt};
+            $meta->{pins}{$pin_num}{state} = $param{state};
+            $meta->{pins}{$pin_num}{mode} = $param{mode};
+            $meta->{pins}{$pin_num}{comment} = $pin->comment;
+            $meta->{pins}{$pin_num}{users}{$param{requester}}++;
+        }
+
         my @registered_pins = keys %{ $meta->{pins} };
-        $self->meta_unlock;
+
+        $self->meta_store($meta);
+
         return \@registered_pins;
-    }
-
-    my $pin_num = $self->pin_to_gpio($pin->num);
-
-    if ($param{operation} eq 'unregister'){
-        if (! exists $meta->{pins}{$pin_num}{users}{$param{requester}}) {
-            $self->meta_unlock;
-            return;
-        }
-        if (exists $meta->{pins}{$pin_num}) {
-            $pin->mode_alt($meta->{pins}{$pin_num}{alt});
-            $pin->write($meta->{pins}{$pin_num}{state});
-            $pin->mode($meta->{pins}{$pin_num}{mode});
-
-            delete $meta->{pins}{$pin_num};
-
-            $self->meta_store($meta);
-            $self->meta_unlock;
-
-            return;
-        }
-    }
-
-    if (! exists $param{state} && ! exists $param{alt}) {
-        $self->meta_unlock;
-        croak "_pin_registration() requires both 'alt' and 'state' params\n";
-    }
-
-    if ($param{operation} eq 'register'){
-        if (exists $meta->{pins}{$pin_num}){
-            $self->meta_unlock;
-            croak "pin $pin_num is already in use, can't continue...\n";
-        }
-
-        $meta->{pins}{$pin_num}{alt} = $param{alt};
-        $meta->{pins}{$pin_num}{state} = $param{state};
-        $meta->{pins}{$pin_num}{mode} = $param{mode};
-        $meta->{pins}{$pin_num}{comment} = $pin->comment;
-        $meta->{pins}{$pin_num}{users}{$param{requester}}++;
-    }
-
-    my @registered_pins = keys %{ $meta->{pins} };
-
-    $self->meta_store($meta);
-    $self->meta_unlock;
-
-    return \@registered_pins;
+    });
 }
 sub _restore_pin_alt {
     # Restores a pin to a previously captured alt mode. On the Raspberry Pi 5 /
@@ -386,12 +401,12 @@ sub _pwm_in_use {
     return if ! $self->_rpi_register_pins || ! $self->_rpi_register;
 
     if ($_[0]){
-        $self->meta_lock;
-        my $meta = $self->meta_fetch;
-        $meta->{pwm}{in_use} = 1;
-        $meta->{pwm}{users}{$self->uuid} = 1;
-        $self->meta_store($meta);
-        $self->meta_unlock;
+        $self->_meta_txn(sub {
+            my $meta = $self->meta_fetch;
+            $meta->{pwm}{in_use} = 1;
+            $meta->{pwm}{users}{$self->uuid} = 1;
+            $self->meta_store($meta);
+        });
     }
 }
 
