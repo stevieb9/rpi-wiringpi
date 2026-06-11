@@ -16,7 +16,7 @@ use RPi::Const qw(:all);
 our $VERSION = '3.1801_01';
 
 sub gpio_layout {
-    return $_[0]->gpio_layout;
+    return $_[0]->SUPER::gpio_layout;
 }
 sub identify {
     my ($self, $time) = @_;
@@ -138,15 +138,17 @@ sub pwm_mode {
         die "\nPWM requires your script to be run as the 'root' user (sudo)\n";
     }
 
-    if (defined $mode && ($mode == 0 || $mode == PWM_DEFAULT_MODE)) {
-        $self->{pwm_mode} = $mode;
-        $self->pwm_set_mode($mode);
-    }
-    else {
-        croak "pwm_mode() requires either 0 or 1 if a param is sent in\n";
-    }
+    if (defined $mode) {
+        if ($mode == 0 || $mode == PWM_DEFAULT_MODE) {
+            $self->{pwm_mode} = $mode;
+            $self->pwm_set_mode($mode);
+        }
+        else {
+            croak "pwm_mode() requires either 0 or 1 if a param is sent in\n";
+        }
 
-    $self->_pwm_in_use(1);
+        $self->_pwm_in_use(1);
+    }
 
     return defined $self->{pwm_mode} ? $self->{pwm_mode} : 1;
 }
@@ -222,9 +224,15 @@ sub cleanup {
 
         for my $pin (keys %{$meta->{pins}}) {
             if (exists $meta->{pins}->{$pin}{users}{$self->uuid}) {
-                $self->_restore_pin_alt($pin, $meta->{pins}->{$pin}{alt});
-                WiringPi::API::digitalWrite($pin, $meta->{pins}->{$pin}{state});
-                delete $meta->{pins}->{$pin};
+                delete $meta->{pins}->{$pin}{users}{$self->uuid};
+
+                # Reset and drop the pin only when no other object still owns it
+
+                if (! keys %{ $meta->{pins}->{$pin}{users} }) {
+                    $self->_restore_pin_alt($pin, $meta->{pins}->{$pin}{alt});
+                    WiringPi::API::digitalWrite($pin, $meta->{pins}->{$pin}{state});
+                    delete $meta->{pins}->{$pin};
+                }
             }
         }
 
@@ -376,7 +384,7 @@ sub _restore_pin_alt {
 sub _pwm_in_use {
     my $self = shift;
 
-    return if ! $self->_rpi_register_pins && ! $self->_rpi_register;
+    return if ! $self->_rpi_register_pins || ! $self->_rpi_register;
 
     if ($_[0]){
         $self->meta_lock;
