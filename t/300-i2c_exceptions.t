@@ -16,7 +16,7 @@ my $mod = 'RPi::WiringPi';
 
 BEGIN {
     if (! $ENV{RPI_ARDUINO}){
-        plan skip_all => "RPI_ARUDINO environment variable not set\n";
+        plan skip_all => "RPI_ARDUINO environment variable not set\n";
     }
 }
 

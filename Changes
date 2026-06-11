@@ -269,6 +269,15 @@ Revision history for Perl extension RPi::WiringPi.
           PWM_MODE_MS/PWM_MODE_BAL (same values, self-documenting); updated
           the background_interrupt dependency notes - RPi::Pin 2.3609 (the
           required version) ships it. README and docs/pod/*.md regenerated
+        - Test suite correctness: fixed the RPI_ARUDINO typo in t/300's skip
+          message; t/920-oled_cleanup.t now checks the real /dev/shm lock path
+          (it was vacuously passing against /tmp); GPIO 12/26 (the DAC/ADC
+          chip-select pins) are back in every board's default-pin table and
+          the verification lists as mode-only checks (their level depends on
+          the attached device, which is why they were removed as "flipping");
+          rpi_verify_pin_status() now reports which pin (and what) mismatched
+          via note(); rpi_i2c_check()'s skip message now explains the
+          RPI_I2C/ADS1115 requirement so root runs don't skip mysteriously
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
