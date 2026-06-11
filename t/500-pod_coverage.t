@@ -11,7 +11,6 @@ unless ( $ENV{RPI_RELEASE_TESTING} ) {
     plan( skip_all => "Author test: RPI_RELEASE_TESTING not set" );
 }
 
-rpi_pod_check();
 rpi_running_test(__FILE__);
 
 # Ensure a recent version of Test::Pod::Coverage
