@@ -20,7 +20,6 @@ my $pi_a = $mod->new(label => 't/111-metadata_multi_pi_single_script.t: pi_A', s
 
 $meta = $pi_a->meta_fetch;
 
-print(1 + $obj_count . "\n");
 is keys %{ $meta->{objects} }, 1 + $obj_count, "only one object in meta";
 is ref $meta->{objects}{$pi_a->uuid}, 'HASH', "...and is a hashref";
 is $meta->{objects}{$pi_a->uuid}{proc}, $$, "object A proc is proper";

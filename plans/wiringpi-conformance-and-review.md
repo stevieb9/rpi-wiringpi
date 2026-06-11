@@ -1,8 +1,8 @@
 # Plan: RPi sibling API-conformance to new WiringPi::API + rpi-wiringpi review
 
-> **NEXT ACTION:** V33 — residual exhaustive pass (F46): line-by-line read of all 69 t/*.t + exhaustive re-read of WiringPi.pm/Core.pm. Last remaining Claude task (V24 is 🤚 USER-owned).
-> **LAST SESSION:** V32 done — F47: `^g` now /i, `^n` ('none') explicit sentinel branch, unrecognized values croak; `setup` documented in new() POD (gpio/wiringpi/none + env-honour note); README/md regenerated; 3 regression tests added to t/104 (incl. delete-local of RPI_PIN_MODE to reach the setup branch). t/104+t/106 pass; full sweep 1446; POD tests pass. Uncommitted.
-> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1-V14, V20-V23, V25-V30, V31, V32
+> **NEXT ACTION:** 🤚 V24 (USER) is the only open task — all Claude-owned V tasks are complete. Backlog B1/B5-B15 remains for future promotion.
+> **LAST SESSION:** V34 done — F48 oled() dies for whitelisted-but-unimplemented 128x32/96x16; F49 expander() croaks on unrecognized type; F50 pin_to_gpio() croak is now the catch-all (no silent undef on corrupt scheme); F51 all 4 test-hygiene nits fixed (t/150 message, t/111 debug print, t/300 dup use lib, t/107 direct mode_alt assertion). All 4 error paths verified live; sweep t/0-3* (45 files, 1446 tests) green. Changes updated. Uncommitted.
+> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1-V14, V20-V23, V25-V34 (less 🤚V24)
 
 ## Context
 
@@ -42,7 +42,6 @@ Empirical conformance check for Part A = build + run each dependent sibling's te
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
 | V24 | **Version bump** — set `$VERSION` `3.1801_01`→`3.1802` in WiringPi.pm/Core.pm/Util.pm/Meta.pm; reconcile `Makefile.PL` `WiringPi::API` prereq (F15). **Caveat:** installed reference is `3.1802_01` (a *trial* with underscore); rpi-wiringpi 3.1802 cannot be released against a dev-only API CPAN can't index — a non-trial WiringPi::API must ship first | `cd ~/repos/rpi-wiringpi && grep -rn "3.1801_01" lib/` | All four modules at 3.1802; prereq reconciled; release-ordering noted | 🤚 USER — Steve will do this manually once all libraries are up to date. Claude: do NOT execute; skip to next ⏳ |
-| V33 | **Residual exhaustive pass** (F46) — full per-file line-by-line read of all 69 `t/*.t`, AND an exhaustive re-read of the large modules `WiringPi.pm` (~1290 lines) + `Core.pm` (~649) since the single-pass review proved non-exhaustive (yielded F22/F23/F42/F47) | manual review pass; append any new F# | No further material findings, or new F# logged | ⏳ |
 
 ## Discovery Tracking
 
@@ -109,8 +108,15 @@ _From the completeness debate (challenger Claude Fable 5, executed checks; see p
 - **F43** [med→backlog B13] (→B13): `DHT11.xs:187-189` / `HCSR04.xs:23-25` `char modeEnvVar[20]; sprintf(...); putenv(modeEnvVar);` — putenv stores the pointer; the stack buffer dies on return; next `getenv("RPI_PIN_MODE")` reads freed stack. Pre-existing, NOT a 3.18 regression; fires only when `RPI_PIN_MODE` was already set (multi-dist/dual-sensor rig).
 - ✅ VALIDATED (V14) **F44** [structural] (→V14): `rpi-const`, the 19th sibling and the dependency root the migration single-sources from, had no row. Confirm-only (debate: repo 1.05 == installed 1.05, zero drift).
 - **F45** [executed — nothing material] (→done, 2 notes→B14): generator scripts (`gen-test-platform.pl`, `gen-pod-md.pl`, `gen-pdf.py`, `gen-pinout-images.py`) + `build_testing/*` reviewed CLEAN. Notes: `scripts/helpers/gen-schematic.py:145,225` bare `open(path,'w').write(...)` (no context manager / no error handling) [low → B14]; `Changes` 2.3633 chronology oddity (stable stanza dated 2019-09-19 before trials `_02`/`_03`) [info, historical only].
-- **F46** [open residual] (→V33): the full per-file pass over all 69 `t/*.t` was NOT completed (≈10 more sampled, nothing new), AND the single-pass review of the large modules (`WiringPi.pm`, `Core.pm`) is demonstrably non-exhaustive (it yielded F22/F23/F42/F47). Tracked by V33.
+- ✅ RESOLVED (V33) **F46** [open residual] (→V33): the full per-file pass over all 69 `t/*.t` was NOT completed (≈10 more sampled, nothing new), AND the single-pass review of the large modules (`WiringPi.pm`, `Core.pm`) is demonstrably non-exhaustive (it yielded F22/F23/F42/F47). Tracked by V33.
 - ✅ RESOLVED (V32) **F47** [med code + med doc] (→V32): `new()` `setup` param — `WiringPi.pm:50 =~ /^w/i` vs `:54 =~ /^g/` (no `/i`) → `'GPIO'`/`'Gpio'` fall through; `:58-60` else stamps `RPI_MODE_UNINIT` with no setup/croak (any typo silently no-ops the board); and `setup` is documented nowhere (0 in WiringPi.pm POD past `__END__:523`, 0 in FAQ.pod) yet public and used by the suite (`t/106-pin_map.t:13`, `setup => 'none'`). Fix must whitelist `w`/`g`/`none` case-insensitively (don't break `'none'`) and document the three forms.
+
+_From the V33 residual exhaustive pass (4 parallel reviewers over all 69 t/*.t + WiringPi.pm/Core.pm/Util.pm/Meta.pm; every candidate finding re-verified at source by the originator; ~10 reviewer claims rejected as false positives):_
+- ✅ RESOLVED (V34) **F48** [med] (→V34): `WiringPi.pm sub oled` — `%models` validates `128x32`/`96x16` as legal, but only `128x64` has a construction branch; the other two fall through and return undef silently (caller then crashes on method call). POD says only 128x64 is currently valid. Die for the unsupported models (or drop them from the whitelist).
+- ✅ RESOLVED (V34) **F49** [med] (→V34): `WiringPi.pm sub expander` — an unrecognized `$expander` type falls through the single `if` and returns undef silently; POD says MCP23017 is the only option. Croak on unrecognized type.
+- ✅ RESOLVED (V34) **F50** [low] (→V34): `Core.pm sub pin_to_gpio` — the `RPI_MODE_UNINIT` check is a bare `if` after the WPI/GPIO returns; any *other* scheme value (e.g. corrupted `RPI_PIN_MODE` env) falls through to implicit undef. Make the croak the catch-all `else`.
+- ✅ RESOLVED (V34) **F51** [low] (→V34): test hygiene: `t/150-cleanup.t:34` message says "pin 26" while grepping pin 12 (copy-paste); `t/111:23` leftover debug `print(1 + $obj_count...)` polluting TAP; `t/300:11` duplicate `use lib 't/'`; `t/107:39` asserts the boolean of `mode_alt eq $_` so a failure diagnostic shows ''/1 instead of got/expected alt values.
+- ⏸ DEFERRED → B11 **F52** [low] (→B11): `t/109:84,95` lower-bound assertions `is $o >= -1, 1` are effectively vacuous (percent can't go below 0); fold into the B11 t/109↔t/140 acceptance-band reconciliation.
 
 ## Backlog
 
@@ -128,7 +134,7 @@ B9: Rename the in-process `$ENV{PI_INTERRUPT}` callback counter (t/200–209) to
 
 B10: Drop the redundant `rpi_pod_check()`/`RPI_POD` second gate from t/500/505/510 so `RPI_RELEASE_TESTING` alone enables POD checks (or document the dual requirement).
 
-B11: Cross-reference / reconcile the near-duplicate PWM tests t/109 (asserts below MAX_IN) vs t/140 (asserts per-PWM windows) so a recalibration updates both.
+B11: Cross-reference / reconcile the near-duplicate PWM tests t/109 (asserts below MAX_IN) vs t/140 (asserts per-PWM windows) so a recalibration updates both. Also fix t/109's vacuous `is $o >= -1, 1` lower bounds while in there (F52).
 
 B12: Replace fixed `select`/`sleep` settle windows in interrupt/I2C tests (t/203/210/305/330/925/325) with poll-until-condition loops bounded by a timeout (as t/206/208 already do).
 

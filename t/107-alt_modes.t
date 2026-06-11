@@ -36,7 +36,7 @@ my $pi = $mod->new(label => 't/107-alt_modes.t', shm_key => 'rpit');
         for (0..7){
             my $alt = "ALT$_";
             $pin->mode_alt($_);
-            is $pin->mode_alt eq $_, 1, "pin in alt mode $alt ok";
+            is $pin->mode_alt, $_, "pin in alt mode $alt ok";
             $pin->mode($default);
             is $pin->mode_alt, 0, "pin back to INPUT";
             is $pin->mode, INPUT, "...confirmed";

@@ -31,7 +31,7 @@ for ($pin26, $pin12, $pin18){
 $pi->unregister_pin($pin18);
 
 is((grep {$_ == 26} @{ $pi->registered_pins }), 1, "after removing 18, pin 26 ok"); 
-is((grep {$_ == 12} @{ $pi->registered_pins }), 1, "after removing 12, pin 26 ok"); 
+is((grep {$_ == 12} @{ $pi->registered_pins }), 1, "after removing 18, pin 12 ok"); 
 
 $pi->register_pin($pin18);
 is @{ $pi->registered_pins }, 3, "registered pin ok";
