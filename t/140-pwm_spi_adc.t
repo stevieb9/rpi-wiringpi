@@ -5,6 +5,7 @@ use lib 't/';
 
 use RPiTest;
 use RPi::WiringPi;
+use RPi::Const qw(:all);
 use Test::More;
 
 rpi_sudo_check();
@@ -44,31 +45,22 @@ my $adc_in = 0;
 
 if (! $ENV{NO_BOARD}) {
 
-    my %output = (
-        100     =>  [8..13],
-        200     =>  [18..22],
-        300     =>  [27..31],
-        400     =>  [36..42],
-        500     =>  [46..50],
-        600     =>  [58..62],
-        700     =>  [67..70],
-        800     =>  [75..79],
-        900     =>  [86..89],
-        1000    =>  [96..100]
-    );
-
     my $pin = $pi->pin(18);
     $pin->mode(2);
     is $pin->mode, 2, "pin mode set to PWM ok, and we can read it";
 
-    for my $pwm (0..400){
-        next if $pwm == 0;
-        next if $pwm % 100 != 0;
+    # Acceptance windows are single-sourced in t/RPiTest.pm
+    # (rpi_pwm_adc_window(); shared with t/109-pwm_hw_mods.t) - recalibrate
+    # there, not here. The calibration table covers levels up to 1000, but
+    # only 100-400 are swept here (the historical sweep range of this test)
+
+    for my $pwm (100, 200, 300, 400){
         $pin->pwm($pwm);
         my $res = $adc->percent($adc_in);
+        my ($min, $max) = rpi_pwm_adc_window($pwm, PWM_DEFAULT_RANGE);
 
-        is $res > $output{$pwm}->[0], 1, "$pwm: pwm $res in range of lower end ok";
-        is $output{$pwm}->[-1] > $res, 1, "$pwm: pwm $res in range of upper end ok";
+        is $res > $min, 1, "$pwm: pwm $res in range of lower end ($min) ok";
+        is $max > $res, 1, "$pwm: pwm $res in range of upper end ($max) ok";
     }
 
     $pi->cleanup;
