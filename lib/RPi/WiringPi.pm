@@ -3,6 +3,27 @@ package RPi::WiringPi;
 use strict;
 use warnings;
 
+# Method resolution order: this class tree uses Perl's default depth-first
+# MRO. The effective search order from this class is:
+#
+#   RPi::WiringPi -> Core -> WiringPi::API -> Exporter -> Meta -> Util
+#                 -> RPi::SysInfo
+#
+# WiringPi::API (reached through Core, which lists it first) is searched
+# BEFORE Meta and Util, even though both are direct parents below. Do NOT
+# define a method in Meta/Util/RPi::SysInfo whose name spans two branches
+# (e.g. a Util sub named after a WiringPi::API sub) without revisiting the
+# MRO -- depth-first search would silently dispatch to the WiringPi::API
+# version. A symbol table audit (2026-06-11) found no meaningful
+# cross-branch collisions: only identical RPi::Const/Carp imports, XS
+# bootstrap glue, and new() (WiringPi::API vs RPi::SysInfo), which is
+# shadowed by this class's own new() for all callers.
+#
+# Switching to `use mro 'c3'` is NOT a drop-in change: the current parent
+# ordering is C3-inconsistent (Util lists Exporter before WiringPi::API,
+# which itself inherits Exporter; Core lists WiringPi::API before Util,
+# its own subclass) and Perl dies with "Inconsistent hierarchy". @ISA in
+# Util.pm, Core.pm and this file would need reordering first.
 use parent 'RPi::WiringPi::Core';
 use parent 'RPi::WiringPi::Util';
 use parent 'RPi::WiringPi::Meta';

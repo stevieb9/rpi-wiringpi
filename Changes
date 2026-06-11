@@ -307,6 +307,10 @@ Revision history for Perl extension RPi::WiringPi.
         - Pin scheme comparisons are now consistently numeric; pin_map() in
           Util.pm compared the scheme enum with eq while everything else
           uses == (no behavior change)
+        - Documented the method resolution order of the diamond inheritance
+          tree in WiringPi.pm and Core.pm (depth-first; WiringPi::API is
+          searched before Meta/Util/RPi::SysInfo), including why
+          use mro 'c3' is not currently a drop-in change (comments only)
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
