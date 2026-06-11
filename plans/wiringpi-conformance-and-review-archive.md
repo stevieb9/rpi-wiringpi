@@ -38,6 +38,8 @@
 
 - V36: bin script fixes (B5 promoted; F39) — bin/pinmap `next if ! defined $wpi || $wpi == -1` guard in both loops (phys pins absent from the map no longer warn), bin/pimetaerase `//=`/`//=0` → `// 0` (no later @ARGV reads, behavior unchanged); Changes updated — ✅ 2026-06-11 attempt 1: PASS (perl -c both; live `perl -Ilib bin/pinmap` run: full map printed, zero warnings, exit 0)
 
+- V37: numeric scheme comparisons (B6 promoted; F38) — Util.pm pin_map() `eq RPI_MODE_UNINIT` → `==`, matching Core.pm and the rest of pin_map; grep confirms zero remaining `eq` scheme comparisons in lib/+bin/; no behavior change (enum values -1/0/1 compare identically); Changes updated — ✅ 2026-06-11 attempt 1: PASS (perl -c; live one-liner: pin_map(RPI_MODE_UNINIT) returns empty hash, WPI map intact; t/106-pin_map.t 45 tests green)
+
 ## Archived Fixes
 
 - Fix 5: problem discovered during V13 — rpi-serial `t/serial_rx.t` was an orphaned manual dev script in t/ (no Test::More/plan, infinite loop, hardcoded /dev/ttyUSB0, calls `rx()` which commit ad3e4bc deliberately removed); it broke `prove t` with exit 9. Not in MANIFEST, referenced nowhere — deleted. Resolved 2026-06-10 as part of V13.

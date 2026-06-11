@@ -1,8 +1,8 @@
 # Plan: RPi sibling API-conformance to new WiringPi::API + rpi-wiringpi review
 
-> **NEXT ACTION:** 🤚 V24 (USER) is the only open task — all Claude-owned V tasks are complete. Backlog B6-B15 remains for future promotion (user directive 2026-06-11: work backlog in numeric order; B6 is next).
-> **LAST SESSION:** V36 done (B5 promoted) — bin/pinmap guards undef before `== -1` in both loops (no more uninitialized-value warnings on unmapped phys pins; live run clean), bin/pimetaerase `//=` → `//` cosmetic fixes. F39 resolved; Changes updated. Uncommitted.
-> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1-V14, V20-V23, V25-V36 (less 🤚V24)
+> **NEXT ACTION:** 🤚 V24 (USER) is the only open task — all Claude-owned V tasks are complete. Backlog B7-B15 remains for future promotion (user directive 2026-06-11: work backlog in numeric order; B7 is next).
+> **LAST SESSION:** V37 done (B6 promoted) — Util.pm pin_map() `eq RPI_MODE_UNINIT` → `==`; that was the only non-numeric scheme comparison in lib/+bin/ (grep-verified). F38 resolved; Changes updated. Uncommitted.
+> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1-V14, V20-V23, V25-V37 (less 🤚V24)
 
 ## Context
 
@@ -80,7 +80,7 @@ _New code findings (V21):_
 - ✅ RESOLVED (V26) **F22** [med] (→V26): `WiringPi.pm:464-487,406-439` signal handlers: installed once and **never restored** (not in cleanup/DESTROY/END) so the class handler outlives all objects; only CODE-ref previous handlers are chained (`'IGNORE'`/`'DEFAULT'`/named-sub dispositions silently dropped); `%sig_handlers` closures leak transient objects. Restore `$SIG{$sig}` to prev (incl. non-CODE) when `%sig_handlers{$sig}` empties; delete entries in cleanup.
 - ✅ RESOLVED (V26) **F23** [med] (→V26): `WiringPi.pm:454-463` `_fatal_exit` writes the package-global `$fatal_exit`, so `new(fatal_exit=>0)` on a second object flips it for ALL objects (the signal path reads the global, not `$self->{fatal_exit}`). Make per-object or document as process-global.
 - ✅ RESOLVED (V26) **F24** [med] (→V26): `Core.pm:42-51,61-66` `io_led`/`pwr_led` use backtick `... | sudo tee ...` with no exit-status check — a failing sudo silently no-ops while `identify()` reports success; STDERR leaks; shell-interpolation-shaped. Mirror the `system(...) != 0` checking already in `_restore_pin_alt:366-369`.
-- **F38** [low] (→backlog B6): `Util.pm:29` compares scheme with `eq RPI_MODE_UNINIT` while `Core.pm:80-87` uses `==` on the same env-sourced value — inconsistent; pick numeric `==` (enums).
+- ✅ RESOLVED (V37) **F38** [low] (→backlog B6): `Util.pm:29` compares scheme with `eq RPI_MODE_UNINIT` while `Core.pm:80-87` uses `==` on the same env-sourced value — inconsistent; pick numeric `==` (enums). Promoted to V37; switched to `==`, confirmed the only `eq` scheme comparison in lib/+bin/.
 - ✅ RESOLVED (V36) **F39** [low] (→backlog B5): `bin/pinmap:18-22,28-31` `$wpi == -1` warns when `pin_map` returns undef; guard `next if ! defined $wpi || $wpi == -1`. Also `bin/pimetaerase:21-22` cosmetic `//=`/spacing. Promoted to V36 and fixed exactly as prescribed.
 - **F40** [info] (→backlog B7): diamond inheritance (Meta reached via Core's branch) works today (DFS dedups, no conflicting overrides) but is latent — document intended MRO or adopt `use mro 'c3'` before adding any cross-branch override. (uuid-collision loop `WiringPi.pm:81-85` reviewed — acceptable, no action.)
 
@@ -119,8 +119,6 @@ _From the V33 residual exhaustive pass (4 parallel reviewers over all 69 t/*.t +
 - ⏸ DEFERRED → B11 **F52** [low] (→B11): `t/109:84,95` lower-bound assertions `is $o >= -1, 1` are effectively vacuous (percent can't go below 0); fold into the B11 t/109↔t/140 acceptance-band reconciliation.
 
 ## Backlog
-
-B6: Make `pin_scheme` comparisons consistently numeric `==` across Util.pm/Core.pm (F38).
 
 B7: Document the intended MRO of the 4-level diamond inheritance, or adopt `use mro 'c3'` before any cross-branch method override (F40).
 
