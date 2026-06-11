@@ -55,7 +55,7 @@ lib/RPi/WiringPi/WORKERS.pod
 Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
-README
+README.md
 script/hc12_security_monitor/crc16.h
 script/hc12_security_monitor/hc12_security_monitor.ino
 script/hc12_security_monitor/hc12_security_monitor.pl

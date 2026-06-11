@@ -7,6 +7,9 @@
 # docs/pod/ named after the file's leaf basename (e.g. Core.pm -> Core.md,
 # FAQ.pod -> FAQ.md). Files with no POD are skipped.
 #
+# Also regenerates README.md at the repo root from the main module's
+# (lib/RPi/WiringPi.pm) POD; this replaces the legacy pod2text README.
+#
 # Conversion is delegated to the `pod2markdown` binary (Pod::Markdown is not
 # installed in the perlbrew perl, but the system binary is on PATH).
 #
@@ -72,7 +75,19 @@ for my $src (@sources) {
     $generated++;
 }
 
-printf "\nGenerated %d file%s, skipped %d, into %s\n",
+# The main module's POD also feeds the distribution README.md at the repo
+# root (replaces the legacy pod2text README)
+
+my $readme_src  = File::Spec->catfile($lib_dir, 'RPi', 'WiringPi.pm');
+my $readme_dest = File::Spec->catfile($root, 'README.md');
+
+system($pod2md, $readme_src, $readme_dest) == 0
+    or die "pod2markdown failed for README.md (status $?)\n";
+
+printf "  %-14s <- %s  (%d lines)\n",
+    'README.md', rel($readme_src), count_lines($readme_dest);
+
+printf "\nGenerated %d file%s + README.md, skipped %d, into %s\n",
     $generated, ($generated == 1 ? '' : 's'), $skipped, rel($out_dir);
 
 # --- helpers ---------------------------------------------------------------
