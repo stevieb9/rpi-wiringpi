@@ -1,6 +1,6 @@
 # Plan: RPi sibling API-conformance to new WiringPi::API + rpi-wiringpi review
 
-> **NEXT ACTION:** 🤚 V24 (USER) is the only open task — all Claude-owned V tasks are complete. Backlog: only B16 remains (needs a POWERED rig — servo feedback calibration; blocked while devices are dark). USER TODO: set `RPI_BOARD=1` on the rigs (`/etc/environment`); the old `PI_BOARD=1` is now inert.
+> **NEXT ACTION:** Two open tasks, both gated on 🤚 USER: V24 (version bump; awaits non-trial WiringPi::API) and V47 (t/325 servo calibration; awaits powered rig — physical setup checklist under the Validation Table). Backlog is empty (B1-B16 all closed). USER TODO: set `RPI_BOARD=1` on the rigs (`/etc/environment`); the old `PI_BOARD=1` is now inert.
 > **LAST SESSION:** V46 done (B8 promoted; F13) — **hard rename** `PI_BOARD` → `RPI_BOARD` across all 7 repos (user decision: rigs are new, legacy name decommissioned outright, NO dual-read); rpi-pin t/40's `PI_INTERRUPT` counter → file lexical (last `PI_*` var anywhere). FAQ/Core POD renamed + md regenerated; Changes updated in all 7 repos; B8.md stamped EXECUTED. Verified live with `RPI_BOARD=1` only: rpi-wiringpi subset 219 tests incl. t/213 HW worker; legacy `PI_BOARD=1` now skips (intended); rpi-sysinfo full 244; wiringpi-api + rpi-dht11 subsets; rpi-pin sudo re-exec 7 tests incl. new lexical. Zero `PI_BOARD`/`PI_INTERRUPT` in code ecosystem-wide. Uncommitted in all 7 repos.
 > **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1-V14, V20-V23, V25-V46 (less 🤚V24)
 
@@ -42,6 +42,29 @@ Empirical conformance check for Part A = build + run each dependent sibling's te
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
 | V24 | **Version bump** — set `$VERSION` `3.1801_01`→`3.1802` in WiringPi.pm/Core.pm/Util.pm/Meta.pm; reconcile `Makefile.PL` `WiringPi::API` prereq (F15). **Caveat:** installed reference is `3.1802_01` (a *trial* with underscore); rpi-wiringpi 3.1802 cannot be released against a dev-only API CPAN can't index — a non-trial WiringPi::API must ship first | `cd ~/repos/rpi-wiringpi && grep -rn "3.1801_01" lib/` | All four modules at 3.1802; prereq reconciled; release-ordering noted | 🤚 USER — Steve will do this manually once all libraries are up to date. Claude: do NOT execute; skip to next ⏳ |
+| V47 | **t/325 servo calibration windows** (B16 promoted; F52 pattern) — replace the vacuous `is $o >= -1, 1` lower bounds and flat `< MAX_IN` (40) ceiling with calibrated windows. Platform doc correction vs the B16 note: ADS1115 #1 A0 is wired to the GPIO18 *net* (it samples the 50Hz servo pulse train, not a pot), so `servo()`'s divisor-192/range-2000 duty math is the t/109 model — BUT at 50 Hz the ADS1115 integration window (~8 ms vs the 20 ms period) makes readings phase-dependent; calibration must measure the real spread at LEFT(60)/CENTRE(150)/RIGHT(255) + across the sweep, then either reuse `rpi_pwm_adc_window()` or add a servo-specific tolerance/table beside it in RPiTest.pm (single-sourced, V41 convention). Same powered session: live-prove V41's t/109/t/140 model windows and V42's t/305/325/330/925 poll conversions. Also drop t/325's unused PIN/CENTRE/DIVISOR/RANGE constants if confirmed dead. **Physical setup checklist: see "V47 physical setup" below the table.** | `cd ~/repos/rpi-wiringpi && RPI_BOARD=1 RPI_SUDO=1 RPI_SERVO=1 RPI_ADC=1 RPI_I2C=1 prove -bl t/325-servo.t` (then t/109, t/140) | Sweep green with real (non-vacuous) windows; calibration values recorded in RPiTest.pm | ⏳ BLOCKED on 🤚 USER hardware setup (devices currently dark — i2cdetect shows an empty bus) |
+
+### V47 physical setup (USER — required before Claude can execute)
+
+Per `docs/test-platform/test-pinout-doc.md` (§ pin 18, § I2C map):
+
+1. **Power the I2C peripherals** (3V3 rail): at minimum ADS1115 #1 at **0x48**.
+   Verify with `i2cdetect -y 1` — `48` must ACK. (ADS1115 #2 0x49 etc. may
+   also appear; not needed for V47.)
+2. **Servo**: power from the **5V rail**; signal lead on **GPIO 18** (3V3 PWM).
+3. **GPIO 18 net**: physical pin 12 must be one net shared by the servo signal
+   and **ADS1115 #1 channel A0** only — high-impedance; no series resistor, no
+   pull-up/down, no other load on the net (doc § "GPIO18 is one physical net").
+4. **I2C bus**: `dtparam=i2c_arm=on`; shared bus pull-ups only (do not stack
+   per-device pull-ups).
+5. **Environment**: `RPI_BOARD=1` (NEW name — `PI_BOARD` is decommissioned as
+   of V46), plus `RPI_SUDO=1 RPI_SERVO=1 RPI_ADC=1 RPI_I2C=1` for this test
+   (or run the suite as root, which auto-sets board/ADC/servo). Run serially
+   (`-j1`/default), from the repo root.
+6. Nothing else should be driving pins 12/26 (SPI CS) if the full sweep is run
+   in the same session.
+
+When the rig is up, say "go V47" (or "next") and the calibration + fix runs.
 
 ## Discovery Tracking
 
@@ -120,7 +143,7 @@ _From the V33 residual exhaustive pass (4 parallel reviewers over all 69 t/*.t +
 
 ## Backlog
 
-B16: t/325-servo.t sweep assertions carry the F52 pattern fixed in t/109 by V41 — vacuous `is $o >= -1, 1` lower bounds and a flat `< MAX_IN` (40) ceiling. Needs servo-feedback calibration windows (the feedback is a servo pot, not PWM duty, so `rpi_pwm_adc_window()` doesn't directly apply); calibrate on a powered rig (discovered during V42).
+_All backlog items promoted or retired. B-series slots B1-B16 are closed (B1→V35, B5→V36, B6→V37, B7→V38, B8→V46, B9→V39, B10→V40, B11→V41, B12→V42, B13→V43, B14→V44, B15→V45, B16→V47)._
 
 ## Explicitly NOT doing
 

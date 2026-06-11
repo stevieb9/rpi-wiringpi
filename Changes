@@ -332,6 +332,9 @@ Revision history for Perl extension RPi::WiringPi.
           across the entire RPi:: ecosystem; the old name is no longer
           honored. Update /etc/environment (or wherever the suite gate is
           set) accordingly. FAQ and Core POD updated
+        - README replaced by README.md: scripts/gen-pod-md.pl now generates
+          it in markdown from the main module's POD (the old README was a
+          pod2text dump); MANIFEST updated to ship README.md
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
