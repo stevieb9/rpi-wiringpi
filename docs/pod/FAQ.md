@@ -1687,6 +1687,13 @@ test by hand needs only:
 `RPI_ADC` (to read servo position back) and `RPI_SUDO` (servos are driven
 with hardware PWM).
 
+`RPI_DIST_RELEASE` is not a test gate; set it on a **non-Pi** machine (eg. a
+macOS laptop used to cut release tarballs) to bypass the wiringPi/i2c
+presence checks in the XS distributions' `Makefile.PL` files so that
+`make dist` can run. Leave it unset everywhere else - without it, those
+checks exit before a Makefile is written, which is what makes CPAN testers
+without wiringPi report NA instead of FAIL.
+
 ## I2C Test Platform Connections
 
 The below list shows the I2C addresses in use on the Raspberry Pi in the
