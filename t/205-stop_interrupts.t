@@ -12,13 +12,12 @@ rpi_running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
 
-BEGIN {
-    my $c;
+# In-process interrupt callback counter (a file lexical, not an env var gate)
 
-    sub handler {
-        $c++;
-        $ENV{PI_INTERRUPT} = $c;
-    }
+my $interrupts = 0;
+
+sub handler {
+    $interrupts++;
 }
 
 my $pi = $mod->new(
@@ -45,7 +44,7 @@ if (! $ENV{NO_BOARD}){
 
     $pi->dispatch_interrupts();
 
-    is $ENV{PI_INTERRUPT}, 1, "edge dispatched while armed ok";
+    is $interrupts, 1, "edge dispatched while armed ok";
 
     # stop_interrupts tears the subsystem down: the self-pipe is gone and the
     # ISR is stopped, so further edges must not dispatch.
@@ -59,7 +58,7 @@ if (! $ENV{NO_BOARD}){
 
     is $pi->wait_interrupts(200), 0,
         "wait_interrupts() returns 0 after stop_interrupts ok";
-    is $ENV{PI_INTERRUPT}, 1, "count frozen after stop_interrupts ok";
+    is $interrupts, 1, "count frozen after stop_interrupts ok";
 
     # re-arming resumes dispatch from a fresh pipe
 
@@ -73,7 +72,7 @@ if (! $ENV{NO_BOARD}){
 
     $pi->dispatch_interrupts();
 
-    is $ENV{PI_INTERRUPT}, 2, "re-arming resumes dispatch ok";
+    is $interrupts, 2, "re-arming resumes dispatch ok";
 }
 
 $pi->cleanup;

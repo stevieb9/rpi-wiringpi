@@ -12,13 +12,12 @@ rpi_running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
 
-BEGIN {
-    my $c;
+# In-process interrupt callback counter (a file lexical, not an env var gate)
 
-    sub handler {
-        $c++;
-        $ENV{PI_INTERRUPT} = $c;
-    }
+my $interrupts = 0;
+
+sub handler {
+    $interrupts++;
 }
 
 my $pi = $mod->new(
@@ -64,7 +63,7 @@ if (! $ENV{NO_BOARD}){
 
     ok ! $@, "run_interrupt_loop() terminated via \$max (no hang) ok" or diag $@;
     is $total, $max, "run_interrupt_loop(200, $max) returned $max ok";
-    is $ENV{PI_INTERRUPT}, $max, "callback fired $max times ok";
+    is $interrupts, $max, "callback fired $max times ok";
 
     # a single pre-filled edge with $max == 1 returns 1
 

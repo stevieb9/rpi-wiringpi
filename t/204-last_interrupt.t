@@ -12,13 +12,12 @@ rpi_running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
 
-BEGIN {
-    my $c;
+# In-process interrupt callback counter (a file lexical, not an env var gate)
 
-    sub handler {
-        $c++;
-        $ENV{PI_INTERRUPT} = $c;
-    }
+my $interrupts = 0;
+
+sub handler {
+    $interrupts++;
 }
 
 my $pi = $mod->new(

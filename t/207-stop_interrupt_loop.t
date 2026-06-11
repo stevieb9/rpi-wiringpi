@@ -36,7 +36,6 @@ if (! $ENV{NO_BOARD}){
 
     $pin->set_interrupt(EDGE_RISING, sub {
         $count++;
-        $ENV{PI_INTERRUPT} = $count;
         $pi->stop_interrupt_loop if $count >= $threshold;
     });
 

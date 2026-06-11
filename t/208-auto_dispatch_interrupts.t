@@ -12,13 +12,12 @@ rpi_running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
 
-BEGIN {
-    my $c;
+# In-process interrupt callback counter (a file lexical, not an env var gate)
 
-    sub handler {
-        $c++;
-        $ENV{PI_INTERRUPT} = $c;
-    }
+my $interrupts = 0;
+
+sub handler {
+    $interrupts++;
 }
 
 my $pi = $mod->new(
@@ -45,7 +44,7 @@ if (! $ENV{NO_BOARD}){
 
     # SIGIO delivery (the default signal)
 
-    my $base = $ENV{PI_INTERRUPT} || 0;
+    my $base = $interrupts;
 
     $pi->auto_dispatch_interrupts(1, 'IO');
 
@@ -56,16 +55,16 @@ if (! $ENV{NO_BOARD}){
         select(undef, undef, undef, 0.05);
     }
 
-    poll_until(sub { ($ENV{PI_INTERRUPT} || 0) >= $base + $edges });
+    poll_until(sub { $interrupts >= $base + $edges });
 
-    is $ENV{PI_INTERRUPT}, $base + $edges,
+    is $interrupts, $base + $edges,
         "SIGIO auto-dispatch delivered $edges edges (sleep-only loop) ok";
 
     $pi->auto_dispatch_interrupts(0);
 
     # SIGUSR1 delivery (a non-default signal wired via F_SETSIG)
 
-    my $base2 = $ENV{PI_INTERRUPT};
+    my $base2 = $interrupts;
 
     $pi->auto_dispatch_interrupts(1, 'USR1');
 
@@ -76,9 +75,9 @@ if (! $ENV{NO_BOARD}){
         select(undef, undef, undef, 0.05);
     }
 
-    poll_until(sub { ($ENV{PI_INTERRUPT} || 0) >= $base2 + $edges });
+    poll_until(sub { $interrupts >= $base2 + $edges });
 
-    is $ENV{PI_INTERRUPT}, $base2 + $edges,
+    is $interrupts, $base2 + $edges,
         "SIGUSR1 auto-dispatch delivered $edges edges (sleep-only loop) ok";
 
     $pi->auto_dispatch_interrupts(0);
