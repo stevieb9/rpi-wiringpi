@@ -131,7 +131,7 @@ To test your I2C bus:
     i2cdetect -y 0
 
 First thing you need to do is enable the I2C bus. You can do so in
-`raspi-config`, or ensure the `ram=i2c_arm` directive is set to `on` in the
+`raspi-config`, or ensure the `dtparam=i2c_arm` directive is set to `on` in the
 `/boot/firmware/config.txt` file (`/boot/config.txt` on releases before
 Bookworm):
 

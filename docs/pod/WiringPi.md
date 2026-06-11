@@ -92,6 +92,10 @@ normally would. Set `fatal_exit` to false (`0`) to perform the cleanup and then
 **continue running** your script (eg. for unit-test work, or to allow your own
 signal handling to take over).
 
+With multiple Pi objects in a single process, the signal is re-raised only if
+every live object has `fatal_exit` true; any object created with
+`fatal_exit => 0` keeps the process running.
+
 Note that this only affects trapped signals. Hardware cleanup on a normal exit or
 on an uncaught `die()` always happens automatically (via the object's `END`/
 `DESTROY` handling); we do **not** trap `$SIG{__DIE__}`, so a `die()` you catch
@@ -339,12 +343,16 @@ serial bus.
 See the linked documentation for full documentation on usage, or the
 [RPi::WiringPi::FAQ](https://metacpan.org/pod/RPi%3A%3AWiringPi%3A%3AFAQ) for usage examples.
 
-NOTE: Bluetooth on the Pi overlays the serial pins (14, 15) on the Pi. To use
-serial, you must disable bluetooth in the `/boot/firmware/config.txt` file
-(`/boot/config.txt` on releases before Bookworm):
+NOTE: On the Pi 3 and Pi 4, Bluetooth occupies the primary UART, leaving the
+header pins (14, 15) on the mini-UART (`/dev/ttyS0`). To put the full PL011
+UART back on the header you must disable Bluetooth in the
+`/boot/firmware/config.txt` file (`/boot/config.txt` on releases before
+Bookworm):
 
-       dtoverlay=pi3-disable-bt-overlay
-    
+    dtoverlay=pi3-disable-bt-overlay
+
+On the Pi 5, Bluetooth has its own dedicated UART, so no `disable-bt` overlay
+is needed; simply enable the header UART (`/dev/ttyAMA0`) with `enable_uart=1`.
 
 ## servo($pin\_num)
 

@@ -255,6 +255,11 @@ Revision history for Perl extension RPi::WiringPi.
           survival/termination), plus new lock-release-on-die and
           missing-slot cases in t/03 and handler-restore edge cases
           (CODE/'IGNORE'/multi-object) in t/153
+        - Regenerated README from the current RPi::WiringPi POD (it was ~826
+          lines behind: claimed $SIG{__DIE__} was trapped, referenced wiringPi
+          2.36+, and was missing the interrupt/worker/eeprom/oled/pi_model
+          methods and shm_key/rpi_register* params), and refreshed the stale
+          docs/pod/WiringPi.md and docs/pod/FAQ.md via scripts/gen-pod-md.pl
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
