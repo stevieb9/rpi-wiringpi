@@ -18,8 +18,8 @@ if (! @ARGV){
 #               not just its contents (see meta_remove)
 
 my $shm_key = $ARGV[0];
-my $erase_all = $ARGV[1] //= 0;
-my $display = $ARGV[2] //=0;
+my $erase_all = $ARGV[1] // 0;
+my $display = $ARGV[2] // 0;
 my $remove = $ARGV[3] // 0;
 
 if (! RPi::WiringPi->meta_key_check($shm_key)){

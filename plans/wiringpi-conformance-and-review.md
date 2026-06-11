@@ -1,8 +1,8 @@
 # Plan: RPi sibling API-conformance to new WiringPi::API + rpi-wiringpi review
 
-> **NEXT ACTION:** 🤚 V24 (USER) is the only open task — all Claude-owned V tasks are complete. Backlog B1/B5-B15 remains for future promotion.
-> **LAST SESSION:** V34 done — F48 oled() dies for whitelisted-but-unimplemented 128x32/96x16; F49 expander() croaks on unrecognized type; F50 pin_to_gpio() croak is now the catch-all (no silent undef on corrupt scheme); F51 all 4 test-hygiene nits fixed (t/150 message, t/111 debug print, t/300 dup use lib, t/107 direct mode_alt assertion). All 4 error paths verified live; sweep t/0-3* (45 files, 1446 tests) green. Changes updated. Uncommitted.
-> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1-V14, V20-V23, V25-V34 (less 🤚V24)
+> **NEXT ACTION:** 🤚 V24 (USER) is the only open task — all Claude-owned V tasks are complete. Backlog B6-B15 remains for future promotion (user directive 2026-06-11: work backlog in numeric order; B6 is next).
+> **LAST SESSION:** V36 done (B5 promoted) — bin/pinmap guards undef before `== -1` in both loops (no more uninitialized-value warnings on unmapped phys pins; live run clean), bin/pimetaerase `//=` → `//` cosmetic fixes. F39 resolved; Changes updated. Uncommitted.
+> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1-V14, V20-V23, V25-V36 (less 🤚V24)
 
 ## Context
 
@@ -58,7 +58,7 @@ Permanent audit ledger. Mark in place as resolved; never renumber.
 - ✅ RESOLVED (V3) **F4** (→V3): `rpi-adc-mcp3008 MCP3008.pm:25` calls `spi_setup()` (`:perl`) under a `:wiringPi`-only import — undefined sub.
 - ✅ RESOLVED (V3-V6) **F5** (→V3–V6): `RPi::WiringPi::Constant` no longer ships in rpi-wiringpi `lib/`; siblings still importing it (rpi-adc-mcp3008 confirmed; rpi-bmp180/rpi-dac-mcp4922/rpi-digipot-mcp4xxxx flagged by usage map) must migrate to `RPi::Const`. **NOTE (baseline check):** a stale `RPi::WiringPi::Constant` v1.02 is *still installed* on the Pi even though it's no longer in rpi-wiringpi's source — so these siblings load today and the breakage is currently *masked*. They remain non-conforming and will break the moment that leftover copy is removed. Installed reference set: WiringPi::API 3.1802_01, RPi::Const 1.05. **Verified (debate, executed):** live diff of legacy `RPi::WiringPi::Constant` 1.02 vs `RPi::Const` 1.05 → all 31 legacy names present, **0 value diffs** (ALT*/EDGE_*/PWM_*; `EDGE_FALLING==INT_EDGE_FALLING==1`); rpi-bmp180/rpi-dac-mcp4922/rpi-digipot-mcp4xxxx confirmed line-by-line on the legacy module.
 - ✅ RESOLVED (V7) **F6** (→V7): `rpi-pin/lib/RPi/Pin.pm:~128` calls `WiringPi::API::background_interrupt(...)`; interrupt subsystem was reworked (split BackgroundInterrupt classes, new return-handle semantics) — verify call site matches new contract. **Verified-at-source (debate):** `Pin.pm:128,155` `set_interrupt`/`background_interrupt` call sites match the new API (still confirm under build/test in V7).
-- ⏸ DEFERRED → B1 **F7** (→V13/backlog): several siblings declare an old `WiringPi::API` minimum (2.36xx) in Makefile.PL; satisfied numerically by 3.1802 but understates the real requirement. Tracked as B1 (out of strict scope).
+- ✅ RESOLVED (V35) **F7** (→V13/backlog): several siblings declare an old `WiringPi::API` minimum (2.36xx) in Makefile.PL; satisfied numerically by 3.1802 but understates the real requirement. Tracked as B1; promoted to V35 and resolved — all 9 declaring siblings bumped to `WiringPi::API 3.1803` / `RPi::Const 1.05`.
 
 **Part B — rpi-wiringpi review (V20–V22 complete; findings below).** Severity in brackets.
 
@@ -81,7 +81,7 @@ _New code findings (V21):_
 - ✅ RESOLVED (V26) **F23** [med] (→V26): `WiringPi.pm:454-463` `_fatal_exit` writes the package-global `$fatal_exit`, so `new(fatal_exit=>0)` on a second object flips it for ALL objects (the signal path reads the global, not `$self->{fatal_exit}`). Make per-object or document as process-global.
 - ✅ RESOLVED (V26) **F24** [med] (→V26): `Core.pm:42-51,61-66` `io_led`/`pwr_led` use backtick `... | sudo tee ...` with no exit-status check — a failing sudo silently no-ops while `identify()` reports success; STDERR leaks; shell-interpolation-shaped. Mirror the `system(...) != 0` checking already in `_restore_pin_alt:366-369`.
 - **F38** [low] (→backlog B6): `Util.pm:29` compares scheme with `eq RPI_MODE_UNINIT` while `Core.pm:80-87` uses `==` on the same env-sourced value — inconsistent; pick numeric `==` (enums).
-- **F39** [low] (→backlog B5): `bin/pinmap:18-22,28-31` `$wpi == -1` warns when `pin_map` returns undef; guard `next if ! defined $wpi || $wpi == -1`. Also `bin/pimetaerase:21-22` cosmetic `//=`/spacing.
+- ✅ RESOLVED (V36) **F39** [low] (→backlog B5): `bin/pinmap:18-22,28-31` `$wpi == -1` warns when `pin_map` returns undef; guard `next if ! defined $wpi || $wpi == -1`. Also `bin/pimetaerase:21-22` cosmetic `//=`/spacing. Promoted to V36 and fixed exactly as prescribed.
 - **F40** [info] (→backlog B7): diamond inheritance (Meta reached via Core's branch) works today (DFS dedups, no conflicting overrides) but is latent — document intended MRO or adopt `use mro 'c3'` before adding any cross-branch override. (uuid-collision loop `WiringPi.pm:81-85` reviewed — acceptable, no action.)
 
 _New documentation findings (V20):_
@@ -119,10 +119,6 @@ _From the V33 residual exhaustive pass (4 parallel reviewers over all 69 t/*.t +
 - ⏸ DEFERRED → B11 **F52** [low] (→B11): `t/109:84,95` lower-bound assertions `is $o >= -1, 1` are effectively vacuous (percent can't go below 0); fold into the B11 t/109↔t/140 acceptance-band reconciliation.
 
 ## Backlog
-
-B1: Bump siblings' declared `WiringPi::API`/`RPi::Const` minimum versions in Makefile.PL to the real new minimums (out of strict "code must work" scope; correctness/metadata hygiene).
-
-B5: `bin/pinmap` undef-guard before `== -1` and `bin/pimetaerase` cosmetic `//=`/spacing (F39).
 
 B6: Make `pin_scheme` comparisons consistently numeric `==` across Util.pm/Core.pm (F38).
 

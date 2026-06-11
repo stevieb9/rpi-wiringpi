@@ -34,6 +34,10 @@
 
 - V34: post-V33 fixes — F48 (oled() dies for unimplemented 128x32/96x16), F49 (expander() croaks on unknown type), F50 (pin_to_gpio() catch-all croak), F51 (t/150 message, t/111 debug print, t/300 dup use lib, t/107 boolean-eq assertion) — ✅ 2026-06-11 attempt 1: PASS (all 4 error paths verified live via eval; t/0-3* sweep 45 files/1446 tests green)
 
+- V35: sibling prereq minimums (B1 promoted; F7) — all 9 sibling Makefile.PLs declaring either module (rpi-pin, rpi-spi, rpi-lcd, rpi-bmp180, rpi-steppermotor, rpi-adc-mcp3008, rpi-dac-mcp4922, rpi-digipot-mcp4xxxx, rpi-gpioexpander-mcp23017) bumped to `WiringPi::API => 3.1803` (unreleased as of yet, per user) / `RPi::Const => 1.05` — ✅ 2026-06-11 attempt 1: PASS (grep-verified all 16 prereq lines; usage↔declaration audit clean: every sibling `use`ing either module declares it, no missing declarations)
+
+- V36: bin script fixes (B5 promoted; F39) — bin/pinmap `next if ! defined $wpi || $wpi == -1` guard in both loops (phys pins absent from the map no longer warn), bin/pimetaerase `//=`/`//=0` → `// 0` (no later @ARGV reads, behavior unchanged); Changes updated — ✅ 2026-06-11 attempt 1: PASS (perl -c both; live `perl -Ilib bin/pinmap` run: full map printed, zero warnings, exit 0)
+
 ## Archived Fixes
 
 - Fix 5: problem discovered during V13 — rpi-serial `t/serial_rx.t` was an orphaned manual dev script in t/ (no Test::More/plan, infinite loop, hardcoded /dev/ttyUSB0, calls `rx()` which commit ad3e4bc deliberately removed); it broke `prove t` with exit 9. Not in MANIFEST, referenced nowhere — deleted. Resolved 2026-06-10 as part of V13.
