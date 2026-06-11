@@ -42,7 +42,6 @@ use constant {
     RANGE   => 2000,
     DELAY   => 0.01,
     ANALOG  => 0,
-    MAX_IN  => 40,
 };
 
 my $pi = $mod->new(label => 't/109-pwm_hw_mods.t', shm_key => 'rpit');
@@ -77,12 +76,20 @@ if (! $ENV{NO_BOARD}) {
 
     #sleep 1;
 
+    # Acceptance windows are single-sourced in t/RPiTest.pm
+    # (rpi_pwm_adc_window(); shared with t/140-pwm_spi_adc.t) - recalibrate
+    # there, not here. With this file's custom RANGE the helper returns the
+    # duty-cycle model window, giving each cycle a real lower bound (the old
+    # `>= -1` was unfailable) and a duty-tracking upper bound (the old flat
+    # ceiling was 40)
+
     for (LEFT .. RIGHT){
         # sweep all the way left to right
         $pin->pwm($_);
         $o = $adc->percent(ANALOG);
-        is $o >= -1, 1, "output ok on cycle $_ on right";
-        is $o < MAX_IN, 1, "output ok on cycle $_ on right\n";
+        my ($min, $max) = rpi_pwm_adc_window($_, RANGE);
+        cmp_ok $o, '>=', $min, "output >= $min on cycle $_ going right ok";
+        cmp_ok $o, '<=', $max, "output <= $max on cycle $_ going right ok";
         select(undef, undef, undef, DELAY);
     }
 
@@ -92,8 +99,9 @@ if (! $ENV{NO_BOARD}) {
         # sweep all the way right to left
         $pin->pwm($_);
         $o = $adc->percent(ANALOG);
-        is $o >= -1, 1, "output ok on cycle $_ on left";
-        is $o < MAX_IN, 1, "output ok on cycle $_ on left\n";
+        my ($min, $max) = rpi_pwm_adc_window($_, RANGE);
+        cmp_ok $o, '>=', $min, "output >= $min on cycle $_ going left ok";
+        cmp_ok $o, '<=', $max, "output <= $max on cycle $_ going left ok";
         select(undef, undef, undef, DELAY);
     }
 

@@ -317,6 +317,11 @@ Revision history for Perl extension RPi::WiringPi.
         - RPI_RELEASE_TESTING alone now enables the POD tests (t/500/505/510);
           the redundant RPI_POD second gate and rpi_pod_check() are removed,
           and the FAQ env var documentation updated to match
+        - The PWM feedback acceptance windows are single-sourced in
+          t/RPiTest.pm (rpi_pwm_adc_window()) and shared by t/109 and t/140,
+          so a hardware recalibration updates both tests in one place; t/109's
+          unfailable `>= -1` lower bounds replaced with real duty-tracking
+          windows (the flat ceiling of 40 is now ~17 at peak)
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
