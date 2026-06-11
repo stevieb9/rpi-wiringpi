@@ -34,13 +34,15 @@ $pi->cleanup;
 
 $sh = $pi->signal_handlers;
 
-is keys(%{ $sh }), 2, "after proper cleanup, there are two sig handlers set";
+# cleanup() releases the object's INT/TERM entries, and with the last object
+# gone, the pre-object dispositions (here, none == DEFAULT) are restored
+
+is keys(%{ $sh }), 0, "after proper cleanup, all sig handler entries are released";
 ok ! exists $sh->{'__DIE__'}, "__DIE__ is still not trapped after cleanup()";
 
 for ('INT', 'TERM'){
-    is exists($sh->{$_}), 1, "$_ is a valid handler after clean cleanup()";
-    my $uuid = $pi->uuid;
-    is ref $sh->{$_}{$uuid}, 'CODE', "$_ has a handler for UUID $uuid after clean cleanup()";
+    ok ! exists $sh->{$_}, "$_ handler entry removed after clean cleanup()";
+    is $SIG{$_}, 'DEFAULT', "\$SIG{$_} restored to its pre-object disposition";
 }
 
 rpi_check_pin_status();

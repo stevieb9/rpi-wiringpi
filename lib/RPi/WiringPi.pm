@@ -16,7 +16,6 @@ our $VERSION = '3.1801_01';
 
 # class variables
 
-my $fatal_exit = 1;
 my %sig_handlers;
 my %prev_sig;
 my $signal_debug = 0;
@@ -77,24 +76,24 @@ sub new {
     if ($self->_rpi_register) {
         # Register all objects for collision detection and safety shutdown
 
-        $self->meta_lock;
-        my $meta = $self->meta_fetch;
+        $self->_meta_txn(sub {
+            my $meta = $self->meta_fetch;
 
-        while (! defined $self->{uuid}) {
-            my $uuid = $self->checksum;
-            next if exists $meta->{objects}{$uuid};
-            $self->{uuid} = $uuid;
-        }
+            while (! defined $self->{uuid}) {
+                my $uuid = $self->checksum;
+                next if exists $meta->{objects}{$uuid};
+                $self->{uuid} = $uuid;
+            }
 
-        $meta->{objects}{$self->uuid} = {
-            proc  => $self->{proc},
-            label => $self->{label}
-        };
+            $meta->{objects}{$self->uuid} = {
+                proc  => $self->{proc},
+                label => $self->{label}
+            };
 
-        $meta->{object_count}++;
+            $meta->{object_count}++;
 
-        $self->meta_store($meta);
-        $self->meta_unlock;
+            $self->meta_store($meta);
+        });
 
         $self->_generate_signal_handlers;
 
@@ -432,9 +431,17 @@ sub _class_signal_handler {
 
     # fatal_exit (default true): once cleanup is done, terminate with the
     # signal's default disposition so the exit status is correct (and END still
-    # runs). fatal_exit => 0 cleans up and lets the program carry on
+    # runs). The setting is per-object: if ANY live object was created with
+    # fatal_exit => 0, the process is allowed to carry on
 
-    if ($fatal_exit) {
+    my $fatal = 1;
+
+    for my $uuid (keys %objects) {
+        my $obj = $objects{$uuid} or next;
+        $fatal = 0 if ! $obj->{fatal_exit};
+    }
+
+    if ($fatal) {
         $SIG{$signal} = 'DEFAULT';
         kill $signal, $$;
     }
@@ -456,11 +463,12 @@ sub _cleanup_handler {
 sub _fatal_exit {
     my ($self, $fatal) = @_;
 
-    if (defined $fatal) {
-        $fatal_exit = $fatal;
-    }
+    # Strictly per-object; _class_signal_handler honours a fatal_exit => 0
+    # from any live object instead of a process-global last-writer-wins
 
-    $self->{fatal_exit} = $fatal_exit;
+    $self->{fatal_exit} = $fatal if defined $fatal;
+    $self->{fatal_exit} = 1 if ! defined $self->{fatal_exit};
+
     return $self->{fatal_exit};
 }
 sub _generate_signal_handlers {
@@ -474,7 +482,12 @@ sub _generate_signal_handlers {
         # Preserve any handler the caller already set so we can chain to it.
 
         for my $sig (qw(INT TERM)){
-            $prev_sig{$sig} = $SIG{$sig} if ref $SIG{$sig} eq 'CODE';
+            # Preserve whatever disposition was in place (a CODE ref, a sub
+            # name, 'IGNORE'/'DEFAULT', or undef) so it can be restored once
+            # the last object is cleaned up. Only CODE refs are chained
+            # mid-signal in _class_signal_handler
+
+            $prev_sig{$sig} = $SIG{$sig};
             $SIG{$sig} = sub { _class_signal_handler($sig, @_) };
         }
     }
@@ -486,6 +499,24 @@ sub _generate_signal_handlers {
     $sig_handlers{'TERM'}{$self->uuid} = sub {
         $self->_cleanup_handler('TERM')
     };
+}
+sub _release_signal_handlers {
+    # Drops this object's per-signal cleanup entries (releasing the strong
+    # closure that keeps the object alive). When the last object for a signal
+    # is gone, restore the handler that was in place before we took over,
+    # including non-CODE dispositions ('IGNORE', 'DEFAULT', sub names)
+
+    my ($self) = @_;
+
+    for my $sig (qw(INT TERM)){
+        delete $sig_handlers{$sig}{$self->uuid};
+
+        if (! keys %{ $sig_handlers{$sig} }){
+            $SIG{$sig} = defined $prev_sig{$sig} ? $prev_sig{$sig} : 'DEFAULT';
+            delete $sig_handlers{$sig};
+            delete $prev_sig{$sig};
+        }
+    }
 }
 sub _setup {
     return $_[0]->{setup};
@@ -616,6 +647,10 @@ In both cases we first reset the Pi hardware to a safe state. By default
 normally would. Set C<fatal_exit> to false (C<0>) to perform the cleanup and then
 B<continue running> your script (eg. for unit-test work, or to allow your own
 signal handling to take over).
+
+With multiple Pi objects in a single process, the signal is re-raised only if
+every live object has C<fatal_exit> true; any object created with
+C<fatal_exit =E<gt> 0> keeps the process running.
 
 Note that this only affects trapped signals. Hardware cleanup on a normal exit or
 on an uncaught C<die()> always happens automatically (via the object's C<END>/
