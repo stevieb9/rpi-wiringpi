@@ -13,6 +13,7 @@ build_testing/hc12/hc12-receive.pl
 build_testing/hc12/hc12-send-receive.ino
 build_testing/i2c.pl
 build_testing/identify.pl
+build_testing/meta_shareable_check.pl
 build_testing/metadata.pl
 build_testing/multi.pl
 build_testing/perlmonks.pl
@@ -33,17 +34,17 @@ docs/breadboard/adc_basic_example_bb.jpg
 docs/breadboard/brewbuild_test_platform_bb.jpg
 docs/breadboard/dpot_adc_bb.jpg
 docs/breadboard/two_74595_shift_registers_bb.jpg
+docs/examples/interrupt-examples.md
+docs/examples/threads-examples.md
 docs/fritzing/adc_basic_example.fzz
 docs/fritzing/brewbuild_test_platform.fzz
 docs/fritzing/dpot_adc.fzz
 docs/fritzing/two_74595_shift_registers.fzz
-docs/interrupt-examples.md
 docs/pics/bb_hardware_test_platform.jpg
 docs/schematic/adc_basic_example_schem.jpg
 docs/schematic/dpot_adc_schem.jpg
 docs/sketch/arduino.ino
 docs/sketch/arduino/arduino.ino
-docs/threads-examples.md
 lib/RPi/WiringPi.pm
 lib/RPi/WiringPi/Core.pm
 lib/RPi/WiringPi/FAQ.pod
@@ -148,5 +149,4 @@ t/multi/full_slave.pl
 t/multi/int_master.pl
 t/multi/int_slave.pl
 t/multi/README
-t/README
 t/RPiTest.pm

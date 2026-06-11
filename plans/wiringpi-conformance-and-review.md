@@ -1,8 +1,8 @@
 # Plan: RPi sibling API-conformance to new WiringPi::API + rpi-wiringpi review
 
-> **NEXT ACTION:** V31 — fix the release-blocking MANIFEST drift (F41); then V2 onward. (Nothing is run on the device yet — planning only.)
-> **LAST SESSION:** Ran a completeness debate (proposal/wiringpi-plan-completeness-audit.md, RESOLVED). Challenger found 5 real misses → added F41–F47, tasks V14/V31–V33, backlog B13–B14; folded executed evidence into F5/F6; archived V1 (baseline ran). No code changed.
-> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1, V20-V22
+> **NEXT ACTION:** V3 — rpi-adc-mcp3008 migration (F2/F3/F4): RPi::WiringPi::Constant→RPi::Const, wpi_setup()→setup_gpio(), spi_setup tag fix; rebuild XS + test.
+> **LAST SESSION:** V2 done — rpi-spi F1 fixed per user choice: camelCase (`pinMode`/`digitalWrite`). Discovery Fix 2: `rw()`'s CS bracket used `pin_mode($cs,0/1)` (mode-flip → floating CS) where intent was level writes; translated to `digitalWrite`. Build+prove pass; all 4 subs resolve in namespace. rpi-spi changes uncommitted.
+> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1, V2, V20-V22, V31
 
 ## Context
 
@@ -41,7 +41,6 @@ Empirical conformance check for Part A = build + run each dependent sibling's te
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V2 | **rpi-spi** — fix `:wiringPi`/`:perl` mismatch (F1): switch `pin_mode`/`write_pin` to camelCase `pinMode`/`digitalWrite` (or import `:all`); build + test | `cd ~/repos/rpi-spi && perl Makefile.PL && make && PI_BOARD=1 RPI_OBJECT_COUNT=0 prove -blv t` | Compiles; bit-bang path resolves; tests pass/skip cleanly | ⏳ |
 | V3 | **rpi-adc-mcp3008** — migrate `RPi::WiringPi::Constant`→`RPi::Const` (F2/F5), replace removed `wpi_setup()`→`setup_gpio()` (F3), fix `spi_setup` tag (F4); rebuild XS + test | `cd ~/repos/rpi-adc-mcp3008 && perl Makefile.PL && make && PI_BOARD=1 RPI_OBJECT_COUNT=0 prove -blv t` | Compiles; no undefined subs; tests pass/skip | ⏳ |
 | V4 | **rpi-dac-mcp4922** — audit constant source (F5) + `:all` calls vs new API; rebuild XS + test | `cd ~/repos/rpi-dac-mcp4922 && perl Makefile.PL && make && PI_BOARD=1 RPI_OBJECT_COUNT=0 prove -blv t` | Compiles; tests pass/skip | ⏳ |
 | V5 | **rpi-digipot-mcp4xxxx** — audit constant source (F5) + `:all` calls; build + test | `cd ~/repos/rpi-digipot-mcp4xxxx && perl Makefile.PL && make && PI_BOARD=1 RPI_OBJECT_COUNT=0 prove -blv t` | Compiles; tests pass/skip | ⏳ |
@@ -62,7 +61,6 @@ Empirical conformance check for Part A = build + run each dependent sibling's te
 | V28 | **POD source fixes** — broken example-doc paths in INTERRUPTS.pod/FAQ.pod (F26), invalid `RPi::WiringPi;` constructor in Meta.pm/FAQ (F27), `my gps`/`$ruler`/`$sensor` example errors (F28), Meta.pm missing `=head1 AUTHOR` (F29), `oled()` undocumented 3rd param (F30), `pwm_mode` 0/1 mapping vs constants (F31), RPi::Pin 2.3609 `background_interrupt` caveat (F32) | `cd ~/repos/rpi-wiringpi && RPI_RELEASE_TESTING=1 RPI_POD=1 prove -bl t/500* t/505* t/510*` | POD examples valid; links resolve; POD tests pass | ⏳ |
 | V29 | **Test correctness fixes** — `RPI_ARUDINO`→`RPI_ARDUINO` skip msg (F11), `920-oled_cleanup.t` `/tmp`→`/dev/shm` vacuous-pass (F33), restore pins 12/26 to reset tables so CS pins are reset-verified (F12) + make `rpi_verify_pin_status` report the offending pin (F34), auto-set `RPI_I2C` (or document) so root runs don't silently skip PWM/servo (F35) | `cd ~/repos/rpi-wiringpi && PI_BOARD=1 RPI_OBJECT_COUNT=<n> prove -bl t/300* t/920* t/01*` | Typo fixed; 920 verifies real path; 12/26 covered; root gating consistent | ⏳ |
 | V30 | **Test robustness** — adopt the `t/325` eval+idempotent-cleanup+INT/TERM guard (or `END { $pi->cleanup }`) in device tests that leak on death (F36); document the serial-only `-j1` requirement given shared `shm_key 'rpit'` + fixed pins (F37) | `cd ~/repos/rpi-wiringpi && PI_BOARD=1 RPI_OBJECT_COUNT=<n> prove -bl t/310* t/335* t/345* t/305* t/925*` | Cleanup runs on failure; serial requirement documented; tests pass | ⏳ |
-| V31 | **[RELEASE-BLOCKING] MANIFEST drift** (F41) — remove the 3 phantom entries (`docs/interrupt-examples.md`, `docs/threads-examples.md`, `t/README`); add the moved `docs/examples/*.md`; reconcile with the F26 path fix so POD links point at shipped files | `cd ~/repos/rpi-wiringpi && perl -MExtUtils::Manifest=manicheck -e 'warn for manicheck' ; RPI_RELEASE_TESTING=1 prove -bl t/515*` | `manicheck` clean; `make distdir` succeeds; t/515 passes | ⏳ |
 | V32 | **`new()` `setup` param** (F47) — make `:50`/`:54`/`:58` match `^w`/`^g`/`^n`(one) **case-insensitively** and croak on truly-unrecognized values (do NOT blanket-croak — `'none'` is the intended uninit sentinel the suite uses); document `setup` (w/g/none + default) in WiringPi.pm POD | `cd ~/repos/rpi-wiringpi && PI_BOARD=1 RPI_OBJECT_COUNT=<n> prove -bl t/106*` + grep POD for `setup` | Unrecognized croaks; `'none'`/`'GPIO'`/`'Gpio'` all work; documented | ⏳ |
 | V33 | **Residual exhaustive pass** (F46) — full per-file line-by-line read of all 69 `t/*.t`, AND an exhaustive re-read of the large modules `WiringPi.pm` (~1290 lines) + `Core.pm` (~649) since the single-pass review proved non-exhaustive (yielded F22/F23/F42/F47) | manual review pass; append any new F# | No further material findings, or new F# logged | ⏳ |
 
@@ -75,7 +73,7 @@ _None yet._
 Permanent audit ledger. Mark in place as resolved; never renumber.
 
 **Part A — sibling conformance (verified during exploration):**
-- **F1** (→V2): `rpi-spi/lib/RPi/SPI.pm:6` imports `qw(:wiringPi)` but lines 21–22 call `pin_mode()`/`write_pin()` (snake_case `:perl` tag) — undefined subs whenever a GPIO CS is used (bit-bang mode).
+- ✅ RESOLVED (V2) **F1** (→V2): `rpi-spi/lib/RPi/SPI.pm:6` imports `qw(:wiringPi)` but lines 21–22 call `pin_mode()`/`write_pin()` (snake_case `:perl` tag) — undefined subs whenever a GPIO CS is used (bit-bang mode).
 - **F2** (→V3): `rpi-adc-mcp3008/lib/RPi/ADC/MCP3008.pm:11` `use RPi::WiringPi::Constant qw(:all)` — legacy module removed from ecosystem (see F5).
 - **F3** (→V3): `rpi-adc-mcp3008 MCP3008.pm:21` calls `wpi_setup()` — not present in new WiringPi::API (no `:wiringPi`/`:perl` member); use `setup_gpio()`/`wiringPiSetupGpio()`.
 - **F4** (→V3): `rpi-adc-mcp3008 MCP3008.pm:25` calls `spi_setup()` (`:perl`) under a `:wiringPi`-only import — undefined sub.
@@ -126,7 +124,7 @@ _New test findings (V22):_
 - (low/cosmetic test items folded to backlog: B9 `PI_INTERRUPT` in-process counter naming, B10 pod tests double-gated on `RPI_RELEASE_TESTING`+`RPI_POD`, B11 t/109↔t/140 near-duplicate with divergent acceptance bands, B12 fixed-`sleep` brittleness → poll-until loops.)
 
 _From the completeness debate (challenger Claude Fable 5, executed checks; see proposal/wiringpi-plan-completeness-audit.md):_
-- **F41** [RELEASE-BLOCKING] (→V31): `MANIFEST:40,46,151` list `docs/interrupt-examples.md`, `docs/threads-examples.md`, `t/README` — none exist (`ls` fails on all three; the two examples moved to `docs/examples/`, which are NOT in MANIFEST). `make distdir`→`manicopy` croaks → the 3.1802 tarball can't be cut, and post-F26 the POD links point at files the tarball wouldn't ship. Same file-move as F26. Verified by originator.
+- ✅ RESOLVED (V31) **F41** [RELEASE-BLOCKING] (→V31): `MANIFEST:40,46,151` list `docs/interrupt-examples.md`, `docs/threads-examples.md`, `t/README` — none exist (`ls` fails on all three; the two examples moved to `docs/examples/`, which are NOT in MANIFEST). `make distdir`→`manicopy` croaks → the 3.1802 tarball can't be cut, and post-F26 the POD links point at files the tarball wouldn't ship. Same file-move as F26. Verified by originator.
 - **F42** [HIGH] (→V23): `WiringPi.pm:38` `if (my $scheme = $ENV{RPI_PIN_MODE})` — `RPI_MODE_WPI == 0` (verified live) is the only falsy scheme, so after a first object's `setup=>'w'` (`:52`/`:65` write `"0"`), a second `new()` reads false, runs `setup_gpio()`, restamps GPIO — every WPI pin silently reinterpreted as BCM. `Core.pm:97-98` uses `defined` correctly. Was missed in a fully-reviewed file. Verified by originator.
 - **F43** [med→backlog B13] (→B13): `DHT11.xs:187-189` / `HCSR04.xs:23-25` `char modeEnvVar[20]; sprintf(...); putenv(modeEnvVar);` — putenv stores the pointer; the stack buffer dies on return; next `getenv("RPI_PIN_MODE")` reads freed stack. Pre-existing, NOT a 3.18 regression; fires only when `RPI_PIN_MODE` was already set (multi-dist/dual-sensor rig).
 - **F44** [structural] (→V14): `rpi-const`, the 19th sibling and the dependency root the migration single-sources from, had no row. Confirm-only (debate: repo 1.05 == installed 1.05, zero drift).
