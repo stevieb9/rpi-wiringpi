@@ -74,6 +74,7 @@ t/02-shm_key.t
 t/03-meta.t
 t/05-checksum_uuid.t
 t/100-identification_and_label.t
+t/104-core_regressions.t
 t/105-pin.t
 t/106-pin_map.t
 t/107-alt_modes.t
@@ -87,6 +88,7 @@ t/114-metadata_multi_pi_multi_script_sigint.t
 t/140-pwm_spi_adc.t
 t/150-cleanup.t
 t/153-sig_handlers.t
+t/154-fatal_exit.t
 t/200-interrupt_rising_and_pud.t
 t/201-interrupt_falling_and_pud.t
 t/202-interrupt_both_and_pud.t
