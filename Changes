@@ -335,6 +335,9 @@ Revision history for Perl extension RPi::WiringPi.
         - README replaced by README.md: scripts/gen-pod-md.pl now generates
           it in markdown from the main module's POD (the old README was a
           pod2text dump); MANIFEST updated to ship README.md
+        - Documented RPI_DIST_RELEASE in the FAQ testing env var list: set on
+          a non-Pi machine to bypass the XS distributions' Makefile.PL
+          wiringPi/i2c presence checks when cutting release tarballs
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
