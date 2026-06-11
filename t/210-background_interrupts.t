@@ -53,6 +53,10 @@ if (! $ENV{NO_BOARD}){
 
     is $h->disarm(18), 1, "disarm(18) accepted while running ok";
 
+    # Deliberate fixed settles (not poll-able): the parent has no observable
+    # "disarm applied" state, and the frozen-tally assertion below proves a
+    # negative - a quiet window is the only way to let stray edges surface
+
     select(undef, undef, undef, 0.3);   # let the child apply the disarm
 
     drive_edges(3);
@@ -64,10 +68,15 @@ if (! $ENV{NO_BOARD}){
 
     is $h->arm(18), 1, "arm(18) accepted while running ok";
 
-    select(undef, undef, undef, 0.3);   # let the child apply the re-arm
+    # Re-arm application is asynchronous, so early edges may be lost - keep
+    # driving single edges (bounded, ~20 attempts) until two get through,
+    # instead of a fixed settle before driving
 
-    drive_edges(2);
-    wait_for_count(5);
+    for (1 .. 20){
+        last if processed() >= 5;
+        drive_edges(1);
+        select(undef, undef, undef, 0.05);
+    }
 
     is processed(), 5, "after arm(18) edge processing resumes ok";
 

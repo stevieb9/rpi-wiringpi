@@ -47,30 +47,37 @@ isa_ok $uno, 'RPi::I2C';
     is $num, 1023, "I2C read_block() ok"
 }
 
-select(undef, undef, undef, 0.2);
+# The write tests poll the Arduino-side eeprom readback (bounded) until it
+# reflects the write, instead of fixed settle windows before each block
 
 { # write()
     $uno->write(25);
-    my @data = _eeprom();
+    my @data = _poll_eeprom(sub { $_[0] == 25 });
     is $data[0], 25, "I2C write() ok";
 }
 
-select(undef, undef, undef, 0.2);
-
 { # write_byte()
     $uno->write_byte(96, 30);
-    my @data = _eeprom();
+    my @data = _poll_eeprom(sub { $_[0] == 96 });
     is $data[0], 96, "I2C write_byte() ok";
 }
-
-select(undef, undef, undef, 0.2);
 
 { # write_block()
     my @send = qw(5 10 15 20);
 
     $uno->write_block(\@send, 35);
 
-    my @data = _eeprom();
+    my @data = _poll_eeprom(sub {
+        my @got = @_;
+
+        return 0 if @got != @send;
+
+        for my $i (0 .. $#send){
+            return 0 if $got[$i] != $send[$i];
+        }
+
+        return 1;
+    });
 
     my $c = 0;
 
@@ -89,5 +96,21 @@ done_testing();
 
 sub _eeprom {
     my @bytes = $uno->read_block(MAX_BYTES, 99);
+    return @bytes;
+}
+sub _poll_eeprom {
+    my ($cond) = @_;
+
+    # Poll the eeprom (bounded ~2s) until $cond->(@bytes) is true, returning
+    # the final read either way; the caller's assertions still run in full
+
+    my @bytes;
+
+    for (1 .. 40){
+        @bytes = _eeprom();
+        last if $cond->(@bytes);
+        select(undef, undef, undef, 0.05);
+    }
+
     return @bytes;
 }

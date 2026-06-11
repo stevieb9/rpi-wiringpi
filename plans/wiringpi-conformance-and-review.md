@@ -1,8 +1,8 @@
 # Plan: RPi sibling API-conformance to new WiringPi::API + rpi-wiringpi review
 
-> **NEXT ACTION:** 🤚 V24 (USER) is the only open task — all Claude-owned V tasks are complete. Backlog B8, B12-B15 remains (numeric order per user directive 2026-06-11; B8 skipped — deferred to the future major version — so B12 is next).
-> **LAST SESSION:** V41 done (B11 promoted; F52) — PWM↔ADS1115 acceptance windows single-sourced in RPiTest.pm `rpi_pwm_adc_window()`: empirical per-level table (t/140's historical bands, verbatim) + duty±4-point model fallback for off-table level/range combos (t/109's range-2000 sweep). t/140 bands proven byte-identical to historical; t/109's vacuous `>= -1` bounds replaced with real duty-tracking windows (ceiling 40 → ~17 at peak). **ADS1115 was dark** (i2cdetect empty) so live proof of t/109's model windows awaits the next powered RPI_I2C run; equivalence/unit/skip-path checks all pass. Changes updated. Uncommitted.
-> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1-V14, V20-V23, V25-V41 (less 🤚V24)
+> **NEXT ACTION:** 🤚 V24 (USER) is the only open task — all Claude-owned V tasks are complete. Backlog B8, B13-B16 remains (numeric order per user directive 2026-06-11; B8 skipped — deferred to the future major version — so B13 is next).
+> **LAST SESSION:** V42 done (B12 promoted) — fixed settles → bounded poll-until loops where a pollable condition exists: t/203 poll-drain accumulator, t/210 drive-until-tally on re-arm, t/305 eeprom-readback polling (`_poll_eeprom`), t/325 servo-feedback stabilization, t/330 register-reset polling. Deliberately NOT converted (documented in-file): t/210's two disarm quiet windows (negative proof — no pollable condition) and t/925's `sleep 2` (human-visible display pause). t/203+t/210 live: 98 tests green in 2s; t/305/325/330/925 gate-skip clean (device hardware dark — live proof of those conversions pending a powered run). Discovery: t/325 carries the F52-pattern vacuous `>= -1` bounds → new B16. Changes updated. Uncommitted.
+> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1-V14, V20-V23, V25-V42 (less 🤚V24)
 
 ## Context
 
@@ -100,7 +100,7 @@ _New test findings (V22):_
 - ✅ RESOLVED (V29) **F35** [med] (→V29): `t/140-pwm_spi_adc.t`, `t/109-pwm_hw_mods.t`, `t/325-servo.t` set PI_BOARD/RPI_ADC/RPI_SERVO under root but then `rpi_i2c_check()` skips unless `RPI_I2C` (the ADS1115 feedback is I2C) — `RPI_I2C` is not auto-set, so root runs silently skip these. Auto-set or document.
 - ✅ RESOLVED (V30) **F36** [med] (→V30): only `t/325-servo.t:66-75` guards cleanup with eval+INT/TERM; other device tests (t/310/335/345/305/925) skip `$pi->cleanup` if an assertion dies mid-loop, leaking pin/CS registration into shared meta. Adopt the guard or `END { $pi->cleanup if $pi }`.
 - ✅ RESOLVED (V30) **F37** [med] (→V30): all tests share `shm_key 'rpit'` and many drive the same physical pins (GPIO18 in 12+ tests; 12/26 in several), and t/110-114 assert absolute object/pin counts — the suite is implicitly serial-only; `prove -j` would corrupt counts and fight over pins. Document the `-j1` requirement.
-- (low/cosmetic test items folded to backlog: B9 `PI_INTERRUPT` in-process counter naming ✅ RESOLVED (V39), B10 pod tests double-gated on `RPI_RELEASE_TESTING`+`RPI_POD` ✅ RESOLVED (V40), B11 t/109↔t/140 near-duplicate with divergent acceptance bands ✅ RESOLVED (V41), B12 fixed-`sleep` brittleness → poll-until loops.)
+- (low/cosmetic test items folded to backlog: B9 `PI_INTERRUPT` in-process counter naming ✅ RESOLVED (V39), B10 pod tests double-gated on `RPI_RELEASE_TESTING`+`RPI_POD` ✅ RESOLVED (V40), B11 t/109↔t/140 near-duplicate with divergent acceptance bands ✅ RESOLVED (V41), B12 fixed-`sleep` brittleness → poll-until loops ✅ RESOLVED (V42).)
 
 _From the completeness debate (challenger Claude Fable 5, executed checks; see proposal/wiringpi-plan-completeness-audit.md):_
 - ✅ RESOLVED (V31) **F41** [RELEASE-BLOCKING] (→V31): `MANIFEST:40,46,151` list `docs/interrupt-examples.md`, `docs/threads-examples.md`, `t/README` — none exist (`ls` fails on all three; the two examples moved to `docs/examples/`, which are NOT in MANIFEST). `make distdir`→`manicopy` croaks → the 3.1802 tarball can't be cut, and post-F26 the POD links point at files the tarball wouldn't ship. Same file-move as F26. Verified by originator.
@@ -122,13 +122,13 @@ _From the V33 residual exhaustive pass (4 parallel reviewers over all 69 t/*.t +
 
 B8: Normalize `PI_BOARD`/`PI_INTERRUPT` → `RPI_*` prefix in a future major version with back-compat (F13).
 
-B12: Replace fixed `select`/`sleep` settle windows in interrupt/I2C tests (t/203/210/305/330/925/325) with poll-until-condition loops bounded by a timeout (as t/206/208 already do).
-
 B13: Fix the `putenv()` stack-buffer UB in `DHT11.xs`/`HCSR04.xs` (F43) — use a static/heap buffer or `setenv()` so `environ` doesn't dangle. Pre-existing, not a 3.18 regression.
 
 B14: `scripts/helpers/gen-schematic.py:145,225` — wrap output writes in a context manager with error handling instead of bare `open(path,'w').write(...)` (F45 note).
 
 B15: rpi-pin t/15-pwm.t + t/40-interrupt_and_pud.t re-exec via `system('sudo', 'perl', $0)` when not root — bare `sudo perl` resolves to the system perl (no perlbrew/blib) and dies with "Can't locate RPi/Pin.pm". Use `$^X` and propagate -Iblib paths/env, or document that the suite must run as root (discovered during V7).
+
+B16: t/325-servo.t sweep assertions carry the F52 pattern fixed in t/109 by V41 — vacuous `is $o >= -1, 1` lower bounds and a flat `< MAX_IN` (40) ceiling. Needs servo-feedback calibration windows (the feedback is a servo pot, not PWM duty, so `rpi_pwm_adc_window()` doesn't directly apply); calibrate on a powered rig (discovered during V42).
 
 ## Explicitly NOT doing
 
