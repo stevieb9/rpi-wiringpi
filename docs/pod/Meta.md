@@ -10,7 +10,7 @@ different scripts and processes easily.
 
 # SYNOPSIS
 
-    my $pi = RPi::WiringPi;
+    my $pi = RPi::WiringPi->new;
 
     my %data = (a => 1, b => 2, c => [1, 2, 3]);
 
@@ -174,6 +174,8 @@ empty segment, so this is safe to call mid-process.
 
 Returns: True `1` if a segment was removed, or `undef` if there was no live
 segment to remove.
+
+# AUTHOR
 
 Steve Bertrand, <steveb@cpan.org>
 

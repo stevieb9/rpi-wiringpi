@@ -879,7 +879,7 @@ full usage instructions.
 
 ## Usage
 
-    my gps = $pi->gps;
+    my $gps = $pi->gps;
 
     print $gps->lat;        # latitude
     print $gps->lon;        # longitude
@@ -1017,7 +1017,7 @@ through the [RPi::HCSR04](https://metacpan.org/pod/RPi%3A%3AHCSR04) distribution
     my $trig_pin = 23;
     my $echo_pin = 24;
 
-    my $ruler = $pi->hcsr04($trig_pin, $echo_pin);
+    my $sensor = $pi->hcsr04($trig_pin, $echo_pin);
 
     my $inches = $sensor->inch;
     my $cm     = $sensor->cm;
@@ -1196,7 +1196,7 @@ an OLED with the data received by the other script.
 
 ## Create the Pi Object
 
-    my $pi = RPi::WiringPi;
+    my $pi = RPi::WiringPi->new;
 
 ## Add data for sharing
 

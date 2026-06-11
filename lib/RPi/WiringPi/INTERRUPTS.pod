@@ -10,11 +10,11 @@ C<WiringPi::API> 3.18 and verified on Pi 5 hardware; the snippets run as written
 
 This document is B<edge-only and uses no> C<use threads> - general
 concurrency/worker examples (C<< $pi->worker >>) live in
-L<RPi::WiringPi::WORKERS> / C<docs/threads-examples.md>. Callbacks fire in your
+L<RPi::WiringPi::WORKERS> / C<docs/examples/threads-examples.md>. Callbacks fire in your
 own interpreter when you service dispatch, so they work on B<any> Perl, threaded
 or not.
 
-This is the C<perldoc> form of C<docs/interrupt-examples.md>. See L<RPi::WiringPi>
+This is the C<perldoc> form of C<docs/examples/interrupt-examples.md>. See L<RPi::WiringPi>
 for the per-method reference, and the underlying L<WiringPi::API> for the
 low-level functional API.
 
@@ -109,10 +109,10 @@ you need it to fire even then, use a background process (below).
 =head1 BACKGROUND HANDLING (ONE PROCESS, FIRES EVEN WHILE MAIN IS BUSY)
 
 B<Dependency note:> the per-pin C<< $pin->background_interrupt >> form shown in
-this section is not available yet - L<RPi::Pin> (as of C<2.3608>) implements only
-C<set_interrupt>. A future C<RPi::Pin> release must ship the method first. Until
-then, use the multi-pin C<< $pi->background_interrupts >> form
-(L</"MANY PINS IN ONE BACKGROUND CHILD">), which works today.
+this section requires L<RPi::Pin> C<2.3609> or greater (the version this
+distribution already requires). To handle several pins, the multi-pin
+C<< $pi->background_interrupts >> form (L</"MANY PINS IN ONE BACKGROUND CHILD">)
+runs them all from a single child instead of one child per pin.
 
 C<< $pin->background_interrupt >> forks a child that runs the handler on each edge
 while your main program does anything it likes. The handler runs in the child, so
@@ -266,7 +266,7 @@ come from C<RPi::Const qw(:all)>.
 
 L<RPi::WiringPi>, L<RPi::WiringPi::WORKERS> (running background work with
 C<< $pi->worker >>), the L<RPi::WiringPi::FAQ> "Interrupt usage" section,
-C<docs/interrupt-examples.md>, and the underlying L<WiringPi::API>.
+C<docs/examples/interrupt-examples.md>, and the underlying L<WiringPi::API>.
 
 =head1 AUTHOR
 

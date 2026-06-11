@@ -138,7 +138,7 @@ sub pwm_mode {
     }
 
     if (defined $mode) {
-        if ($mode == 0 || $mode == PWM_DEFAULT_MODE) {
+        if ($mode == PWM_MODE_MS || $mode == PWM_MODE_BAL) {
             $self->{pwm_mode} = $mode;
             $self->pwm_set_mode($mode);
         }
