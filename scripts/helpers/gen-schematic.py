@@ -12,6 +12,8 @@ Style: bare ICs for logic (74HC595/MCP3008/MCP4922/MCP42010/MCP23017), module
 blocks for sensor breakouts + level-shifter + stepper driver board.
 """
 
+import sys
+
 # ------------------------------------------------------------------ COMPONENTS
 # ref: (value, footprint-hint, {pin: name})   pin keys are strings.
 COMPONENTS = {
@@ -142,7 +144,11 @@ def write_netlist(path='t/test-platform.net'):
         lines.append('    )')
     lines.append('  )')
     lines.append(')')
-    open(path,'w').write('\n'.join(lines)+'\n')
+    try:
+        with open(path, 'w') as fh:
+            fh.write('\n'.join(lines)+'\n')
+    except OSError as e:
+        sys.exit(f'failed writing {path}: {e}')
     print('wrote', path, '-', len(COMPONENTS), 'components,', len(NETS), 'nets')
 
 write_netlist()
@@ -222,7 +228,11 @@ def write_nlsvg(path='t/test-platform.nlsvg.json', exclude=(), keep=None, power=
                                           'connections':{'P':[nb]},'attributes':{}}
                 nb+=1
     doc = {'modules':{'test_platform':{'ports':{},'cells':cells,'netnames':netnames}}}
-    open(path,'w').write(json.dumps(doc,indent=1))
+    try:
+        with open(path, 'w') as fh:
+            fh.write(json.dumps(doc,indent=1))
+    except OSError as e:
+        sys.exit(f'failed writing {path}: {e}')
     print('wrote', path, '-', len(cells), 'cells,', len(nets), 'nets')
 
 write_nlsvg()  # full (power routed)

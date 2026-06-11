@@ -1,8 +1,8 @@
 # Plan: RPi sibling API-conformance to new WiringPi::API + rpi-wiringpi review
 
-> **NEXT ACTION:** 🤚 V24 (USER) is the only open task — all Claude-owned V tasks are complete. Backlog B8, B13-B16 remains (numeric order per user directive 2026-06-11; B8 skipped — deferred to the future major version — so B13 is next).
-> **LAST SESSION:** V42 done (B12 promoted) — fixed settles → bounded poll-until loops where a pollable condition exists: t/203 poll-drain accumulator, t/210 drive-until-tally on re-arm, t/305 eeprom-readback polling (`_poll_eeprom`), t/325 servo-feedback stabilization, t/330 register-reset polling. Deliberately NOT converted (documented in-file): t/210's two disarm quiet windows (negative proof — no pollable condition) and t/925's `sleep 2` (human-visible display pause). t/203+t/210 live: 98 tests green in 2s; t/305/325/330/925 gate-skip clean (device hardware dark — live proof of those conversions pending a powered run). Discovery: t/325 carries the F52-pattern vacuous `>= -1` bounds → new B16. Changes updated. Uncommitted.
-> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1-V14, V20-V23, V25-V42 (less 🤚V24)
+> **NEXT ACTION:** 🤚 V24 (USER) is the only open task — all Claude-owned V tasks are complete. Backlog B8, B15-B16 remains (numeric order per user directive 2026-06-11; B8 skipped — deferred to the future major version — so B15 is next, in the rpi-pin sibling).
+> **LAST SESSION:** V44 done (B14 promoted; F45 note) — gen-schematic.py's two bare `open(path,'w').write(...)` sites now use `with open(...)` + OSError → clean `sys.exit` message; `import sys` added. Verified: py_compile clean; scratch-dir run wrote all 6 outputs through the new writers; no-t/-dir run exits 1 with the clean message (no traceback). No Changes entry — scripts/ is dev tooling excluded from the dist via MANIFEST.SKIP. Uncommitted.
+> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1-V14, V20-V23, V25-V44 (less 🤚V24)
 
 ## Context
 
@@ -105,9 +105,9 @@ _New test findings (V22):_
 _From the completeness debate (challenger Claude Fable 5, executed checks; see proposal/wiringpi-plan-completeness-audit.md):_
 - ✅ RESOLVED (V31) **F41** [RELEASE-BLOCKING] (→V31): `MANIFEST:40,46,151` list `docs/interrupt-examples.md`, `docs/threads-examples.md`, `t/README` — none exist (`ls` fails on all three; the two examples moved to `docs/examples/`, which are NOT in MANIFEST). `make distdir`→`manicopy` croaks → the 3.1802 tarball can't be cut, and post-F26 the POD links point at files the tarball wouldn't ship. Same file-move as F26. Verified by originator.
 - ✅ RESOLVED (V23) **F42** [HIGH] (→V23): `WiringPi.pm:38` `if (my $scheme = $ENV{RPI_PIN_MODE})` — `RPI_MODE_WPI == 0` (verified live) is the only falsy scheme, so after a first object's `setup=>'w'` (`:52`/`:65` write `"0"`), a second `new()` reads false, runs `setup_gpio()`, restamps GPIO — every WPI pin silently reinterpreted as BCM. `Core.pm:97-98` uses `defined` correctly. Was missed in a fully-reviewed file. Verified by originator.
-- **F43** [med→backlog B13] (→B13): `DHT11.xs:187-189` / `HCSR04.xs:23-25` `char modeEnvVar[20]; sprintf(...); putenv(modeEnvVar);` — putenv stores the pointer; the stack buffer dies on return; next `getenv("RPI_PIN_MODE")` reads freed stack. Pre-existing, NOT a 3.18 regression; fires only when `RPI_PIN_MODE` was already set (multi-dist/dual-sensor rig).
+- ✅ RESOLVED (V43) **F43** [med→backlog B13] (→B13): `DHT11.xs:187-189` / `HCSR04.xs:23-25` `char modeEnvVar[20]; sprintf(...); putenv(modeEnvVar);` — putenv stores the pointer; the stack buffer dies on return; next `getenv("RPI_PIN_MODE")` reads freed stack. Pre-existing, NOT a 3.18 regression; fires only when `RPI_PIN_MODE` was already set (multi-dist/dual-sensor rig). Fixed in V43 with setenv() in both files; failure mode empirically demonstrated via standalone C before/after.
 - ✅ VALIDATED (V14) **F44** [structural] (→V14): `rpi-const`, the 19th sibling and the dependency root the migration single-sources from, had no row. Confirm-only (debate: repo 1.05 == installed 1.05, zero drift).
-- **F45** [executed — nothing material] (→done, 2 notes→B14): generator scripts (`gen-test-platform.pl`, `gen-pod-md.pl`, `gen-pdf.py`, `gen-pinout-images.py`) + `build_testing/*` reviewed CLEAN. Notes: `scripts/helpers/gen-schematic.py:145,225` bare `open(path,'w').write(...)` (no context manager / no error handling) [low → B14]; `Changes` 2.3633 chronology oddity (stable stanza dated 2019-09-19 before trials `_02`/`_03`) [info, historical only].
+- **F45** [executed — nothing material] (→done, 2 notes→B14): generator scripts (`gen-test-platform.pl`, `gen-pod-md.pl`, `gen-pdf.py`, `gen-pinout-images.py`) + `build_testing/*` reviewed CLEAN. Notes: `scripts/helpers/gen-schematic.py:145,225` bare `open(path,'w').write(...)` (no context manager / no error handling) [low → B14 ✅ RESOLVED (V44)]; `Changes` 2.3633 chronology oddity (stable stanza dated 2019-09-19 before trials `_02`/`_03`) [info, historical only].
 - ✅ RESOLVED (V33) **F46** [open residual] (→V33): the full per-file pass over all 69 `t/*.t` was NOT completed (≈10 more sampled, nothing new), AND the single-pass review of the large modules (`WiringPi.pm`, `Core.pm`) is demonstrably non-exhaustive (it yielded F22/F23/F42/F47). Tracked by V33.
 - ✅ RESOLVED (V32) **F47** [med code + med doc] (→V32): `new()` `setup` param — `WiringPi.pm:50 =~ /^w/i` vs `:54 =~ /^g/` (no `/i`) → `'GPIO'`/`'Gpio'` fall through; `:58-60` else stamps `RPI_MODE_UNINIT` with no setup/croak (any typo silently no-ops the board); and `setup` is documented nowhere (0 in WiringPi.pm POD past `__END__:523`, 0 in FAQ.pod) yet public and used by the suite (`t/106-pin_map.t:13`, `setup => 'none'`). Fix must whitelist `w`/`g`/`none` case-insensitively (don't break `'none'`) and document the three forms.
 
@@ -121,10 +121,6 @@ _From the V33 residual exhaustive pass (4 parallel reviewers over all 69 t/*.t +
 ## Backlog
 
 B8: Normalize `PI_BOARD`/`PI_INTERRUPT` → `RPI_*` prefix in a future major version with back-compat (F13).
-
-B13: Fix the `putenv()` stack-buffer UB in `DHT11.xs`/`HCSR04.xs` (F43) — use a static/heap buffer or `setenv()` so `environ` doesn't dangle. Pre-existing, not a 3.18 regression.
-
-B14: `scripts/helpers/gen-schematic.py:145,225` — wrap output writes in a context manager with error handling instead of bare `open(path,'w').write(...)` (F45 note).
 
 B15: rpi-pin t/15-pwm.t + t/40-interrupt_and_pud.t re-exec via `system('sudo', 'perl', $0)` when not root — bare `sudo perl` resolves to the system perl (no perlbrew/blib) and dies with "Can't locate RPi/Pin.pm". Use `$^X` and propagate -Iblib paths/env, or document that the suite must run as root (discovered during V7).
 
