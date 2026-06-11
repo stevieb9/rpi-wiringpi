@@ -212,6 +212,21 @@ Revision history for Perl extension RPi::WiringPi.
           docs/test-platform/test-pinout-doc.md, the serial POD note in
           RPi::WiringPi, and fixed a "ram=i2c_arm" typo in the FAQ, to match the
           enabled-bus pin values
+        - Fixed gpio_layout() in Core infinitely recursing into itself instead
+          of dispatching to WiringPi::API's implementation
+        - Fixed pwm_mode() getter form croaking; with no param it now returns
+          the current mode instead of dying, and only the setter form marks
+          PWM as in-use
+        - Fixed _pwm_in_use() registration guard using && where every sibling
+          guard uses ||; with rpi_register_pins disabled it wrote pwm.users
+          meta that cleanup() could never clear
+        - cleanup() now removes only the calling object's uuid from a shared
+          pin's users and resets/deletes the pin only when no users remain,
+          mirroring the PWM teardown (it previously dropped the pin for all
+          co-owners)
+        - Fixed new() re-running GPIO setup when RPI_PIN_MODE held the falsy
+          WPI scheme (0); the env check is now defined-based like Core's
+          pin_scheme(), so a second object no longer restamps WPI mode to GPIO
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to

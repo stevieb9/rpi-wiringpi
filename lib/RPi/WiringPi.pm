@@ -35,9 +35,11 @@ sub new {
     $self = bless {%args}, $self;
 
     if (! $ENV{NO_BOARD}){
-        if (my $scheme = $ENV{RPI_PIN_MODE}){
-            # This checks if another application has already run a setup routine
-            $self->pin_scheme($scheme);
+        if (defined $ENV{RPI_PIN_MODE}){
+            # This checks if another application has already run a setup
+            # routine. Must be a defined check: RPI_MODE_WPI is 0, which is
+            # falsy, and a truthy test would silently re-init WPI mode to GPIO
+            $self->pin_scheme($ENV{RPI_PIN_MODE});
         }
         else {
             # We default to gpio mode
