@@ -1,8 +1,8 @@
 # Plan: RPi sibling API-conformance to new WiringPi::API + rpi-wiringpi review
 
-> **NEXT ACTION:** 🤚 V24 (USER) is the only open task — all Claude-owned V tasks are complete. Backlog B7-B15 remains for future promotion (user directive 2026-06-11: work backlog in numeric order; B7 is next).
-> **LAST SESSION:** V37 done (B6 promoted) — Util.pm pin_map() `eq RPI_MODE_UNINIT` → `==`; that was the only non-numeric scheme comparison in lib/+bin/ (grep-verified). F38 resolved; Changes updated. Uncommitted.
-> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1-V14, V20-V23, V25-V37 (less 🤚V24)
+> **NEXT ACTION:** 🤚 V24 (USER) is the only open task — all Claude-owned V tasks are complete. Backlog B8-B15 remains for future promotion (user directive 2026-06-11: work backlog in numeric order; B8 is next).
+> **LAST SESSION:** V38 done (B7 promoted, user chose document-over-c3) — MRO comment blocks added at the `use parent` declarations in WiringPi.pm (full DFS linearization, cross-branch override rule, why `use mro 'c3'` is not drop-in: hierarchy is C3-inconsistent, verified live) and Core.pm (pointer note). Symbol table audit: only meaningful cross-branch name is `new()` (WiringPi::API vs RPi::SysInfo), shadowed by RPi::WiringPi's own new(). F40 resolved; Changes updated. Uncommitted.
+> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1-V14, V20-V23, V25-V38 (less 🤚V24)
 
 ## Context
 
@@ -82,7 +82,7 @@ _New code findings (V21):_
 - ✅ RESOLVED (V26) **F24** [med] (→V26): `Core.pm:42-51,61-66` `io_led`/`pwr_led` use backtick `... | sudo tee ...` with no exit-status check — a failing sudo silently no-ops while `identify()` reports success; STDERR leaks; shell-interpolation-shaped. Mirror the `system(...) != 0` checking already in `_restore_pin_alt:366-369`.
 - ✅ RESOLVED (V37) **F38** [low] (→backlog B6): `Util.pm:29` compares scheme with `eq RPI_MODE_UNINIT` while `Core.pm:80-87` uses `==` on the same env-sourced value — inconsistent; pick numeric `==` (enums). Promoted to V37; switched to `==`, confirmed the only `eq` scheme comparison in lib/+bin/.
 - ✅ RESOLVED (V36) **F39** [low] (→backlog B5): `bin/pinmap:18-22,28-31` `$wpi == -1` warns when `pin_map` returns undef; guard `next if ! defined $wpi || $wpi == -1`. Also `bin/pimetaerase:21-22` cosmetic `//=`/spacing. Promoted to V36 and fixed exactly as prescribed.
-- **F40** [info] (→backlog B7): diamond inheritance (Meta reached via Core's branch) works today (DFS dedups, no conflicting overrides) but is latent — document intended MRO or adopt `use mro 'c3'` before adding any cross-branch override. (uuid-collision loop `WiringPi.pm:81-85` reviewed — acceptable, no action.)
+- ✅ RESOLVED (V38) **F40** [info] (→backlog B7): diamond inheritance (Meta reached via Core's branch) works today (DFS dedups, no conflicting overrides) but is latent — document intended MRO or adopt `use mro 'c3'` before adding any cross-branch override. (uuid-collision loop `WiringPi.pm:81-85` reviewed — acceptable, no action.) User chose document (option 1): MRO comments added in WiringPi.pm/Core.pm. V38 audit additions: (a) the hierarchy is C3-*inconsistent* (Util lists Exporter before WiringPi::API which isa Exporter; Core lists WiringPi::API before Util, its subclass) — adopting c3 later requires @ISA reordering in Util/Core/WiringPi first; (b) symbol table audit found one genuine cross-branch method: `new()` in both WiringPi::API and RPi::SysInfo, masked today by RPi::WiringPi's own new() — documented in the comment.
 
 _New documentation findings (V20):_
 - ✅ RESOLVED (V27) **F25** [HIGH] (→V27): `README` is a stale `pod2text` of a much older WiringPi.pm (~826 lines behind) — missing INTERRUPT/worker/eeprom/oled/pi_model methods and `shm_key`/`rpi_register*` params; `README:323-326` states the OPPOSITE of current signal behavior (claims it traps `$SIG{__DIE__}`; code explicitly does not); `README:317` says wiringPi 2.36+ (now 3.18). Regenerate from current POD.
@@ -119,8 +119,6 @@ _From the V33 residual exhaustive pass (4 parallel reviewers over all 69 t/*.t +
 - ⏸ DEFERRED → B11 **F52** [low] (→B11): `t/109:84,95` lower-bound assertions `is $o >= -1, 1` are effectively vacuous (percent can't go below 0); fold into the B11 t/109↔t/140 acceptance-band reconciliation.
 
 ## Backlog
-
-B7: Document the intended MRO of the 4-level diamond inheritance, or adopt `use mro 'c3'` before any cross-branch method override (F40).
 
 B8: Normalize `PI_BOARD`/`PI_INTERRUPT` → `RPI_*` prefix in a future major version with back-compat (F13).
 

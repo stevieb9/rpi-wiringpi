@@ -3,6 +3,11 @@ package RPi::WiringPi::Core;
 use strict;
 use warnings;
 
+# Parent order matters: WiringPi::API is listed first, so under the
+# default depth-first MRO every WiringPi::API method is found before
+# anything in Meta, Util or RPi::SysInfo. See the MRO note atop
+# RPi::WiringPi before adding any method whose name exists in another
+# parent branch.
 use parent 'WiringPi::API';
 use parent 'RPi::WiringPi::Meta';
 use parent 'RPi::WiringPi::Util';

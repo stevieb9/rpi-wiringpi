@@ -40,6 +40,8 @@
 
 - V37: numeric scheme comparisons (B6 promoted; F38) — Util.pm pin_map() `eq RPI_MODE_UNINIT` → `==`, matching Core.pm and the rest of pin_map; grep confirms zero remaining `eq` scheme comparisons in lib/+bin/; no behavior change (enum values -1/0/1 compare identically); Changes updated — ✅ 2026-06-11 attempt 1: PASS (perl -c; live one-liner: pin_map(RPI_MODE_UNINIT) returns empty hash, WPI map intact; t/106-pin_map.t 45 tests green)
 
+- V38: MRO documentation (B7 promoted; F40; user chose document over `use mro 'c3'`) — comment blocks at the `use parent` declarations: WiringPi.pm gets the full DFS linearization (WiringPi → Core → WiringPi::API → Exporter → Meta → Util → RPi::SysInfo), the no-cross-branch-overrides rule, the audit result (`new()` in both WiringPi::API and RPi::SysInfo is the only genuine cross-branch method, shadowed by RPi::WiringPi's own new(); the other 67 same-name symbols are identical RPi::Const/Carp imports + XS bootstrap glue), and why c3 is not drop-in (hierarchy is C3-inconsistent — verified live, Perl dies "Inconsistent hierarchy"); Core.pm gets a parent-order-matters pointer note; comments only, zero runtime change; Changes updated — ✅ 2026-06-11 attempt 1: PASS (perl -c both; t/104-core_regressions.t 51 tests green)
+
 ## Archived Fixes
 
 - Fix 5: problem discovered during V13 — rpi-serial `t/serial_rx.t` was an orphaned manual dev script in t/ (no Test::More/plan, infinite loop, hardcoded /dev/ttyUSB0, calls `rx()` which commit ad3e4bc deliberately removed); it broke `prove t` with exit 9. Not in MANIFEST, referenced nowhere — deleted. Resolved 2026-06-10 as part of V13.
