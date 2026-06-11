@@ -278,6 +278,13 @@ Revision history for Perl extension RPi::WiringPi.
           rpi_verify_pin_status() now reports which pin (and what) mismatched
           via note(); rpi_i2c_check()'s skip message now explains the
           RPI_I2C/ADS1115 requirement so root runs don't skip mysteriously
+        - Device tests t/305/310/335/345/925 now carry an END cleanup guard so
+          a mid-run die still releases the object's pin/CS registration from
+          shared meta (belt-and-braces over the library's END reap, which
+          became reliable once _meta_txn guaranteed lock release)
+        - Documented in t/RPiTest.pm that the suite is serial-only (shared
+          physical pins + shm segment + absolute count assertions); never run
+          prove with -j parallelism
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to

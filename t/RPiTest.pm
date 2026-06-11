@@ -1,5 +1,11 @@
 package RPiTest;
 
+# NOTE: This test suite is serial-only - do NOT run it with prove's -j
+# parallelism. Every test file shares the same physical pins (GPIO 18 alone
+# is driven by a dozen files, 12/26 by several) and the same shared-memory
+# segment (shm_key 'rpit'), and t/110-114 assert absolute object/pin counts.
+# Parallel runs corrupt the counts and fight over the hardware.
+
 use warnings;
 use strict;
 

@@ -26,6 +26,11 @@ use constant {
 rpi_running_test(__FILE__);
 
 my $pi = RPi::WiringPi->new(label => 't/345-dpot.t', shm_key => 'rpit');
+# Belt-and-braces: if an assertion or library call dies mid-run, release the
+# pins/registration this object holds (the library END reap is best-effort)
+
+END { $pi->cleanup if $pi && ! $pi->{clean}; }
+
 
 my $adc = $pi->adc(addr => 0x48);   # ADS1115 #1 (dpot wiper on ch 1)
 my $pot = $pi->dpot(DPOT_CS, DPOT_CH);

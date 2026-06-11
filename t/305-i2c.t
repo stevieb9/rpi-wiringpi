@@ -22,6 +22,11 @@ BEGIN {
 }
 
 my $pi = $mod->new(label => 't/305-i2c.t', shm_key => 'rpit');
+# Belt-and-braces: if an assertion or library call dies mid-run, release the
+# pins/registration this object holds (the library END reap is best-effort)
+
+END { $pi->cleanup if $pi && ! $pi->{clean}; }
+
 
 my $uno = $pi->i2c(ARDUINO_ADDR);
 
