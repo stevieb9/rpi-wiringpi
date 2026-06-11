@@ -227,6 +227,9 @@ Revision history for Perl extension RPi::WiringPi.
         - Fixed new() re-running GPIO setup when RPI_PIN_MODE held the falsy
           WPI scheme (0); the env check is now defined-based like Core's
           pin_scheme(), so a second object no longer restamps WPI mode to GPIO
+        - pwm_range()/pwm_mode() default return values now use the
+          PWM_DEFAULT_RANGE/PWM_DEFAULT_MODE constants instead of the magic
+          numbers 1023/1 (resolves the long-standing FIXME)
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
