@@ -28,6 +28,8 @@
 - V30: test robustness — F36 (END cleanup guards in t/305/310/335/345/925; V26's _meta_txn already made the library END reap reliable, proven by live die-mid-test experiment showing clean meta), F37 (serial-only/-j1 requirement documented in t/RPiTest.pm header) — ✅ 2026-06-11 attempt 1: PASS (all 5 files syntax-OK + gate-skip clean; full t/0-2* sweep 1443 tests green)
 - V31: [RELEASE-BLOCKING] MANIFEST drift (F41) — removed 3 phantom entries (`docs/interrupt-examples.md`, `docs/threads-examples.md`, `t/README`), added `docs/examples/*.md` — ✅ 2026-06-10 attempt 1: PASS (manicheck clean; `make distdir` succeeds and ships docs/examples; `PI_BOARD=1 RPI_RELEASE_TESTING=1 prove -bl t/515*` passes)
 
+- V32: `new()` `setup` param (F47) — case-insensitive w/g/none matching (`'Gpio'` previously fell through to silent no-init), croak on unrecognized, POD documentation added, README/md regenerated, 3 regression tests in t/104 — ✅ 2026-06-11 attempt 1: PASS (t/104 96 tests w/ t/106; full sweep 1446; POD tests 26)
+
 ## Archived Fixes
 
 - Fix 5: problem discovered during V13 — rpi-serial `t/serial_rx.t` was an orphaned manual dev script in t/ (no Test::More/plan, infinite loop, hardcoded /dev/ttyUSB0, calls `rx()` which commit ad3e4bc deliberately removed); it broke `prove t` with exit 9. Not in MANIFEST, referenced nowhere — deleted. Resolved 2026-06-10 as part of V13.

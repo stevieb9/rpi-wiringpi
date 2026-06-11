@@ -52,12 +52,18 @@ sub new {
                     $self->SUPER::setup();
                     $self->pin_scheme(RPI_MODE_WPI);
                 }
-                elsif ($self->_setup =~ /^g/) {
+                elsif ($self->_setup =~ /^g/i) {
                     $self->SUPER::setup_gpio();
                     $self->pin_scheme(RPI_MODE_GPIO);
                 }
-                else {
+                elsif ($self->_setup =~ /^n/i) {
+                    # 'none': deliberately skip the C library setup call; the
+                    # pin scheme stays uninitialized (the test suite uses this)
                     $self->pin_scheme(RPI_MODE_UNINIT);
+                }
+                else {
+                    croak "unrecognized 'setup' param value '" . $self->_setup .
+                          "'; valid values are 'wiringpi', 'gpio' or 'none'\n";
                 }
             }
         }
@@ -629,8 +635,23 @@ command.
  
 Returns a new C<RPi::WiringPi> object. We exclusively use the C<GPIO>
 (Broadcom (BCM) GPIO) pin numbering scheme.
- 
+
 Parameters:
+
+    setup => $string
+
+Optional, String: Which C<wiringPi> setup routine (and therefore pin numbering
+scheme) to initialize the board with. Matching is case-insensitive on the
+first letter:
+
+    'gpio'      - GPIO (BCM) numbering; the default if not sent in
+    'wiringpi'  - wiringPi's own (WPI) numbering
+    'none'      - skip board setup entirely (the pin scheme remains
+                  uninitialized; primarily for testing)
+
+Any other value will croak. Note that if another application in the process
+has already run a setup routine (signalled via the C<RPI_PIN_MODE> environment
+variable), that existing scheme is honoured and this parameter is ignored.
 
     shm_key => $string
 

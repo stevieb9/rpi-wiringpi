@@ -70,6 +70,62 @@ my $pi = $mod->new(label => 't/104-core_regressions.t', shm_key => 'rpit');
     $obj->cleanup;
 }
 
+{ # new()'s 'setup' param: case-insensitive, croaks on unrecognized values
+
+    {
+        # The setup branch only runs when no scheme is already established
+
+        delete local $ENV{RPI_PIN_MODE};
+
+        my $obj = $mod->new(
+            label   => 't/104-setup-gpio',
+            shm_key => 'rpit',
+            setup   => 'Gpio',
+        );
+
+        is $obj->pin_scheme, RPI_MODE_GPIO,
+            "setup => 'Gpio' (mixed case) initializes GPIO scheme";
+
+        $obj->cleanup;
+    }
+
+    {
+        delete local $ENV{RPI_PIN_MODE};
+
+        my $obj = $mod->new(
+            label   => 't/104-setup-none',
+            shm_key => 'rpit',
+            setup   => 'NONE',
+        );
+
+        is $obj->pin_scheme, RPI_MODE_UNINIT,
+            "setup => 'NONE' (case-insensitive) leaves the scheme uninitialized";
+
+        $obj->cleanup;
+    }
+
+    {
+        delete local $ENV{RPI_PIN_MODE};
+
+        my $err = do {
+            local $@;
+            eval {
+                $mod->new(
+                    label             => 't/104-setup-bogus',
+                    shm_key           => 'rpit',
+                    setup             => 'bogus',
+                    rpi_register      => 0,
+                    rpi_register_pins => 0,
+                );
+            };
+            $@;
+        };
+
+        like $err, qr/unrecognized 'setup' param value 'bogus'/,
+            "new() croaks on an unrecognized setup param value";
+    }
+}
+
 { # _led_cmd() surfaces command failures instead of silently no-opping
 
     my @warnings;

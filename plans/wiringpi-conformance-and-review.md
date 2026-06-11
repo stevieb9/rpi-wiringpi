@@ -1,8 +1,8 @@
 # Plan: RPi sibling API-conformance to new WiringPi::API + rpi-wiringpi review
 
-> **NEXT ACTION:** V32 — `new()` `setup` param (F47): case-insensitive matching + croak on unrecognized; document in POD. (V24 version bump is 🤚 USER-owned — skip it.)
-> **LAST SESSION:** V30 done — F36: END cleanup guard (`END { $pi->cleanup if $pi && ! $pi->{clean}; }`) added to t/305/310/335/345/925 (live experiment first proved the V26 _meta_txn work already made the library END reap reliable on mid-test death — guard is belt-and-braces); all 5 syntax-check + gate-skip clean. F37: serial-only/-j1 warning documented in t/RPiTest.pm header. Full sweep 1443 tests pass. Uncommitted.
-> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1-V14, V20-V23, V25-V30
+> **NEXT ACTION:** V33 — residual exhaustive pass (F46): line-by-line read of all 69 t/*.t + exhaustive re-read of WiringPi.pm/Core.pm. Last remaining Claude task (V24 is 🤚 USER-owned).
+> **LAST SESSION:** V32 done — F47: `^g` now /i, `^n` ('none') explicit sentinel branch, unrecognized values croak; `setup` documented in new() POD (gpio/wiringpi/none + env-honour note); README/md regenerated; 3 regression tests added to t/104 (incl. delete-local of RPI_PIN_MODE to reach the setup branch). t/104+t/106 pass; full sweep 1446; POD tests pass. Uncommitted.
+> **ARCHIVE:** See wiringpi-conformance-and-review-archive.md for completed V1-V14, V20-V23, V25-V30, V31, V32
 
 ## Context
 
@@ -42,7 +42,6 @@ Empirical conformance check for Part A = build + run each dependent sibling's te
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
 | V24 | **Version bump** — set `$VERSION` `3.1801_01`→`3.1802` in WiringPi.pm/Core.pm/Util.pm/Meta.pm; reconcile `Makefile.PL` `WiringPi::API` prereq (F15). **Caveat:** installed reference is `3.1802_01` (a *trial* with underscore); rpi-wiringpi 3.1802 cannot be released against a dev-only API CPAN can't index — a non-trial WiringPi::API must ship first | `cd ~/repos/rpi-wiringpi && grep -rn "3.1801_01" lib/` | All four modules at 3.1802; prereq reconciled; release-ordering noted | 🤚 USER — Steve will do this manually once all libraries are up to date. Claude: do NOT execute; skip to next ⏳ |
-| V32 | **`new()` `setup` param** (F47) — make `:50`/`:54`/`:58` match `^w`/`^g`/`^n`(one) **case-insensitively** and croak on truly-unrecognized values (do NOT blanket-croak — `'none'` is the intended uninit sentinel the suite uses); document `setup` (w/g/none + default) in WiringPi.pm POD | `cd ~/repos/rpi-wiringpi && PI_BOARD=1 RPI_OBJECT_COUNT=<n> prove -bl t/106*` + grep POD for `setup` | Unrecognized croaks; `'none'`/`'GPIO'`/`'Gpio'` all work; documented | ⏳ |
 | V33 | **Residual exhaustive pass** (F46) — full per-file line-by-line read of all 69 `t/*.t`, AND an exhaustive re-read of the large modules `WiringPi.pm` (~1290 lines) + `Core.pm` (~649) since the single-pass review proved non-exhaustive (yielded F22/F23/F42/F47) | manual review pass; append any new F# | No further material findings, or new F# logged | ⏳ |
 
 ## Discovery Tracking
@@ -111,7 +110,7 @@ _From the completeness debate (challenger Claude Fable 5, executed checks; see p
 - ✅ VALIDATED (V14) **F44** [structural] (→V14): `rpi-const`, the 19th sibling and the dependency root the migration single-sources from, had no row. Confirm-only (debate: repo 1.05 == installed 1.05, zero drift).
 - **F45** [executed — nothing material] (→done, 2 notes→B14): generator scripts (`gen-test-platform.pl`, `gen-pod-md.pl`, `gen-pdf.py`, `gen-pinout-images.py`) + `build_testing/*` reviewed CLEAN. Notes: `scripts/helpers/gen-schematic.py:145,225` bare `open(path,'w').write(...)` (no context manager / no error handling) [low → B14]; `Changes` 2.3633 chronology oddity (stable stanza dated 2019-09-19 before trials `_02`/`_03`) [info, historical only].
 - **F46** [open residual] (→V33): the full per-file pass over all 69 `t/*.t` was NOT completed (≈10 more sampled, nothing new), AND the single-pass review of the large modules (`WiringPi.pm`, `Core.pm`) is demonstrably non-exhaustive (it yielded F22/F23/F42/F47). Tracked by V33.
-- **F47** [med code + med doc] (→V32): `new()` `setup` param — `WiringPi.pm:50 =~ /^w/i` vs `:54 =~ /^g/` (no `/i`) → `'GPIO'`/`'Gpio'` fall through; `:58-60` else stamps `RPI_MODE_UNINIT` with no setup/croak (any typo silently no-ops the board); and `setup` is documented nowhere (0 in WiringPi.pm POD past `__END__:523`, 0 in FAQ.pod) yet public and used by the suite (`t/106-pin_map.t:13`, `setup => 'none'`). Fix must whitelist `w`/`g`/`none` case-insensitively (don't break `'none'`) and document the three forms.
+- ✅ RESOLVED (V32) **F47** [med code + med doc] (→V32): `new()` `setup` param — `WiringPi.pm:50 =~ /^w/i` vs `:54 =~ /^g/` (no `/i`) → `'GPIO'`/`'Gpio'` fall through; `:58-60` else stamps `RPI_MODE_UNINIT` with no setup/croak (any typo silently no-ops the board); and `setup` is documented nowhere (0 in WiringPi.pm POD past `__END__:523`, 0 in FAQ.pod) yet public and used by the suite (`t/106-pin_map.t:13`, `setup => 'none'`). Fix must whitelist `w`/`g`/`none` case-insensitively (don't break `'none'`) and document the three forms.
 
 ## Backlog
 
