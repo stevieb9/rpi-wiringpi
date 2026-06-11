@@ -83,9 +83,11 @@ sub pin_to_gpio {
     elsif ($scheme == RPI_MODE_GPIO){
         return $pin;
     }
-    if ($scheme == RPI_MODE_UNINIT){
-        croak "Setup not run; pin mapping scheme not initialized\n";
-    }
+
+    # Catch-all: an uninitialized (or unrecognized/corrupted) scheme can't
+    # map pins; never fall through to an implicit undef
+
+    croak "Setup not run; pin mapping scheme not initialized\n";
 }
 sub pin_scheme {
     my ($self, $scheme) = @_;

@@ -170,6 +170,9 @@ sub expander {
         RPi::GPIOExpander::MCP23017->import;
         return RPi::GPIOExpander::MCP23017->new($addr);
     }
+
+    croak "expander() type '$expander' is unrecognized; only 'MCP23017' is " .
+          "currently supported\n";
 }
 sub gps {
     my ($self, %args) = @_;
@@ -239,6 +242,12 @@ sub oled {
         RPi::OLED::SSD1306::128_64->import;
         return RPi::OLED::SSD1306::128_64->new($i2c_addr, $display_splash_page);
     }
+
+    # The remaining whitelisted sizes don't have a driver class yet; dying
+    # beats silently handing the caller undef
+
+    die "oled() model '$model' is not yet implemented; only 128x64 is " .
+        "currently supported\n";
 }
 sub pin {
     my ($self, $pin_num, $comment) = @_;

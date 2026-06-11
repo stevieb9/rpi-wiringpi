@@ -8,8 +8,6 @@ use RPi::WiringPi;
 use RPi::Const qw(:all);
 use Test::More;
 
-use lib 't/';
-
 rpi_running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';

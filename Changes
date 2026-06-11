@@ -291,6 +291,16 @@ Revision history for Perl extension RPi::WiringPi.
           board uninitialized; the param is now documented in POD (it wasn't,
           despite being public). README/md regenerated; regression tests in
           t/104
+        - oled() now dies for the whitelisted-but-unimplemented 128x32/96x16
+          models and expander() croaks on an unrecognized expander type;
+          both previously returned undef silently. pin_to_gpio()'s
+          uninitialized-scheme croak is now the catch-all so an unrecognized
+          scheme value can no longer fall through to undef
+        - Test hygiene: fixed a copy-pasted assertion message in t/150,
+          removed a leftover debug print in t/111 and a duplicate use lib in
+          t/300, and t/107 now asserts mode_alt's value directly instead of
+          the boolean of an eq comparison (real got/expected diagnostics on
+          failure)
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to

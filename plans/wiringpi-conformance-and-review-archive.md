@@ -30,6 +30,10 @@
 
 - V32: `new()` `setup` param (F47) — case-insensitive w/g/none matching (`'Gpio'` previously fell through to silent no-init), croak on unrecognized, POD documentation added, README/md regenerated, 3 regression tests in t/104 — ✅ 2026-06-11 attempt 1: PASS (t/104 96 tests w/ t/106; full sweep 1446; POD tests 26)
 
+- V33: residual exhaustive pass (F46) — 4 parallel line-by-line reviews (69 t/*.t + WiringPi.pm/Core.pm/Util.pm/Meta.pm), all candidates re-verified at source; 5 new findings logged (F48-F52; fixes promoted to V34, F52 deferred to B11); ~10 false-positive reviewer claims rejected — ✅ 2026-06-11 attempt 1: PASS
+
+- V34: post-V33 fixes — F48 (oled() dies for unimplemented 128x32/96x16), F49 (expander() croaks on unknown type), F50 (pin_to_gpio() catch-all croak), F51 (t/150 message, t/111 debug print, t/300 dup use lib, t/107 boolean-eq assertion) — ✅ 2026-06-11 attempt 1: PASS (all 4 error paths verified live via eval; t/0-3* sweep 45 files/1446 tests green)
+
 ## Archived Fixes
 
 - Fix 5: problem discovered during V13 — rpi-serial `t/serial_rx.t` was an orphaned manual dev script in t/ (no Test::More/plan, infinite loop, hardcoded /dev/ttyUSB0, calls `rx()` which commit ad3e4bc deliberately removed); it broke `prove t` with exit 9. Not in MANIFEST, referenced nowhere — deleted. Resolved 2026-06-10 as part of V13.
