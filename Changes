@@ -301,6 +301,9 @@ Revision history for Perl extension RPi::WiringPi.
           t/300, and t/107 now asserts mode_alt's value directly instead of
           the boolean of an eq comparison (real got/expected diagnostics on
           failure)
+        - bin/pinmap now skips physical pins absent from the pin map instead
+          of warning on an uninitialized value; bin/pimetaerase cosmetic
+          defined-or fixes (// instead of //=)
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
