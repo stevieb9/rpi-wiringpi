@@ -16,7 +16,7 @@ rpi_running_test(__FILE__);
 
 is rpi_oled_available(), 0, "oled still unavailable for use";
 is rpi_oled_available(1), 1, "oled now available";
-is -e '/tmp/oled_unavailable.rpi-wiringpi', undef, "oled lock file removed ok";
+is -e '/dev/shm/oled_unavailable.rpi-wiringpi', undef, "oled lock file removed ok";
 
 done_testing();
 

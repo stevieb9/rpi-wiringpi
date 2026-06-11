@@ -83,7 +83,9 @@ sub rpi_i2c_check {
     # is disabled, leaving stale metadata in shared memory that cascades into
     # subsequent tests.
     if (! $ENV{RPI_I2C}) {
-        plan skip_all => "RPI_I2C environment variable not set\n";
+        plan skip_all => "RPI_I2C environment variable not set (these tests " .
+                         "verify PWM via the I2C ADS1115; set RPI_I2C=1 when " .
+                         "the I2C bus and ADS1115 are wired and powered)\n";
     }
 }
 
@@ -154,19 +156,25 @@ sub rpi_check_pin_status {
 
     if ($oled_locked) {
         @gpio_pins = qw(
-            14 15 18 23 24 10 9 25 11 8 7 0 1 13 19 16 20 21
+            14 15 18 23 24 10 9 25 11 8 7 0 1 12 13 19 16 20 21 26
         );
     }
     else {
         @gpio_pins = qw(
-            2 3 14 15 18 23 24 10 9 25 11 8 7 0 1 13 19 16 20 21
+            2 3 14 15 18 23 24 10 9 25 11 8 7 0 1 12 13 19 16 20 21 26
         );
     }
     my $config = rpi_default_pin_config();
 
     for (@gpio_pins){
         is get_alt($_), $config->{$_}{alt}, "pin $_ set back to default mode ($config->{$_}{alt}) ok";
-        is read_pin($_), $config->{$_}{state}, "pin $_ set back to default state ($config->{$_}{state}) ok";
+
+        # An undef state means "mode-only check" (eg. the CS pins, whose level
+        # depends on the attached device)
+
+        if (defined $config->{$_}{state}){
+            is read_pin($_), $config->{$_}{state}, "pin $_ set back to default state ($config->{$_}{state}) ok";
+        }
     }
 }
 
@@ -183,12 +191,12 @@ sub rpi_verify_pin_status {
 
     if ($oled_locked) {
         @gpio_pins = qw(
-            14 15 18 23 24 10 9 25 11 8 7 0 1 13 19 16 20 21
+            14 15 18 23 24 10 9 25 11 8 7 0 1 12 13 19 16 20 21 26
         );
     }
     else {
         @gpio_pins = qw(
-            2 3 14 15 18 23 24 10 9 25 11 8 7 0 1 13 19 16 20 21
+            2 3 14 15 18 23 24 10 9 25 11 8 7 0 1 12 13 19 16 20 21 26
         );
     }
     my $config = rpi_default_pin_config();
@@ -196,8 +204,23 @@ sub rpi_verify_pin_status {
     my $incorrect_config = 0;
 
     for (@gpio_pins){
-        $incorrect_config++ if get_alt($_) != $config->{$_}{alt};
-        $incorrect_config++ if read_pin($_) != $config->{$_}{state};
+        my $alt = get_alt($_);
+
+        if ($alt != $config->{$_}{alt}){
+            note "pin $_ alt mismatch: got $alt, expected $config->{$_}{alt}";
+            $incorrect_config++;
+        }
+
+        # An undef state means "mode-only check" (eg. the CS pins)
+
+        if (defined $config->{$_}{state}){
+            my $state = read_pin($_);
+
+            if ($state != $config->{$_}{state}){
+                note "pin $_ state mismatch: got $state, expected $config->{$_}{state}";
+                $incorrect_config++;
+            }
+        }
 
         return 0 if $incorrect_config;
     }
@@ -255,7 +278,9 @@ sub rpi_default_pin_config {
       '9'  => { 'alt' => 4, 'state' => 0 },
       '10' => { 'alt' => 4, 'state' => 0 },
       '11' => { 'alt' => 4, 'state' => 0 },
-#FIXME: 12 removed due to inherent flipping
+      # 12/26 are the DAC/ADC chip-select pins; their level depends on the
+      # attached device's pull state, so only the alt mode is verified
+      '12' => { 'alt' => 0, 'state' => undef },
       '13' => { 'alt' => 0, 'state' => 0 }, # OUTPUT/HIGH due to the dpot test (t/345)
       # 14/15: alt 4 (ALT0) when Serial bluetooth disabled
       '14' => { 'alt' => 4, 'state' => 1 },
@@ -270,7 +295,7 @@ sub rpi_default_pin_config {
       '23' => { 'alt' => 0, 'state' => 0 },
       '24' => { 'alt' => 0, 'state' => 0 },
       '25' => { 'alt' => 0, 'state' => 0 },
-#FIXME: 26 removed due to inherent flipping
+      '26' => { 'alt' => 0, 'state' => undef }, # ADC CS - mode-only check
       '27' => { 'alt' => 0, 'state' => 1 }, # hot due to LCD
     };
 
@@ -288,7 +313,9 @@ sub rpi_default_pin_config {
       '9'  => { 'alt' => 4, 'state' => 0 },
       '10' => { 'alt' => 4, 'state' => 0 },
       '11' => { 'alt' => 4, 'state' => 0 },
-#FIXME: 12 removed due to inherent flipping
+      # 12/26 are the DAC/ADC chip-select pins; their level depends on the
+      # attached device's pull state, so only the alt mode is verified
+      '12' => { 'alt' => 0, 'state' => undef },
       '13' => { 'alt' => 0, 'state' => 0 }, # OUTPUT/HIGH due to the dpot test (t/345)
       # 14/15: alt 4 (ALT0) when Serial bluetooth disabled
       '14' => { 'alt' => 4, 'state' => 1 },
@@ -303,7 +330,7 @@ sub rpi_default_pin_config {
       '23' => { 'alt' => 0, 'state' => 0 },
       '24' => { 'alt' => 0, 'state' => 0 },
       '25' => { 'alt' => 0, 'state' => 0 },
-#FIXME: 26 removed due to inherent flipping
+      '26' => { 'alt' => 0, 'state' => undef }, # ADC CS - mode-only check
       '27' => { 'alt' => 0, 'state' => 1 }, # hot due to LCD
     };
 
@@ -323,7 +350,9 @@ sub rpi_default_pin_config {
       '9'  => { 'alt' => 4,  'state' => 0 },
       '10' => { 'alt' => 4,  'state' => 0 },
       '11' => { 'alt' => 4,  'state' => 0 },
-#FIXME: 12 removed due to inherent flipping
+      # 12/26 are the DAC/ADC chip-select pins; their level depends on the
+      # attached device's pull state, so only the alt mode is verified
+      '12' => { 'alt' => 31, 'state' => undef },
       '13' => { 'alt' => 31, 'state' => 0 }, # OUTPUT/HIGH due to the dpot test (t/345)
       # 14/15: UART funcsel (3) when the header UART is enabled; line idles high
       '14' => { 'alt' => 3,  'state' => 1 },
@@ -338,7 +367,7 @@ sub rpi_default_pin_config {
       '23' => { 'alt' => 1,  'state' => 0 },
       '24' => { 'alt' => 31, 'state' => 0 },
       '25' => { 'alt' => 31, 'state' => 0 },
-#FIXME: 26 removed due to inherent flipping
+      '26' => { 'alt' => 31, 'state' => undef }, # ADC CS - mode-only check
       '27' => { 'alt' => 1,  'state' => 0 }, # hot due to LCD
     };
 
@@ -384,7 +413,10 @@ sub rpi_reset {
             # pinctrl for "no function", pinModeAlt for real alts) so the reset
             # actually restores Pi 5 pins instead of mis-handling them.
             $pi->_restore_pin_alt($pin, $pin_defaults->{$pin}{alt});
-            WiringPi::API::digitalWrite($pin, $pin_defaults->{$pin}{state});
+
+            if (defined $pin_defaults->{$pin}{state}){
+                WiringPi::API::digitalWrite($pin, $pin_defaults->{$pin}{state});
+            }
         }
     }
 }
