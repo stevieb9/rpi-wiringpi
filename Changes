@@ -248,6 +248,13 @@ Revision history for Perl extension RPi::WiringPi.
         - io_led()/pwr_led() sysfs writes now check the command exit status
           and warn on failure instead of silently no-opping via unchecked
           backticks
+        - Added regression tests for the above fixes: t/104-core_regressions.t
+          (gpio_layout() dispatch, pwm getter forms and constified defaults,
+          _pwm_in_use() guard, falsy RPI_PIN_MODE, _led_cmd() failure warning),
+          t/154-fatal_exit.t (per-object fatal_exit semantics incl. SIGINT
+          survival/termination), plus new lock-release-on-die and
+          missing-slot cases in t/03 and handler-restore edge cases
+          (CODE/'IGNORE'/multi-object) in t/153
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
