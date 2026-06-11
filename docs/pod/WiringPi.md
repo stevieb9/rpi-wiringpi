@@ -76,6 +76,21 @@ Returns a new `RPi::WiringPi` object. We exclusively use the `GPIO`
 
 Parameters:
 
+    setup => $string
+
+Optional, String: Which `wiringPi` setup routine (and therefore pin numbering
+scheme) to initialize the board with. Matching is case-insensitive on the
+first letter:
+
+    'gpio'      - GPIO (BCM) numbering; the default if not sent in
+    'wiringpi'  - wiringPi's own (WPI) numbering
+    'none'      - skip board setup entirely (the pin scheme remains
+                  uninitialized; primarily for testing)
+
+Any other value will croak. Note that if another application in the process
+has already run a setup routine (signalled via the `RPI_PIN_MODE` environment
+variable), that existing scheme is honoured and this parameter is ignored.
+
     shm_key => $string
 
 By default, we use the key `rpiw` as the shared memory segment key. You can

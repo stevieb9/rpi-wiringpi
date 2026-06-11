@@ -285,6 +285,12 @@ Revision history for Perl extension RPi::WiringPi.
         - Documented in t/RPiTest.pm that the suite is serial-only (shared
           physical pins + shm segment + absolute count assertions); never run
           prove with -j parallelism
+        - new()'s 'setup' param now matches 'wiringpi'/'gpio'/'none'
+          case-insensitively ('GPIO'/'Gpio' previously fell through silently)
+          and croaks on unrecognized values instead of silently leaving the
+          board uninitialized; the param is now documented in POD (it wasn't,
+          despite being public). README/md regenerated; regression tests in
+          t/104
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
