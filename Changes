@@ -1,6 +1,6 @@
 Revision history for Perl extension RPi::WiringPi.
 
-3.1802  UNREL
+3.1802     2026-06-12
         - bump prereq of RPi::I2C to 2.3608
         - added t/01-validate_test_suite_config.t; resets meta data and hardware
           pin configuration in the event of previous test run failures, and
