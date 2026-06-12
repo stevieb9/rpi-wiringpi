@@ -18,7 +18,7 @@ use Data::Dumper;
 use Digest::MD5 qw(md5_hex);
 use RPi::Const qw(:all);
 
-our $VERSION = '3.1802';
+our $VERSION = '3.1803';
 
 sub gpio_layout {
     return $_[0]->SUPER::gpio_layout;

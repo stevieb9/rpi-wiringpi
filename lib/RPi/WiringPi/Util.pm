@@ -12,7 +12,7 @@ use Digest::MD5 qw(md5_hex);
 use RPi::Const qw(:all);
 use Time::HiRes qw(time);
 
-our $VERSION = '3.1802';
+our $VERSION = '3.1803';
 
 sub checksum {
     return md5_hex($$ . time() . rand());
