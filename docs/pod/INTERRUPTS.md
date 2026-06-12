@@ -64,30 +64,40 @@ longer accepted.
     my $pin = $pi->pin(18);
     $pin->mode(INPUT);
 
-    # arm: callback gets ($edge, $timestamp_us)
-    $pin->set_interrupt(EDGE_RISING, sub {
-        my ($edge, $ts_us) = @_;
-        print "rising edge at $ts_us us\n";
-    });
+    # Arm: callback gets ($edge, $timestamp_us)
 
-    # drive dispatch (callbacks fire here, in this process)
+    $pin->set_interrupt(
+        EDGE_RISING,
+        sub {
+            my ($edge, $ts_us) = @_;
+            print "rising edge at $ts_us us\n";
+        }
+    );
+
+    # Drive dispatch (callbacks fire here, in this process)
+
     $pi->wait_interrupts(1000) while 1;
 
 # DRIVING DISPATCH
 
 Pick whichever fits your program. All of these live on `$pi`:
 
-    # 1) block until an edge (or timeout ms), then dispatch:
+    # 1) Block until an edge (or timeout ms), then dispatch:
+
     $pi->wait_interrupts(1000) while 1;
 
-    # 2) the built-in loop helper (so you don't write the 'while 1' yourself):
-    $pi->run_interrupt_loop(1000);          # forever
+    # 2) The built-in loop helper (so you don't write the 'while 1' yourself):
+
+    $pi->run_interrupt_loop(1000);          # Forever
     $pi->run_interrupt_loop(1000, 50);      # ... or until 50 events
-    #    break out from a callback or signal handler with:
+
+    # Break out from a callback or signal handler with:
+
     $pi->stop_interrupt_loop;
 
-    # 3) non-blocking, from inside your own event loop:
-    $pi->dispatch_interrupts;               # run any pending callbacks, return count
+    # 3) Non-blocking, from inside your own event loop:
+
+    $pi->dispatch_interrupts; # Run any pending callbacks, return count
 
 # HANDS-OFF: FIRE CALLBACKS WITH NO LOOP
 
@@ -97,12 +107,16 @@ callback can touch your program's variables with no locking. It is a
 **process-wide** switch (it affects every armed pin), which is why it lives on
 `$pi`.
 
-    $pi->auto_dispatch_interrupts(1);       # on (default SIGIO)
-    $pin->set_interrupt(EDGE_RISING, sub { $count++ });
-    # ... your program runs; the callback fires on its own ...
-    $pi->auto_dispatch_interrupts(0);       # off
+    $pi->auto_dispatch_interrupts(1); # On (default SIGIO)
 
-    # choose a different delivery signal to avoid clashing with other SIGIO users:
+    $pin->set_interrupt(EDGE_RISING, sub { $count++ });
+
+    # ... your program runs; the callback fires on its own ...
+
+    $pi->auto_dispatch_interrupts(0); # Off
+
+    # Choose a different delivery signal to avoid clashing with other SIGIO users:
+
     $pi->auto_dispatch_interrupts(1, 'USR1');
 
 You can also opt in while arming, instead of a separate call:
@@ -126,24 +140,35 @@ while your main program does anything it likes. The handler runs in the child, s
 it **can't** touch your main variables - use it for independent work (drive a pin,
 log, notify).
 
-    my $h = $pin->background_interrupt(EDGE_RISING, sub {
-        my ($edge, $ts_us) = @_;
-        # independent work, in the background
-    });
+    my $h = $pin->background_interrupt(
+        EDGE_RISING,
+        sub {
+            my ($edge, $ts_us) = @_;
+            # Independent work, in the background
+        }
+    );
+
     # ... main carries on ...
+
     $h->stop;        # stop + reap (idempotent); $h->pid / $h->running too
 
 To get values back from the handler, enable the **results channel** and _return_
 a value:
 
-    my $h = $pin->background_interrupt(EDGE_RISING, sub {
-        my ($edge, $ts_us) = @_;
-        return "$edge\@$ts_us";
-    }, { results => 1 });
+    my $h = $pin->background_interrupt(
+        EDGE_RISING,
+        sub {
+            my ($edge, $ts_us) = @_;
+            return "$edge\@$ts_us";
+        },
+        { results => 1 }
+    );
 
-    while (defined(my $msg = $h->read)) {   # non-blocking drain in the parent
+    while (defined(my $msg = $h->read)) {
+        # Non-blocking drain in the parent
         print "handler said: $msg\n";
     }
+
     # $h->fh is the read filehandle, for select / IO::Select
 
 This results channel is identical to `$pi->worker`'s `{ results => 1 }`
@@ -157,12 +182,12 @@ spans several pins it lives on `$pi`.
 
     my $h = $pi->background_interrupts(
         [18, EDGE_RISING, \&on_button],
-        [23, EDGE_BOTH,   \&on_sensor, 5000],   # optional debounce (us)
+        [23, EDGE_BOTH,   \&on_sensor, 5000],   # Optional debounce (us)
     );
 
-    $h->disarm(23);   # stop servicing pin 23 (child keeps running for pin 18)
-    $h->arm(23);      # resume it
-    $h->stop;         # tear down + reap the single child
+    $h->disarm(23);   # Stop servicing pin 23 (child keeps running for pin 18)
+    $h->arm(23);      # Resume it
+    $h->stop;         # Tear down + reap the single child
 
 The callbacks are fixed when the child forks, so `arm`/`disarm` only toggle pins
 that were in the initial list (arming an unregistered pin croaks).
@@ -176,6 +201,7 @@ armed on several pins, `$pi->last_interrupt` tells you which fired:
         my $i = $pi->last_interrupt;   # { pin, pin_bcm, edge, status, ts_us }
         printf "pin %d (BCM %d) edge %d\n", $i->{pin}, $i->{pin_bcm}, $i->{edge};
     };
+
     $pi->pin($_)->set_interrupt(EDGE_BOTH, $cb) for (18, 23);
 
 It returns the most recently dispatched event (or `undef`), and is published
@@ -187,9 +213,9 @@ Edges are FIFO-queued in a kernel pipe. If a fast source outruns your dispatchin
 the queue fills and the **newest** edges are dropped (never merged, never blocked)
 and counted - so loss is never silent:
 
-    my $lost = $pi->interrupt_dropped;               # 0 unless the pipe overflowed
-    $pi->interrupt_buffer(1 << 20);                  # enlarge the queue (~1 MiB)
-    my $size = $pi->interrupt_buffer;                # read the current capacity
+    my $lost = $pi->interrupt_dropped; # 0 unless the pipe overflowed
+    $pi->interrupt_buffer(1 << 20);    # Enlarge the queue (~1 MiB)
+    my $size = $pi->interrupt_buffer;  # Read the current capacity
 
 `interrupt_buffer` may be set before arming and persists across teardown. Other
 mitigations: dispatch faster, use a background process, or debounce.
@@ -203,9 +229,11 @@ parent's pins or tear down its interrupts on exit. You can also disarm explicitl
 while running:
 
     $pin->set_interrupt(EDGE_RISING, \&handler);
+
     # ... later ...
-    $pi->stop_interrupts;     # release every armed interrupt
-    $pi->cleanup;             # full teardown (also releases interrupts)
+
+    $pi->stop_interrupts;   # Release every armed interrupt
+    $pi->cleanup;           # Full teardown (also releases interrupts)
 
 # METHOD REFERENCE
 
