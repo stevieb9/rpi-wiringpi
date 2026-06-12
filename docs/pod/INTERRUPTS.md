@@ -2,6 +2,22 @@
 
 RPi::WiringPi::INTERRUPTS - interrupt (edge event) usage examples for RPi::WiringPi
 
+## Table of Contents
+
+- [DESCRIPTION](#description)
+- [THE MODEL](#the-model)
+- [QUICK START](#quick-start)
+- [DRIVING DISPATCH](#driving-dispatch)
+- [HANDS-OFF: FIRE CALLBACKS WITH NO LOOP](#hands-off-fire-callbacks-with-no-loop)
+- [BACKGROUND HANDLING (ONE PROCESS, FIRES EVEN WHILE MAIN IS BUSY)](#background-handling-one-process-fires-even-while-main-is-busy)
+- [MANY PINS IN ONE BACKGROUND CHILD](#many-pins-in-one-background-child)
+- [INSPECTING THE MOST RECENT EVENT](#inspecting-the-most-recent-event)
+- [QUEUE SIZING AND DROPPED EDGES](#queue-sizing-and-dropped-edges)
+- [FORKING AND CLEANUP](#forking-and-cleanup)
+- [METHOD REFERENCE](#method-reference)
+- [SEE ALSO](#see-also)
+- [AUTHOR](#author)
+
 # DESCRIPTION
 
 A practical, runnable guide to handling GPIO interrupts (edge events) with the

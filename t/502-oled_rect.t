@@ -13,17 +13,24 @@ if (! $ENV{RPI_OLED}){
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new(label => 't/903-oled_dim.t', shm_key => 'rpit');
+my $pi = RPi::WiringPi->new(label => 't/502-oled_rect.t', shm_key => 'rpit');
 my $s = $pi->oled('128x64', 0x3C, 0);
+
+# full screen
 
 is $s->rect(0, 0, 128, 64, 1), 1, "rect return ok";
 $s->display;
 
-is $s->dim(1), 1, "dim() return ok";
+# one pixel border
 
-sleep 1;
+$s->rect(1, 1, 126, 62, 0);
+$s->display;
 
-$s->dim(0);
+is $s->rect(0, 0, 128, 64, 1), 1, "rect return ok";
+$s->display;
+
+$s->rect(20, 10, 88, 44, 0);
+$s->display;
 
 $s->clear;
 

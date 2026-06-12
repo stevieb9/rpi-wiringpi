@@ -13,23 +13,26 @@ if (! $ENV{RPI_OLED}){
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new(label => 't/902-oled_rect.t', shm_key => 'rpit');
+my $pi = RPi::WiringPi->new(label => 't/506-oled_pixel.t', shm_key => 'rpit');
 my $s = $pi->oled('128x64', 0x3C, 0);
 
-# full screen
+for (1..5){
+    my $x = int(rand(128));
+    my $y = int(rand(64));
 
-is $s->rect(0, 0, 128, 64, 1), 1, "rect return ok";
-$s->display;
+    print "$x, $y\n";
+    is $s->pixel($x, $y, 1), 1, "pixel() return ok";
+    $s->display;
+}
 
-# one pixel border
+for (1..100){
+    my $x = int(rand(128));
+    my $y = int(rand(64));
 
-$s->rect(1, 1, 126, 62, 0);
-$s->display;
+    print "$x, $y\n";
+    $s->pixel($x, $y, 1);
+}
 
-is $s->rect(0, 0, 128, 64, 1), 1, "rect return ok";
-$s->display;
-
-$s->rect(20, 10, 88, 44, 0);
 $s->display;
 
 $s->clear;

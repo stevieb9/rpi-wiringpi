@@ -2,6 +2,26 @@
 
 RPi::WiringPi::Meta - Shared memory meta data management for RPI::WiringPi
 
+## Table of Contents
+
+- [DESCRIPTION](#description)
+- [SYNOPSIS](#synopsis)
+- [METHODS](#methods)
+  - [meta](#meta)
+  - [meta\_set($name, $href)](#meta_setname-href)
+  - [meta\_get($name)](#meta_getname)
+  - [meta\_delete($name)](#meta_deletename)
+  - [meta\_fetch](#meta_fetch)
+  - [meta\_store($data)](#meta_storedata)
+  - [meta\_lock($flags)](#meta_lockflags)
+  - [meta\_unlock](#meta_unlock)
+  - [meta\_key](#meta_key)
+  - [meta\_key\_check($key)](#meta_key_checkkey)
+  - [meta\_erase($all)](#meta_eraseall)
+  - [meta\_remove](#meta_remove)
+- [AUTHOR](#author)
+- [COPYRIGHT AND LICENSE](#copyright-and-license)
+
 # DESCRIPTION
 
 This module contains various utilities for the shared memory storage area. This

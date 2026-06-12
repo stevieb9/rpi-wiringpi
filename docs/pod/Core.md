@@ -3,6 +3,33 @@
 RPi::WiringPi::Core - Core methods for RPi::WiringPi Raspberry Pi
 interface
 
+## Table of Contents
+
+- [DESCRIPTION](#description)
+- [METHODS](#methods)
+  - [gpio\_layout](#gpio_layout)
+  - [identify($seconds)](#identifyseconds)
+  - [io\_led($tweak)](#io_ledtweak)
+  - [pwr\_led($tweak)](#pwr_ledtweak)
+  - [label($label)](#labellabel)
+  - [pin\_scheme(\[$scheme\])](#pin_schemescheme)
+  - [pin\_to\_gpio($pin, \[$scheme\])](#pin_to_gpiopin-scheme)
+  - [wpi\_to\_gpio($pin\_num)](#wpi_to_gpiopin_num)
+  - [phys\_to\_gpio($pin\_num)](#phys_to_gpiopin_num)
+  - [pwm\_range($range)](#pwm_rangerange)
+  - [pwm\_mode($mode)](#pwm_modemode)
+  - [pwm\_clock($divisor)](#pwm_clockdivisor)
+  - [registered\_pins()](#registered_pins)
+  - [register\_pin($pin\_obj, $comment)](#register_pinpin_obj-comment)
+  - [unregister\_pin($pin\_obj)](#unregister_pinpin_obj)
+  - [unregister\_object](#unregister_object)
+  - [cleanup](#cleanup)
+- [ENVIRONMENT VARIABLES](#environment-variables)
+  - [NO\_BOARD](#no_board)
+  - [RPI\_BOARD](#rpi_board)
+- [AUTHOR](#author)
+- [COPYRIGHT AND LICENSE](#copyright-and-license)
+
 # DESCRIPTION
 
 This module contains various utilities for [RPi::WiringPi](https://metacpan.org/pod/RPi%3A%3AWiringPi) that don't
