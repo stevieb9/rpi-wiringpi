@@ -8,7 +8,7 @@ use IPC::Shareable qw(:flock);
 use JSON::XS;
 use String::CRC32 qw(crc32);
 
-our $VERSION = '3.1801_01';
+our $VERSION = '3.1802';
 
 # Mirrors IPC::Shareable's signed 32-bit key_t overflow correction (_shm_key)
 use constant MAX_KEY_INT_SIZE => 0x80000000;

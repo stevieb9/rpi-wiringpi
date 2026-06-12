@@ -33,7 +33,7 @@ use Data::Dumper;
 use RPi::Const qw(:all);
 use Scalar::Util qw(weaken);
 
-our $VERSION = '3.1801_01';
+our $VERSION = '3.1802';
 
 # class variables
 
