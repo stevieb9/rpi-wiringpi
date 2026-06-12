@@ -70,6 +70,7 @@ WriteMakefile(
 # copies: POD -> markdown (docs/pod/*.md, README.md) and the test-platform
 # pinout/schematic artifacts. Hooked as a prerequisite of create_distdir so the
 # freshly generated files are in place before manicopy assembles the tarball.
+
 sub MY::postamble {
     return <<"MAKE_FRAG";
 regen_docs :
