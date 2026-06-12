@@ -338,6 +338,15 @@ Revision history for Perl extension RPi::WiringPi.
         - Documented RPI_DIST_RELEASE in the FAQ testing env var list: set on
           a non-Pi machine to bypass the XS distributions' Makefile.PL
           wiringPi/i2c presence checks when cutting release tarballs
+        - Renumbered the test suite: OLED/LCD tests moved from t/900-925 to
+          t/500-525, the author POD/MANIFEST tests from t/500-515 to t/900-915,
+          and the final cleanup test from t/999 to t/899; MANIFEST and the FAQ
+          test listing updated to match
+        - gen-pod-md.pl now injects a GitHub-anchored Table of Contents into
+          each generated markdown file (docs/pod/*.md and README.md)
+        - 'make dist' now regenerates the derived docs (gen-pod-md.pl and
+          gen-test-platform.pl) before packaging, so every tarball ships
+          current POD-markdown and test-platform artifacts
 
 2.3633_03 2019-11-18
         - added rpi_sudo_check() in RPiTest. All test files that sudo needs to

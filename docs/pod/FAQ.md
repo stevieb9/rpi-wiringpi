@@ -2,6 +2,137 @@
 
 RPi::WiringPi::FAQ - FAQ and Tutorial for RPi::WiringPi
 
+## Table of Contents
+
+- [DESCRIPTION](#description)
+- [GLOSSARY OF TERMS](#glossary-of-terms)
+- [SETUP](#setup)
+  - [Perlbrew configuration](#perlbrew-configuration)
+  - [sudo configuration](#sudo-configuration)
+  - [Crontab Configuration](#crontab-configuration)
+  - [I2C configuration](#i2c-configuration)
+  - [Arduino I2C configuration](#arduino-i2c-configuration)
+  - [SPI configuration](#spi-configuration)
+  - [Serial configuration](#serial-configuration)
+- [PI](#pi)
+  - [Create a Raspberry Pi object](#create-a-raspberry-pi-object)
+  - [Board revision](#board-revision)
+  - [Identifying which Raspberry Pi hardware you're working on](#identifying-which-raspberry-pi-hardware-youre-working-on)
+    - [Disk I/O LED toggling](#disk-io-led-toggling)
+    - [Power LED toggling](#power-led-toggling)
+  - [Setting a label/name for your Pi object](#setting-a-labelname-for-your-pi-object)
+  - [System Information](#system-information)
+    - [CPU usage percent](#cpu-usage-percent)
+    - [Memory usage percent](#memory-usage-percent)
+    - [CPU core temperature](#cpu-core-temperature)
+    - [GPIO information](#gpio-information)
+    - [Boot configuration settings](#boot-configuration-settings)
+    - [Network configuration information](#network-configuration-information)
+    - [File system information](#file-system-information)
+    - [Pi board and OS details](#pi-board-and-os-details)
+    - [Pi model name](#pi-model-name)
+- [PIN](#pin)
+  - [Creating and using a GPIO pin object](#creating-and-using-a-gpio-pin-object)
+  - [Internal pull up/down resistor](#internal-pull-updown-resistor)
+  - [Pulse Width Modulation (PWM)](#pulse-width-modulation-pwm)
+    - [Basics](#basics)
+    - [PWM Clock](#pwm-clock)
+    - [PWM Mode](#pwm-mode)
+    - [PWM Range](#pwm-range)
+  - [Interrupt usage](#interrupt-usage)
+    - [Driving interrupt dispatch](#driving-interrupt-dispatch)
+    - [Hands-off handling (no dispatch loop)](#hands-off-handling-no-dispatch-loop)
+    - [Bursts and dropped edges](#bursts-and-dropped-edges)
+- [I2C BUS](#i2c-bus)
+  - [Instantiation and communication](#instantiation-and-communication)
+- [SERIAL BUS](#serial-bus)
+  - [Note](#note)
+  - [Usage](#usage)
+- [SERIAL PERIPHERAL INTERFACE (SPI) BUS](#serial-peripheral-interface-spi-bus)
+  - [Set up and communication](#set-up-and-communication)
+- [ANALOG TO DIGITAL CONVERTERS (ADC)](#analog-to-digital-converters-adc)
+  - [Initialization and reading input](#initialization-and-reading-input)
+- [DIGITAL TO ANALOG CONVERTERS (DAC)](#digital-to-analog-converters-dac)
+  - [Configuration, initialization and setting analog output levels](#configuration-initialization-and-setting-analog-output-levels)
+- [DIGITAL POTENTIOMETERS](#digital-potentiometers)
+  - [Initialization and usage](#initialization-and-usage)
+- [SHIFT REGISTERS](#shift-registers)
+  - [Overview](#overview)
+  - [Usage](#usage-1)
+- [GPS](#gps)
+  - [Usage](#usage-2)
+- [LCD TOUCH SCREENS](#lcd-touch-screens)
+  - [Initialize](#initialize)
+  - [Display operations](#display-operations)
+  - [Cursor operations](#cursor-operations)
+  - [Output operations](#output-operations)
+  - [Putting it all together](#putting-it-all-together)
+- [BAROMETRIC PRESSURE SENSORS](#barometric-pressure-sensors)
+  - [Usage](#usage-3)
+- [HYGROMETER SENSORS](#hygrometer-sensors)
+  - [Usage](#usage-4)
+- [ULTRASONIC DISTANCE SENSOR](#ultrasonic-distance-sensor)
+  - [Usage](#usage-5)
+- [REAL-TIME CLOCK](#real-time-clock)
+  - [Usage](#usage-6)
+- [OLED DISPLAY](#oled-display)
+  - [Usage](#usage-7)
+- [EEPROM](#eeprom)
+  - [Usage](#usage-8)
+- [GPIO EXPANDERS](#gpio-expanders)
+  - [Usage](#usage-9)
+- [SERVO](#servo)
+  - [Description](#description-1)
+  - [Example](#example)
+- [STEPPER MOTOR](#stepper-motor)
+  - [Description](#description-2)
+  - [Example](#example-1)
+- [WORKERS/THREADS](#workersthreads)
+- [SHARE VARIABLES/DATA BETWEEN PROCESSES AND SCRIPTS](#share-variablesdata-between-processes-and-scripts)
+  - [Use case](#use-case)
+  - [Create the Pi Object](#create-the-pi-object)
+  - [Add data for sharing](#add-data-for-sharing)
+  - [Retrieve previously stored data](#retrieve-previously-stored-data)
+  - [Delete an existing shared data storage slot](#delete-an-existing-shared-data-storage-slot)
+- [CORE LIBRARY](#core-library)
+  - [Overview](#overview-1)
+- [UTILITY LIBRARY](#utility-library)
+- [INCLUDED SCRIPTS](#included-scripts)
+  - [pinmap](#pinmap)
+  - [pidentify](#pidentify)
+  - [pimeta \[shm\_key\]](#pimeta-shm_key)
+  - [pimetaerase &lt;shm\_key>](#pimetaerase-ltshm_key)
+- [RUNNING TESTS](#running-tests)
+  - [Test file reference](#test-file-reference)
+  - [Setup and configuration](#setup-and-configuration)
+    - [Base information](#base-information)
+    - [Author Testing](#author-testing)
+    - [Multi Object Testing](#multi-object-testing)
+    - [Arduino/I2C](#arduinoi2c)
+    - [Serial Port Testing](#serial-port-testing)
+    - [BMP Barometric Pressure Sensor Testing](#bmp-barometric-pressure-sensor-testing)
+    - [HCSR04 Ultrasonic Testing](#hcsr04-ultrasonic-testing)
+    - [OLED Display Testing](#oled-display-testing)
+    - [LCD Testing](#lcd-testing)
+    - [RTC Testing](#rtc-testing)
+    - [MCP23017 GPIO Expander Testing](#mcp23017-gpio-expander-testing)
+    - [PWM/SPI Testing](#pwmspi-testing)
+    - [Shift Register Testing](#shift-register-testing)
+    - [Digital Potentiometer Testing](#digital-potentiometer-testing)
+    - [Digital to Analog Converter Testing](#digital-to-analog-converter-testing)
+    - [Servo Testing](#servo-testing)
+    - [Stepper Motor Testing](#stepper-motor-testing)
+    - [EEPROM Testing](#eeprom-testing)
+  - [Automated with [Test::BrewBuild](https://metacpan.org/pod/Test%3A%3ABrewBuild)](#automated-with-testbrewbuildhttpsmetacpanorgpodtest3a3abrewbuild)
+    - [Installing Test::BrewBuild](#installing-testbrewbuild)
+    - [Running Continuous Integration At Startup](#running-continuous-integration-at-startup)
+  - [Testing Environment Variable List](#testing-environment-variable-list)
+  - [I2C Test Platform Connections](#i2c-test-platform-connections)
+- [DEVELOPMENT](#development)
+  - [Pins](#pins)
+- [AUTHOR](#author)
+- [COPYRIGHT AND LICENSE](#copyright-and-license)
+
 # DESCRIPTION
 
 This document will hopefully provide enough information in a sane way to get
@@ -1345,23 +1476,23 @@ variables a given test needs on top of `RPI_BOARD` - if it reads `(none)`,
     421-eeprom_read_write_byte_croak.t           EEPROM byte r/w error handling       RPI_EEPROM
     422-eeprom_read_write_byte.t                 EEPROM byte read/write               RPI_EEPROM
     450-stepper.t                                Stepper motor (read via ADC)         RPI_STEPPER
-    500-pod_coverage.t                           POD coverage (author)                RPI_RELEASE_TESTING
-    505-pod_linkcheck.t                          POD link check (author)              RPI_RELEASE_TESTING
-    510-pod.t                                    POD syntax (author)                  RPI_RELEASE_TESTING
-    515-manifest.t                               MANIFEST check (author)              RPI_RELEASE_TESTING
-    900-oled_new.t                               OLED object creation                 RPI_OLED
-    901-oled_string.t                            OLED draw string                     RPI_OLED
-    902-oled_rect.t                              OLED rectangle                       RPI_OLED
-    903-oled_dim.t                               OLED dim                             RPI_OLED
-    904-oled_splash_screen.t                     OLED splash screen                   RPI_OLED
-    905-oled_invert_display.t                    OLED invert display                  RPI_OLED
-    906-oled_pixel.t                             OLED pixel                           RPI_OLED
-    907-oled_char.t                              OLED character                       RPI_OLED
-    908-oled_vertical_line.t                     OLED vertical line                   RPI_OLED
-    909-oled_horizontal_line.t                   OLED horizontal line                 RPI_OLED
-    920-oled_cleanup.t                           OLED cleanup                         RPI_OLED
-    925-lcd.t                                    HD44780 LCD                          RPI_LCD
-    999-test_suite_cleanup.t                     Final meta/pin reset                 (none)
+    500-oled_new.t                               OLED object creation                 RPI_OLED
+    501-oled_string.t                            OLED draw string                     RPI_OLED
+    502-oled_rect.t                              OLED rectangle                       RPI_OLED
+    503-oled_dim.t                               OLED dim                             RPI_OLED
+    504-oled_splash_screen.t                     OLED splash screen                   RPI_OLED
+    505-oled_invert_display.t                    OLED invert display                  RPI_OLED
+    506-oled_pixel.t                             OLED pixel                           RPI_OLED
+    507-oled_char.t                              OLED character                       RPI_OLED
+    508-oled_vertical_line.t                     OLED vertical line                   RPI_OLED
+    509-oled_horizontal_line.t                   OLED horizontal line                 RPI_OLED
+    520-oled_cleanup.t                           OLED cleanup                         RPI_OLED
+    525-lcd.t                                    HD44780 LCD                          RPI_LCD
+    899-test_suite_cleanup.t                     Final meta/pin reset                 (none)
+    900-pod_coverage.t                           POD coverage (author)                RPI_RELEASE_TESTING
+    905-pod_linkcheck.t                          POD link check (author)              RPI_RELEASE_TESTING
+    910-pod.t                                    POD syntax (author)                  RPI_RELEASE_TESTING
+    915-manifest.t                               MANIFEST check (author)              RPI_RELEASE_TESTING
 
 ## Setup and configuration
 

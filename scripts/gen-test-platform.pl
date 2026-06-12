@@ -61,6 +61,15 @@ my @nlsvg_map = (
 my $python    = find_python();
 my @netlistsvg = find_netlistsvg();
 
+# No Python means no schematic/pinout pipeline. Warn and skip cleanly (exit 0)
+# rather than dying, so a `make dist` on a host without the toolchain still
+# succeeds and simply ships the previously generated artifacts.
+if (! $python) {
+    warn "WARN: no usable Python found (set SCH_PYTHON or create /tmp/sch-venv); "
+       . "skipping test-platform generation\n";
+    exit 0;
+}
+
 print "Python:    $python\n";
 print "netlistsvg: ", (@netlistsvg ? "@netlistsvg" : "(not found - schematic PDF/wired SVGs will be skipped)"), "\n\n";
 
@@ -167,7 +176,7 @@ print(','.join(m for m in mods if importlib.util.find_spec(m) is None))" 2>/dev/
         warn "WARN: $py is missing Python modules: $missing\n" if $missing;
         return $py;
     }
-    die "No usable Python found (set SCH_PYTHON or create /tmp/sch-venv)\n";
+    return undef;
 }
 
 # Remove macOS AppleDouble / .DS_Store cruft from a directory tree. These are

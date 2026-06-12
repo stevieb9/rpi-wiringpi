@@ -11,7 +11,9 @@
 # (lib/RPi/WiringPi.pm) POD; this replaces the legacy pod2text README.
 #
 # Conversion is delegated to the `pod2markdown` binary (Pod::Markdown is not
-# installed in the perlbrew perl, but the system binary is on PATH).
+# installed in the perlbrew perl, but the system binary is on PATH). After
+# conversion, a GitHub-anchored Table of Contents is injected into each
+# generated markdown file (including README.md).
 #
 # Usage:  perl scripts/gen-pod-md.pl
 
@@ -70,6 +72,8 @@ for my $src (@sources) {
     system(@cmd) == 0
         or die "pod2markdown failed for " . rel($src) . " (status $?)\n";
 
+    add_toc($dest);
+
     my $lines = count_lines($dest);
     printf "  %-14s <- %s  (%d lines)\n", $md, rel($src), $lines;
     $generated++;
@@ -84,6 +88,8 @@ my $readme_dest = File::Spec->catfile($root, 'README.md');
 system($pod2md, $readme_src, $readme_dest) == 0
     or die "pod2markdown failed for README.md (status $?)\n";
 
+add_toc($readme_dest);
+
 printf "  %-14s <- %s  (%d lines)\n",
     'README.md', rel($readme_src), count_lines($readme_dest);
 
@@ -91,6 +97,98 @@ printf "\nGenerated %d file%s + README.md, skipped %d, into %s\n",
     $generated, ($generated == 1 ? '' : 's'), $skipped, rel($out_dir);
 
 # --- helpers ---------------------------------------------------------------
+
+# Inject a "Table of Contents" section into a generated markdown file. Headings
+# are collected from the converted output, GitHub-style anchors are derived
+# (matching GitHub's slug + duplicate-suffix rules), and the TOC is spliced in
+# just ahead of the second heading (after the leading NAME/title section). Files
+# with fewer than three headings are left untouched.
+sub add_toc {
+    my ($file) = @_;
+
+    open my $fh, '<', $file or die "open $file: $!\n";
+    my @lines = <$fh>;
+    close $fh;
+
+    # Collect ATX headings, ignoring anything inside fenced code blocks.
+    my $in_fence = 0;
+    my @headings;
+    for my $i (0 .. $#lines) {
+        if ($lines[$i] =~ /^```/) {
+            $in_fence = ! $in_fence;
+            next;
+        }
+        next if $in_fence;
+        if ($lines[$i] =~ /^(#{1,6})[ \t]+(.+?)[ \t]*$/) {
+            push @headings, { level => length($1), text => $2, idx => $i };
+        }
+    }
+
+    # Not worth a TOC for a stub document.
+    return if @headings < 3;
+
+    # Assign anchors across all headings in document order so duplicate-name
+    # suffixes (-1, -2, ...) match what GitHub would generate.
+    my %seen;
+    for my $h (@headings) {
+        $h->{anchor} = anchor($h->{text}, \%seen);
+    }
+
+    # List everything after the leading title heading.
+    my @entries = @headings[1 .. $#headings];
+    my $min     = $entries[0]{level};
+    for my $e (@entries) {
+        $min = $e->{level} if $e->{level} < $min;
+    }
+
+    my @toc = ("## Table of Contents\n", "\n");
+    for my $e (@entries) {
+        my $indent = '  ' x ($e->{level} - $min);
+        push @toc, sprintf "%s- [%s](#%s)\n",
+            $indent, clean_heading($e->{text}), $e->{anchor};
+    }
+    push @toc, "\n";
+
+    splice @lines, $entries[0]{idx}, 0, @toc;
+
+    open my $wfh, '>', $file or die "open $file: $!\n";
+    print $wfh @lines;
+    close $wfh;
+
+    return;
+}
+
+# Derive a GitHub-compatible anchor slug from heading text, tracking previously
+# seen slugs in the passed hashref to append -1/-2/... on collisions.
+sub anchor {
+    my ($text, $seen) = @_;
+
+    my $s = lc clean_heading($text);
+    $s =~ s/[^\w \-]//g;     # Keep word chars (incl. _), spaces and hyphens
+    $s =~ s/ /-/g;
+
+    if (defined $seen->{$s}) {
+        my $base = $s;
+        $s = $base . '-' . (++$seen->{$base});
+    }
+    else {
+        $seen->{$s} = 0;
+    }
+
+    return $s;
+}
+
+# Strip inline markdown formatting markers (code spans, bold/italic) so the
+# visible heading text remains for both the TOC label and the anchor slug.
+sub clean_heading {
+    my ($text) = @_;
+
+    $text =~ s/`+//g;
+    $text =~ s/\*\*?//g;
+    $text =~ s/^\s+|\s+$//g;
+
+    return $text;
+}
 
 # Locate the pod2markdown binary: PATH first, then common system location.
 sub find_pod2markdown {

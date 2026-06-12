@@ -65,3 +65,18 @@ WriteMakefile(
         'WiringPi::API'             => 3.1803,
     },
 );
+
+# Regenerate derived docs before packaging so every distribution ships current
+# copies: POD -> markdown (docs/pod/*.md, README.md) and the test-platform
+# pinout/schematic artifacts. Hooked as a prerequisite of create_distdir so the
+# freshly generated files are in place before manicopy assembles the tarball.
+sub MY::postamble {
+    return <<"MAKE_FRAG";
+regen_docs :
+\t\$(NOECHO) \$(ECHO) "Regenerating derived docs before packaging"
+\t\$(PERLRUN) scripts/gen-pod-md.pl
+\t\$(PERLRUN) scripts/gen-test-platform.pl
+
+create_distdir : regen_docs
+MAKE_FRAG
+}

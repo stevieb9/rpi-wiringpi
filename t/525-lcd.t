@@ -24,7 +24,7 @@ $SIG{INT} = sub { $continue = 0; };
 
 my $pi = RPi::WiringPi->new(
     fatal_exit => 0,
-    label => 't/925-lcd.t',
+    label => 't/525-lcd.t',
     shm_key => 'rpit'
 );
 

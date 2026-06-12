@@ -13,18 +13,24 @@ if (! $ENV{RPI_OLED}){
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new(label => 't/909-oled_horizontal_line.t', shm_key => 'rpit');
+my $pi = RPi::WiringPi->new(label => 't/503-oled_dim.t', shm_key => 'rpit');
 my $s = $pi->oled('128x64', 0x3C, 0);
 
-is $s->horizontal_line(0, 32, 128), 1, "horizontal_line() return ok";
+is $s->rect(0, 0, 128, 64, 1), 1, "rect return ok";
 $s->display;
+
+is $s->dim(1), 1, "dim() return ok";
+
+sleep 1;
+
+$s->dim(0);
 
 $s->clear;
 
 $pi->cleanup;
 
 rpi_check_pin_status();
-rpi_metadata_clean();
+#rpi_metadata_clean();
 
 done_testing();
 

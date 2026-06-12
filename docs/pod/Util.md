@@ -2,6 +2,18 @@
 
 RPi::WiringPi::Util - Utility methods outside of Pi hardware functionality
 
+## Table of Contents
+
+- [DESCRIPTION](#description)
+- [METHODS](#methods)
+  - [checksum](#checksum)
+  - [pin\_map($scheme)](#pin_mapscheme)
+  - [uuid](#uuid)
+  - [signal\_handlers](#signal_handlers)
+  - [dump\_signal\_handlers](#dump_signal_handlers)
+- [AUTHOR](#author)
+- [COPYRIGHT AND LICENSE](#copyright-and-license)
+
 # DESCRIPTION
 
 This module contains various utilities for [RPi::WiringPi](https://metacpan.org/pod/RPi%3A%3AWiringPi) that don't

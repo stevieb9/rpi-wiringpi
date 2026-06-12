@@ -2,6 +2,28 @@
 
 RPi::WiringPi::WORKERS - concurrency & background-worker examples for RPi::WiringPi
 
+## Table of Contents
+
+- [DESCRIPTION](#description)
+- [ABOUT THESE EXAMPLES](#about-these-examples)
+- [DECISION GUIDE](#decision-guide)
+- [BACKGROUND WORKERS ($pi->worker)](#background-workers-pi-worker)
+  - [1. Heartbeat LED - a worker on its own pin](#1-heartbeat-led---a-worker-on-its-own-pin)
+  - [2. Periodic sampler handing data back (interval + shared)](#2-periodic-sampler-handing-data-back-interval--shared)
+  - [3. Streaming every result (results)](#3-streaming-every-result-results)
+  - [4. A one-shot background task (once)](#4-a-one-shot-background-task-once)
+  - [5. Several workers on distinct pins](#5-several-workers-on-distinct-pins)
+  - [6. Shared memory - the opt-in ithread mechanism](#6-shared-memory---the-opt-in-ithread-mechanism)
+- [REACTING TO INTERRUPTS IN THE BACKGROUND](#reacting-to-interrupts-in-the-background)
+- [THE SETUP-ONCE-IN-MAIN CONTRACT](#the-setup-once-in-main-contract)
+- [UNDER THE HOOD](#under-the-hood)
+  - [7. Manual fork](#7-manual-fork)
+  - [8. Raw ithreads (threads->create)](#8-raw-ithreads-threads-create)
+- [ANTI-PATTERNS TO AVOID](#anti-patterns-to-avoid)
+- [API REFERENCE FOR THESE EXAMPLES](#api-reference-for-these-examples)
+- [SEE ALSO](#see-also)
+- [AUTHOR](#author)
+
 # DESCRIPTION
 
 Worked, runnable examples for running background work concurrently with your main

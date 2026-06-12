@@ -1346,23 +1346,23 @@ C<sudo> automatically.
     421-eeprom_read_write_byte_croak.t           EEPROM byte r/w error handling       RPI_EEPROM
     422-eeprom_read_write_byte.t                 EEPROM byte read/write               RPI_EEPROM
     450-stepper.t                                Stepper motor (read via ADC)         RPI_STEPPER
-    500-pod_coverage.t                           POD coverage (author)                RPI_RELEASE_TESTING
-    505-pod_linkcheck.t                          POD link check (author)              RPI_RELEASE_TESTING
-    510-pod.t                                    POD syntax (author)                  RPI_RELEASE_TESTING
-    515-manifest.t                               MANIFEST check (author)              RPI_RELEASE_TESTING
-    900-oled_new.t                               OLED object creation                 RPI_OLED
-    901-oled_string.t                            OLED draw string                     RPI_OLED
-    902-oled_rect.t                              OLED rectangle                       RPI_OLED
-    903-oled_dim.t                               OLED dim                             RPI_OLED
-    904-oled_splash_screen.t                     OLED splash screen                   RPI_OLED
-    905-oled_invert_display.t                    OLED invert display                  RPI_OLED
-    906-oled_pixel.t                             OLED pixel                           RPI_OLED
-    907-oled_char.t                              OLED character                       RPI_OLED
-    908-oled_vertical_line.t                     OLED vertical line                   RPI_OLED
-    909-oled_horizontal_line.t                   OLED horizontal line                 RPI_OLED
-    920-oled_cleanup.t                           OLED cleanup                         RPI_OLED
-    925-lcd.t                                    HD44780 LCD                          RPI_LCD
-    999-test_suite_cleanup.t                     Final meta/pin reset                 (none)
+    500-oled_new.t                               OLED object creation                 RPI_OLED
+    501-oled_string.t                            OLED draw string                     RPI_OLED
+    502-oled_rect.t                              OLED rectangle                       RPI_OLED
+    503-oled_dim.t                               OLED dim                             RPI_OLED
+    504-oled_splash_screen.t                     OLED splash screen                   RPI_OLED
+    505-oled_invert_display.t                    OLED invert display                  RPI_OLED
+    506-oled_pixel.t                             OLED pixel                           RPI_OLED
+    507-oled_char.t                              OLED character                       RPI_OLED
+    508-oled_vertical_line.t                     OLED vertical line                   RPI_OLED
+    509-oled_horizontal_line.t                   OLED horizontal line                 RPI_OLED
+    520-oled_cleanup.t                           OLED cleanup                         RPI_OLED
+    525-lcd.t                                    HD44780 LCD                          RPI_LCD
+    899-test_suite_cleanup.t                     Final meta/pin reset                 (none)
+    900-pod_coverage.t                           POD coverage (author)                RPI_RELEASE_TESTING
+    905-pod_linkcheck.t                          POD link check (author)              RPI_RELEASE_TESTING
+    910-pod.t                                    POD syntax (author)                  RPI_RELEASE_TESTING
+    915-manifest.t                               MANIFEST check (author)              RPI_RELEASE_TESTING
 
 =head2 Setup and configuration
 
