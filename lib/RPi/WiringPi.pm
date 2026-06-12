@@ -635,11 +635,11 @@ Please see the L<FAQ|RPi::WiringPi::FAQ> for full usage details.
  
 This is the root module for the C<RPi::WiringPi> system. It interfaces to a
 Raspberry Pi board, its accessories and its GPIO pins via the
-L<wiringPi|http://wiringpi.com> library through the Perl wrapper
+L<wiringPi|https://github.com/WiringPi/WiringPi> library through the Perl wrapper
 L<WiringPi::API|https://metacpan.org/pod/WiringPi::API>
 module, and various other custom device specific  modules.
  
-L<wiringPi|http://wiringpi.com> must be installed prior to installing/using
+L<wiringPi|https://github.com/WiringPi/WiringPi> must be installed prior to installing/using
 this module (v3.18).
  
 We always and only use the C<GPIO> pin numbering scheme.

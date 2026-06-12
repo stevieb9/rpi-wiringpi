@@ -115,11 +115,11 @@ Please see the [FAQ](https://metacpan.org/pod/RPi%3A%3AWiringPi%3A%3AFAQ) for fu
 
 This is the root module for the `RPi::WiringPi` system. It interfaces to a
 Raspberry Pi board, its accessories and its GPIO pins via the
-[wiringPi](http://wiringpi.com) library through the Perl wrapper
+[wiringPi](https://github.com/WiringPi/WiringPi) library through the Perl wrapper
 [WiringPi::API](https://metacpan.org/pod/WiringPi::API)
 module, and various other custom device specific  modules.
 
-[wiringPi](http://wiringpi.com) must be installed prior to installing/using
+[wiringPi](https://github.com/WiringPi/WiringPi) must be installed prior to installing/using
 this module (v3.18).
 
 We always and only use the `GPIO` pin numbering scheme.

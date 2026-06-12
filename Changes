@@ -1,997 +1,998 @@
 Revision history for Perl extension RPi::WiringPi.
 
 3.1803 UNREL
-    -
+    - updated wiringPi documentation links from the defunct wiringpi.com to
+      https://github.com/WiringPi/WiringPi
 
 3.1802     2026-06-12
-        - bump prereq of RPi::I2C to 2.3608
-        - added t/01-validate_test_suite_config.t; resets meta data and hardware
-          pin configuration in the event of previous test run failures, and
-          ensures the platform is correctly configured for this test run
-        - added rpi_validate_pin_status() in RPiTest.pm
-        - added rpi_reset() in RPiTest.pm, resets meta and pins for t/01 and
-          t/999; the meta data and pins are reset at the beginning of a test
-          suite run, and again at the end of it (only if necessary)
-        - added sample crontab file for automated CI testing at startup
-        - meta_erase() now accepts a second parameter, $all. If left or set
-          false, we'll leave the 'storage' shared memory data intact, if true,
-          we'll delete it with everything else
-        - reworked how we manage PWM-in-use, and the cleanup. We now ensure
-          that PWM doesn't get reset unless all users of PWM have been 
-          unregistered
-        - tests that require sudo now use the libraries in blib as opposed to
-          the installed versions (fixes #164)
-        - add SYNOPSIS in Meta and add new section for shared storage in FAQ
-          (closes #140)
-        - Added wait_interrupts(), dispatch_interrupts() and stop_interrupts()
-          methods to drive the WiringPi::API 3.18 self-pipe interrupt model
-          (callbacks now run in the consuming interpreter, not the ISR thread)
-        - cleanup() now calls stop_interrupts() so armed interrupts (wiringPi
-          ISR threads + the event pipe) are released at teardown
-        - Updated the interrupt handler examples (FAQ + POD) to pass a CODE
-          reference and drive dispatch; the string sub-name form is gone
-        - Updated t/200-202 interrupt tests and defacto_interrupt.pl to the
-          dispatched model
-        - Made cleanup()/DESTROY() fork-aware: they now no-op in a process other
-          than the one that created the object (guarded by the stored {proc}
-          pid), so a forked child - including one from background_interrupt() -
-          no longer resets pins, mutates the shared meta, or stops interrupts on
-          the parent's behalf when it exits
-        - Added auto_dispatch_interrupts($bool) proxy (process-global SIGIO
-          auto-dispatch; callbacks fire with no loop). It's a per-process switch,
-          so it lives on the Pi object, not on individual pins
-        - Documented the hands-off interrupt options (auto_dispatch_interrupts +
-          $pin->background_interrupt) in the FAQ and POD
-        - Added last_interrupt() proxy: returns the most recently dispatched
-          interrupt event {pin, pin_bcm, edge, status, ts_us}. Process-wide
-          (last event on any pin), so it lives on the Pi object
-        - Added interrupt_buffer($bytes) proxy: get/set the interrupt queue
-          (self-pipe) capacity. Documented the burst/dropped-edge policy in the
-          FAQ. Process-wide, so it lives on the Pi object
-        - Added run_interrupt_loop($timeout_ms, $max) and stop_interrupt_loop()
-          proxies: a blocking dispatch loop so you needn't write the wait loop
-          yourself. Process-wide, so they live on the Pi object
-        - Added background_interrupts([$pin,$edge,$cb,$deb], ...) proxy: one
-          shared background child for many pins (handle adds arm/disarm). Spans
-          several pins, so it lives on the Pi object. ($pin->background_interrupt
-          in RPi::Pin also forwards the new {results => 1} option)
-        - auto_dispatch_interrupts() proxy now forwards an optional delivery
-          signal (eg. 'USR1'); $pin->set_interrupt() forwards the new
-          {auto_dispatch => ...} option
-        - Added an interrupt guide for RPi::WiringPi (arming on a pin,
-          driving/controlling dispatch on the Pi object, hands-off and background
-          handling, the shared-child and results channels, queue sizing, and
-          fork/cleanup behaviour) in two forms: docs/interrupt-examples.md
-          (markdown) and lib/RPi/WiringPi/INTERRUPTS.pod
-          (perldoc RPi::WiringPi::INTERRUPTS)
-        - Bumped the WiringPi::API prerequisite from 2.3616 to 3.1801 (the
-          wiringPi 3.18 upgrade: required for the self-pipe interrupt model and
-          the i2c_read_word/i2c_setup/shift_reg_setup fixes)
-        - Fixed the unregister ownership guard in _pin_registration(): a
-          negation-precedence bug (! ... eq) left the guard dead, so a pin's
-          ownership was never enforced on unregister; now uses ne
-        - Fixed _pin_registration() to read the local meta structure for the
-          duplicate-pin check and the returned registered-pins list, which
-          previously consulted a stale $self->{meta} and so never fired / came
-          back empty
-        - Added interrupt_dropped() proxy: the running count of interrupt edges
-          dropped on queue overflow. Process-wide, so it lives on the Pi object
-        - Documented run_interrupt_loop()'s $timeout_ms (default 1000) and $max
-          params and pin()'s optional $comment, and noted that the per-pin
-          $pin->background_interrupt form awaits a future RPi::Pin release
-          (2.3608 ships only set_interrupt)
-        - Bumped the distribution VERSION to 3.1800 to match the WiringPi::API
-          3.18 upgrade
-        - Split RPiTest's default pin-config into per-board tables (Pi 3 / Pi 4
-          / Pi 5) selected at runtime by a new rpi_board_tag() helper, so
-          rpi_check_pin_status() validates correctly on the RP1 (Pi 5) GPIO
-          peripheral instead of failing the legacy BCM alt-mode checks
-        - Bumped the RPi::Pin prerequisite from 2.3608 to 2.3609 for the real
-          pin-level background_interrupt() (with its {results => 1} channel)
-        - Added comprehensive interrupt test coverage (t/203-t/212):
-          dispatch_interrupts(), last_interrupt(), stop_interrupts(),
-          run_interrupt_loop()/stop_interrupt_loop(), auto_dispatch_interrupts()
-          (SIGIO + SIGUSR1), interrupt_buffer(), background_interrupts() (with
-          arm/disarm gating), propagated-croak validation, and the pin-level
-          $pin->background_interrupt() results channel
-        - Strengthened checksum() UUID entropy: now seeds md5_hex() with the PID
-          and hi-res time in addition to rand(), so forked/concurrent objects
-          don't draw from a low-entropy rand()-only source
-        - Removed setup_phys() and setup_sys() initialization support, along with
-          the PHYS (RPI_MODE_PHYS) and System GPIO (RPI_MODE_GPIO_SYS) pin
-          schemes, coordinated with the WiringPi::API 3.18 removal of those modes
-        - Removed export_pin() and unexport_pin(), which existed solely to
-          support the setup_sys() scheme
-        - Added worker() method, a hands-off background-task proxy to
-          WiringPi::API::worker() that tracks the returned handle on the object
-        - cleanup() (and DESTROY) now stops every worker() handle tracked on the
-          object, respecting the forked-child process guard
-        - Documented the worker() method (handle, once/interval/shared/results/
-          mechanism options, auto-stop on cleanup)
-        - Added t/213-worker.t: off-Pi proxy/validation/lifecycle/cleanup-reaping
-          assertions plus a PI_BOARD-gated GPIO block driving a real worker
-        - Corrected the FAQ "Perlbrew configuration" note: a threaded Perl is not
-          required for interrupts (the listener runs in an internal C thread) nor
-          for fork-based worker(); perlbrew is recommended for isolation, not
-          required
-        - Added build_testing/valgrind_worker.pl, an OO $pi->worker() exerciser
-          (distinct-pin workers, {shared} sampler, {interval}/{once} pacing,
-          stop/reap, cleanup-driven stop, forgotten-stop exit reaping) for
-          leak-checking under valgrind
-        - Added lib/RPi/WiringPi/WORKERS.pod (perldoc RPi::WiringPi::WORKERS),
-          the OO concurrency/background-worker guide leading with $pi->worker()
-          and demoting raw fork/threads to "under the hood"; cross-linked from
-          the worker() method POD and the FAQ
-        - Added docs/threads-examples.md, the markdown companion to
-          RPi::WiringPi::WORKERS; cross-linked with docs/interrupt-examples.md
-        - Implicit cleanup of any object the user never explicitly cleanup()'d
-          now runs from an END block, while the IPC::Shareable segment is still
-          alive, instead of from DESTROY at global destruction. This makes the
-          implicit teardown actually reset the pins and unregister the object,
-          and silences the "during global destruction" warnings that were
-          emitted when DESTROY operated on a half-torn-down shared segment
-        - Added t/03-meta.t coverage asserting the entire meta blob (including
-          deeply nested user data) round-trips and stays in a single shared
-          memory segment, guarding against IPC::Shareable per-nested-ref
-          segment fan-out
-        - Retired the broken build_testing/shared_data.pl scratch script and
-          updated build_testing/benchmark/sharelite_vs_memfile.pl (renamed to
-          shareable_vs_memfile.pl) onto IPC::Shareable, removing the last
-          references to the dropped IPC::ShareLite backend
-        - Removed t/154-sig_die_multi.t and t/155-sig_die.t: both asserted that a
-          caught eval { die } resets pins to INPUT, which the module does not
-          provide (cleanup restores each pin's captured original mode, not
-          INPUT). Real process-death cleanup remains covered by t/112/113/114
-        - Added meta_remove() to RPi::WiringPi::Meta, which frees the underlying
-          shared memory segment (and semaphore) entirely rather than only
-          emptying it like meta_erase(); a later meta_* call transparently
-          recreates a fresh segment. bin/pimetaerase gained an optional fourth
-          'remove' argument that removes the segment after erasing
-        - Fixed pin cleanup on the Raspberry Pi 5: wiringPi's pinModeAlt() cannot
-          set alt mode 31 ("no function", the pristine default for many RP1
-          GPIO pins), so cleanup() left those pins in their last-used mode. We
-          now fall back to pinctrl for the alt-31 case (gated on alt == 31 and
-          pi_rp1_model(), so legacy Pi 3/4 behaviour is unchanged). RPiTest's
-          rpi_reset() got the same fallback. Requires gpio-group membership
-          (documented in the FAQ)
-        - Bumped the RPi::SysInfo prerequisite from 1.00 to 1.01, which fixes
-          gpio_info() (now uses pinctrl; raspi-gpio was removed from current Pi
-          OS) and raspi_config() (now reads /boot/firmware/config.txt). Updated
-          the t/403/404/406/407 sysinfo tests for the corrected output and made
-          them board/OS-agnostic, with additional assertions
-        - Reworked the crash/signal handling. We no longer trap $SIG{__DIE__}
-          (which fired on every die, including a caught eval { die }, silently
-          resetting your pins); hardware cleanup on a crash or normal exit is
-          handled by the END/DESTROY path instead. $SIG{INT}/$SIG{TERM} are now
-          installed correctly (the old form raised "Not a subroutine reference"
-          when a signal fired) and chain to any handler you installed first
-        - fatal_exit now actually works (it was a no-op): on a trapped INT/TERM
-          we reset the hardware, then either re-raise to terminate (default) or,
-          with fatal_exit => 0, continue running. POD updated to match
-        - Stopped pin cleanup's pinctrl shell-out from clobbering the program's
-          exit status (local $?/$! in _restore_pin_alt)
-        - Completed the Pi 5/RP1 pin-restore fix: on the RP1, get_alt() returns a
-          mode enum, not a classic alt number, so pinModeAlt() could not restore
-          INPUT (0) or OUTPUT (1) — only alt 31 was handled before. cleanup() and
-          RPiTest's rpi_reset() now restore INPUT/OUTPUT via pinMode() (and "no
-          function" via pinctrl), so a pin left in OUTPUT (eg. by a worker) is
-          properly returned to its default. t/213-worker.t now asserts BCM18 is
-          restored; clears the cascade that failed t/400-407 in a full sweep
-        - Made t/107-alt_modes.t board-aware: its "default mode is INPUT" check
-          now reads the per-board default (INPUT on Pi 3/4, "no function"/alt 31
-          on Pi 5), and the classic ALT0-5 round-trip block is skipped on the
-          Pi 5 / RP1, whose funcsel scheme doesn't match it (alt 1/2 don't take).
-          Pi 3/4 behaviour is unchanged
-        - Made io_led() and pwr_led() board-aware: Pi 5 / RP1 names its LEDs
-          ACT/PWR rather than led0/led1, which produced "tee: .../led0: No such
-          file or directory" noise and left the LEDs undriven. Resolved via
-          pi_rp1_model(); restore triggers are now board-correct (PWR default
-          is "none" on Pi 5, "input" on earlier boards)
-        - Bumped the RPi::SysInfo prereq to 1.02, which adds the inherited
-          pi_model() method (normalized board name, Pi 0-5) plus the camera
-          (libcamera), core_temp (thermal-zone) and network_info (ip addr)
-          fallbacks for current Raspberry Pi OS
-        - Added t/408-sysinfo_pi_model.t covering the inherited pi_model()
-        - Documented pi_model() in the SYNOPSIS, method list and FAQ
-        - Corrected the FAQ/POD to show config.txt at both /boot/firmware (Bookworm
-          and later) and /boot (older), and network_info using ifconfig or ip addr
-        - Updated RPiTest's Pi 5 default pin-config for the now-enabled SPI, I2C
-          and UART buses: GPIO2/3 (I2C) report funcsel 7, GPIO9/10/11 (SPI)
-          report 4, and GPIO14/15 (UART) report 3 and idle high. Previously these
-          encoded the bus-disabled values (0/0/31), so rpi_check_pin_status()
-          mis-validated once the interfaces were turned on
-        - Tightened the GPIO14/15 check in rpi_check_pin_status() and
-          rpi_verify_pin_status(): dropped the "alt == 2" escape hatch (a
-          serial-disabled workaround) now that the enabled UART reports a
-          deterministic funcsel, folding 14/15 into the standard per-board check
-        - Fixed rpi_check_pin_status() to emit the "I2C locked ... skipping pins
-          2 and 3" note only when the OLED lock file is actually present; it
-          previously printed unconditionally
-        - Re-enabled t/315-serial.t by removing its blanket skip_all, and removed
-          two meta_lock(name => ..., state => ...) calls that used a non-existent
-          signature (meta_lock takes a single lock flag) and crashed the test;
-          the RPI_SERIAL gate (and TX/RX loopback requirement) still govern it
-        - Reconciled the Pi 5 default-pin table and serial/Bluetooth note in
-          docs/test-platform/test-pinout-doc.md, the serial POD note in
-          RPi::WiringPi, and fixed a "ram=i2c_arm" typo in the FAQ, to match the
-          enabled-bus pin values
-        - Fixed gpio_layout() in Core infinitely recursing into itself instead
-          of dispatching to WiringPi::API's implementation
-        - Fixed pwm_mode() getter form croaking; with no param it now returns
-          the current mode instead of dying, and only the setter form marks
-          PWM as in-use
-        - Fixed _pwm_in_use() registration guard using && where every sibling
-          guard uses ||; with rpi_register_pins disabled it wrote pwm.users
-          meta that cleanup() could never clear
-        - cleanup() now removes only the calling object's uuid from a shared
-          pin's users and resets/deletes the pin only when no users remain,
-          mirroring the PWM teardown (it previously dropped the pin for all
-          co-owners)
-        - Fixed new() re-running GPIO setup when RPI_PIN_MODE held the falsy
-          WPI scheme (0); the env check is now defined-based like Core's
-          pin_scheme(), so a second object no longer restamps WPI mode to GPIO
-        - pwm_range()/pwm_mode() default return values now use the
-          PWM_DEFAULT_RANGE/PWM_DEFAULT_MODE constants instead of the magic
-          numbers 1023/1 (resolves the long-standing FIXME)
-        - All shared-memory critical sections now run under an internal
-          _meta_txn() wrapper that guarantees meta_unlock() runs even if the
-          section dies (a die between lock and unlock previously held the
-          exclusive lock indefinitely across processes)
-        - Fixed conditional-my declaration in meta_get() ("my $x = ... if ...")
-          which is undefined behaviour and could leak a value between calls
-        - Signal handlers are now restored when the last Pi object is cleaned
-          up: cleanup() releases the object's INT/TERM entries (also freeing
-          the closure that kept the object alive), and the pre-existing
-          disposition (including 'IGNORE'/'DEFAULT'/sub-name forms, which were
-          previously dropped) is reinstated
-        - fatal_exit is now strictly per-object: the trapped-signal handler
-          re-raises only if every live object has it true, instead of a
-          process-global last-writer-wins flag that a second object's setting
-          would flip for all
-        - io_led()/pwr_led() sysfs writes now check the command exit status
-          and warn on failure instead of silently no-opping via unchecked
-          backticks
-        - Added regression tests for the above fixes: t/104-core_regressions.t
-          (gpio_layout() dispatch, pwm getter forms and constified defaults,
-          _pwm_in_use() guard, falsy RPI_PIN_MODE, _led_cmd() failure warning),
-          t/154-fatal_exit.t (per-object fatal_exit semantics incl. SIGINT
-          survival/termination), plus new lock-release-on-die and
-          missing-slot cases in t/03 and handler-restore edge cases
-          (CODE/'IGNORE'/multi-object) in t/153
-        - Regenerated README from the current RPi::WiringPi POD (it was ~826
-          lines behind: claimed $SIG{__DIE__} was trapped, referenced wiringPi
-          2.36+, and was missing the interrupt/worker/eeprom/oled/pi_model
-          methods and shm_key/rpi_register* params), and refreshed the stale
-          docs/pod/WiringPi.md and docs/pod/FAQ.md via scripts/gen-pod-md.pl
-        - POD fixes: INTERRUPTS.pod example-doc links now point at the moved
-          docs/examples/ files; fixed invalid "my $pi = RPi::WiringPi;"
-          constructor examples (Meta SYNOPSIS, two FAQ sites) and the FAQ's
-          "my gps" / $ruler-vs-$sensor example errors; added the missing
-          =head1 AUTHOR heading in Meta.pm; documented oled()'s optional 3rd
-          $display_splash_page param; pwm_mode() now validates against
-          PWM_MODE_MS/PWM_MODE_BAL (same values, self-documenting); updated
-          the background_interrupt dependency notes - RPi::Pin 2.3609 (the
-          required version) ships it. README and docs/pod/*.md regenerated
-        - Test suite correctness: fixed the RPI_ARUDINO typo in t/300's skip
-          message; t/920-oled_cleanup.t now checks the real /dev/shm lock path
-          (it was vacuously passing against /tmp); GPIO 12/26 (the DAC/ADC
-          chip-select pins) are back in every board's default-pin table and
-          the verification lists as mode-only checks (their level depends on
-          the attached device, which is why they were removed as "flipping");
-          rpi_verify_pin_status() now reports which pin (and what) mismatched
-          via note(); rpi_i2c_check()'s skip message now explains the
-          RPI_I2C/ADS1115 requirement so root runs don't skip mysteriously
-        - Device tests t/305/310/335/345/925 now carry an END cleanup guard so
-          a mid-run die still releases the object's pin/CS registration from
-          shared meta (belt-and-braces over the library's END reap, which
-          became reliable once _meta_txn guaranteed lock release)
-        - Documented in t/RPiTest.pm that the suite is serial-only (shared
-          physical pins + shm segment + absolute count assertions); never run
-          prove with -j parallelism
-        - new()'s 'setup' param now matches 'wiringpi'/'gpio'/'none'
-          case-insensitively ('GPIO'/'Gpio' previously fell through silently)
-          and croaks on unrecognized values instead of silently leaving the
-          board uninitialized; the param is now documented in POD (it wasn't,
-          despite being public). README/md regenerated; regression tests in
-          t/104
-        - oled() now dies for the whitelisted-but-unimplemented 128x32/96x16
-          models and expander() croaks on an unrecognized expander type;
-          both previously returned undef silently. pin_to_gpio()'s
-          uninitialized-scheme croak is now the catch-all so an unrecognized
-          scheme value can no longer fall through to undef
-        - Test hygiene: fixed a copy-pasted assertion message in t/150,
-          removed a leftover debug print in t/111 and a duplicate use lib in
-          t/300, and t/107 now asserts mode_alt's value directly instead of
-          the boolean of an eq comparison (real got/expected diagnostics on
-          failure)
-        - bin/pinmap now skips physical pins absent from the pin map instead
-          of warning on an uninitialized value; bin/pimetaerase cosmetic
-          defined-or fixes (// instead of //=)
-        - Pin scheme comparisons are now consistently numeric; pin_map() in
-          Util.pm compared the scheme enum with eq while everything else
-          uses == (no behavior change)
-        - Documented the method resolution order of the diamond inheritance
-          tree in WiringPi.pm and Core.pm (depth-first; WiringPi::API is
-          searched before Meta/Util/RPi::SysInfo), including why
-          use mro 'c3' is not currently a drop-in change (comments only)
-        - The interrupt tests (t/200-209) now count callback fires in a file
-          lexical instead of $ENV{PI_INTERRUPT}, which read as if it were an
-          env var gate like PI_BOARD/RPI_*
-        - RPI_RELEASE_TESTING alone now enables the POD tests (t/500/505/510);
-          the redundant RPI_POD second gate and rpi_pod_check() are removed,
-          and the FAQ env var documentation updated to match
-        - The PWM feedback acceptance windows are single-sourced in
-          t/RPiTest.pm (rpi_pwm_adc_window()) and shared by t/109 and t/140,
-          so a hardware recalibration updates both tests in one place; t/109's
-          unfailable `>= -1` lower bounds replaced with real duty-tracking
-          windows (the flat ceiling of 40 is now ~17 at peak)
-        - Fixed settle sleeps replaced with bounded poll-until loops where a
-          pollable condition exists: t/203 (poll-drain), t/210 (drive-until-
-          tally on re-arm), t/305 (eeprom readback), t/325 (servo feedback
-          stabilization), t/330 (register reset); t/210's disarm quiet
-          windows and t/925's human-visible display pause are deliberate and
-          now documented as such
-        - The test suite board gate is now RPI_BOARD, renamed from PI_BOARD
-          across the entire RPi:: ecosystem; the old name is no longer
-          honored. Update /etc/environment (or wherever the suite gate is
-          set) accordingly. FAQ and Core POD updated
-        - README replaced by README.md: scripts/gen-pod-md.pl now generates
-          it in markdown from the main module's POD (the old README was a
-          pod2text dump); MANIFEST updated to ship README.md
-        - Documented RPI_DIST_RELEASE in the FAQ testing env var list: set on
-          a non-Pi machine to bypass the XS distributions' Makefile.PL
-          wiringPi/i2c presence checks when cutting release tarballs
-        - Renumbered the test suite: OLED/LCD tests moved from t/900-925 to
-          t/500-525, the author POD/MANIFEST tests from t/500-515 to t/900-915,
-          and the final cleanup test from t/999 to t/899; MANIFEST and the FAQ
-          test listing updated to match
-        - gen-pod-md.pl now injects a GitHub-anchored Table of Contents into
-          each generated markdown file (docs/pod/*.md and README.md)
-        - 'make dist' now regenerates the derived docs (gen-pod-md.pl and
-          gen-test-platform.pl) before packaging, so every tarball ships
-          current POD-markdown and test-platform artifacts
+    - bump prereq of RPi::I2C to 2.3608
+    - added t/01-validate_test_suite_config.t; resets meta data and hardware
+      pin configuration in the event of previous test run failures, and
+      ensures the platform is correctly configured for this test run
+    - added rpi_validate_pin_status() in RPiTest.pm
+    - added rpi_reset() in RPiTest.pm, resets meta and pins for t/01 and
+      t/999; the meta data and pins are reset at the beginning of a test
+      suite run, and again at the end of it (only if necessary)
+    - added sample crontab file for automated CI testing at startup
+    - meta_erase() now accepts a second parameter, $all. If left or set
+      false, we'll leave the 'storage' shared memory data intact, if true,
+      we'll delete it with everything else
+    - reworked how we manage PWM-in-use, and the cleanup. We now ensure
+      that PWM doesn't get reset unless all users of PWM have been 
+      unregistered
+    - tests that require sudo now use the libraries in blib as opposed to
+      the installed versions (fixes #164)
+    - add SYNOPSIS in Meta and add new section for shared storage in FAQ
+      (closes #140)
+    - Added wait_interrupts(), dispatch_interrupts() and stop_interrupts()
+      methods to drive the WiringPi::API 3.18 self-pipe interrupt model
+      (callbacks now run in the consuming interpreter, not the ISR thread)
+    - cleanup() now calls stop_interrupts() so armed interrupts (wiringPi
+      ISR threads + the event pipe) are released at teardown
+    - Updated the interrupt handler examples (FAQ + POD) to pass a CODE
+      reference and drive dispatch; the string sub-name form is gone
+    - Updated t/200-202 interrupt tests and defacto_interrupt.pl to the
+      dispatched model
+    - Made cleanup()/DESTROY() fork-aware: they now no-op in a process other
+      than the one that created the object (guarded by the stored {proc}
+      pid), so a forked child - including one from background_interrupt() -
+      no longer resets pins, mutates the shared meta, or stops interrupts on
+      the parent's behalf when it exits
+    - Added auto_dispatch_interrupts($bool) proxy (process-global SIGIO
+      auto-dispatch; callbacks fire with no loop). It's a per-process switch,
+      so it lives on the Pi object, not on individual pins
+    - Documented the hands-off interrupt options (auto_dispatch_interrupts +
+      $pin->background_interrupt) in the FAQ and POD
+    - Added last_interrupt() proxy: returns the most recently dispatched
+      interrupt event {pin, pin_bcm, edge, status, ts_us}. Process-wide
+      (last event on any pin), so it lives on the Pi object
+    - Added interrupt_buffer($bytes) proxy: get/set the interrupt queue
+      (self-pipe) capacity. Documented the burst/dropped-edge policy in the
+      FAQ. Process-wide, so it lives on the Pi object
+    - Added run_interrupt_loop($timeout_ms, $max) and stop_interrupt_loop()
+      proxies: a blocking dispatch loop so you needn't write the wait loop
+      yourself. Process-wide, so they live on the Pi object
+    - Added background_interrupts([$pin,$edge,$cb,$deb], ...) proxy: one
+      shared background child for many pins (handle adds arm/disarm). Spans
+      several pins, so it lives on the Pi object. ($pin->background_interrupt
+      in RPi::Pin also forwards the new {results => 1} option)
+    - auto_dispatch_interrupts() proxy now forwards an optional delivery
+      signal (eg. 'USR1'); $pin->set_interrupt() forwards the new
+      {auto_dispatch => ...} option
+    - Added an interrupt guide for RPi::WiringPi (arming on a pin,
+      driving/controlling dispatch on the Pi object, hands-off and background
+      handling, the shared-child and results channels, queue sizing, and
+      fork/cleanup behaviour) in two forms: docs/interrupt-examples.md
+      (markdown) and lib/RPi/WiringPi/INTERRUPTS.pod
+      (perldoc RPi::WiringPi::INTERRUPTS)
+    - Bumped the WiringPi::API prerequisite from 2.3616 to 3.1801 (the
+      wiringPi 3.18 upgrade: required for the self-pipe interrupt model and
+      the i2c_read_word/i2c_setup/shift_reg_setup fixes)
+    - Fixed the unregister ownership guard in _pin_registration(): a
+      negation-precedence bug (! ... eq) left the guard dead, so a pin's
+      ownership was never enforced on unregister; now uses ne
+    - Fixed _pin_registration() to read the local meta structure for the
+      duplicate-pin check and the returned registered-pins list, which
+      previously consulted a stale $self->{meta} and so never fired / came
+      back empty
+    - Added interrupt_dropped() proxy: the running count of interrupt edges
+      dropped on queue overflow. Process-wide, so it lives on the Pi object
+    - Documented run_interrupt_loop()'s $timeout_ms (default 1000) and $max
+      params and pin()'s optional $comment, and noted that the per-pin
+      $pin->background_interrupt form awaits a future RPi::Pin release
+      (2.3608 ships only set_interrupt)
+    - Bumped the distribution VERSION to 3.1800 to match the WiringPi::API
+      3.18 upgrade
+    - Split RPiTest's default pin-config into per-board tables (Pi 3 / Pi 4
+      / Pi 5) selected at runtime by a new rpi_board_tag() helper, so
+      rpi_check_pin_status() validates correctly on the RP1 (Pi 5) GPIO
+      peripheral instead of failing the legacy BCM alt-mode checks
+    - Bumped the RPi::Pin prerequisite from 2.3608 to 2.3609 for the real
+      pin-level background_interrupt() (with its {results => 1} channel)
+    - Added comprehensive interrupt test coverage (t/203-t/212):
+      dispatch_interrupts(), last_interrupt(), stop_interrupts(),
+      run_interrupt_loop()/stop_interrupt_loop(), auto_dispatch_interrupts()
+      (SIGIO + SIGUSR1), interrupt_buffer(), background_interrupts() (with
+      arm/disarm gating), propagated-croak validation, and the pin-level
+      $pin->background_interrupt() results channel
+    - Strengthened checksum() UUID entropy: now seeds md5_hex() with the PID
+      and hi-res time in addition to rand(), so forked/concurrent objects
+      don't draw from a low-entropy rand()-only source
+    - Removed setup_phys() and setup_sys() initialization support, along with
+      the PHYS (RPI_MODE_PHYS) and System GPIO (RPI_MODE_GPIO_SYS) pin
+      schemes, coordinated with the WiringPi::API 3.18 removal of those modes
+    - Removed export_pin() and unexport_pin(), which existed solely to
+      support the setup_sys() scheme
+    - Added worker() method, a hands-off background-task proxy to
+      WiringPi::API::worker() that tracks the returned handle on the object
+    - cleanup() (and DESTROY) now stops every worker() handle tracked on the
+      object, respecting the forked-child process guard
+    - Documented the worker() method (handle, once/interval/shared/results/
+      mechanism options, auto-stop on cleanup)
+    - Added t/213-worker.t: off-Pi proxy/validation/lifecycle/cleanup-reaping
+      assertions plus a PI_BOARD-gated GPIO block driving a real worker
+    - Corrected the FAQ "Perlbrew configuration" note: a threaded Perl is not
+      required for interrupts (the listener runs in an internal C thread) nor
+      for fork-based worker(); perlbrew is recommended for isolation, not
+      required
+    - Added build_testing/valgrind_worker.pl, an OO $pi->worker() exerciser
+      (distinct-pin workers, {shared} sampler, {interval}/{once} pacing,
+      stop/reap, cleanup-driven stop, forgotten-stop exit reaping) for
+      leak-checking under valgrind
+    - Added lib/RPi/WiringPi/WORKERS.pod (perldoc RPi::WiringPi::WORKERS),
+      the OO concurrency/background-worker guide leading with $pi->worker()
+      and demoting raw fork/threads to "under the hood"; cross-linked from
+      the worker() method POD and the FAQ
+    - Added docs/threads-examples.md, the markdown companion to
+      RPi::WiringPi::WORKERS; cross-linked with docs/interrupt-examples.md
+    - Implicit cleanup of any object the user never explicitly cleanup()'d
+      now runs from an END block, while the IPC::Shareable segment is still
+      alive, instead of from DESTROY at global destruction. This makes the
+      implicit teardown actually reset the pins and unregister the object,
+      and silences the "during global destruction" warnings that were
+      emitted when DESTROY operated on a half-torn-down shared segment
+    - Added t/03-meta.t coverage asserting the entire meta blob (including
+      deeply nested user data) round-trips and stays in a single shared
+      memory segment, guarding against IPC::Shareable per-nested-ref
+      segment fan-out
+    - Retired the broken build_testing/shared_data.pl scratch script and
+      updated build_testing/benchmark/sharelite_vs_memfile.pl (renamed to
+      shareable_vs_memfile.pl) onto IPC::Shareable, removing the last
+      references to the dropped IPC::ShareLite backend
+    - Removed t/154-sig_die_multi.t and t/155-sig_die.t: both asserted that a
+      caught eval { die } resets pins to INPUT, which the module does not
+      provide (cleanup restores each pin's captured original mode, not
+      INPUT). Real process-death cleanup remains covered by t/112/113/114
+    - Added meta_remove() to RPi::WiringPi::Meta, which frees the underlying
+      shared memory segment (and semaphore) entirely rather than only
+      emptying it like meta_erase(); a later meta_* call transparently
+      recreates a fresh segment. bin/pimetaerase gained an optional fourth
+      'remove' argument that removes the segment after erasing
+    - Fixed pin cleanup on the Raspberry Pi 5: wiringPi's pinModeAlt() cannot
+      set alt mode 31 ("no function", the pristine default for many RP1
+      GPIO pins), so cleanup() left those pins in their last-used mode. We
+      now fall back to pinctrl for the alt-31 case (gated on alt == 31 and
+      pi_rp1_model(), so legacy Pi 3/4 behaviour is unchanged). RPiTest's
+      rpi_reset() got the same fallback. Requires gpio-group membership
+      (documented in the FAQ)
+    - Bumped the RPi::SysInfo prerequisite from 1.00 to 1.01, which fixes
+      gpio_info() (now uses pinctrl; raspi-gpio was removed from current Pi
+      OS) and raspi_config() (now reads /boot/firmware/config.txt). Updated
+      the t/403/404/406/407 sysinfo tests for the corrected output and made
+      them board/OS-agnostic, with additional assertions
+    - Reworked the crash/signal handling. We no longer trap $SIG{__DIE__}
+      (which fired on every die, including a caught eval { die }, silently
+      resetting your pins); hardware cleanup on a crash or normal exit is
+      handled by the END/DESTROY path instead. $SIG{INT}/$SIG{TERM} are now
+      installed correctly (the old form raised "Not a subroutine reference"
+      when a signal fired) and chain to any handler you installed first
+    - fatal_exit now actually works (it was a no-op): on a trapped INT/TERM
+      we reset the hardware, then either re-raise to terminate (default) or,
+      with fatal_exit => 0, continue running. POD updated to match
+    - Stopped pin cleanup's pinctrl shell-out from clobbering the program's
+      exit status (local $?/$! in _restore_pin_alt)
+    - Completed the Pi 5/RP1 pin-restore fix: on the RP1, get_alt() returns a
+      mode enum, not a classic alt number, so pinModeAlt() could not restore
+      INPUT (0) or OUTPUT (1) — only alt 31 was handled before. cleanup() and
+      RPiTest's rpi_reset() now restore INPUT/OUTPUT via pinMode() (and "no
+      function" via pinctrl), so a pin left in OUTPUT (eg. by a worker) is
+      properly returned to its default. t/213-worker.t now asserts BCM18 is
+      restored; clears the cascade that failed t/400-407 in a full sweep
+    - Made t/107-alt_modes.t board-aware: its "default mode is INPUT" check
+      now reads the per-board default (INPUT on Pi 3/4, "no function"/alt 31
+      on Pi 5), and the classic ALT0-5 round-trip block is skipped on the
+      Pi 5 / RP1, whose funcsel scheme doesn't match it (alt 1/2 don't take).
+      Pi 3/4 behaviour is unchanged
+    - Made io_led() and pwr_led() board-aware: Pi 5 / RP1 names its LEDs
+      ACT/PWR rather than led0/led1, which produced "tee: .../led0: No such
+      file or directory" noise and left the LEDs undriven. Resolved via
+      pi_rp1_model(); restore triggers are now board-correct (PWR default
+      is "none" on Pi 5, "input" on earlier boards)
+    - Bumped the RPi::SysInfo prereq to 1.02, which adds the inherited
+      pi_model() method (normalized board name, Pi 0-5) plus the camera
+      (libcamera), core_temp (thermal-zone) and network_info (ip addr)
+      fallbacks for current Raspberry Pi OS
+    - Added t/408-sysinfo_pi_model.t covering the inherited pi_model()
+    - Documented pi_model() in the SYNOPSIS, method list and FAQ
+    - Corrected the FAQ/POD to show config.txt at both /boot/firmware (Bookworm
+      and later) and /boot (older), and network_info using ifconfig or ip addr
+    - Updated RPiTest's Pi 5 default pin-config for the now-enabled SPI, I2C
+      and UART buses: GPIO2/3 (I2C) report funcsel 7, GPIO9/10/11 (SPI)
+      report 4, and GPIO14/15 (UART) report 3 and idle high. Previously these
+      encoded the bus-disabled values (0/0/31), so rpi_check_pin_status()
+      mis-validated once the interfaces were turned on
+    - Tightened the GPIO14/15 check in rpi_check_pin_status() and
+      rpi_verify_pin_status(): dropped the "alt == 2" escape hatch (a
+      serial-disabled workaround) now that the enabled UART reports a
+      deterministic funcsel, folding 14/15 into the standard per-board check
+    - Fixed rpi_check_pin_status() to emit the "I2C locked ... skipping pins
+      2 and 3" note only when the OLED lock file is actually present; it
+      previously printed unconditionally
+    - Re-enabled t/315-serial.t by removing its blanket skip_all, and removed
+      two meta_lock(name => ..., state => ...) calls that used a non-existent
+      signature (meta_lock takes a single lock flag) and crashed the test;
+      the RPI_SERIAL gate (and TX/RX loopback requirement) still govern it
+    - Reconciled the Pi 5 default-pin table and serial/Bluetooth note in
+      docs/test-platform/test-pinout-doc.md, the serial POD note in
+      RPi::WiringPi, and fixed a "ram=i2c_arm" typo in the FAQ, to match the
+      enabled-bus pin values
+    - Fixed gpio_layout() in Core infinitely recursing into itself instead
+      of dispatching to WiringPi::API's implementation
+    - Fixed pwm_mode() getter form croaking; with no param it now returns
+      the current mode instead of dying, and only the setter form marks
+      PWM as in-use
+    - Fixed _pwm_in_use() registration guard using && where every sibling
+      guard uses ||; with rpi_register_pins disabled it wrote pwm.users
+      meta that cleanup() could never clear
+    - cleanup() now removes only the calling object's uuid from a shared
+      pin's users and resets/deletes the pin only when no users remain,
+      mirroring the PWM teardown (it previously dropped the pin for all
+      co-owners)
+    - Fixed new() re-running GPIO setup when RPI_PIN_MODE held the falsy
+      WPI scheme (0); the env check is now defined-based like Core's
+      pin_scheme(), so a second object no longer restamps WPI mode to GPIO
+    - pwm_range()/pwm_mode() default return values now use the
+      PWM_DEFAULT_RANGE/PWM_DEFAULT_MODE constants instead of the magic
+      numbers 1023/1 (resolves the long-standing FIXME)
+    - All shared-memory critical sections now run under an internal
+      _meta_txn() wrapper that guarantees meta_unlock() runs even if the
+      section dies (a die between lock and unlock previously held the
+      exclusive lock indefinitely across processes)
+    - Fixed conditional-my declaration in meta_get() ("my $x = ... if ...")
+      which is undefined behaviour and could leak a value between calls
+    - Signal handlers are now restored when the last Pi object is cleaned
+      up: cleanup() releases the object's INT/TERM entries (also freeing
+      the closure that kept the object alive), and the pre-existing
+      disposition (including 'IGNORE'/'DEFAULT'/sub-name forms, which were
+      previously dropped) is reinstated
+    - fatal_exit is now strictly per-object: the trapped-signal handler
+      re-raises only if every live object has it true, instead of a
+      process-global last-writer-wins flag that a second object's setting
+      would flip for all
+    - io_led()/pwr_led() sysfs writes now check the command exit status
+      and warn on failure instead of silently no-opping via unchecked
+      backticks
+    - Added regression tests for the above fixes: t/104-core_regressions.t
+      (gpio_layout() dispatch, pwm getter forms and constified defaults,
+      _pwm_in_use() guard, falsy RPI_PIN_MODE, _led_cmd() failure warning),
+      t/154-fatal_exit.t (per-object fatal_exit semantics incl. SIGINT
+      survival/termination), plus new lock-release-on-die and
+      missing-slot cases in t/03 and handler-restore edge cases
+      (CODE/'IGNORE'/multi-object) in t/153
+    - Regenerated README from the current RPi::WiringPi POD (it was ~826
+      lines behind: claimed $SIG{__DIE__} was trapped, referenced wiringPi
+      2.36+, and was missing the interrupt/worker/eeprom/oled/pi_model
+      methods and shm_key/rpi_register* params), and refreshed the stale
+      docs/pod/WiringPi.md and docs/pod/FAQ.md via scripts/gen-pod-md.pl
+    - POD fixes: INTERRUPTS.pod example-doc links now point at the moved
+      docs/examples/ files; fixed invalid "my $pi = RPi::WiringPi;"
+      constructor examples (Meta SYNOPSIS, two FAQ sites) and the FAQ's
+      "my gps" / $ruler-vs-$sensor example errors; added the missing
+      =head1 AUTHOR heading in Meta.pm; documented oled()'s optional 3rd
+      $display_splash_page param; pwm_mode() now validates against
+      PWM_MODE_MS/PWM_MODE_BAL (same values, self-documenting); updated
+      the background_interrupt dependency notes - RPi::Pin 2.3609 (the
+      required version) ships it. README and docs/pod/*.md regenerated
+    - Test suite correctness: fixed the RPI_ARUDINO typo in t/300's skip
+      message; t/920-oled_cleanup.t now checks the real /dev/shm lock path
+      (it was vacuously passing against /tmp); GPIO 12/26 (the DAC/ADC
+      chip-select pins) are back in every board's default-pin table and
+      the verification lists as mode-only checks (their level depends on
+      the attached device, which is why they were removed as "flipping");
+      rpi_verify_pin_status() now reports which pin (and what) mismatched
+      via note(); rpi_i2c_check()'s skip message now explains the
+      RPI_I2C/ADS1115 requirement so root runs don't skip mysteriously
+    - Device tests t/305/310/335/345/925 now carry an END cleanup guard so
+      a mid-run die still releases the object's pin/CS registration from
+      shared meta (belt-and-braces over the library's END reap, which
+      became reliable once _meta_txn guaranteed lock release)
+    - Documented in t/RPiTest.pm that the suite is serial-only (shared
+      physical pins + shm segment + absolute count assertions); never run
+      prove with -j parallelism
+    - new()'s 'setup' param now matches 'wiringpi'/'gpio'/'none'
+      case-insensitively ('GPIO'/'Gpio' previously fell through silently)
+      and croaks on unrecognized values instead of silently leaving the
+      board uninitialized; the param is now documented in POD (it wasn't,
+      despite being public). README/md regenerated; regression tests in
+      t/104
+    - oled() now dies for the whitelisted-but-unimplemented 128x32/96x16
+      models and expander() croaks on an unrecognized expander type;
+      both previously returned undef silently. pin_to_gpio()'s
+      uninitialized-scheme croak is now the catch-all so an unrecognized
+      scheme value can no longer fall through to undef
+    - Test hygiene: fixed a copy-pasted assertion message in t/150,
+      removed a leftover debug print in t/111 and a duplicate use lib in
+      t/300, and t/107 now asserts mode_alt's value directly instead of
+      the boolean of an eq comparison (real got/expected diagnostics on
+      failure)
+    - bin/pinmap now skips physical pins absent from the pin map instead
+      of warning on an uninitialized value; bin/pimetaerase cosmetic
+      defined-or fixes (// instead of //=)
+    - Pin scheme comparisons are now consistently numeric; pin_map() in
+      Util.pm compared the scheme enum with eq while everything else
+      uses == (no behavior change)
+    - Documented the method resolution order of the diamond inheritance
+      tree in WiringPi.pm and Core.pm (depth-first; WiringPi::API is
+      searched before Meta/Util/RPi::SysInfo), including why
+      use mro 'c3' is not currently a drop-in change (comments only)
+    - The interrupt tests (t/200-209) now count callback fires in a file
+      lexical instead of $ENV{PI_INTERRUPT}, which read as if it were an
+      env var gate like PI_BOARD/RPI_*
+    - RPI_RELEASE_TESTING alone now enables the POD tests (t/500/505/510);
+      the redundant RPI_POD second gate and rpi_pod_check() are removed,
+      and the FAQ env var documentation updated to match
+    - The PWM feedback acceptance windows are single-sourced in
+      t/RPiTest.pm (rpi_pwm_adc_window()) and shared by t/109 and t/140,
+      so a hardware recalibration updates both tests in one place; t/109's
+      unfailable `>= -1` lower bounds replaced with real duty-tracking
+      windows (the flat ceiling of 40 is now ~17 at peak)
+    - Fixed settle sleeps replaced with bounded poll-until loops where a
+      pollable condition exists: t/203 (poll-drain), t/210 (drive-until-
+      tally on re-arm), t/305 (eeprom readback), t/325 (servo feedback
+      stabilization), t/330 (register reset); t/210's disarm quiet
+      windows and t/925's human-visible display pause are deliberate and
+      now documented as such
+    - The test suite board gate is now RPI_BOARD, renamed from PI_BOARD
+      across the entire RPi:: ecosystem; the old name is no longer
+      honored. Update /etc/environment (or wherever the suite gate is
+      set) accordingly. FAQ and Core POD updated
+    - README replaced by README.md: scripts/gen-pod-md.pl now generates
+      it in markdown from the main module's POD (the old README was a
+      pod2text dump); MANIFEST updated to ship README.md
+    - Documented RPI_DIST_RELEASE in the FAQ testing env var list: set on
+      a non-Pi machine to bypass the XS distributions' Makefile.PL
+      wiringPi/i2c presence checks when cutting release tarballs
+    - Renumbered the test suite: OLED/LCD tests moved from t/900-925 to
+      t/500-525, the author POD/MANIFEST tests from t/500-515 to t/900-915,
+      and the final cleanup test from t/999 to t/899; MANIFEST and the FAQ
+      test listing updated to match
+    - gen-pod-md.pl now injects a GitHub-anchored Table of Contents into
+      each generated markdown file (docs/pod/*.md and README.md)
+    - 'make dist' now regenerates the derived docs (gen-pod-md.pl and
+      gen-test-platform.pl) before packaging, so every tarball ships
+      current POD-markdown and test-platform artifacts
 
 2.3633_03 2019-11-18
-        - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
-          call this function before any work is done (fixes #144)
-        - added RPI_POD, RPI_SUDO and RPI_OBJECT_COUNT testing environment
-          variables
-        - test suite PI_BOARD check is now done in the RPiTest library, and is
-          now not required in individual test files. Test files need only
-          specify the env vars they require specifically (eg RPI_ADC).
-          (closes #148)
-        - reworked the entire cleanup() regimen and how we manage meta data. It
-          only ever operates on its own object, and never crosses object
-          boundaries
-        - added ability to set a custom shared memory key on a per-object basis.
-          This allows objects within separate processes to be 'grouped' together
-          under the same shared memory segment (eg: prod and test envs can run
-          separately) (closes #153)
-        - removed left-over includes of IPC::Shareable. We don't use that
-          distribution any longer, so it's not included as a prereq
-        - added note to PWM FAQ section that root access is needed (link to sudo
-          config section) (closes #158)
-        - added meta_key_check() class method in Meta, to check whether a shared
-          memory segment exists or not
-        - pimeta and pimetaerase scripts now croak if the shared memory segment
-          we're trying to work on don't yet exist (fixes #156)
-        - added meta_get(), meta_set() and meta_delete(). Allows manipulation of
-          user-defined data within shared memory (closes #146)
-        - bump prereq of RPi::Pin from 2.3607 to 2.3608, and
-          RPi::GPIOExpander::MCP23017 from 1.00 to 1.01. These changes reflect
-          testing environment variable changes (work on #159)
-        - added rpi_register and rpi_register_pins attributes to allow bypassing
-          object and pin registration in meta data (closes #162)
-        - added meta_erase() in Meta to allow for complete removal of all shared
-          memory data
+    - added rpi_sudo_check() in RPiTest. All test files that sudo needs to
+      call this function before any work is done (fixes #144)
+    - added RPI_POD, RPI_SUDO and RPI_OBJECT_COUNT testing environment
+      variables
+    - test suite PI_BOARD check is now done in the RPiTest library, and is
+      now not required in individual test files. Test files need only
+      specify the env vars they require specifically (eg RPI_ADC).
+      (closes #148)
+    - reworked the entire cleanup() regimen and how we manage meta data. It
+      only ever operates on its own object, and never crosses object
+      boundaries
+    - added ability to set a custom shared memory key on a per-object basis.
+      This allows objects within separate processes to be 'grouped' together
+      under the same shared memory segment (eg: prod and test envs can run
+      separately) (closes #153)
+    - removed left-over includes of IPC::Shareable. We don't use that
+      distribution any longer, so it's not included as a prereq
+    - added note to PWM FAQ section that root access is needed (link to sudo
+      config section) (closes #158)
+    - added meta_key_check() class method in Meta, to check whether a shared
+      memory segment exists or not
+    - pimeta and pimetaerase scripts now croak if the shared memory segment
+      we're trying to work on don't yet exist (fixes #156)
+    - added meta_get(), meta_set() and meta_delete(). Allows manipulation of
+      user-defined data within shared memory (closes #146)
+    - bump prereq of RPi::Pin from 2.3607 to 2.3608, and
+      RPi::GPIOExpander::MCP23017 from 1.00 to 1.01. These changes reflect
+      testing environment variable changes (work on #159)
+    - added rpi_register and rpi_register_pins attributes to allow bypassing
+      object and pin registration in meta data (closes #162)
+    - added meta_erase() in Meta to allow for complete removal of all shared
+      memory data
 
 2.3633_02 2019-09-21
-        - TRIAL RELEASE: may not install properly, and there's a potential for
-          shared memory corruption in certain circumstances
-        - all methods that use GPIO pins now supply an appropriate comment for
-          each pin for identification in shared memory (closes #110)
-        - all the OLED tests now get the display object through a Pi object, as
-          opposed to through the class (closes #124)
-        - UUID in shared memory now has a href value, containing proc and label
-          (closes #131)
-        - when setting a new object in shared storage, we ensure there are no
-          duplicate UUIDs present before assignment (closes #130)
-        - all calls through WiringPi::API now use the C function directly as
-          opposed to the Perl functions (closes #128)
-        - multi-object, multi-script/proc tests are now automated within the
-          test suite (as t/112 (good) and t/113 (die)) (closes #132)
-        - added SIGINT multi test files
-        - added meta_locks(). Manages shared memory lock section
-        - serial Arduino OLED display now displays the current test file number
-          (closes #106)
-        - items that used environment variables to store data are now located
-          within the shared memory storage (closes #129)
-        - most modules are now only loaded if they are used (closes #135)
-        - add blurb in FAQ that if running scripts from crontab, the RemoveIPC
-          flag in logind.conf must be set to "no" so shared memory semaphores
-          don't get removed upon user logoff (closes #138)
-        - renamed bin/pimetadata to bin/pimeta and bin/pi-erase-metadata to
-          bin/pimetaerase
-        - bumped RPi::Serial prereq to 3.00 as it no longer relies on wiringPi
-          (closes #136)
-        - bump prereq of RPi::LCD to 2.3604 due to it relying on the old
-          RPi::WiringPi::Constant (closes #147)
+    - TRIAL RELEASE: may not install properly, and there's a potential for
+      shared memory corruption in certain circumstances
+    - all methods that use GPIO pins now supply an appropriate comment for
+      each pin for identification in shared memory (closes #110)
+    - all the OLED tests now get the display object through a Pi object, as
+      opposed to through the class (closes #124)
+    - UUID in shared memory now has a href value, containing proc and label
+      (closes #131)
+    - when setting a new object in shared storage, we ensure there are no
+      duplicate UUIDs present before assignment (closes #130)
+    - all calls through WiringPi::API now use the C function directly as
+      opposed to the Perl functions (closes #128)
+    - multi-object, multi-script/proc tests are now automated within the
+      test suite (as t/112 (good) and t/113 (die)) (closes #132)
+    - added SIGINT multi test files
+    - added meta_locks(). Manages shared memory lock section
+    - serial Arduino OLED display now displays the current test file number
+      (closes #106)
+    - items that used environment variables to store data are now located
+      within the shared memory storage (closes #129)
+    - most modules are now only loaded if they are used (closes #135)
+    - add blurb in FAQ that if running scripts from crontab, the RemoveIPC
+      flag in logind.conf must be set to "no" so shared memory semaphores
+      don't get removed upon user logoff (closes #138)
+    - renamed bin/pimetadata to bin/pimeta and bin/pi-erase-metadata to
+      bin/pimetaerase
+    - bumped RPi::Serial prereq to 3.00 as it no longer relies on wiringPi
+      (closes #136)
+    - bump prereq of RPi::LCD to 2.3604 due to it relying on the old
+      RPi::WiringPi::Constant (closes #147)
 
 2.3633_01 2019-07-05
-        - added the test platform I2C address map listing (closes #103)
-        - EEPROM: add the new RPi::EEPROM::AT24C32 distribution for EEPROM
-          access (closes #104), and tests pull the EEPROM object from a $pi
-          object (closes #105)
-        - implemented IPC::Shareable so we can read and write object and other
-          various information (pins, test info etc) between separate processes
-          and objects (closes #107)
-        - updated RPi::Pin (and subsequently register_pin()) with the ability
-          to store a comment/description with each pin. This will allow all
-          objects across all processes to identify which pin is being used for
-          what purpose (closes #108)
-        - added new metadata() in Core, returns a copy of the meta data stored
-          within the shared memory space
-        - added clean_shared() in Core, (with binary 'pi-erase-metadata'). Used
-          to wipe out the shared metadata in the event of power loss while Pi is
-          running
-        - added pimetadata and pi-erase-metadata scripts
-        - cleanup() no longer tries to set pin_mode(). pin_mode() gets its data
-          from mode_alt() which has values of 0-7, so if we're higher than mode
-          3, everything fails, because pin_mode() accepts only values 0-3. We
-          just glean the mode from the 'alt' status instead
-        - added checksum(), generates a random 32-byte hexidecimal string
-        - added uuid(), returns the generated string set as the Pi object's UUID
-          in the new() method
-        - added dump_object(), simply dumps the object out using Data::Dumper
-        - shared memory now stores the checksum of each Pi object created on the
-          system (specifically used for cleanup identification)
-        - if multiple Pi objects are being used simultaneously on the same
-          system, we now keep track of pins, and only the pins associated with
-          a specific object are reset back to default status; all other Pi
-          object's pins are left registered and in tact (closes #118)
-        - added new t/multi directory with a manual test setup for testing
-          multi processes, and pin cleanups
-        - completely re-wrote all signal handlers to properly house all objects
-          within a class variable for cleanup() use
-        - added dump_metadata(), uses Data::Dumper to dump the contents of the
-          meta data within the shared memory storage
-        - added installed script information to FAQ (closes #114)
-        - created RPi::WiringPi::Util, and put all methods not related to Pi
-          hardware functionality within. This includes metadata functionality
-          etc. Also moved a bunch of methods from Core into here (closes #120)
-        - added signal_handlers() and dump_signal_handlers() to Util. (closes
-          #121)
-        - added further subs to t/RPiTest
-        - in t/RPiTest library, changed all exports to have an "rpi_" prefix,
-          made it so that all subs are exported by default (as opposed to using
-          @EXPORT_OK), and rewrote all test files to do base meta/pin checks on
-          all files
+    - added the test platform I2C address map listing (closes #103)
+    - EEPROM: add the new RPi::EEPROM::AT24C32 distribution for EEPROM
+      access (closes #104), and tests pull the EEPROM object from a $pi
+      object (closes #105)
+    - implemented IPC::Shareable so we can read and write object and other
+      various information (pins, test info etc) between separate processes
+      and objects (closes #107)
+    - updated RPi::Pin (and subsequently register_pin()) with the ability
+      to store a comment/description with each pin. This will allow all
+      objects across all processes to identify which pin is being used for
+      what purpose (closes #108)
+    - added new metadata() in Core, returns a copy of the meta data stored
+      within the shared memory space
+    - added clean_shared() in Core, (with binary 'pi-erase-metadata'). Used
+      to wipe out the shared metadata in the event of power loss while Pi is
+      running
+    - added pimetadata and pi-erase-metadata scripts
+    - cleanup() no longer tries to set pin_mode(). pin_mode() gets its data
+      from mode_alt() which has values of 0-7, so if we're higher than mode
+      3, everything fails, because pin_mode() accepts only values 0-3. We
+      just glean the mode from the 'alt' status instead
+    - added checksum(), generates a random 32-byte hexidecimal string
+    - added uuid(), returns the generated string set as the Pi object's UUID
+      in the new() method
+    - added dump_object(), simply dumps the object out using Data::Dumper
+    - shared memory now stores the checksum of each Pi object created on the
+      system (specifically used for cleanup identification)
+    - if multiple Pi objects are being used simultaneously on the same
+      system, we now keep track of pins, and only the pins associated with
+      a specific object are reset back to default status; all other Pi
+      object's pins are left registered and in tact (closes #118)
+    - added new t/multi directory with a manual test setup for testing
+      multi processes, and pin cleanups
+    - completely re-wrote all signal handlers to properly house all objects
+      within a class variable for cleanup() use
+    - added dump_metadata(), uses Data::Dumper to dump the contents of the
+      meta data within the shared memory storage
+    - added installed script information to FAQ (closes #114)
+    - created RPi::WiringPi::Util, and put all methods not related to Pi
+      hardware functionality within. This includes metadata functionality
+      etc. Also moved a bunch of methods from Core into here (closes #120)
+    - added signal_handlers() and dump_signal_handlers() to Util. (closes
+      #121)
+    - added further subs to t/RPiTest
+    - in t/RPiTest library, changed all exports to have an "rpi_" prefix,
+      made it so that all subs are exported by default (as opposed to using
+      @EXPORT_OK), and rewrote all test files to do base meta/pin checks on
+      all files
 
 2.3633 2019-09-19
-        - emergency release to correct an oversight in a test file, preventing
-          failed installations
+    - emergency release to correct an oversight in a test file, preventing
+      failed installations
 
 2.3632  2019-06-22
-        - added the digital potentiometer (MCP4xxxx) to the test platform (in
-          this case, we're using the single pot MCP41010). (Closes #87)
-        - correct markup error in FAQ (closes #100)
-        - added BMP180 to the test platform (closes #85)
-        - OLED displays are now available
-        - reorganized all test files so that when unit testing with
-          Test::BrewBuild, the LCD will retain the test results for the majority
-          of the test run
-        - added new testing env var "RPI_RELEASE_TESTING", so that we can
-          install other CPAN distributions without breaking things due to
-          "RELEASE_TESTING" always being set
-        - fully integrated the new RPi::SysInfo distribution as a parent to
-          RPi::WiringPi::Core
-        - updated stepper motor FAQ with new GPIO expander functionality
-          (closes #102)
+    - added the digital potentiometer (MCP4xxxx) to the test platform (in
+      this case, we're using the single pot MCP41010). (Closes #87)
+    - correct markup error in FAQ (closes #100)
+    - added BMP180 to the test platform (closes #85)
+    - OLED displays are now available
+    - reorganized all test files so that when unit testing with
+      Test::BrewBuild, the LCD will retain the test results for the majority
+      of the test run
+    - added new testing env var "RPI_RELEASE_TESTING", so that we can
+      install other CPAN distributions without breaking things due to
+      "RELEASE_TESTING" always being set
+    - fully integrated the new RPi::SysInfo distribution as a parent to
+      RPi::WiringPi::Core
+    - updated stepper motor FAQ with new GPIO expander functionality
+      (closes #102)
 
 2.3631  2019-02-25
-        - no functional changes -- all changes are documentation
-        - added section on the automated testing section of FAQ that on modern
-          perlbrews (>0.86), you must have more than one perl installed for the
-          version numbers to be displayed (closes #96)
-        - in FAQ's perlbrew setup, add the task of doing a reboot after install
-          (closes #93)
-        - removed most of SYNOPSIS and replaced with a link to the FAQ
-          (closes #92)
-        - added RPi::Pin's pwm_range() to the FAQ (closes #91);
-        - added section in auto-test section of FAQ for Test::BrewBuild install
-          (work on #95)
-        - added piece on how to ensure sudo $PATH is set correctly (closes #95)
-        - various minor FAQ/POD updates
+    - no functional changes -- all changes are documentation
+    - added section on the automated testing section of FAQ that on modern
+      perlbrews (>0.86), you must have more than one perl installed for the
+      version numbers to be displayed (closes #96)
+    - in FAQ's perlbrew setup, add the task of doing a reboot after install
+      (closes #93)
+    - removed most of SYNOPSIS and replaced with a link to the FAQ
+      (closes #92)
+    - added RPi::Pin's pwm_range() to the FAQ (closes #91);
+    - added section in auto-test section of FAQ for Test::BrewBuild install
+      (work on #95)
+    - added piece on how to ensure sudo $PATH is set correctly (closes #95)
+    - various minor FAQ/POD updates
 
 2.3630  2019-01-04
-        - added new identify() method in Core (closes #82)
-        - added new binary "pidentify" that gets installed with the distribution
-        - update test files to exit if test file specific env vars aren't set
-          before checking for PI_BOARD
-        - added missing ICs and sensors to the test section in POD, and added
-          information on newly added test environment variables
-        - change a markdown format to POD format in FAQ (fixes #81)
-        - fix wire colour for the latch pin on the shift register in the test
-          platform diagrams (fixes #80)
-        - in t/15.pwm_spi_adc.t test file, we now set RPI_ADC=1 if we've
-          successfully reached the sudo load
-        - pinmap binary now uses "/usr/bin/env perl" as the shebang line instead
-          of "/usr/bin/perl"
-        - implemented a hard-wired and soldered (ie. more permanent) unit test
-          platform, replacing the breadboard. Tickets open to add further
-          sensors and ICs very soon
-        - removed "-T" (taint mode) in stock test files
-        - fix issue in Core.pm POD where we had broken links to internal
-          headings
-        - removed the "setup" test files. They were disabled ages ago, and since
-          we don't overtly advertise the various setup methods, we're no longer
-          testing them
-        - re-enabled the check_pin_status() test function in t/RPiTest.pm
-          (closes #88)
-        - removed the sudo requirement for t/75-serial.t tests
-        - t/75-serial.t puts()/gets() test updated due to non-printable char
-          (fixes #89)
+    - added new identify() method in Core (closes #82)
+    - added new binary "pidentify" that gets installed with the distribution
+    - update test files to exit if test file specific env vars aren't set
+      before checking for PI_BOARD
+    - added missing ICs and sensors to the test section in POD, and added
+      information on newly added test environment variables
+    - change a markdown format to POD format in FAQ (fixes #81)
+    - fix wire colour for the latch pin on the shift register in the test
+      platform diagrams (fixes #80)
+    - in t/15.pwm_spi_adc.t test file, we now set RPI_ADC=1 if we've
+      successfully reached the sudo load
+    - pinmap binary now uses "/usr/bin/env perl" as the shebang line instead
+      of "/usr/bin/perl"
+    - implemented a hard-wired and soldered (ie. more permanent) unit test
+      platform, replacing the breadboard. Tickets open to add further
+      sensors and ICs very soon
+    - removed "-T" (taint mode) in stock test files
+    - fix issue in Core.pm POD where we had broken links to internal
+      headings
+    - removed the "setup" test files. They were disabled ages ago, and since
+      we don't overtly advertise the various setup methods, we're no longer
+      testing them
+    - re-enabled the check_pin_status() test function in t/RPiTest.pm
+      (closes #88)
+    - removed the sudo requirement for t/75-serial.t tests
+    - t/75-serial.t puts()/gets() test updated due to non-printable char
+      (fixes #89)
 
 2.3629  2018-10-03
-        - added io_led() and pwr_led() to modify the two LED status' for visual
-          identification of which Pi hardware board we're currently working on
-          (closes #75)
-        - added label() to provide the facility to add a name/label to your Pi
-          object
-        - fix GPIO Expander example in FAQ not rendering as code (closes #76)
-        - fix erroneous apostrophe in test section in FAQ (closes #79)
-        - update unit test pins in use in t/README file (closes #77)
-        - bumped prereq RPi::I2C to 2.3607, due to error message and other
-          cosmetic fixes corrected in that distribution
-        - bump prereq of RPi::GPIOExpander::MCP23017 to 1.00
-        - bump prereq of RPi::DHT11 hygrometer distribution to 1.04
-        - bump prereq of RPi::SPI to 2.3609
+    - added io_led() and pwr_led() to modify the two LED status' for visual
+      identification of which Pi hardware board we're currently working on
+      (closes #75)
+    - added label() to provide the facility to add a name/label to your Pi
+      object
+    - fix GPIO Expander example in FAQ not rendering as code (closes #76)
+    - fix erroneous apostrophe in test section in FAQ (closes #79)
+    - update unit test pins in use in t/README file (closes #77)
+    - bumped prereq RPi::I2C to 2.3607, due to error message and other
+      cosmetic fixes corrected in that distribution
+    - bump prereq of RPi::GPIOExpander::MCP23017 to 1.00
+    - bump prereq of RPi::DHT11 hygrometer distribution to 1.04
+    - bump prereq of RPi::SPI to 2.3609
 
 2.3628  2018-06-07
-        - added support for the MCP23017 GPIO expander chip via the
-          RPi::GPIOExpander::MCP23017 distribution (closes #73)
-        - bumped version of RPi::Const prereq to 1.04
+    - added support for the MCP23017 GPIO expander chip via the
+      RPi::GPIOExpander::MCP23017 distribution (closes #73)
+    - bumped version of RPi::Const prereq to 1.04
 
 2.3627  2018-05-29
-        - added "Usage" section for RTC in FAQ
-        - added t/64-i2c_exceptions.t to catch a particular panic, and test
-          fixed exceptions in that dist
-        - bumped prereq of RPi::I2C to 2.3606 that includes above fixes/changes
-        - cleanup and slight modifications/updates to POD
+    - added "Usage" section for RTC in FAQ
+    - added t/64-i2c_exceptions.t to catch a particular panic, and test
+      fixed exceptions in that dist
+    - bumped prereq of RPi::I2C to 2.3606 that includes above fixes/changes
+    - cleanup and slight modifications/updates to POD
 
 2.3626  2018-05-29
-        - fix POD head level for SETUP's Serial configuration
-        - provide more descriptive scenarios when to disable _fatal_exit()
-          (closes #68)
-        - remove statement in POD where we claimed that the BCM pin numbers were
-          printed on the physical board (fixes #67)
-        - correct typo in POD SYNOPSYS for dac() where we were sending in
-          incorrect parameters (fixes #66)
-        - correct some method's Parameter section to follow my normal standard.
-          (closes #69)
-        - added rtc() in support for the RPi::RTC::DS3231 distribution
-          (closes #70)
-        - added pwm_defaults constants to RPi::Const, and removed PWM magic
-          numbers from Core (closes #72)
-        - added DS3231 RTC connections in the unit test physical diagram
-          (closes #71)
+    - fix POD head level for SETUP's Serial configuration
+    - provide more descriptive scenarios when to disable _fatal_exit()
+      (closes #68)
+    - remove statement in POD where we claimed that the BCM pin numbers were
+      printed on the physical board (fixes #67)
+    - correct typo in POD SYNOPSYS for dac() where we were sending in
+      incorrect parameters (fixes #66)
+    - correct some method's Parameter section to follow my normal standard.
+      (closes #69)
+    - added rtc() in support for the RPi::RTC::DS3231 distribution
+      (closes #70)
+    - added pwm_defaults constants to RPi::Const, and removed PWM magic
+      numbers from Core (closes #72)
+    - added DS3231 RTC connections in the unit test physical diagram
+      (closes #71)
 
 2.3625  2018-04-19
-        - in FAQ, add the 4 row 20 col config to env vars (closes #65)
-        - bumped prereq RPi::Pin to 2.3606
-        - added I2C, Serial and SPI configuration details at the top of the FAQ
-          (closes #63; closes #64)
-        - re-enabled "both" interrupt test file (closes #48)
-        - servo() now accepts a configuration hash that allows sending in a
-          non-default PWM clock speed and PWM range (closes #45)
-        - modified GPS examples to use the new GPSD::Parse methods
+    - in FAQ, add the 4 row 20 col config to env vars (closes #65)
+    - bumped prereq RPi::Pin to 2.3606
+    - added I2C, Serial and SPI configuration details at the top of the FAQ
+      (closes #63; closes #64)
+    - re-enabled "both" interrupt test file (closes #48)
+    - servo() now accepts a configuration hash that allows sending in a
+      non-default PWM clock speed and PWM range (closes #45)
+    - modified GPS examples to use the new GPSD::Parse methods
 
 2.3624  2018-03-27
-        - added blurb in FAQ Testing section that describes setting up I2C and
-          serial properly
-        - bumped prereq version of WiringPi::API to 2.3616 which provides more
-          elegant handling if the version of wiringPi that's installed isn't
-          at the minimum 2.36
-          
+    - added blurb in FAQ Testing section that describes setting up I2C and
+      serial properly
+    - bumped prereq version of WiringPi::API to 2.3616 which provides more
+      elegant handling if the version of wiringPi that's installed isn't
+      at the minimum 2.36
+      
 2.3623  2018-03-14
-        - Pi day!
-        - added support for the new RPi::StepperMotor distribution
-        - reworked the FAQ and added Test::POD::LinkCheck tests to ensure all
-          POD links resolve correctly
-        - add blurb in FAQ that the pi user may need to be added to the "gpio"
-          group for sudo-less access
-        - bump prereq of GPSD::Parse from 1.01 to 1.02 due to the new
-          convenience methods added recently
+    - Pi day!
+    - added support for the new RPi::StepperMotor distribution
+    - reworked the FAQ and added Test::POD::LinkCheck tests to ensure all
+      POD links resolve correctly
+    - add blurb in FAQ that the pi user may need to be added to the "gpio"
+      group for sudo-less access
+    - bump prereq of GPSD::Parse from 1.01 to 1.02 due to the new
+      convenience methods added recently
 
 2.3622  2018-02-10
-        - no functional changes
-        - added env var and related info about testing RPi::LCD in the testing
-          section POD (closes #59)
-        - fix small formatting issue (C<<>>) in POD (closes #56)
-        - test fixes/updates
-        - t/RPiTest.pm now checks whether the serial pins (14, 15) are in alt
-          mode 4 (default) or 2 (bluetooth disabled)
-        - add blurb in FAQ and POD about lowering I2C bus speed if using I2C
-          with an Arduino (closes #61)
-        - fix incorrect RPi::Pin POD link in Core (closes #60)
-        - add blurb about disabling bluetooth when using serial (closes #57)
-        - re-added t/README for test GPIO pin usage (closes #58)
-        - bump prereq versions of RPi::Serial, RPi::I2C, RPi::SPI
+    - no functional changes
+    - added env var and related info about testing RPi::LCD in the testing
+      section POD (closes #59)
+    - fix small formatting issue (C<<>>) in POD (closes #56)
+    - test fixes/updates
+    - t/RPiTest.pm now checks whether the serial pins (14, 15) are in alt
+      mode 4 (default) or 2 (bluetooth disabled)
+    - add blurb in FAQ and POD about lowering I2C bus speed if using I2C
+      with an Arduino (closes #61)
+    - fix incorrect RPi::Pin POD link in Core (closes #60)
+    - add blurb about disabling bluetooth when using serial (closes #57)
+    - re-added t/README for test GPIO pin usage (closes #58)
+    - bump prereq versions of RPi::Serial, RPi::I2C, RPi::SPI
 
 2.3621  2017-10-03
-        - removed the test/images and images/ directory from the repo
-        - renamed Util.pm to Core.pm
-        - we now use RPi::Const in replacement of RPi::WiringPi::Constant
-          (closes #52)
-        - updated diagrams with the ADS1115 ADC
-        - renamed the PWM test to show it also includes SPI
-        - re-enabled t/42 for interrupt both
-        - updated FAQ unit test section with a blurb about the HCSR04
-          ultra-sonic distance sensor (and how it requires an env var)
-        - removed assignment of pin objects where it wasn't really necessary, we
-          were just using them for registration purposes; we just make the calls
-          in void context
-        - fix issue in t/80-mode_state_all_pins.t where we were calling a setup
-          routine before checking if we're on a Pi board
-        - dac() POD now lists the mandatory parameters and some of the optional
-          ones (fixes #54)
-        - alphabeticalized the subs both in code and POD (closes #53)
-        - bumped prereq of RPi::ADC::ADS from 1.01 to 1.02
-        - fix a missing escape in FAQ POD (fixes #47)
+    - removed the test/images and images/ directory from the repo
+    - renamed Util.pm to Core.pm
+    - we now use RPi::Const in replacement of RPi::WiringPi::Constant
+      (closes #52)
+    - updated diagrams with the ADS1115 ADC
+    - renamed the PWM test to show it also includes SPI
+    - re-enabled t/42 for interrupt both
+    - updated FAQ unit test section with a blurb about the HCSR04
+      ultra-sonic distance sensor (and how it requires an env var)
+    - removed assignment of pin objects where it wasn't really necessary, we
+      were just using them for registration purposes; we just make the calls
+      in void context
+    - fix issue in t/80-mode_state_all_pins.t where we were calling a setup
+      routine before checking if we're on a Pi board
+    - dac() POD now lists the mandatory parameters and some of the optional
+      ones (fixes #54)
+    - alphabeticalized the subs both in code and POD (closes #53)
+    - bumped prereq of RPi::ADC::ADS from 1.01 to 1.02
+    - fix a missing escape in FAQ POD (fixes #47)
 
 2.3620  2017-07-13
-        - worked around issue where bbdispatch/brewbuild was causing havoc on
-          pin cleanup due to the LCD. After trial and headache, I just disabled
-          those pins from being checked (closes #41)
-        - added new FAQ test section for the list of env vars with descriptions
-        - fix issue where in dac(), we weren't registering the CS pin correctly
-        - alphabeticalized public methods within the code
-        - added full support for the HCSR04 ultrasonic distance measurement
-          sensor (closes #42)
-        - Util now exposes pwm_mode() and pwm_clock()
-        - added test/sg90_servo.pl as a baseline test for controllerless servo
-          control
-        - added servo(), sets up PWM and returns a RPi::Pin object tied to the
-          PWM GPIO pin, after all frequency modifications are made to the PI
-          (closes #43)
-        - added _pwm_in_use(), sets a flag that we need to reset PWM frequencies
-          on the board back to default at cleanup()
-        - modified t/15-pwm.t. We now use an ADS1115 ADC to test the PWM
-          functionality (closes #46)
-        - added t/41 and t/42; we now test falling, rising and both for
-          interrupts
-        - added t/90-servo.t to test the actual PWM cleanup() routine
-        - removed sudo requirements for the interrupt tests, as root isn't
-          needed for PUD or interrupts
-        - bumped ::Pin, ::API and ::Constant up to coincide with the new PWM
-          functionality
+    - worked around issue where bbdispatch/brewbuild was causing havoc on
+      pin cleanup due to the LCD. After trial and headache, I just disabled
+      those pins from being checked (closes #41)
+    - added new FAQ test section for the list of env vars with descriptions
+    - fix issue where in dac(), we weren't registering the CS pin correctly
+    - alphabeticalized public methods within the code
+    - added full support for the HCSR04 ultrasonic distance measurement
+      sensor (closes #42)
+    - Util now exposes pwm_mode() and pwm_clock()
+    - added test/sg90_servo.pl as a baseline test for controllerless servo
+      control
+    - added servo(), sets up PWM and returns a RPi::Pin object tied to the
+      PWM GPIO pin, after all frequency modifications are made to the PI
+      (closes #43)
+    - added _pwm_in_use(), sets a flag that we need to reset PWM frequencies
+      on the board back to default at cleanup()
+    - modified t/15-pwm.t. We now use an ADS1115 ADC to test the PWM
+      functionality (closes #46)
+    - added t/41 and t/42; we now test falling, rising and both for
+      interrupts
+    - added t/90-servo.t to test the actual PWM cleanup() routine
+    - removed sudo requirements for the interrupt tests, as root isn't
+      needed for PUD or interrupts
+    - bumped ::Pin, ::API and ::Constant up to coincide with the new PWM
+      functionality
 
 2.3619  2017-07-04
-        - hid all of the setup() tests. Somewhere in the last commits we broke
-          it, but that's actually ok
-        - all external devices/sensors that require GPIO pins have all of those
-          pins registered prior to returning the object
-        - registered pins are still stored in $ENV{RPI_PINS}, but we store them
-          within a JSON hash now, along with each pin's state and alt mode
-        - in cleanup, we now use WiringPi::API directly to reset all registered
-          pins back to the way they were as the program first started up
-        - significantly beefed up the testing regime. On each test file, we
-          check that all pins are back to their default (pre-test) state and
-          mode. Added t/RPiTest.pm to handle the work
-        - addded new DEVELOPMENT section to FAQ; added blurb about registering
-          pins if adding new subs
-        - all pins are now reset to default with cleanup(), as well as on any
-          crash (closes #34)
-        - fix typo in GPS section in SYNOPSIS (closes #37)
-        - clarify in POD that it's not just WiringPi::API we use (closes #38)
-        - clean up POD (closes #36)
+    - hid all of the setup() tests. Somewhere in the last commits we broke
+      it, but that's actually ok
+    - all external devices/sensors that require GPIO pins have all of those
+      pins registered prior to returning the object
+    - registered pins are still stored in $ENV{RPI_PINS}, but we store them
+      within a JSON hash now, along with each pin's state and alt mode
+    - in cleanup, we now use WiringPi::API directly to reset all registered
+      pins back to the way they were as the program first started up
+    - significantly beefed up the testing regime. On each test file, we
+      check that all pins are back to their default (pre-test) state and
+      mode. Added t/RPiTest.pm to handle the work
+    - addded new DEVELOPMENT section to FAQ; added blurb about registering
+      pins if adding new subs
+    - all pins are now reset to default with cleanup(), as well as on any
+      crash (closes #34)
+    - fix typo in GPS section in SYNOPSIS (closes #37)
+    - clarify in POD that it's not just WiringPi::API we use (closes #38)
+    - clean up POD (closes #36)
 
 2.3618  2017-07-01
-        - incorporated RPi::Serial
-        - bumped remaining prereqs specific to RPi:: that needed it to encompass
-          all known bug fixes and feature adds
+    - incorporated RPi::Serial
+    - bumped remaining prereqs specific to RPi:: that needed it to encompass
+      all known bug fixes and feature adds
 
 2.3617  2017-06-28
-        - fix wire colour for the DAC CS pin in the diagram (light blue from
-          orange)
-        - added the tester flag to bbdispatch in the FAQs automated test section
-        - bump ver of RPi::LCD to 2.3603 due to a bug fix
-        - added new tests to t/60-lcd.t to verify that RPi::LCD dies() properly
-          if too many LCD objects are initialized (closes #35)
-        - bump prereq of RPi::DHT11 from v1.02 to v1.03
-        - bump prereq of RPi::I2C from v2.3602 to v2.3603
+    - fix wire colour for the DAC CS pin in the diagram (light blue from
+      orange)
+    - added the tester flag to bbdispatch in the FAQs automated test section
+    - bump ver of RPi::LCD to 2.3603 due to a bug fix
+    - added new tests to t/60-lcd.t to verify that RPi::LCD dies() properly
+      if too many LCD objects are initialized (closes #35)
+    - bump prereq of RPi::DHT11 from v1.02 to v1.03
+    - bump prereq of RPi::I2C from v2.3602 to v2.3603
 
 2.3616  2017-06-24
-        - fix FAQ link in the Test portion of POD
-        - clean up the way _fatal_exit() works. There's more to do here
-        - tidy how the RPI_PINS env var is worked on in certain Util:: methods
-        - incorporated RPi::I2C; updated POD and FAQ
-        - added t/65-i2c.t for the I2C stuff. Requires an Arduino. See
-          examples/arduino.ino for details
-        - added a copy of the arduino.ino sketch for testing RPi::I2C, in
-          docs/sketch
-        - fixed bug in arduino.ino that wasn't resetting the register variable
-          back to default, causing failure of a basic read if the I2C bus hadn't
-          been reset before another t/65-i2c.t test run (removed workaround from
-          the test as well)
-        - bump ver of RPi::WiringPi::Constant prereq after adding ALT mode tag
-        - bump ver of WiringPi::API to 2.36.12 due to updates in that module
-        - bump ver of RPi::Pin to 2.3602
-        - added t/70-mode_alt.t to test the various ALT pin modes
-        - fix shift register tests. The pins were outside of the $pi object
-          scope, so they weren't being reset to INPUT, which broke a later
-          test file
-        - added I2C/Arduino testing information to the FAQ, and updated the
-          diagrams with the Arduino wiring
+    - fix FAQ link in the Test portion of POD
+    - clean up the way _fatal_exit() works. There's more to do here
+    - tidy how the RPI_PINS env var is worked on in certain Util:: methods
+    - incorporated RPi::I2C; updated POD and FAQ
+    - added t/65-i2c.t for the I2C stuff. Requires an Arduino. See
+      examples/arduino.ino for details
+    - added a copy of the arduino.ino sketch for testing RPi::I2C, in
+      docs/sketch
+    - fixed bug in arduino.ino that wasn't resetting the register variable
+      back to default, causing failure of a basic read if the I2C bus hadn't
+      been reset before another t/65-i2c.t test run (removed workaround from
+      the test as well)
+    - bump ver of RPi::WiringPi::Constant prereq after adding ALT mode tag
+    - bump ver of WiringPi::API to 2.36.12 due to updates in that module
+    - bump ver of RPi::Pin to 2.3602
+    - added t/70-mode_alt.t to test the various ALT pin modes
+    - fix shift register tests. The pins were outside of the $pi object
+      scope, so they weren't being reset to INPUT, which broke a later
+      test file
+    - added I2C/Arduino testing information to the FAQ, and updated the
+      diagrams with the Arduino wiring
 
 2.3615  2017-06-22
-        - fixed issues with specific pins in test diagram for DAC (closes #29)
-          (closes #30)
-        - added more code to t/55-dac.t. We now thoroughly test both onboard
-          DACs. Updated diagram (closes #33)
-        - updated interrupt tests to conform to set_interrupt() as opposed to
-          the old interrupt_set()
-        - send in model => MCP4922 by default in dac() if it's not sent in, and
-          update docs accordingly (closes #31)
-        - moved the removal of the pin env var to outside of the for() loop in
-          Util::cleanup (closes #32)
-        - added Perlbrew install instructions into the SETUP section of FAQ
-        - removed erroneous LWP::Simple use statement in t/60-lcd.t that was
-          breaking tests
-        - sudo run t/40-interrupt_and_pwd.t were setting PI_BOARD recklessly,
-          breaking the tests within if we're not set up correctly. Same with
-          t/15-pwm.t
-        - minor code cleanup/tidying
+    - fixed issues with specific pins in test diagram for DAC (closes #29)
+      (closes #30)
+    - added more code to t/55-dac.t. We now thoroughly test both onboard
+      DACs. Updated diagram (closes #33)
+    - updated interrupt tests to conform to set_interrupt() as opposed to
+      the old interrupt_set()
+    - send in model => MCP4922 by default in dac() if it's not sent in, and
+      update docs accordingly (closes #31)
+    - moved the removal of the pin env var to outside of the for() loop in
+      Util::cleanup (closes #32)
+    - added Perlbrew install instructions into the SETUP section of FAQ
+    - removed erroneous LWP::Simple use statement in t/60-lcd.t that was
+      breaking tests
+    - sudo run t/40-interrupt_and_pwd.t were setting PI_BOARD recklessly,
+      breaking the tests within if we're not set up correctly. Same with
+      t/15-pwm.t
+    - minor code cleanup/tidying
 
 2.3614  2017-05-27
-        - added GPSD::Parse support via gps()
-        - removed all traces of software PWM (closes #7)
-        - added a note in FAQ that explains that sudo is not required unless
-          using PWM features (closes #26)
-        - removed standalone Interrupt object code and documentation
-          (Interrupt.pm)
-        - removed RPi::WiringPi::Pin, and made it standalone. We now require
-          RPi::Pin external distribution instead (closes #25)
+    - added GPSD::Parse support via gps()
+    - removed all traces of software PWM (closes #7)
+    - added a note in FAQ that explains that sudo is not required unless
+      using PWM features (closes #26)
+    - removed standalone Interrupt object code and documentation
+      (Interrupt.pm)
+    - removed RPi::WiringPi::Pin, and made it standalone. We now require
+      RPi::Pin external distribution instead (closes #25)
 
 2.3613  2017-05-09
-        - added Test::BrewBuild auto testing instructions in the FAQ
-        - added t/60-lcd.t for LCD testing (requires setting env vars manually)
-        - updated the Test::BrewBuild integration unit testing docs in FAQ
-        - added PI_BOARD check to t/55-dac.t (closes #24)
+    - added Test::BrewBuild auto testing instructions in the FAQ
+    - added t/60-lcd.t for LCD testing (requires setting env vars manually)
+    - updated the Test::BrewBuild integration unit testing docs in FAQ
+    - added PI_BOARD check to t/55-dac.t (closes #24)
 
 2.3612  2017-04-11
-        - added check in cleanup() so we don't throw undef warnings if there
-          weren't any pins registered during the program run
-        - added DAC test file
-        - add parent.pm as a prereq to make things 5.8.9 compliant
-        - remove rogue "use feature 'say'" lines from tests for 5.8.9 compliance
-        - fixed git links in Makefile.PL. They were pointing to the old p5- repo
-        - deleted RPi::WiringPi::LCD, and turned it into a standalone dist,
-          RPi::LCD
-        - we now require RPi::LCD v2.3601
+    - added check in cleanup() so we don't throw undef warnings if there
+      weren't any pins registered during the program run
+    - added DAC test file
+    - add parent.pm as a prereq to make things 5.8.9 compliant
+    - remove rogue "use feature 'say'" lines from tests for 5.8.9 compliance
+    - fixed git links in Makefile.PL. They were pointing to the old p5- repo
+    - deleted RPi::WiringPi::LCD, and turned it into a standalone dist,
+      RPi::LCD
+    - we now require RPi::LCD v2.3601
 
 2.3611  2017-03-26
-        - added fritzing and breadboard layout for the ADC/DAC test
-          configuration for brewbuild CI
-        - clean up Pin::set_interrupt() code to call API code directly
-        - fix up tests that require sudo (we now recall the tests with sudo if
-          they are not called with it)
-        - in pud(), we no longer set the pin to INPUT automatically
-        - we now require WiringPi::API 2.3609 due to PUD/Interrupt fixes there
-        - added proper interrupt and pud tests
-        - in Util::cleanup(), removed the use of sudo for decommissioning pins
-        - added t/README file, which specifies the GPIO pins in use for the
-          unit test suite
-        - added unit test section to FAQ
-        - in Interrupt POD, specify that if the handler routine can't be found,
-          simply add the full package name to the callback 
-          (eg: 'main::callback)
+    - added fritzing and breadboard layout for the ADC/DAC test
+      configuration for brewbuild CI
+    - clean up Pin::set_interrupt() code to call API code directly
+    - fix up tests that require sudo (we now recall the tests with sudo if
+      they are not called with it)
+    - in pud(), we no longer set the pin to INPUT automatically
+    - we now require WiringPi::API 2.3609 due to PUD/Interrupt fixes there
+    - added proper interrupt and pud tests
+    - in Util::cleanup(), removed the use of sudo for decommissioning pins
+    - added t/README file, which specifies the GPIO pins in use for the
+      unit test suite
+    - added unit test section to FAQ
+    - in Interrupt POD, specify that if the handler routine can't be found,
+      simply add the full package name to the callback 
+      (eg: 'main::callback)
 
 2.3610  2017-03-13
-        - added in support in adc() to allow usage of the MCP3008 ADC from
-          RPi::ADC::MCP3008 (closes #21)
-        - fix typos in some module names we're including
-        - added unregister_pin() again, we can now unregister pins manually
-        - began process of rewriting unit tests in preparation for full blown
-          automation
+    - added in support in adc() to allow usage of the MCP3008 ADC from
+      RPi::ADC::MCP3008 (closes #21)
+    - fix typos in some module names we're including
+    - added unregister_pin() again, we can now unregister pins manually
+    - began process of rewriting unit tests in preparation for full blown
+      automation
 
 2.3609  2017-03-13
-        - work on testing inheritance of sub modules
-        - quote two-decimal prereq versions as they were not valid unquoted
-        - change version scheme from 2.36.x to 2.360x in modules and prereqs
+    - work on testing inheritance of sub modules
+    - quote two-decimal prereq versions as they were not valid unquoted
+    - change version scheme from 2.36.x to 2.360x in modules and prereqs
 
 2.36.8  2017-02-22
-        - we now require EUMM 6.72 to ensure multi-decimal version numbers of
-          prereqs don't break things
+    - we now require EUMM 6.72 to ensure multi-decimal version numbers of
+      prereqs don't break things
 
 2.36.7  2017-02-02
-        - undocumented the ability to use the various wiringPi setup routines.
-          The functionality is still present, we're just not going to advertise
-          that it's there. The officially supported pin mapping scheme is GPIO
-          (closes #16)
-        - added in support for RPi::DAC::MCP4922 digital to analog converters,
-          and added dac()
-        - finally dumped RPi::WiringPi::BMP180 as a standalone distribution,
-          RPi::BMP180 (closes #15)
-        - updated copyright year from 2016 to 2017
-        - added in support for RPi::DHT11 hygrometers (closes #17)
-        - POD cleanup/fixes related to the work done in this release, as well as
-          unrelated fixes
+    - undocumented the ability to use the various wiringPi setup routines.
+      The functionality is still present, we're just not going to advertise
+      that it's there. The officially supported pin mapping scheme is GPIO
+      (closes #16)
+    - added in support for RPi::DAC::MCP4922 digital to analog converters,
+      and added dac()
+    - finally dumped RPi::WiringPi::BMP180 as a standalone distribution,
+      RPi::BMP180 (closes #15)
+    - updated copyright year from 2016 to 2017
+    - added in support for RPi::DHT11 hygrometers (closes #17)
+    - POD cleanup/fixes related to the work done in this release, as well as
+      unrelated fixes
 
 2.36.6  2017-01-26
-        - * Notice * some functionality will be removed and/or hidden from the
-          next release, due to being incompatible or just plain me desiring to
-          rewrite them. Soft PWM is going as it doesn't work properly at this
-          level, and I'm seriously considering getting rid of all setup modes
-          less GPIO (as its a headache to maintain). I'll beef up the
-          translation tables though, so you can do such trickery as:
-          $ENV{RPI_PIN_MAP} = 'wpi'; or some such, and we'll translate the pin
-          numbers on the fly for you. Feedback welcome.
+    - * Notice * some functionality will be removed and/or hidden from the
+      next release, due to being incompatible or just plain me desiring to
+      rewrite them. Soft PWM is going as it doesn't work properly at this
+      level, and I'm seriously considering getting rid of all setup modes
+      less GPIO (as its a headache to maintain). I'll beef up the
+      translation tables though, so you can do such trickery as:
+      $ENV{RPI_PIN_MAP} = 'wpi'; or some such, and we'll translate the pin
+      numbers on the fly for you. Feedback welcome.
 
-        - updated FAQ, made section headers, fixed issue in shiftreg overview
-        - added breadboard diagram and fritzing project for dual 74HC595 shift
-          register connections, and other various schematics
-        - prereq version bumps: WiringPi::API v2.36.4, RPi::SPI v 2.36.4
-        - renamed error() to _error(), as it is literally an internal method
-          that traps $SIG collapses for cleanup, so that pod-coverage.t would
-          stop complaining
+    - updated FAQ, made section headers, fixed issue in shiftreg overview
+    - added breadboard diagram and fritzing project for dual 74HC595 shift
+      register connections, and other various schematics
+    - prereq version bumps: WiringPi::API v2.36.4, RPi::SPI v 2.36.4
+    - renamed error() to _error(), as it is literally an internal method
+      that traps $SIG collapses for cleanup, so that pod-coverage.t would
+      stop complaining
 
 2.36.5  2017-01-22
-        - added dpot(), returns a RPI::DigiPot::MCP4XXXX digital potentiometer
-          object
+    - added dpot(), returns a RPI::DigiPot::MCP4XXXX digital potentiometer
+      object
 
 2.36.4  2017-01-22
-        - fix params in POD, they weren't displaying correctly
+    - fix params in POD, they weren't displaying correctly
 
 2.36.3  2017-01-22
-        - pod fixes/updates
-        - added BMP180 section to FAQ
-        - added untracked files
-        - removed the ability to use SYS (GPIO_SYS) mode. It was implemented to
-          avoid having to be root
-        - moved gpio_layout() from core to Util
-        - RPi::ADC::ADS is now a prereq (v1.01)
-        - added adc() (closes #12)
-        - moved pwm_range() to Util, leaving only object creation methods
-          in the core module
-        - fixed POD in reference to shiftreg (closes #13)
-        - added ADC section in FAQ
-        - added docs/, with fritzing drawings and images for basic pwm/ADC
-          setup
-        - incorporated RPi::SPI as spi() to provide direct access to the Serial
-          Peripheral Interface
+    - pod fixes/updates
+    - added BMP180 section to FAQ
+    - added untracked files
+    - removed the ability to use SYS (GPIO_SYS) mode. It was implemented to
+      avoid having to be root
+    - moved gpio_layout() from core to Util
+    - RPi::ADC::ADS is now a prereq (v1.01)
+    - added adc() (closes #12)
+    - moved pwm_range() to Util, leaving only object creation methods
+      in the core module
+    - fixed POD in reference to shiftreg (closes #13)
+    - added ADC section in FAQ
+    - added docs/, with fritzing drawings and images for basic pwm/ADC
+      setup
+    - incorporated RPi::SPI as spi() to provide direct access to the Serial
+      Peripheral Interface
 
 2.36.2  2017-01-14
-        - change versioning. The X.XX portion represents which version of
-          WiringPi::API and wiringPi we're compatible with
-        - cleaned up some tests due to previous changes
-        - added BMP180.pm module and all functionality of the barometric
-          pressure sensor per WiringPi::API
-        - updated ver of WiringPi::API prereq to v2.36.1
+    - change versioning. The X.XX portion represents which version of
+      WiringPi::API and wiringPi we're compatible with
+    - cleaned up some tests due to previous changes
+    - added BMP180.pm module and all functionality of the barometric
+      pressure sensor per WiringPi::API
+    - updated ver of WiringPi::API prereq to v2.36.1
 
 1.02    2017-01-13
-        - incorporated shift registers after adding to WiringPi::API
-        - added shift_register()
-        - updated documentation (POD and Tutorial)
+    - incorporated shift registers after adding to WiringPi::API
+    - added shift_register()
+    - updated documentation (POD and Tutorial)
 
 1.01    2016-08-27
-        - no functional changes
-        - POD fixes, updates and clarifications (thanks 'jmlynesjr' from
-          PerlMonks for assisting)
+    - no functional changes
+    - POD fixes, updates and clarifications (thanks 'jmlynesjr' from
+      PerlMonks for assisting)
 
 1.00    2016-08-24
-        - SYS mode has been disabled and hidden until the PWM and interrupt
-          functionality can be sorted out for that mode
-        - cleaned up manual test help info as to be accurate
-        - POD editing
-        - test cleanup (all standard unit tests skip if not on a Pi)
-        - all manual tests pass (interrupts are a bit iffy still)
-        - bumped prereq of WiringPi::API to 1.04
+    - SYS mode has been disabled and hidden until the PWM and interrupt
+      functionality can be sorted out for that mode
+    - cleaned up manual test help info as to be accurate
+    - POD editing
+    - test cleanup (all standard unit tests skip if not on a Pi)
+    - all manual tests pass (interrupts are a bit iffy still)
+    - bumped prereq of WiringPi::API to 1.04
 
 0.99_06 2016-08-22
-        - POD cleanup
-        - cleanup() added, puts each registered pin in INPUT mode, and disables
-          PUD if set
-        - re-added register_pin(), we no longer keep track of objects, just the
-          GPIO scheme numbers for cleanup and error checking
-        - removed unregister_pin()
-        - we now die() if trying to use a pin that is already in use
-        - removed Interrupt::unset()
-        - removed Pin::unset_interrupt()
-        - software PWM is now implemented, but disabled due to issues yet to be
-          solved
-        - removed Board.pm from the distribution. The methods it used to handle
-          are now located directly in WiringPi.pm
-        - we now check for duplicate pins in $pi->pin() and in register_pin()
-        - added test for duplicate pin registration
-        - added system setup information in FAQ
+    - POD cleanup
+    - cleanup() added, puts each registered pin in INPUT mode, and disables
+      PUD if set
+    - re-added register_pin(), we no longer keep track of objects, just the
+      GPIO scheme numbers for cleanup and error checking
+    - removed unregister_pin()
+    - we now die() if trying to use a pin that is already in use
+    - removed Interrupt::unset()
+    - removed Pin::unset_interrupt()
+    - software PWM is now implemented, but disabled due to issues yet to be
+      solved
+    - removed Board.pm from the distribution. The methods it used to handle
+      are now located directly in WiringPi.pm
+    - we now check for duplicate pins in $pi->pin() and in register_pin()
+    - added test for duplicate pin registration
+    - added system setup information in FAQ
 
 
 0.99_05 2016-08-18
-        - added Util::_sys_mode() to determine if we need wrappers for certain
-          calls or not
-        - changed back to the default setup() call instead of setup_sys(), as
-          a lot of wrapping needs to be done (such as in pin_mode() and pwm())
-          to make things work properly
-        - fixed calls to _sys_mode() in new(). Didn't have the _ prefix
-        - we now check if something else has called a setup() routine
-        - new env var, RPI_SCHEME, set when a setup routine is called so that
-          if it's called twice, we'll know and be able to carry on
-        - added new RPI_MODE_* constants that contain pin modes. This replaces
-          _sys_mode() (removed) and cleans up other logic
-        - renamed gpio_map() and gpio_scheme() to pin_map() and pin_scheme()
-          respectively
-        - added CLI binary "pinmap", prints out pin mappings
-        - fixed return issue in pin_map()
-        - Pin: pwm() and pull() have been updated to work in setup_sys() mode
-        - Pin: pull() now automatically sets the pin into INPUT mode()
-        - we now default to SYS mode (ie. non-root) (documentation enhanced)
-        - when creating a new pin object in SYS mode, we now export() the pin
-          in new()
-        - rewrote register_pin() and unregister_pin(). They both translate the
-          pin number to GPIO no matter the scheme, then unexport() it
-        - added manual tests for all four modes in test/*
-        - slight edits in FAQ/Tutorial
-        - bumped req RPi::WiringPi::Constant to 0.02
-        - bumped req WiringPi::API to 1.03
+    - added Util::_sys_mode() to determine if we need wrappers for certain
+      calls or not
+    - changed back to the default setup() call instead of setup_sys(), as
+      a lot of wrapping needs to be done (such as in pin_mode() and pwm())
+      to make things work properly
+    - fixed calls to _sys_mode() in new(). Didn't have the _ prefix
+    - we now check if something else has called a setup() routine
+    - new env var, RPI_SCHEME, set when a setup routine is called so that
+      if it's called twice, we'll know and be able to carry on
+    - added new RPI_MODE_* constants that contain pin modes. This replaces
+      _sys_mode() (removed) and cleans up other logic
+    - renamed gpio_map() and gpio_scheme() to pin_map() and pin_scheme()
+      respectively
+    - added CLI binary "pinmap", prints out pin mappings
+    - fixed return issue in pin_map()
+    - Pin: pwm() and pull() have been updated to work in setup_sys() mode
+    - Pin: pull() now automatically sets the pin into INPUT mode()
+    - we now default to SYS mode (ie. non-root) (documentation enhanced)
+    - when creating a new pin object in SYS mode, we now export() the pin
+      in new()
+    - rewrote register_pin() and unregister_pin(). They both translate the
+      pin number to GPIO no matter the scheme, then unexport() it
+    - added manual tests for all four modes in test/*
+    - slight edits in FAQ/Tutorial
+    - bumped req RPi::WiringPi::Constant to 0.02
+    - bumped req WiringPi::API to 1.03
 
 0.99_04 2016-08-16
-        - added Tutorial/FAQ
+    - added Tutorial/FAQ
 
 0.99_02 2016-08-16
-        - bumped sub module versions so they'd show up on the CPAN
-        - began adding more elaborate tests
+    - bumped sub module versions so they'd show up on the CPAN
+    - began adding more elaborate tests
 
 0.99_01 2016-08-16
-        - feature freeze. All work until 1.00 will be spent writing tests for
-          everything and ensuring documentation is accurate
-        - added Interrupt.pm, added associated methods in both WiringPi
-          and Pin
-        - Core::setup_sys() now exports all pins automatically with sudo. This
-          setup method is now the default if none is specified in new(),
-          meaning that by default, we now use the BCM pin numbering scheme
-        - renamed RPi::WiringPi::Core to WiringPi::API
-        - cleaned up code in Interrupt to deal with the much improved way we
-          now handle interrupts
-        - added pin_to_gpio() to Util, returns the BCM representation of a pin
-          number no matter what scheme is in use
-        - added interrupt_set() and interrupt_unset() to Pin
+    - feature freeze. All work until 1.00 will be spent writing tests for
+      everything and ensuring documentation is accurate
+    - added Interrupt.pm, added associated methods in both WiringPi
+      and Pin
+    - Core::setup_sys() now exports all pins automatically with sudo. This
+      setup method is now the default if none is specified in new(),
+      meaning that by default, we now use the BCM pin numbering scheme
+    - renamed RPi::WiringPi::Core to WiringPi::API
+    - cleaned up code in Interrupt to deal with the much improved way we
+      now handle interrupts
+    - added pin_to_gpio() to Util, returns the BCM representation of a pin
+      number no matter what scheme is in use
+    - added interrupt_set() and interrupt_unset() to Pin
 
 0.05    2016-08-13
-        - renamed WiringPi::pin_map() to gpio_scheme()
-        - added WiringPi::gpio_map()
-        - new()'s setup param now accepts 'none', allowing us to pypass the
-          wiringPi's initialization
-        - new Util.pm, moved all utility methods from WiringPi to Util.
-          WiringPi now only handles SIGs and component objects
-        - moved all param checking from Core into the respective modules here
-          to keep Core as close to the C code as possible
+    - renamed WiringPi::pin_map() to gpio_scheme()
+    - added WiringPi::gpio_map()
+    - new()'s setup param now accepts 'none', allowing us to pypass the
+      wiringPi's initialization
+    - new Util.pm, moved all utility methods from WiringPi to Util.
+      WiringPi now only handles SIGs and component objects
+    - moved all param checking from Core into the respective modules here
+      to keep Core as close to the C code as possible
 
 0.04    2016-08-11
-        - added LCD.pm module, for interfacing with LCD displays, along with
-          a massive update to Core
-        - changed LED::init() to just pass along the args hash, and let Core
-          deal with any issues
+    - added LCD.pm module, for interfacing with LCD displays, along with
+      a massive update to Core
+    - changed LED::init() to just pass along the args hash, and let Core
+      deal with any issues
 
 0.03    2016-08-11
-        - wrote RPi::WiringPi::Constant as a standalone module
-        - added $SIG{__DIE__} handler so we can clean up properly on die()
-        - added 'fatal_exit' new() param for testing
-        - we now catch $SIG{INT} as well, with a test
-        - new method pin_map(), returns the current pin mapping
-        - tests now work on non-Pi boards (if wiringPi lib is installed)
-        - implemented 
-        - added Board.pm with methods rev(), wpi_to_gpio(), phys_to_gpio() and
-          pwm_range()
+    - wrote RPi::WiringPi::Constant as a standalone module
+    - added $SIG{__DIE__} handler so we can clean up properly on die()
+    - added 'fatal_exit' new() param for testing
+    - we now catch $SIG{INT} as well, with a test
+    - new method pin_map(), returns the current pin mapping
+    - tests now work on non-Pi boards (if wiringPi lib is installed)
+    - implemented 
+    - added Board.pm with methods rev(), wpi_to_gpio(), phys_to_gpio() and
+      pwm_range()
 
 0.02    2016-08-10
-        - implemented getAlt() in Core, and in Pin, mode() with no params
-          now returns the current mode of the pin
-        - added cleanup()
+    - implemented getAlt() in Core, and in Pin, mode() with no params
+      now returns the current mode of the pin
+    - added cleanup()
 
 0.01    2016-08-10
-        - initial prototype release
-        - added Pin.pm
-        - added error checking
-        - first round of tests
-        - NO_BOARD env var
+    - initial prototype release
+    - added Pin.pm
+    - added error checking
+    - first round of tests
+    - NO_BOARD env var
