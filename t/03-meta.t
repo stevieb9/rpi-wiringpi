@@ -105,6 +105,81 @@ my $pi = RPi::WiringPi->new(
     is $data->{c}[2], undef, "erase with 'all' on c ok";
 }
 
+{ # single shm segment (no fan-out)
+
+    # The tie-a-scalar backend keeps the ENTIRE meta blob as one JSON string in
+    # a single shared memory segment. A native HASH/ref tie would instead fan
+    # each nested structure out into its own segment, so prove a deeply nested
+    # payload both round-trips intact AND leaves exactly one IPC::Shareable
+    # segment registered in the process.
+
+    my $nested = {
+        a    => { b => { c => [1, 2, { d => 'deep' }] } },
+        list => [ map {{ n => $_ }} 1 .. 10 ],
+    };
+
+    $pi->meta_set('nested', $nested);
+
+    my $got = $pi->meta_get('nested');
+    is $got->{a}{b}{c}[2]{d}, 'deep', "deeply nested value round-trips through meta";
+    is $got->{list}[9]{n}, 10, "nested array-of-hashes round-trips through meta";
+
+    my $segs = IPC::Shareable::global_register();
+    is scalar(keys %$segs), 1, "whole nested meta blob lives in one shm segment (no fan-out)";
+
+    # A whole-blob meta_store() of nested data must stay single-segment too.
+    $pi->meta_lock;
+    my $m = $pi->meta_fetch;
+    $m->{storage}{whole_store} = { x => { y => [ { z => 1 } ] } };
+    $pi->meta_store($m);
+    $pi->meta_unlock;
+
+    $segs = IPC::Shareable::global_register();
+    is scalar(keys %$segs), 1, "meta_store() of a nested blob stays in one segment";
+
+    $pi->meta_erase(1);
+}
+
+{ # A die inside a locked critical section must release the lock
+
+    my $err = do {
+        local $@;
+        eval { $pi->_meta_txn(sub { die "boom\n" }) };
+        $@;
+    };
+
+    is $err, "boom\n", "_meta_txn() re-throws an error from the wrapped code";
+
+    # If the lock had leaked, this transaction would never acquire it
+
+    $pi->meta_set('txn_release_test', { ok => 1 });
+    is $pi->meta_get('txn_release_test')->{ok}, 1,
+        "meta lock is released after a die inside a locked section";
+
+    $pi->meta_delete('txn_release_test');
+}
+
+{ # meta_get() on a nonexistent slot
+
+    my $data = $pi->meta_get('no_such_slot');
+    ok ! defined $data, "meta_get() on a nonexistent slot returns undef";
+
+    # The old conditional-my declaration could leak the previous call's value
+
+    $pi->meta_set('some_slot', { a => 1 });
+    $pi->meta_get('some_slot');
+
+    $data = $pi->meta_get('no_such_slot');
+    ok ! defined $data,
+        "meta_get() doesn't leak a previous call's value into a missing slot";
+
+    $pi->meta_delete('some_slot');
+
+    # Leave the meta store fully clean for the rest of the suite
+
+    $pi->meta_erase(1);
+}
+
 $pi->cleanup;
 
 rpi_check_pin_status();

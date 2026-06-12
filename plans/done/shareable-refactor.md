@@ -1,0 +1,158 @@
+# Plan: Convert RPi::WiringPi shared-memory backend from IPC::ShareLite to IPC::Shareable
+
+> **NEXT ACTION:** None — everything is done (V1–V11, B3–B10). **The full suite is green on the Pi 5: 72/72 files, 1871 tests pass.** The IPC::Shareable migration, the signal/`fatal_exit` rework, the RP1 pin-restore fixes, and all test modernisation are complete.
+> **ENV:** Work runs **on the Raspberry Pi itself** (perlbrew 5.42.0), NOT a Mac. `WiringPi::API` (XS) loads here, so the full suite is runnable locally — the plan's old Mac/Pi gating is moot. Pre-migration state on this box: `IPC::ShareLite 0.17` IS installed (so `Meta.pm` loads today — the "build-unblock" was Mac-only); `IPC::Shareable 1.17` + `String::CRC32 2.100` now installed; `JSON::XS 4.04` present.
+> **HARDWARE PRECONDITION (applies to V6/V7/V8):** Tests that verify "pins reset to default mode" (`rpi_check_pin_status`, RPiTest.pm:123-156) compare physical GPIO against pristine power-on defaults — they FAIL if pins are left in a non-default mode by a prior aborted/crashed run. This is environmental, NOT a code bug. Before running these tests, reset offending pins: `gpio -g mode <pin> in` for alt-0 defaults, `pinctrl set <pin> no` for alt-31 ("no-function") defaults. On this Pi5: 18→alt0, 24/25→alt31.
+> **LAST SESSION:** Cleared backlog B3–B7 (all committed). **B7** — root cause was in the `RPi::SysInfo` dependency, not this repo: `gpio_info()` used the removed `raspi-gpio`, `raspi_config()` read the moved `/boot/config.txt`. Fixed upstream in `~/repos/rpi-sysinfo` v1.01 (pinctrl + `/boot/firmware/config.txt`, with helpers, rewritten/robust tests, fixed an fscanf `-Wunused-result` XS warning), installed it, then bumped the prereq 1.00→1.01 here and updated t/403/404/406/407 (board/OS-agnostic, more assertions; 346 green). **B6** — Pi5 `pinModeAlt` can't set alt 31; added `Core::_restore_pin_alt` (pinctrl fallback gated on alt==31 + `pi_rp1_model()`), used in `cleanup()` and `rpi_reset()`; FAQ documents the `gpio`-group requirement; legacy Pi3/4 untouched. **B5** — deleted the broken `t/154`/`t/155` (caught-`eval{die}`→INPUT premise the module doesn't provide; real death covered by t/112-114). **B4** — retired `shared_data.pl`, ported the benchmark to IPC::Shareable. **B3** — added `meta_remove()` + `pimetaerase` remove flag. Prior: **V11** (END-time cleanup fixed global-destruction warnings), V10 (`--size` gate), V1–V9 (the migration). The genuine signal-handler bug found while doing B5 is parked as **B8** (the only open item).
+> **ARCHIVE:** See SHAREABLE-archive.md for completed V tasks (V1-V11), Fix 1, and B5/B6/B7
+
+---
+
+## Recommended approach (read first)
+
+**Keep the `meta_*` method API; swap only the backend inside `Meta.pm`.**
+
+Every consumer (`Core.pm`, `WiringPi.pm`, `t/RPiTest.pm`, the `t/multi/*.pl` scripts, `t/03`, `t/05`, `t/110`, `t/111`, `t/15x`, `script/*.pl`) talks to shared memory **only** through the `meta_*` methods. If those methods keep their current signatures and return shapes, the migration is contained almost entirely to `Meta.pm`. This is **Option A** below and is the recommended path. **Option B** (rip out `meta_fetch`/`meta_store` and have callers use a tied hash directly) is rejected — see *Explicitly NOT doing*.
+
+If you'd prefer Option B (a fuller native-tie rewrite touching every caller), say so and I'll re-plan — but Option A is lower-risk and behavior-neutral.
+
+---
+
+## Background: how the shared memory is used today
+
+`Meta.pm` is mixed into the `RPi::WiringPi` object (internal-only API). It stores **one JSON blob** — a single hashref — in **one** SysV shared-memory segment keyed by a 4-char string (`shm_key`, default `'rpiw'`; tests use `'rpit'`). The blob's top-level keys:
+
+| Key | Owner | Purpose |
+|-----|-------|---------|
+| `objects` | software | `{ $uuid => { proc, label } }` — every live Pi object, for collision detection + safety shutdown |
+| `object_count` | software | count of `objects` |
+| `pins` | software | `{ $pin_num => { alt, state, mode, comment, users => { $uuid => n } } }` — pin registration |
+| `pwm` | software | `{ in_use => bool, users => { $uuid => 1 } }` |
+| `storage` | **user** | `{ $name => \%href }` — user-facing `meta_set`/`meta_get`/`meta_delete` slots |
+| `testing` | test suite | `{ test_name, test_num }` set by `t/RPiTest.pm` |
+
+**Access pattern, used everywhere:**
+```perl
+$self->meta_lock;                 # exclusive advisory lock
+my $meta = $self->meta_fetch;     # detached hashref of the WHOLE blob
+... mutate $meta ...
+$self->meta_store($meta);         # replace the WHOLE blob
+$self->meta_unlock;
+```
+`meta_set/get/delete/erase` are higher-level wrappers that already implement this same lock→fetch→mutate→store→unlock dance internally against the `storage` sub-key.
+
+**Current IPC::ShareLite surface (all inside `Meta.pm`):**
+- `IPC::ShareLite->new(-key, -create => 1, -destroy => 0)` (lazy, cached in `$self->{meta_shm}`)
+- `$shm->key`, `$shm->lock($flags)`, `$shm->unlock`, `$shm->fetch` (JSON string), `$shm->store($json)`
+- `use IPC::ShareLite qw(:flock)` for `LOCK_EX`
+- a raw `shmget($key, 65536, 0)` existence probe in `meta_key_check`, with the key derived by `unpack('i', pack('A4', $key))`
+- JSON is hand-rolled here via `JSON::XS` (`encode_json`/`decode_json`)
+
+**Confirmed facts driving this plan:**
+- `grep` shows IPC::ShareLite appears **only** in `lib/RPi/WiringPi/Meta.pm`. No other module touches SysV directly.
+- Module availability is **per-machine**. On the **Pi (where we work)**: `IPC::ShareLite 0.17` IS installed (so `Meta.pm` loads today), while `IPC::Shareable` and `String::CRC32` were NOT — installed as a pre-V1 step. (The original plan's "Shareable installed / ShareLite missing / Meta.pm can't load / build-unblock" line described the Mac and does not apply here.)
+- `pimeta`/`pimetaerase` are referenced only in `lib/RPi/WiringPi/FAQ.pod` (docs), not as real scripts.
+- IPC::Shareable's `END`/`_end` block removes a segment **only** when its `destroy` attribute is true (`lib/IPC/Shareable.pm:2190`). There is **no** per-object `DESTROY` remover. So `destroy => 0` preserves the segment exactly like ShareLite's `-destroy => 0`.
+- `IPC::Shareable::SharedMem` exposes a public integer-key accessor `->key` (`SharedMem.pm:95`).
+- IPC::Shareable's `:flock` exports `LOCK_EX/SH/NB/UN` with the same numeric values as `Fcntl` flock — `meta_lock(LOCK_EX)` maps 1:1.
+- IPC::Shareable defaults to the JSON serializer and a 65536-byte segment (`SHM_BUFSIZ`). The current code passes no `-size` to ShareLite, so it uses ShareLite's own default (also ~65536) — default segment sizes line up. Behavior *at* the cap differs, though (see Risks / V10): IPC::Shareable croaks once the serialized payload exceeds the segment, whereas ShareLite's >64KB behavior is unverified here (not installed). For the **tie-a-scalar** design adopted here, the whole blob lives in one segment exactly like ShareLite, so it is **not** a regression for the small RPi metadata.
+- **IPC::Shareable does NOT collapse nested structures into one segment.** Per its docs: *"When using nested data structures, each nested structure utilizes an additional shared memory segment. The entire structure is not squashed into a single segment."* This is why we **tie a SCALAR holding a JSON string** rather than tying a HASH and storing the blob natively — a native HASH tie would fan this nested blob out across many segments (risking the system `SHMMNI` cap) and would hand callers tied nested refs (live shared-memory writes through `$meta->{pins}{...}`).
+
+## Method mapping (ShareLite → Shareable), all within `Meta.pm`
+
+| Method | Today (ShareLite) | After (IPC::Shareable, tie-a-scalar) |
+|--------|-------------------|------------------------|
+| `meta` | `IPC::ShareLite->new(-key,-create,-destroy)` cached in `{meta_shm}` | `my $knot = tie my $blob,'IPC::Shareable',{key=>$shm_key,create=>1,destroy=>0}`; cache `\$blob` in `{meta_scalar}` and the knot in `{meta_knot}`; return the knot |
+| `meta_lock($flags)` | `$self->meta->lock($flags//LOCK_EX)` | `$self->meta->lock($flags//LOCK_EX)` (knot's `lock`) |
+| `meta_unlock` | `$self->meta->unlock` | `$self->meta->unlock` (knot's `unlock`) |
+| `meta_fetch` | `decode_json($shm->fetch \|\| '{}')` | `my $j = ${ $self->{meta_scalar} }; return (defined $j && length $j) ? decode_json($j) : {}` (always detached — JSON decode yields fresh data) |
+| `meta_store($href)` | `$shm->store(encode_json $href)` | `${ $self->{meta_scalar} } = encode_json($href)` (whole-blob replace, single segment) |
+| `meta_key` | `$self->meta->key` → `0x74697072` for `'rpit'` | `$self->meta->seg->key` → **1473559184** for `'rpit'` (CRC32-derived) |
+| `meta_key_check($key)` | `shmget(unpack('i',pack('A4',$key)),65536,0)` | `shmget(<crc32($key) w/ overflow correction>, 0, 0)` |
+| `meta_set/get/delete/erase` | lock→fetch→mutate→store→unlock | **unchanged** — they ride on the four primitives above |
+
+**Why a scalar, not a hash:** storing an explicit `encode_json` **string** in a tied SCALAR keeps the entire blob in ONE segment (mirroring ShareLite) and sidesteps IPC::Shareable's per-nested-ref segment fan-out. It also makes `meta_fetch`'s detached-copy guarantee trivially correct (every `decode_json` returns brand-new, fully-untied data — safe to mutate nested keys before `meta_store`). A native HASH tie would break both properties (see Risks).
+
+Imports: replace `use IPC::ShareLite qw(:flock)` with `use IPC::Shareable qw(:flock)`; **keep `use JSON::XS`** (we still hand-serialize the blob to a string ourselves); add `use String::CRC32 qw(crc32)` for `meta_key_check`'s standalone (no-object) key derivation.
+
+New integer keys (for updating `t/02-shm_key.t`): `rpit` → **1473559184** (`0x57d4ba90`), `rpiw` → 1323166506, `blah` → 1311334748 (must still report "doesn't exist").
+
+## Why `meta_fetch` returns a detached copy and neither primitive locks internally
+
+- Callers mutate **nested** structures (`$meta->{pins}{$n}{...}`, `delete $meta->{objects}{$uuid}`) on the returned ref and only then call `meta_store`. With the **scalar-of-JSON** design, `meta_fetch` runs `decode_json` on the stored string, which returns a brand-new, fully **untied** structure every time — nested mutations are purely local until `meta_store` re-serializes and writes the whole blob back. (This is exactly ShareLite's behavior.) **Note:** had we tied a HASH instead, `FETCH` would return *tied* nested refs and a shallow `{ %{ $tied } }` copy would leak live shared-memory writes — which is the core reason we tie a scalar.
+- `meta_fetch`/`meta_store` must **not** take their own lock: callers already wrap them in `meta_lock`/`meta_unlock`. IPC::Shareable's `lock()` *releases* a differing lock before acquiring a new one, so an internal `LOCK_SH` inside `meta_fetch` would break a caller's surrounding `LOCK_EX`. (This matches ShareLite, whose `fetch`/`store` also didn't lock.)
+- Under an `LOCK_EX` held by the caller, IPC::Shareable buffers the scalar write and flushes on `unlock` — strictly better than the old per-call store, and transparent to callers.
+
+## Risks / watch-items
+
+- **(Resolved) former `$self->{meta}{pins}` bug** — already fixed in commit `c50f8f8`; `_pin_registration` now uses the local `my $meta = $self->meta_fetch` throughout and there are no `$self->{meta}` slot reads left in `lib/`. Still, do **not** name the new cache slot `$self->{meta}` (keep `{meta_scalar}`/`{meta_knot}`) to avoid reintroducing confusion. B2 retired.
+- **Key value changes** (CRC32 vs `pack`): only `t/02-shm_key.t` hard-codes the integer; update it (V4). No external consumer depends on the value.
+- **Cross-process sharing** (`t/multi/*.pl`, `t/111`, `t/15x`): must still see each other's writes and clean up on death. Covered by V5/V7.
+- **Environment (Pi, not Mac)**: all work runs on the Raspberry Pi where `WiringPi::API` loads, so the **entire suite is runnable locally** — the original Mac/Pi split no longer applies. V2/V3/V10 remain useful as fast **no-XS gates** (they exercise `Meta.pm` without pulling in the hardware modules), but they're a convenience here, not a necessity.
+- **Nested-structure segment fan-out** (the reason for tie-a-scalar): IPC::Shareable gives **each nested ref its own segment** when you store native structures. This is NOT a HASH-only behavior — scalar `STORE` does it too: `_magic_tie($knot,$val) if ref($val) && $knot->_need_tie($val)` (`Shareable.pm` STORE), which `tie`s each nested ref into a child segment. So storing a hashref into the tied scalar would *also* fan out (and hand callers tied nested refs). The only way to stay single-segment is to hand IPC::Shareable a **non-ref scalar** — hence our own `encode_json` string is **mandatory**, not just convenient. If anyone later "simplifies" `meta_store`/`meta_fetch` to assign a structure (hash or ref) instead of a string, this regression returns — keep the serialize-to-string boundary.
+- **Double serialization is expected and benign** (correctness-wise): a plain string stored in a tied scalar is itself re-serialized by IPC::Shareable (wrapped as `{ '__sv__' => $val }` then JSON-encoded), so our JSON blob is JSON-encoded a second time. It round-trips cleanly. The only practical cost is **size inflation** — the second pass escapes every `"`, so the bytes actually written to the segment run ~20–40% larger than our raw JSON, lowering the *effective* 64KB headroom. Measure the as-stored size, not raw JSON length (see V10).
+- **Segment-size cap** (whole blob in one segment): with the scalar-of-JSON design both backends store the entire JSON blob in a single 64KB segment, so neither grows unboundedly — this is **not new** with IPC::Shareable. The only divergence is at the cap: IPC::Shareable *croaks* (`"Length of shared data exceeds shared segment size"`, `Shareable.pm:1277`) once the serialized string exceeds the segment, where ShareLite may behave differently (couldn't verify — not installed). The RPi metadata (pins/objects + small user `storage`) is far under 64KB, but we should prove the headroom and pin down the cap behavior — covered by V10. Mitigation if ever needed: pass a larger `size` to the tie in `meta()`.
+
+## Execution rules
+
+- **One task per turn**: when told to proceed or continue (or "next", "go", etc.), perform only the next ⏳ V task listed, then stop and wait for further instruction. Do NOT batch multiple V tasks per turn unless the user explicitly authorizes a batch (e.g., "do V1-V3", "do all the style fixes").
+
+## Maintenance rules
+
+- V task ✅: do all three:
+  1. Set Actual to `✅ YYYY-MM-DD attempt N: PASS`.
+  2. Append a new bullet at the bottom of SHAREABLE-archive.md's "Archived V Tasks" section: `- V#: description — ✅ YYYY-MM-DD attempt N: PASS`. One bullet per entry — never run two entries together.
+  3. **Delete the V# row from this file's Validation Table.**
+- V task ❌: update Actual with `❌ YYYY-MM-DD attempt N: reason`. Rerun same V# with attempt N+1. Do NOT create a new V#.
+- Update ARCHIVE pointer to reflect what's archived (e.g., `V1-V2` → `V1-V3`)
+- Update NEXT ACTION to next ⏳ row; update LAST SESSION
+- Never renumber within a series. New items get next free number.
+- **Discovery triage during V# work** — when you find something while working a V task, classify before continuing:
+  - Blocks the current V task → add `Fix N: problem discovered during V# — [what + fix]` to `## Discovery Tracking`; resolve as part of this V task's work.
+  - Real bug but doesn't block this V task → add a new V# row (next free) to the Validation Table with ⏳; do not detour to fix it now.
+  - Non-blocking improvement → add new B# to `## Backlog` (one `B#` per line, each separated by a blank line — never run two entries together, or Markdown collapses them into a single mashed paragraph).
+  - Decided not to do → add to `## Explicitly NOT doing` with a one-line justification.
+- Move resolved fixes to archive's "Archived Fixes" section; keep only unresolved in main Discovery Tracking
+- To promote a backlog item to an active task: assign it the next free V# (e.g., B3 becomes V4) and move to the Validation Table. The B# slot is retired and never reused.
+
+## Validation Table
+
+| ID | What | Command | Expected | Actual |
+|----|------|---------|----------|--------|
+| _(none)_ | All V tasks complete (V1–V11) — see SHAREABLE-archive.md. | | | |
+
+## Discovery Tracking
+
+_None yet._
+
+## Backlog
+
+B3: ✅ DONE (2026-06-07) — Implemented the one open enhancement: added `meta_remove()` to `Meta.pm` (frees the SysV segment + semaphore via the knot's `IPC::Shareable->remove`, drops the cached `meta_knot`/`meta_scalar`; a later `meta_*` call transparently recreates a fresh segment; returns undef when there's no live segment). Wired into `bin/pimetaerase` as an optional 4th positional arg (`<shm_key> [erase_all] [display] [remove]`) that removes the segment after erasing. Verified: seeded segment → `pimetaerase rpit 1 1 1` dumps before/after, prints "removed", and a fresh process confirms `meta_key_check('rpit') == 0`; clean exit, no global-destruction warnings; `perl -c` + podchecker green. (`bin/pimeta`/`bin/pimetaerase` already existed and worked — that part of the original B3 premise was a documented correction during V9.)
+
+B4: ✅ DONE (2026-06-07) — Retired the already-broken/redundant `build_testing/shared_data.pl` (its store/fetch round-trip demo is now covered by `meta_shareable_check.pl`), and updated+renamed the benchmark `build_testing/benchmark/sharelite_vs_memfile.pl` → `shareable_vs_memfile.pl`, swapping the `IPC::ShareLite` arms for IPC::Shareable tied scalars (one per serializer: `json`/`storable`), so it reflects the live backend and actually runs. MANIFEST updated for both. No `IPC::ShareLite` references remain anywhere outside these plan docs.
+
+B5: ✅ DONE (2026-06-07) — Deleted `t/154-sig_die_multi.t` and `t/155-sig_die.t` (and their MANIFEST entries). Decided **retire by deletion**, not fix/rewrite/skip: both assert that a *caught* `eval { die }` resets pins to **INPUT**, which is wrong twice over — cleanup restores each pin's **captured original mode** (alt 31 here, not INPUT), and tearing hardware down on a handled exception is not part of the contract; confirmed by running t/154 (got OUTPUT/1, not INPUT/0, and the `pinModeAlt: invalid mode 31` Pi5/B6 limit blocks even the captured-mode restore). Real process-death cleanup is already covered green by t/112/113/114, so a rewrite would only duplicate them — and even the eventual B8 work would need a fresh test, not these, so a `skip_all` stub had no scaffold value. The genuine underlying defect (the `$SIG{INT}`/`$SIG{TERM}` mis-assignment that makes `t/multi/int_slave.pl:18` emit "Not a subroutine reference", plus the unimplemented `fatal_exit` process-exit) is split out to **B8** — it's a real bug with broad signal-test blast radius, distinct from this broken-test cleanup.
+
+B6: ✅ DONE (2026-06-07, Option A) — Real fix in the library: added `Core::_restore_pin_alt($pin_num, $alt)`, which falls back to `pinctrl set <pin> no` when the captured alt is **31** ("no function") **and** `WiringPi::API::pi_rp1_model()` is true, otherwise calls `pinModeAlt` exactly as before. Routed `cleanup()` (Core.pm) through it, and gave `RPiTest::rpi_reset()` the same alt-31 fallback. wiringPi's `pinModeAlt` rejects mode 31 ("invalid mode 31"), so previously cleanup left those Pi5/RP1 pins in their last-used mode, cascading `rpi_check_pin_status` failures across a sweep. **Verified:** an OUTPUT'd pin 21 is now restored to alt 31 by cleanup (get_alt + pinctrl both confirm); a back-to-back sweep of alt-31-touching tests (t/03, t/105, t/110, t/150 = 256 subtests) passes with a single up-front reset AND again cold on an immediate re-run (proves cleanup self-restores), with no "invalid mode 31" noise; t/153/t/200 teardown unaffected. **No-sudo:** `pinctrl` uses `/dev/gpiomem` (root:gpio, rw for the `gpio` group) — confirmed working as non-root; documented the `gpio`-group requirement in FAQ.pod. **Legacy boards untouched:** Pi3/Pi4 never report alt 31, so the fallback branch never fires (byte-for-byte same path). NOTE: separate, narrower alt-31 issues remain out of scope here — tests that *intentionally set* alt 31 (t/107/108/109 alt-mode, t/106 pin_map readback) still hit the `pinModeAlt` limit directly, and `_pin_registration`'s `unregister_pin` path (Core.pm) still uses `$pin->mode_alt` (left as-is to avoid its `mode()`-after-alt clobber); fold into a follow-up if those tests need to go green.
+
+B7: ✅ DONE (2026-06-07) — Root cause was deeper than "regex drift": the sysinfo logic lives in the **`RPi::SysInfo`** dependency (WiringPi.pm only proxies), and two of its methods were genuinely broken on current Pi OS — `gpio_info()` shelled out to the removed `raspi-gpio` binary, and `raspi_config()` read `/boot/config.txt` (now a "moved" stub; real file is `/boot/firmware/config.txt`). **Fixed upstream in `~/repos/rpi-sysinfo` (v1.01):** `gpio_info()` now uses `pinctrl` with a `raspi-gpio` fallback (new `_gpio_tool()` helper); `raspi_config()` resolves the active config.txt (new `_config_file()` helper); rewrote t/20 for pinctrl output and made t/25/t/35/t/40 board/OS-agnostic; updated POD + Changes; full suite green (66 + author tests); **built and installed (1.01)**. **In this repo:** bumped the `RPi::SysInfo` prereq 1.00→1.01 (Makefile.PL), and updated t/403/404/406/407 to the corrected output — patterns made board/OS-agnostic (root device, swap header, SoC) with *added* assertions (line counts, format, comment-stripping); no tests removed or weakened (338→346 subtests, all green). t/400/401/402/405 already passed.
+
+B8: ✅ DONE (2026-06-07) — Reworked crash/signal handling along the "split exception from termination" design (see `fatal_exit.md`). **Dropped the `$SIG{__DIE__}` trap entirely** (it fired on every die incl. caught `eval{die}`, silently resetting pins, double-printing the error, and clobbering user handlers) — crash/exit cleanup is already guaranteed by the V11 END/DESTROY path. **Fixed `$SIG{INT}`/`$SIG{TERM}`** (the `\&_class_signal_handler('INT')` form installed a ref to a return value → "Not a subroutine reference" when fired) to proper closures that chain to any pre-installed handler. **Implemented `fatal_exit`** (was a no-op): on a trapped INT/TERM we clean up all live objects, chain, then re-raise the signal to terminate (default) or return to continue (`fatal_exit => 0`); the terminate decision lives in `_class_signal_handler` after the per-object loop so all objects clean first. POD rewritten; t/153 updated (asserts 2 handlers, no `__DIE__`, +chaining/$SIG checks). **Bonus fix:** `local $?/$!` in `Core::_restore_pin_alt` so the B6 pinctrl shell-out can't reset the program's exit status during exit-time cleanup. Verified: caught `eval{die}` leaves pins untouched; uncaught die cleans up via END, prints once, exits 255; SIGINT terminates+resets (default) / continues (`=0`); pre-installed `$SIG{INT}` chained. Green: t/153, t/112-114 (int_slave.pl "Not a subroutine reference" gone), t/110, t/200-202, t/208 (SIGIO/SIGUSR1 dispatch unaffected), t/03/05 = 589+128 subtests. Originally surfaced while retiring B5 (NOT migration-related; pre-exists on master). `_generate_signal_handlers` installs `$SIG{INT} = \&_class_signal_handler('INT')` and `$SIG{TERM} = \&_class_signal_handler('TERM')` (`WiringPi.pm:461-462`) — `\&foo('INT')` *calls* the sub and takes a ref to its return value rather than installing a handler, so when INT/TERM actually fires Perl dies with "Not a subroutine reference" (seen in `t/multi/int_slave.pl:18` on `kill 'INT', $$`; the slave still dies via the `__DIE__` path, so t/114's smoke wrapper stays green). Correct form is `$SIG{INT} = sub { _class_signal_handler('INT', @_) }` (as `__DIE__` already does). BUT a bare assignment fix changes behavior: the INT handler would then run cleanup and the process would *continue* past the signal (reaching int_slave.pl's "SHOULDN'T BE HERE") because `_cleanup_handler`'s `fatal_exit` exit is still a `#FIXME` no-op (`WiringPi.pm:444-446`). So the real fix is a package: (1) install proper INT/TERM handler subs; (2) implement `fatal_exit` so a signal/death handler exits the process when appropriate (default `fatal_exit => 1`); (3) re-validate the full signal/interrupt suite (t/112-114, t/153, t/200-212, auto_dispatch SIGIO/SIGUSR1) since `$SIG{INT}/{TERM}` is process-global. Broad blast radius — own task, not started.
+
+B9: ✅ DONE (2026-06-07) — Was NOT a worker/test bug but a real `cleanup()` bug: the **alt-0/1 twin of B6**. On the RP1, `get_alt()` returns a *mode* enum (0=INPUT, 1=OUTPUT, 31=none, 2-7=alts), but `_restore_pin_alt` fed that value to `pinModeAlt()`, which interprets it as a classic alt-function number — so `pinModeAlt(pin, 0)` set ALT0 instead of INPUT and `pinModeAlt(pin, 1)` set ALT1 instead of OUTPUT (proven on hardware: from OUTPUT, `pinModeAlt(18,0)`→still 1, `pinMode(18,0)`→0). B6 only fixed the alt-31 case via pinctrl; INPUT/OUTPUT stayed broken. t/213-worker was just the only test that left a pin (18, INPUT default) in OUTPUT and relied on cleanup to restore it (and it had no `rpi_check_pin_status`, so it never noticed) — cascading into t/400-407. **Fix:** `Core::_restore_pin_alt` now (RP1-gated) restores INPUT(0)/OUTPUT(1) via `pinMode`, "no function"(31) via pinctrl, real alts via `pinModeAlt`; `rpi_reset` reuses the same helper; added a pin-18 restore assertion to t/213. Legacy Pi3/4 unchanged (off-RP1 path is straight `pinModeAlt`). **Verified:** plain + worker OUTPUT→cleanup now leaves pin 18 at alt 0; full sweep drops from 9 failing files to **1** (only B10/t/107 remains); t/105/110/150/153/200 + sysinfo all green (659-test batch + 1808-test full sweep).
+
+B10: ✅ DONE (2026-06-07) — Made `t/107-alt_modes.t` board-aware. The crash was a knock-on of a board-specific assumption: it asserted pin 21's default mode is INPUT (`0`), but RP1 reports `31` ("no function"), then fed that `31` to `mode()` (which only accepts 0/1/2/3) → croak → exit 255. **Deeper finding:** the test's real purpose — round-tripping `mode_alt(0..7)` — is partly unsupported on RP1: confirmed on hardware that `mode_alt(1)` and `mode_alt(2)` don't take (read back as 0), while 0/3/4/5/6/7 do. So this isn't a regex refresh like B7 — the capability itself is RP1-limited. **Fix:** the default-mode check now reads the per-board default via `rpi_default_pin_config()->{21}{alt}` (0 on Pi 3/4, 31 on Pi 5), and the ALT0-5 round-trip loop is wrapped in `SKIP` gated on `rpi_board_tag() eq 'pi5'` (24 subtests skipped, with a note pointing at B6/B9). **Pi 3/4 unchanged** (table default for pin 21 is 0 = INPUT, so the assertion is identical; the SKIP never fires off-RP1). t/107 now passes (65 tests on Pi 5). **The RP1 `mode_alt(1)/(2)` no-op is a genuine wiringPi limitation** worth a separate note/upstream item, but it's a niche API (arbitrary ALT selection) and out of scope here. With this, the **full Pi 5 sweep is green: 72/72 files, 1871 tests.**
+
+## Explicitly NOT doing
+
+- **Option B — native-tie rewrite of every caller.** Rejected: replacing `meta_fetch`/`meta_store` with direct tied-hash access would touch `Core.pm`, `WiringPi.pm`, `RPiTest.pm`, every `t/multi/*.pl`, and several `t/*.t`, for no behavioral gain. The `meta_*` shim keeps the blast radius inside `Meta.pm`.
+- **B2 (former `$self->{meta}{pins}` bug)** — retired: already fixed independently in commit `c50f8f8`, so there's nothing left for the migration to preserve or repair. The `B2` slot is retired (never reused).
+- **Preserving the old integer key `0x74697072`** — IPC::Shareable derives keys via CRC32 by design; the key value changes and that's fine since the segment is internal and discovered by `shm_key` string, not by hard-coded int.
+- **Tying a HASH and storing the blob natively (former B1 / original mapping)** — rejected. IPC::Shareable allocates a separate segment per nested ref, so a native HASH tie fans this blob across many segments (SHMMNI risk) and returns tied nested refs to callers (live writes through `$meta->{...}`). The scalar-of-JSON design stores one segment and one decode per fetch, so the old B1 "single segment decode" optimization is moot by construction. The `B1` slot is retired (never reused).
+
+## Decisions
+
+- Tie a **SCALAR** holding an `encode_json` **string** (NOT a HASH) with `key => $self->{shm_key}, create => 1, destroy => 0`. `create=>1` = attach-or-create; `destroy=>0` = never auto-remove (matches ShareLite and the END-block guard at `Shareable.pm:2190`). A scalar-of-string keeps the whole blob in ONE segment and avoids IPC::Shareable's per-nested-ref segment fan-out; a HASH tie was rejected for that reason.
+- `meta_fetch` `decode_json`s the scalar to a **fully detached** structure; `meta_store` `encode_json`s a **whole-blob replace** into the scalar; **neither locks internally** (callers own the lock). Rationale documented above.
+- `meta_key` reads `$self->meta->seg->key` (public `SharedMem::key` on the knot). `meta_key_check` uses `crc32` + overflow-correction (mirroring `IPC::Shareable::_shm_key`) then `shmget($int, 0, 0)` for a content-independent existence probe.
+- Minimum `IPC::Shareable` version: **1.17** (installed; ships JSON-default serializer, `:flock`, `SharedMem::key`, and the destroy-guarded END block this plan relies on).

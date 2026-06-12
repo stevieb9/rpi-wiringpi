@@ -10,8 +10,6 @@ use Test::More;
 
 my $mod = 'RPi::WiringPi';
 
-plan skip_all => "SERIAL TESTS CURRENTLY DISABLED";
-
 if (! $ENV{RPI_SERIAL}){
     plan skip_all => "RPI_SERIAL environment variable not set\n";
 }
@@ -20,11 +18,8 @@ rpi_running_test(__FILE__);
 
 my $pi = $mod->new(label => 't/315-serial.t', shm_key => 'rpit');
 
-# lock the serial
-
-$pi->meta_lock(name => 'serial', state => 1);
-
-my $s = $pi->serial("/dev/ttyS0", 115200);
+my $dev = rpi_serial_device();
+my $s = $pi->serial($dev, 115200);
 
 isa_ok $s, 'RPi::Serial';
 
@@ -46,10 +41,6 @@ $s->puts("hello, world!");
 #};
 
 like $s->gets(13), qr/^hello, world!/, "puts() and gets() ok";
-
-# unlock the serial
-
-$pi->meta_lock(name => 'serial', state => 0);
 
 $pi->cleanup;
 

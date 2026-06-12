@@ -10,11 +10,12 @@ use Carp qw(croak);
 use Data::Dumper;
 use Digest::MD5 qw(md5_hex);
 use RPi::Const qw(:all);
+use Time::HiRes qw(time);
 
-our $VERSION = '2.3634';
+our $VERSION = '3.1803';
 
 sub checksum {
-     return md5_hex(rand());
+    return md5_hex($$ . time() . rand());
 }
 sub dump_signal_handlers {
     my ($self) = @_;
@@ -25,9 +26,9 @@ sub pin_map {
 
     $scheme = $self->pin_scheme if ! defined $scheme;
 
-    return {} if $scheme eq RPI_MODE_UNINIT;
+    return {} if $scheme == RPI_MODE_UNINIT;
 
-    if (defined $self->{pin_map_cache}{$scheme}){
+    if (defined $self->{pin_map_cache}{$scheme}) {
         return $self->{pin_map_cache}{$scheme};
     }
 
@@ -41,11 +42,9 @@ sub pin_map {
         elsif ($scheme == RPI_MODE_GPIO){
             $pin = $self->phys_to_gpio($_);
         }
-        elsif ($scheme == RPI_MODE_PHYS){
-            $pin = $_;
-        }
         $map{$_} = $pin;
     }
+
     $self->{pin_map_cache}{$scheme} = \%map;
 
     return \%map;
@@ -60,6 +59,7 @@ sub uuid {
 }
 
 sub _vim{1;};
+
 1;
 
 __END__
@@ -135,7 +135,7 @@ Steve Bertrand, E<lt>steveb@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2016-2019 by Steve Bertrand
+Copyright (C) 2016-2026 by Steve Bertrand
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.18.2 or,

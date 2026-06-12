@@ -12,13 +12,12 @@ rpi_running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
 
-BEGIN {
-    my $c;
+# In-process interrupt callback counter (a file lexical, not an env var gate)
 
-    sub handler {
-        $c++;
-        $ENV{PI_INTERRUPT} = $c;
-    }
+my $interrupts = 0;
+
+sub handler {
+    $interrupts++;
 }
 
 my $pi = $mod->new(
@@ -35,7 +34,7 @@ if (! $ENV{NO_BOARD}){
 
     # EDGE_FALLING
 
-    $pin->set_interrupt(EDGE_FALLING, 'main::handler');
+    $pin->set_interrupt(EDGE_FALLING, \&handler);
 
     $pin->pull(PUD_UP);
 
@@ -44,22 +43,25 @@ if (! $ENV{NO_BOARD}){
     $pin->pull(PUD_DOWN);
     $pin->pull(PUD_UP);
 
-    is $ENV{PI_INTERRUPT}, 1, "1st interrupt ok";
+    $pi->wait_interrupts(500);
+    is $interrupts, 1, "1st interrupt ok";
 
     # trigger the interrupt
 
     $pin->pull(PUD_DOWN);
     $pin->pull(PUD_UP);
-    
-    is $ENV{PI_INTERRUPT}, 2, "2nd interrupt ok";
+
+    $pi->wait_interrupts(500);
+    is $interrupts, 2, "2nd interrupt ok";
 
     # trigger the interrupt
 
     $pin->pull(PUD_DOWN);
     $pin->pull(PUD_UP);
-    
-    is $ENV{PI_INTERRUPT}, 3, "3rd interrupt ok";
-    
+
+    $pi->wait_interrupts(500);
+    is $interrupts, 3, "3rd interrupt ok";
+
     $pin->pull(PUD_DOWN);
 }
 

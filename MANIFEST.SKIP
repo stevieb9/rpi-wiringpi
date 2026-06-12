@@ -33,3 +33,12 @@ build/
 bblog/
 \.base$
 main$
+^\.claude/
+^UNWRAPPED\.md$
+^B8\.md$
+^INT\.md$
+^docs/pod/
+^docs/test-platform/
+^plans/
+^proposal/
+^scripts/

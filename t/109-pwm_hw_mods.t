@@ -13,19 +13,23 @@ rpi_sudo_check();
 my $mod = 'RPi::WiringPi';
 
 if ($> == 0){
-    $ENV{PI_BOARD} = 1;
+    $ENV{RPI_BOARD} = 1;
 }
 
-if (! $ENV{PI_BOARD}){
+if (! $ENV{RPI_BOARD}){
     $ENV{NO_BOARD} = 1;
     plan skip_all => "Not on a Pi board\n";
 }
 
 if ($> != 0){
     print "enforcing sudo for PWM tests...\n";
-    system("sudo", "perl", "-I", "blib/lib", $0);
+    # Re-exec with $^X (the running perl) so sudo doesn't fall back to the
+    # system perl, which lacks our perlbrew-installed prerequisites
+    system("sudo", $^X, "-I", "blib/lib", $0);
     exit;
 }
+
+rpi_i2c_check();
 
 rpi_running_test(__FILE__);
 
@@ -38,12 +42,11 @@ use constant {
     RANGE   => 2000,
     DELAY   => 0.01,
     ANALOG  => 0,
-    MAX_IN  => 40,
 };
 
 my $pi = $mod->new(label => 't/109-pwm_hw_mods.t', shm_key => 'rpit');
 
-my $adc = $pi->adc;
+my $adc = $pi->adc(addr => 0x48);   # ADS1115 #1 (PWM feedback on ch 0)
 
 if (! $ENV{NO_BOARD}) {
 
@@ -73,12 +76,20 @@ if (! $ENV{NO_BOARD}) {
 
     #sleep 1;
 
+    # Acceptance windows are single-sourced in t/RPiTest.pm
+    # (rpi_pwm_adc_window(); shared with t/140-pwm_spi_adc.t) - recalibrate
+    # there, not here. With this file's custom RANGE the helper returns the
+    # duty-cycle model window, giving each cycle a real lower bound (the old
+    # `>= -1` was unfailable) and a duty-tracking upper bound (the old flat
+    # ceiling was 40)
+
     for (LEFT .. RIGHT){
         # sweep all the way left to right
         $pin->pwm($_);
         $o = $adc->percent(ANALOG);
-        is $o >= -1, 1, "output ok on cycle $_ on right";
-        is $o < MAX_IN, 1, "output ok on cycle $_ on right\n";
+        my ($min, $max) = rpi_pwm_adc_window($_, RANGE);
+        cmp_ok $o, '>=', $min, "output >= $min on cycle $_ going right ok";
+        cmp_ok $o, '<=', $max, "output <= $max on cycle $_ going right ok";
         select(undef, undef, undef, DELAY);
     }
 
@@ -88,8 +99,9 @@ if (! $ENV{NO_BOARD}) {
         # sweep all the way right to left
         $pin->pwm($_);
         $o = $adc->percent(ANALOG);
-        is $o >= -1, 1, "output ok on cycle $_ on left";
-        is $o < MAX_IN, 1, "output ok on cycle $_ on left\n";
+        my ($min, $max) = rpi_pwm_adc_window($_, RANGE);
+        cmp_ok $o, '>=', $min, "output >= $min on cycle $_ going left ok";
+        cmp_ok $o, '<=', $max, "output <= $max on cycle $_ going left ok";
         select(undef, undef, undef, DELAY);
     }
 

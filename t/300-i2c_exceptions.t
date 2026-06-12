@@ -8,15 +8,13 @@ use RPi::WiringPi;
 use RPi::Const qw(:all);
 use Test::More;
 
-use lib 't/';
-
 rpi_running_test(__FILE__);
 
 my $mod = 'RPi::WiringPi';
 
 BEGIN {
     if (! $ENV{RPI_ARDUINO}){
-        plan skip_all => "RPI_ARUDINO environment variable not set\n";
+        plan skip_all => "RPI_ARDUINO environment variable not set\n";
     }
 }
 
