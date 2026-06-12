@@ -642,7 +642,8 @@ module, and various other custom device specific  modules.
 L<wiringPi|https://github.com/WiringPi/WiringPi> must be installed prior to installing/using
 this module (v3.18).
  
-We always and only use the C<GPIO> pin numbering scheme.
+By default we use the C<GPIO> (Broadcom (BCM) GPIO) pin numbering scheme;
+wiringPi's own (WPI) scheme is also available via C<< setup => 'wiringpi' >>.
  
 This module is essentially a 'manager' for the sub-modules (ie. components).
 You can use the component modules directly, but retrieving components through
@@ -663,8 +664,9 @@ command.
  
 =head2 new([%args])
  
-Returns a new C<RPi::WiringPi> object. We exclusively use the C<GPIO>
-(Broadcom (BCM) GPIO) pin numbering scheme.
+Returns a new C<RPi::WiringPi> object. By default we use the C<GPIO>
+(Broadcom (BCM) GPIO) pin numbering scheme; see the C<setup> parameter below
+to select wiringPi's own (WPI) numbering instead.
 
 Parameters:
 
@@ -675,8 +677,8 @@ scheme) to initialize the board with. Matching is case-insensitive on the
 first letter:
 
     'gpio'      - GPIO (BCM) numbering; the default if not sent in
-    'wiringpi'  - wiringPi's own (WPI) numbering
-    'none'      - skip board setup entirely (the pin scheme remains
+    'wiringpi'  - WiringPi's own (WPI) numbering
+    'none'      - Kkip board setup entirely (the pin scheme remains
                   uninitialized; primarily for testing)
 
 Any other value will croak. Note that if another application in the process

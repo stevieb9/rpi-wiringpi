@@ -122,7 +122,8 @@ module, and various other custom device specific  modules.
 [wiringPi](https://github.com/WiringPi/WiringPi) must be installed prior to installing/using
 this module (v3.18).
 
-We always and only use the `GPIO` pin numbering scheme.
+By default we use the `GPIO` (Broadcom (BCM) GPIO) pin numbering scheme;
+wiringPi's own (WPI) scheme is also available via `setup => 'wiringpi'`.
 
 This module is essentially a 'manager' for the sub-modules (ie. components).
 You can use the component modules directly, but retrieving components through
@@ -143,8 +144,9 @@ command.
 
 ## new(\[%args\])
 
-Returns a new `RPi::WiringPi` object. We exclusively use the `GPIO`
-(Broadcom (BCM) GPIO) pin numbering scheme.
+Returns a new `RPi::WiringPi` object. By default we use the `GPIO`
+(Broadcom (BCM) GPIO) pin numbering scheme; see the `setup` parameter below
+to select wiringPi's own (WPI) numbering instead.
 
 Parameters:
 

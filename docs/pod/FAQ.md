@@ -1030,9 +1030,14 @@ Before an LCD can be used, it must be initialized. This may look like a lot,
 but you only need to do it once. Essentially, you're configuring all pins up
 front.
 
-NOTE: When in 4-bit mode, although you're setting `d0` through `d3` pins
-up and leaving `d4` through `d7` as `0`, the wiring must connect to LCD pins
-`d4` through `d7`. Look at LCD pin 4-7 as LCD pin 0-3 when in 4-bit mode.
+NOTE: In 4-bit mode the LCD uses only its upper four data lines, `DB4`
+through `DB7` (`DB0` through `DB3` stay unconnected). In this module you
+still populate the `d0` through `d3` parameters with your GPIO pins and set
+`d4` through `d7` to `0`. The catch is the wiring: `d0` through `d3` must
+connect to the LCD's `DB4` through `DB7` pins respectively (`d0` to `DB4`,
+`d1` to `DB5`, `d2` to `DB6`, `d3` to `DB7`) - **not** to `DB0` through
+`DB3`. In 8-bit mode there is no such offset: `d0` through `d7` map straight
+across to `DB0` through `DB7`.
 
     my %lcd_args = (
         rows  => 2,     # Number of display rows, 2 or 4
@@ -1040,12 +1045,14 @@ up and leaving `d4` through `d7` as `0`, the wiring must connect to LCD pins
         bits  => 4,     # Data width in bits, 4 or 8
         rs    => 1,     # GPIO pin for the LCD RS pin
         strb  => 2,     # GPIO pin for the LCD strobe (E) pin
-        d0    => 3,     #
-        ...             # d0-d3 GPIO pinout numbers
-        d3    => 6,     #
-        d4    => 7,     # Set d4-d7 to all 0 (zero) if in 4-bit mode
-        ...             # otherwise, set them to their respective
-        d7    => 11     # GPIO pins
+        d0    => 3,     # 4-bit example: d0-d3 hold the GPIO pins, each
+        d1    => 4,     # wired to LCD DB4-DB7 (d0->DB4 .. d3->DB7, per the
+        d2    => 5,     # note above), and d4-d7 are 0. In 8-bit mode, set
+        d3    => 6,     # all of d0-d7 to GPIO pins wired straight to DB0-DB7.
+        d4    => 0,     #
+        d5    => 0,     #
+        d6    => 0,     #
+        d7    => 0,     #
     );
 
     my $lcd = $pi->lcd(%lcd_args);

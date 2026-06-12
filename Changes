@@ -1,7 +1,7 @@
 Revision history for Perl extension RPi::WiringPi.
 
 3.1803 UNREL
-    - updated wiringPi documentation links from the defunct wiringpi.com to
+    - Updated wiringPi documentation links from the defunct wiringpi.com to
       https://github.com/WiringPi/WiringPi
 
 3.1802     2026-06-12

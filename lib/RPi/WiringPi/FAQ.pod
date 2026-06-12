@@ -13,8 +13,8 @@ L<RPi::Const> module.
 
 =head1 GLOSSARY OF TERMS
 
-    HIGH         -  Outputting 3.3v
-    LOW          -  Connected to 0v (ground)
+    HIGH         -  Outputting or reading 3.3v
+    LOW          -  Outputting or reading 0v
     floating     -  The state where a pin is not stable at HIGH or LOW
     PWM          -  Pulse Width Modulation (potentiometer-like)
     INPUT        -  Pin is listening only
@@ -63,8 +63,8 @@ First thing to do is to install the appropriate C<cpanm> version:
 
 Then, install an instance of Perl, and switch to it:
 
-    perlbrew install perl-5.30.0
-    perlbrew switch perl-5.30.0
+    perlbrew install perl-5.42.0
+    perlbrew switch perl-5.42.0
 
 =head2 sudo configuration
 
@@ -75,7 +75,7 @@ To use C<sudo> to run your scripts within the appropriate Perl
 installation, you need to modify the C</etc/sudoers> file. Prepend the string
 value for the C<secure_path> directive to include the path to the new
 C<perlbrew> managed perl, followed by a colon. For example:
-C</home/pi/perl5/perlbrew/perls/perl-5.30.0/bin:>. Leave the existing part of
+C</home/pi/perl5/perlbrew/perls/perl-5.42.0/bin:>. Leave the existing part of
 the string in place.
 
 Test that it looks correctly:
@@ -170,7 +170,7 @@ Bookworm):
 
     dtparam=spi=on
 
-NOTE: If you get permission errors accessing the SPI bus, you may need to add
+B<Note>: If you get permission errors accessing the SPI bus, you may need to add
 the C<pi> user to the C<spi> group:
 
     sudo adduser pi spi
@@ -900,9 +900,14 @@ Before an LCD can be used, it must be initialized. This may look like a lot,
 but you only need to do it once. Essentially, you're configuring all pins up
 front.
 
-NOTE: When in 4-bit mode, although you're setting C<d0> through C<d3> pins
-up and leaving C<d4> through C<d7> as C<0>, the wiring must connect to LCD pins
-C<d4> through C<d7>. Look at LCD pin 4-7 as LCD pin 0-3 when in 4-bit mode.
+B<Note>: In 4-bit mode the LCD uses only its upper four data lines, C<DB4>
+through C<DB7> (C<DB0> through C<DB3> stay unconnected). In this module you
+still populate the C<d0> through C<d3> parameters with your GPIO pins and set
+C<d4> through C<d7> to C<0>. The catch is the wiring: C<d0> through C<d3> must
+connect to the LCD's C<DB4> through C<DB7> pins respectively (C<d0> to C<DB4>,
+C<d1> to C<DB5>, C<d2> to C<DB6>, C<d3> to C<DB7>) - B<not> to C<DB0> through
+C<DB3>. In 8-bit mode there is no such offset: C<d0> through C<d7> map straight
+across to C<DB0> through C<DB7>.
 
     my %lcd_args = (
         rows  => 2,     # Number of display rows, 2 or 4
@@ -910,12 +915,14 @@ C<d4> through C<d7>. Look at LCD pin 4-7 as LCD pin 0-3 when in 4-bit mode.
         bits  => 4,     # Data width in bits, 4 or 8
         rs    => 1,     # GPIO pin for the LCD RS pin
         strb  => 2,     # GPIO pin for the LCD strobe (E) pin
-        d0    => 3,     #
-        ...             # d0-d3 GPIO pinout numbers
-        d3    => 6,     #
-        d4    => 7,     # Set d4-d7 to all 0 (zero) if in 4-bit mode
-        ...             # otherwise, set them to their respective
-        d7    => 11     # GPIO pins
+        d0    => 3,     # 4-bit example: d0-d3 hold the GPIO pins, each
+        d1    => 4,     # wired to LCD DB4-DB7 (d0->DB4 .. d3->DB7, per the
+        d2    => 5,     # note above), and d4-d7 are 0. In 8-bit mode, set
+        d3    => 6,     # all of d0-d7 to GPIO pins wired straight to DB0-DB7.
+        d4    => 0,     #
+        d5    => 0,     #
+        d6    => 0,     #
+        d7    => 0,     #
     );
 
     my $lcd = $pi->lcd(%lcd_args);
@@ -1087,11 +1094,11 @@ usage information.
 
     # Pins are INPUT by default. Turn the first pin to OUTPUT
 
-    $exp->mode(0, 0); # Or MCP23017_OUTPUT if using RPi::Const
+    $exp->mode(0, MCP23917_OUTPUT); # Or 0
 
-    # Turn the pin on (HIGH)
+    # Turn the pin on
 
-    $exp->write(0, 1); # or HIGH
+    $exp->write(0, HIGH); # or 1
 
     # Read the pin's status (HIGH or LOW)
 
@@ -1099,17 +1106,17 @@ usage information.
 
     # Turn the first bank (0) of pins (0-7) to OUTPUT, and make them live (HIGH)
 
-    $exp->mode_bank(0, 0);  # bank A, MCP23017_OUTPUT
-    $exp->write_bank(0, 1); # bank A, HIGH
+    $exp->mode_bank(0, MCP23017_OUTPUT);
+    $exp->write_bank(0, HIGH);
 
     # Enable internal pullup resistors on the entire bank A (0)
 
     $exp->pullup_bank(0, 1); # bank A, pullup enabled
 
-    # Put all 16 pins as OUTPUT, and put them on (HIGH)
+    # Put all 16 pins as OUTPUT, and put them on
 
-    $exp->mode_all(0);  # or MCP23017_OUTPUT
-    $exp->write_all(1); # or HIGH
+    $exp->mode_all(MCP23017_OUTPUT);
+    $exp->write_all(HIGH);
 
     # Cleanup all pins and reset them to default before exiting your program
 
@@ -1153,7 +1160,7 @@ instead of the GPIO on the Pi:
 
     my $sm = $pi->stepper_motor(
         expander => $expander,
-        pins => [0, 1, 2, 3]    # first four GPIO expander pins
+        pins => [0, 1, 2, 3]    # First four GPIO expander pins
     );
 
     $sm->cw(180);
