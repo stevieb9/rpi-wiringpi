@@ -308,7 +308,14 @@ try:
             h = max(5.5, 0.95*max(len(lay.get('L',[])), len(lay.get('R',[]))))
             d += e.Ic(pins=ic_pins(ref,lay), w=4.2, h=h, pinspacing=1.0).at((x,y)).label(f'{ref}  {COMPONENTS[ref][0]}', loc='top', fontsize=10)
         d.save('t/test-pinout-schematic.svg')
-        d.save('t/test-pinout-schematic.jpg', dpi=120)
+    # schemdraw's SVG backend cannot save raster; render the JPG from the SVG.
+    import cairosvg, io
+    from PIL import Image
+    png = cairosvg.svg2png(url='t/test-pinout-schematic.svg', dpi=120)
+    img = Image.open(io.BytesIO(png)).convert('RGBA')
+    bg = Image.new('RGB', img.size, 'white')
+    bg.paste(img, mask=img.split()[3])
+    bg.save('t/test-pinout-schematic.jpg', quality=90)
     print('wrote t/test-pinout-schematic.svg / .jpg')
 except Exception as ex:
     import traceback; traceback.print_exc()
