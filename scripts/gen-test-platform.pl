@@ -24,9 +24,37 @@
 #   perl scripts/gen-test-platform.pl
 #
 # Environment:
-#   SCH_PYTHON   python interpreter to use (default: /tmp/sch-venv/bin/python,
-#                falling back to python3 on PATH). Needs PIL, schemdraw,
-#                cairosvg and pypdf.
+#   SCH_PYTHON   Override the Python interpreter for the schematic pipeline.
+#                When unset (the normal case) a persistent venv is built and
+#                used automatically - see FRESH-PI SETUP below.
+#   NETLISTSVG   Override the netlistsvg executable (default: PATH, then npx).
+#
+# ---------------------------------------------------------------------------
+# FRESH-PI SETUP (building these docs on a new Raspberry Pi or other host)
+# ---------------------------------------------------------------------------
+# This script is hands-off. On first run it creates a persistent Python venv at
+#
+#     ${XDG_CACHE_HOME:-$HOME/.cache}/rpi-wiringpi/sch-venv
+#
+# and pip-installs the schematic dependencies (Pillow -> the PIL module,
+# schemdraw, cairosvg, pypdf) into it. Later runs reuse that venv with no
+# network access. There is nothing to do by hand AS LONG AS the host already
+# has the system prerequisites below. If a run warns that a schematic step was
+# skipped, install whatever is missing and re-run:
+#
+#   1. Python venv + pip support:
+#        sudo apt install python3 python3-venv python3-pip
+#   2. Native Cairo library (cairosvg loads libcairo at runtime):
+#        sudo apt install libcairo2
+#   3. netlistsvg, for the wire-routed SVGs + multi-page PDF (needs Node.js):
+#        sudo apt install nodejs npm        # or install Node via nvm
+#        npm install -g netlistsvg
+#
+# The venv self-heals: delete it to force a clean reinstall, and the next run
+# rebuilds it -
+#        rm -rf ${XDG_CACHE_HOME:-$HOME/.cache}/rpi-wiringpi/sch-venv
+# To point at a hand-managed interpreter instead, export SCH_PYTHON=/path/python.
+# ---------------------------------------------------------------------------
 
 use strict;
 use warnings;
@@ -65,8 +93,9 @@ my @netlistsvg = find_netlistsvg();
 # rather than dying, so a `make dist` on a host without the toolchain still
 # succeeds and simply ships the previously generated artifacts.
 if (! $python) {
-    warn "WARN: no usable Python found (set SCH_PYTHON or create /tmp/sch-venv); "
-       . "skipping test-platform generation\n";
+    warn "WARN: no usable Python for the schematic pipeline; skipping "
+       . "test-platform generation.\n"
+       . "      See the FRESH-PI SETUP notes at the top of this script.\n";
     exit 0;
 }
 
@@ -153,6 +182,42 @@ sub classify_dest {
     return $root;
 }
 
+# Build the persistent schematic venv and install its Python deps. Idempotent:
+# safe to call when the venv exists but is missing packages. Returns the venv
+# interpreter path on success, or undef if it could not be built. See the
+# FRESH-PI SETUP notes at the top of this script.
+sub ensure_sch_venv {
+    my $dir = sch_venv_dir();
+    my $py  = File::Spec->catfile($dir, 'bin', 'python');
+
+    # Create the venv from a base python3 the first time around.
+    if (! -x $py) {
+        my $base = which('python3');
+        if (! $base) {
+            warn "WARN: no python3 on PATH to build the schematic venv.\n"
+               . "      See the FRESH-PI SETUP notes at the top of this script.\n";
+            return undef;
+        }
+        make_path($dir);
+        print "Creating persistent schematic venv at $dir ...\n";
+        if (system($base, '-m', 'venv', $dir) != 0) {
+            warn "WARN: 'python3 -m venv' failed (install python3-venv?).\n"
+               . "      See the FRESH-PI SETUP notes at the top of this script.\n";
+            return undef;
+        }
+    }
+
+    # Install (or top up) the required packages.
+    print "Installing schematic Python deps into the venv ...\n";
+    if (system($py, '-m', 'pip', 'install', '--quiet', sch_pip_pkgs()) != 0) {
+        warn "WARN: pip install of the schematic deps failed.\n"
+           . "      See the FRESH-PI SETUP notes at the top of this script.\n";
+        return undef;
+    }
+
+    return $py;
+}
+
 # Locate netlistsvg: a direct binary first, then `npx netlistsvg`. Returns the
 # command as a list, or an empty list if neither is available.
 sub find_netlistsvg {
@@ -164,19 +229,40 @@ sub find_netlistsvg {
     return ();
 }
 
-# Pick the Python interpreter and verify the schematic deps import.
+# Pick the Python interpreter for the schematic pipeline, building the
+# persistent venv on first run if needed. Returns an interpreter with all deps
+# importable, or undef. See the FRESH-PI SETUP notes at the top of this script.
 sub find_python {
-    my @cands = ($ENV{SCH_PYTHON}, '/tmp/sch-venv/bin/python', which('python3'));
-    for my $py (@cands) {
-        next unless $py && -x $py;
-        my $missing = qx($py -c "import importlib,sys
-mods=['PIL','schemdraw','cairosvg','pypdf']
-print(','.join(m for m in mods if importlib.util.find_spec(m) is None))" 2>/dev/null);
-        chomp $missing;
-        warn "WARN: $py is missing Python modules: $missing\n" if $missing;
-        return $py;
+    # An explicit SCH_PYTHON override wins when it already has the deps.
+    if ($ENV{SCH_PYTHON} && -x $ENV{SCH_PYTHON}) {
+        my $missing = missing_modules($ENV{SCH_PYTHON});
+        return $ENV{SCH_PYTHON} if ! $missing;
+        warn "WARN: \$SCH_PYTHON ($ENV{SCH_PYTHON}) is missing modules: $missing\n"
+           . "      See the FRESH-PI SETUP notes at the top of this script.\n";
     }
+
+    # The persistent venv: use it as-is, or build/top it up once.
+    my $venv_py = File::Spec->catfile(sch_venv_dir(), 'bin', 'python');
+    $venv_py = ensure_sch_venv() if ! -x $venv_py || missing_modules($venv_py);
+    return $venv_py if $venv_py && -x $venv_py && ! missing_modules($venv_py);
+
+    # Last resort: a system python3 that already happens to have the deps.
+    my $sys = which('python3');
+    return $sys if $sys && ! missing_modules($sys);
+
     return undef;
+}
+
+# Return a comma-separated list of the required modules that $py cannot import,
+# or the empty string if it has them all (Pillow supplies the PIL module).
+sub missing_modules {
+    my ($py) = @_;
+    return 'python3' if ! ($py && -x $py);
+    my $missing = qx($py -c "import importlib.util as u
+mods = ['PIL', 'schemdraw', 'cairosvg', 'pypdf']
+print(','.join(m for m in mods if u.find_spec(m) is None))" 2>/dev/null);
+    chomp $missing;
+    return $missing;
 }
 
 # Remove macOS AppleDouble / .DS_Store cruft from a directory tree. These are
@@ -207,6 +293,17 @@ sub run_in {
     }
     waitpid $pid, 0;
     return $? == 0;
+}
+
+# pip package names for the schematic pipeline (Pillow provides the PIL module).
+sub sch_pip_pkgs {
+    return qw(Pillow schemdraw cairosvg pypdf);
+}
+
+# Location of the persistent schematic venv: under XDG_CACHE_HOME, else ~/.cache.
+sub sch_venv_dir {
+    my $cache = $ENV{XDG_CACHE_HOME} || File::Spec->catdir($ENV{HOME}, '.cache');
+    return File::Spec->catdir($cache, 'rpi-wiringpi', 'sch-venv');
 }
 
 # Locate an executable on PATH.
