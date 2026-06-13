@@ -239,22 +239,34 @@ def net_labels(ref, sx, sy):
 FP_PITCH = 2.54
 FP_PAD = 1.7
 FP_DRILL = 1.0
+DIP_WIDTH = 7.62               # 0.3" row spacing for the IC (DIP) footprints
 FP_VERSION = 20221018          # KiCad 7 footprint format
 
 def pad_layout(ref):
     """Pad placement as [(pad_name, x, y), ...] in millimetres.
 
-    J1 mirrors a physical 2x20 header (pins 1/2 adjacent, odd/even in two
-    columns); every other part is a single column in schematic-pin order.
+    Three shapes, chosen by reference designator:
+      J1   -- a physical 2x20 header (pins 1/2 adjacent, odd/even in two columns).
+      U*   -- a DIP IC: pads run down the left side and back up the right, placed
+              by the part's real package pin numbers so the two rows mirror the
+              physical chip (gaps where a pin number is unused).
+      rest -- a single-row header strip (modules, resistors, pots, servo).
     """
     pins = list(S.COMPONENTS[ref][2].keys())
     out = []
     if ref == 'J1':
         for p in pins:
             n = int(p)
-            col = (n - 1) % 2
-            row = (n - 1) // 2
-            out.append((p, col * FP_PITCH, row * FP_PITCH))
+            out.append((p, (n - 1) % 2 * FP_PITCH, (n - 1) // 2 * FP_PITCH))
+    elif ref.startswith('U'):
+        maxpin = max(int(p) for p in pins)
+        half = maxpin // 2          # pins 1..half on the left, rest on the right
+        for p in pins:
+            n = int(p)
+            if n <= half:
+                out.append((p, 0.0, (n - 1) * FP_PITCH))
+            else:
+                out.append((p, DIP_WIDTH, (maxpin - n) * FP_PITCH))
     else:
         for i, p in enumerate(pins):
             out.append((p, 0.0, i * FP_PITCH))
@@ -266,22 +278,24 @@ def footprint(ref):
     xs = [x for _, x, _ in pads]
     ys = [y for _, _, y in pads]
     minx, maxx, miny, maxy = min(xs), max(xs), min(ys), max(ys)
+    cx = (minx + maxx) / 2         # body centre, for the silk/fab text
     silk = FP_PAD / 2 + 0.3        # outline margin past the pad edge
     crt = FP_PAD / 2 + 0.7         # courtyard margin
+    pad1 = '1' if any(n == '1' for n, _, _ in pads) else pads[0][0]
     out = []
     out.append(f'(footprint "{ref}"')
     out.append(f'  (version {FP_VERSION})')
     out.append('  (generator "rpi-wiringpi")')
     out.append('  (layer "F.Cu")')
-    out.append('  (descr "Auto-generated 2.54mm through-hole header for the '
+    out.append('  (descr "Auto-generated 2.54mm through-hole footprint for the '
                'RPi::WiringPi test platform; pads mirror the schematic pins. '
-               'Generic strip, not a true package outline.")')
+               'Generic outline, not a true package.")')
     out.append('  (attr through_hole)')
     out.append(f'  (fp_text reference "{ref}" '
-               f'(at {fnum(minx)} {fnum(miny - silk - 1.0)} 0) (layer "F.SilkS")')
+               f'(at {fnum(cx)} {fnum(miny - silk - 1.0)} 0) (layer "F.SilkS")')
     out.append(f'    (effects (font (size {FONT} {FONT}) (thickness 0.15))))')
     out.append(f'  (fp_text value "{val}" '
-               f'(at {fnum(minx)} {fnum(maxy + silk + 1.0)} 0) (layer "F.Fab")')
+               f'(at {fnum(cx)} {fnum(maxy + silk + 1.0)} 0) (layer "F.Fab")')
     out.append(f'    (effects (font (size {FONT} {FONT}) (thickness 0.15))))')
     out.append(f'  (fp_rect (start {fnum(minx - silk)} {fnum(miny - silk)}) '
                f'(end {fnum(maxx + silk)} {fnum(maxy + silk)})')
@@ -289,8 +303,8 @@ def footprint(ref):
     out.append(f'  (fp_rect (start {fnum(minx - crt)} {fnum(miny - crt)}) '
                f'(end {fnum(maxx + crt)} {fnum(maxy + crt)})')
     out.append('    (stroke (width 0.05) (type solid)) (fill none) (layer "F.CrtYd"))')
-    for i, (name, x, y) in enumerate(pads):
-        shape = 'rect' if i == 0 else 'circle'   # square pad marks pin 1
+    for name, x, y in pads:
+        shape = 'rect' if name == pad1 else 'circle'   # square pad marks pin 1
         out.append(f'  (pad "{name}" thru_hole {shape} (at {fnum(x)} {fnum(y)}) '
                    f'(size {FP_PAD} {FP_PAD}) (drill {FP_DRILL}) '
                    '(layers "*.Cu" "*.Mask"))')
