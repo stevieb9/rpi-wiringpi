@@ -151,8 +151,6 @@ def write_netlist(path='t/test-platform.net'):
         sys.exit(f'failed writing {path}: {e}')
     print('wrote', path, '-', len(COMPONENTS), 'components,', len(NETS), 'nets')
 
-write_netlist()
-
 # ------------------------------------------------------------------ netlistsvg JSON (for wire-routed render)
 J1FUNC = {1:'3V3',2:'5V',3:'GPIO2/SDA',4:'5V',5:'GPIO3/SCL',6:'GND',7:'GPIO4',8:'GPIO14/TXD',
  9:'GND',10:'GPIO15/RXD',11:'GPIO17',12:'GPIO18',13:'GPIO27',14:'GND',15:'GPIO22',16:'GPIO23',
@@ -235,8 +233,6 @@ def write_nlsvg(path='t/test-platform.nlsvg.json', exclude=(), keep=None, power=
         sys.exit(f'failed writing {path}: {e}')
     print('wrote', path, '-', len(cells), 'cells,', len(nets), 'nets')
 
-write_nlsvg()  # full (power routed)
-write_nlsvg('t/test-platform.signals.nlsvg.json', exclude={'+5V','+3V3','GND'}, power=True)  # signals + power flags
 # per-subsystem sheets (cleaner reads)
 SHEETS = {
  'i2c':     {'I2C_SDA','I2C_SCL','ARD_SDA','ARD_SCL'},
@@ -246,11 +242,10 @@ SHEETS = {
              'PHOTO_R','PHOTO_C','PHOTO_L'},
  'display': {'LCD_RS','LCD_E','LCD_D4','LCD_D5','LCD_D6','LCD_D7','LCD_V0','LCD_BL','PWM18','UART_LOOP'},
 }
-for snm,keep in SHEETS.items():
-    write_nlsvg(f't/sheet-{snm}.nlsvg.json', keep=keep, power=True)
 
 # ------------------------------------------------------------------ SCHEMATIC (schemdraw, net-label style)
-try:
+def render_schematic():
+  try:
     import schemdraw, schemdraw.elements as e
     schemdraw.config(fontsize=10)
     # net name per (ref,pin)
@@ -317,6 +312,17 @@ try:
     bg.paste(img, mask=img.split()[3])
     bg.save('t/test-pinout-schematic.jpg', quality=90)
     print('wrote t/test-pinout-schematic.svg / .jpg')
-except Exception as ex:
+  except Exception as ex:
     import traceback; traceback.print_exc()
     print('schematic render skipped:', ex)
+
+# Importing this module yields only the data model (COMPONENTS / NETS / J1FUNC /
+# DRIVER / POWER / SHEETS) and the writer functions, with no side effects, so
+# gen-kicad.py can reuse the model. Running it as a script emits every artifact.
+if __name__ == '__main__':
+    write_netlist()
+    write_nlsvg()  # full (power routed)
+    write_nlsvg('t/test-platform.signals.nlsvg.json', exclude={'+5V','+3V3','GND'}, power=True)  # signals + power flags
+    for snm, keep in SHEETS.items():
+        write_nlsvg(f't/sheet-{snm}.nlsvg.json', keep=keep, power=True)
+    render_schematic()

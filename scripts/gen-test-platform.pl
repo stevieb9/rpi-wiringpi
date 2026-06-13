@@ -9,6 +9,7 @@
 #   *.svg                                  -> docs/test-platform/svg/
 #   *.net                                  -> docs/test-platform/facts/
 #   *.jpg, *.pdf                           -> docs/test-platform/
+#   *.kicad_sch, *.kicad_pro               -> docs/test-platform/ (open in KiCad)
 #   *.nlsvg.json                           -> discarded (netlistsvg inputs)
 #   anything else unexpected               -> repo root (for the user to triage)
 #
@@ -135,7 +136,12 @@ elsif ($schematic_ok) {
     print "Install it (e.g. `npm i -g netlistsvg`) and re-run to produce them.\n\n";
 }
 
-# 4. File every produced artifact into its destination (or discard it).
+# 4. KiCad project (.kicad_sch + .kicad_pro). Pure-stdlib and independent of the
+# schematic/netlistsvg chain - it reuses gen-schematic.py's model directly.
+run_in($build, $python, File::Spec->catfile($helpers_dir, 'gen-kicad.py'))
+    or warn "WARN: gen-kicad.py failed - KiCad project may be missing\n";
+
+# 5. File every produced artifact into its destination (or discard it).
 my %count = (svg => 0, facts => 0, doc => 0, root => 0, drop => 0);
 opendir my $dh, $build_t or die "opendir $build_t: $!\n";
 for my $name (sort readdir $dh) {
@@ -177,7 +183,7 @@ sub classify_dest {
     return undef    if $name =~ /\.nlsvg\.json$/;
     return $svg_dir  if $name =~ /\.svg$/;
     return $facts_dir if $name =~ /\.net$/;
-    return $out_dir  if $name =~ /\.(jpg|pdf)$/;
+    return $out_dir  if $name =~ /\.(jpg|pdf|kicad_sch|kicad_pro)$/;
     # Anything unexpected: leave at the repo root for the user to triage.
     return $root;
 }
