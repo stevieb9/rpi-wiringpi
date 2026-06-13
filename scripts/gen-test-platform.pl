@@ -9,7 +9,8 @@
 #   *.svg                                  -> docs/test-platform/svg/
 #   *.net                                  -> docs/test-platform/facts/
 #   *.jpg, *.pdf                           -> docs/test-platform/
-#   *.kicad_sch, *.kicad_pro               -> docs/test-platform/ (open in KiCad)
+#   *.kicad_sch, *.kicad_pro, fp-lib-table -> docs/test-platform/ (open in KiCad)
+#   test-platform.pretty/                  -> docs/test-platform/ (footprint lib)
 #   *.nlsvg.json                           -> discarded (netlistsvg inputs)
 #   anything else unexpected               -> repo root (for the user to triage)
 #
@@ -163,6 +164,24 @@ for my $name (sort readdir $dh) {
 }
 closedir $dh;
 
+# The footprint library is a directory, so the file loop above skips it; move
+# the whole .pretty tree into place, replacing any stale copy from a prior run.
+my $pretty_src = File::Spec->catdir($build_t, 'test-platform.pretty');
+if (-d $pretty_src) {
+    my $pretty_dest = File::Spec->catdir($out_dir, 'test-platform.pretty');
+    remove_tree($pretty_dest) if -d $pretty_dest;
+    move($pretty_src, $pretty_dest) or die "move test-platform.pretty -> $out_dir: $!\n";
+    printf "  %-38s -> %s\n", 'test-platform.pretty/', rel($out_dir);
+}
+
+# 6. Validate the filed KiCad project: every symbol must have a resolvable
+# footprint whose pads cover its pins - the condition "Update PCB from Schematic"
+# enforces. The helper also cross-checks with kicad-cli when that tool exists.
+my $kicad_ok = run_in($root, $python,
+    File::Spec->catfile($helpers_dir, 'check-kicad.py'), $out_dir);
+warn "WARN: KiCad project validation FAILED - see the messages above.\n"
+    unless $kicad_ok;
+
 # Removing the scratch tree also disposes of the discarded intermediates.
 remove_tree($build);
 
@@ -184,6 +203,7 @@ sub classify_dest {
     return $svg_dir  if $name =~ /\.svg$/;
     return $facts_dir if $name =~ /\.net$/;
     return $out_dir  if $name =~ /\.(jpg|pdf|kicad_sch|kicad_pro)$/;
+    return $out_dir  if $name eq 'fp-lib-table';
     # Anything unexpected: leave at the repo root for the user to triage.
     return $root;
 }

@@ -3,6 +3,8 @@
 Emit an openable KiCad project for the RPi::WiringPi unit-test platform:
   t/test-platform.kicad_sch    -- flat schematic, net-label style (Eeschema)
   t/test-platform.kicad_pro    -- KiCad project file
+  t/fp-lib-table               -- registers the project-local footprint library
+  t/test-platform.pretty/      -- one .kicad_mod footprint per symbol
 
 Reuses the exact component/net model from gen-schematic.py (imported as a
 module, no duplication). The schematic is "net-label style": every component is
@@ -11,9 +13,20 @@ KiCad resolves connectivity by net name -- no wire routing required. Symbol
 definitions are embedded in lib_symbols, so the file opens stand-alone with no
 external symbol libraries to install.
 
-The PCB is intentionally left out: the breakout/module parts have no standard
-KiCad footprints, so a generated .kicad_pcb would be guesswork. Open the
-schematic, assign footprints, then create the board from there.
+Every symbol is assigned a footprint from the generated, project-local
+test-platform.pretty library so that "Update PCB from Schematic" transfers all
+parts with zero errors. Each footprint is a plain 2.54 mm through-hole header
+whose pads carry the symbol's exact pin identifiers (numbers like "9" or names
+like "SCL") -- that pad/pin correspondence is what makes the transfer clean.
+The breakout/module parts have no standard KiCad footprint that matches their
+named pins, so generating matching strips is the only way to a 0-error board;
+they are honest stand-ins (these parts really are header strips on jumpers),
+not true package outlines. Laying out the board itself is left to the user.
+
+Keeping the footprint library in-repo (rather than referencing KiCad's stock
+libraries) preserves the same stand-alone, deterministic property as the
+embedded symbols: the project opens and transfers identically on any host,
+independent of which KiCad footprint libs happen to be installed.
 
 File format targets KiCad 7 (version 20230121); KiCad 8 opens it unchanged.
 UUIDs are derived deterministically (uuid5) so re-running produces no git churn.
@@ -115,7 +128,7 @@ def lib_symbol(ref):
     out.append(f'        (effects (font (size {FONT} {FONT}))))')
     out.append(f'      (property "Value" "{val}" (at 0 {fnum(-name_y)} 0)')
     out.append(f'        (effects (font (size {FONT} {FONT}))))')
-    out.append('      (property "Footprint" "" (at 0 0 0)')
+    out.append(f'      (property "Footprint" "{PROJECT}:{ref}" (at 0 0 0)')
     out.append(f'        (effects (font (size {FONT} {FONT})) hide))')
     out.append('      (property "Datasheet" "" (at 0 0 0)')
     out.append(f'        (effects (font (size {FONT} {FONT})) hide))')
@@ -187,7 +200,7 @@ def symbol_instance(ref, sx, sy):
     out.append(f'      (effects (font (size {FONT} {FONT}))))')
     out.append(f'    (property "Value" "{val}" (at {fnum(sx)} {fnum(sy + half_h + PITCH)} 0)')
     out.append(f'      (effects (font (size {FONT} {FONT}))))')
-    out.append(f'    (property "Footprint" "" (at {fnum(sx)} {fnum(sy)} 0)')
+    out.append(f'    (property "Footprint" "{PROJECT}:{ref}" (at {fnum(sx)} {fnum(sy)} 0)')
     out.append(f'      (effects (font (size {FONT} {FONT})) hide))')
     out.append(f'    (property "Datasheet" "" (at {fnum(sx)} {fnum(sy)} 0)')
     out.append(f'      (effects (font (size {FONT} {FONT})) hide))')
@@ -217,6 +230,91 @@ def net_labels(ref, sx, sy):
         out.append(f'    (effects (font (size {FONT} {FONT})) (justify {just}))')
         out.append(f'    (uuid {uid("lbl", ref, p)}))')
     return '\n'.join(out)
+
+# Footprint geometry (mm): a plain 2.54 mm through-hole header. Each pad carries
+# the symbol's exact pin identifier so "Update PCB from Schematic" maps every pin
+# to a pad with zero errors. These are generic strips, NOT true package outlines
+# -- the test platform is breakout modules on jumpers, so there is no real board
+# to be faithful to.
+FP_PITCH = 2.54
+FP_PAD = 1.7
+FP_DRILL = 1.0
+FP_VERSION = 20221018          # KiCad 7 footprint format
+
+def pad_layout(ref):
+    """Pad placement as [(pad_name, x, y), ...] in millimetres.
+
+    J1 mirrors a physical 2x20 header (pins 1/2 adjacent, odd/even in two
+    columns); every other part is a single column in schematic-pin order.
+    """
+    pins = list(S.COMPONENTS[ref][2].keys())
+    out = []
+    if ref == 'J1':
+        for p in pins:
+            n = int(p)
+            col = (n - 1) % 2
+            row = (n - 1) // 2
+            out.append((p, col * FP_PITCH, row * FP_PITCH))
+    else:
+        for i, p in enumerate(pins):
+            out.append((p, 0.0, i * FP_PITCH))
+    return out
+
+def footprint(ref):
+    val = S.COMPONENTS[ref][0]
+    pads = pad_layout(ref)
+    xs = [x for _, x, _ in pads]
+    ys = [y for _, _, y in pads]
+    minx, maxx, miny, maxy = min(xs), max(xs), min(ys), max(ys)
+    silk = FP_PAD / 2 + 0.3        # outline margin past the pad edge
+    crt = FP_PAD / 2 + 0.7         # courtyard margin
+    out = []
+    out.append(f'(footprint "{ref}"')
+    out.append(f'  (version {FP_VERSION})')
+    out.append('  (generator "rpi-wiringpi")')
+    out.append('  (layer "F.Cu")')
+    out.append('  (descr "Auto-generated 2.54mm through-hole header for the '
+               'RPi::WiringPi test platform; pads mirror the schematic pins. '
+               'Generic strip, not a true package outline.")')
+    out.append('  (attr through_hole)')
+    out.append(f'  (fp_text reference "{ref}" '
+               f'(at {fnum(minx)} {fnum(miny - silk - 1.0)} 0) (layer "F.SilkS")')
+    out.append(f'    (effects (font (size {FONT} {FONT}) (thickness 0.15))))')
+    out.append(f'  (fp_text value "{val}" '
+               f'(at {fnum(minx)} {fnum(maxy + silk + 1.0)} 0) (layer "F.Fab")')
+    out.append(f'    (effects (font (size {FONT} {FONT}) (thickness 0.15))))')
+    out.append(f'  (fp_rect (start {fnum(minx - silk)} {fnum(miny - silk)}) '
+               f'(end {fnum(maxx + silk)} {fnum(maxy + silk)})')
+    out.append('    (stroke (width 0.12) (type solid)) (fill none) (layer "F.SilkS"))')
+    out.append(f'  (fp_rect (start {fnum(minx - crt)} {fnum(miny - crt)}) '
+               f'(end {fnum(maxx + crt)} {fnum(maxy + crt)})')
+    out.append('    (stroke (width 0.05) (type solid)) (fill none) (layer "F.CrtYd"))')
+    for i, (name, x, y) in enumerate(pads):
+        shape = 'rect' if i == 0 else 'circle'   # square pad marks pin 1
+        out.append(f'  (pad "{name}" thru_hole {shape} (at {fnum(x)} {fnum(y)}) '
+                   f'(size {FP_PAD} {FP_PAD}) (drill {FP_DRILL}) '
+                   '(layers "*.Cu" "*.Mask"))')
+    out.append(')')
+    return '\n'.join(out) + '\n'
+
+def write_footprints(dirpath):
+    os.makedirs(dirpath, exist_ok=True)
+    for ref in S.COMPONENTS:
+        with open(os.path.join(dirpath, f'{ref}.kicad_mod'), 'w') as fh:
+            fh.write(footprint(ref))
+
+def write_fp_lib_table(path):
+    # Project-local footprint table; ${KIPRJMOD} resolves to the .kicad_pro dir.
+    text = (
+        '(fp_lib_table\n'
+        '  (version 7)\n'
+        f'  (lib (name "{PROJECT}")(type "KiCad")'
+        f'(uri "${{KIPRJMOD}}/{PROJECT}.pretty")(options "")'
+        '(descr "RPi::WiringPi test-platform footprints"))\n'
+        ')\n'
+    )
+    with open(path, 'w') as fh:
+        fh.write(text)
 
 def write_schematic(path, pos, page_w, page_h):
     parts = []
@@ -276,14 +374,19 @@ def main():
     pos, page_w, page_h = place_all()
     sch = 't/test-platform.kicad_sch'
     pro = 't/test-platform.kicad_pro'
+    fptbl = 't/fp-lib-table'
+    fpdir = 't/test-platform.pretty'
     try:
         write_schematic(sch, pos, page_w, page_h)
         write_project(pro)
+        write_fp_lib_table(fptbl)
+        write_footprints(fpdir)
     except OSError as e:
         sys.exit(f'failed writing KiCad project: {e}')
     n_lbl = sum(1 for r in S.COMPONENTS for p in S.COMPONENTS[r][2] if (r, p) in PINNET)
     print(f'wrote {sch} / {pro} - {len(S.COMPONENTS)} symbols, '
-          f'{len(S.NETS)} nets, {n_lbl} net labels')
+          f'{len(S.NETS)} nets, {n_lbl} net labels, '
+          f'{len(S.COMPONENTS)} footprints')
 
 if __name__ == '__main__':
     main()
