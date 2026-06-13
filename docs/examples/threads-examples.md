@@ -1,16 +1,36 @@
 # Concurrency & background workers in RPi::WiringPi
 
-Worked, runnable examples for running background work concurrently with your main
-program using the object-oriented `RPi::WiringPi`. The `$pi->worker` method is a
-thin proxy onto `WiringPi::API::worker()` (shipped in `WiringPi::API` 3.18 and
-verified on Pi 5 hardware); the snippets run as written.
+> **Status — implemented and shipping.** `$pi->worker` is a thin proxy onto
+> `WiringPi::API::worker()` (shipped in `WiringPi::API` 3.18 and verified on Pi 5
+> hardware); the snippets run as written. It is **fork-based by default and needs
+> no `use threads` and no threaded Perl** — an ithread mechanism is a documented
+> opt-in only. For reacting to GPIO *edges* in the background, see
+> [interrupt-examples.md](interrupt-examples.md) (`$pi->background_interrupts`).
 
-`$pi->worker` is **fork-based by default and needs no `use threads` and no
-threaded Perl** — an ithread mechanism is a documented opt-in only. For reacting
-to GPIO *edges* in the background, see [interrupt-examples.md](interrupt-examples.md).
-
+This doc covers running work **concurrently** with the main program — distinct
+from reacting to interrupts (that's [interrupt-examples.md](interrupt-examples.md)).
 This is the markdown form of `perldoc RPi::WiringPi::WORKERS`. See `perldoc
 RPi::WiringPi` for the `worker()` per-method reference.
+
+## Table of contents
+
+- [About these examples](#about-these-examples)
+- [Decision guide](#decision-guide)
+- [Background workers (`$pi->worker`)](#background-workers-pi-worker)
+  - [1. Heartbeat LED — a worker on its own pin](#1-heartbeat-led--a-worker-on-its-own-pin)
+  - [2. Periodic sampler handing data back (`interval` + `shared`)](#2-periodic-sampler-handing-data-back-interval--shared)
+  - [3. Streaming every result (`results`)](#3-streaming-every-result-results)
+  - [4. A one-shot background task (`once`)](#4-a-one-shot-background-task-once)
+  - [5. Several workers on distinct pins](#5-several-workers-on-distinct-pins)
+  - [6. Shared memory — the opt-in ithread mechanism](#6-shared-memory--the-opt-in-ithread-mechanism)
+- [Reacting to interrupts in the background](#reacting-to-interrupts-in-the-background)
+- [The setup-once-in-main contract](#the-setup-once-in-main-contract)
+- [Under the hood](#under-the-hood)
+  - [7. Manual fork](#7-manual-fork)
+  - [8. Raw ithreads (`threads->create`)](#8-raw-ithreads-threads-create)
+- [Anti-patterns to avoid](#anti-patterns-to-avoid)
+- [API reference for these examples](#api-reference-for-these-examples)
+- [See also](#see-also)
 
 ## About these examples
 
@@ -26,38 +46,49 @@ RPi::WiringPi` for the `worker()` per-method reference.
   users who specifically want shared-memory ergonomics on a threaded Perl.
 - **Pin numbering** follows the object's scheme (BCM/GPIO by default). Configure
   pins through the object — `my $pin = $pi->pin($n); $pin->mode(OUTPUT)` — once,
-  in the parent, before starting a worker.
-- Scenarios 7–8 ("under the hood") show the raw `fork` / `threads->create`
-  plumbing that `$pi->worker` packages up — read them to understand what happens
-  beneath the method, but most programs only need `$pi->worker`.
+  in the parent, before starting a worker (see
+  [the setup-once-in-main contract](#the-setup-once-in-main-contract)).
+- Scenarios 7–8 ([Under the hood](#under-the-hood)) show the raw `fork` /
+  `threads->create` plumbing that `$pi->worker` packages up — read them to
+  understand what happens beneath the method, but **most programs only need
+  `$pi->worker`.**
 
 ## Decision guide
 
 None of these need `use threads` except scenario 6. To hide the most plumbing,
 use `$pi->worker` (scenarios 1–5).
 
-**fork vs thread in one line:** the default `fork` worker is crash-isolated and
-works on any Perl but **can't touch main's variables** (hand data back with
-`results`/`shared`); a `mechanism => 'thread'` worker shares memory directly but
-needs a threaded Perl and `pi_lock` discipline. No shared-memory need? Use the
-default fork.
+> **fork vs thread in one line:** the default `fork` worker is crash-isolated and
+> works on any Perl but **can't touch main's variables** (hand data back with
+> `results`/`shared`); a `mechanism => 'thread'` worker shares memory directly but
+> needs a threaded Perl and `pi_lock` discipline. No shared-memory need? Use the
+> default fork.
 
-- Run a background task and forget it (its own GPIO) — scenario 1.
-- Sample periodically; main reads the latest value — scenario 2 (`interval`/`shared`).
-- Stream every value the worker produces back to main — scenario 3 (`results`).
-- Do one background job once, then exit — scenario 4 (`once`).
-- Several independent workers, each on its own pin — scenario 5.
-- Share memory directly between main and the worker — scenario 6 (`mechanism => 'thread'`).
-- React to a pin edge in the background — `$pi->background_interrupts` (see
-  [interrupt-examples.md](interrupt-examples.md)).
-- Understand/hand-roll the raw mechanism — scenarios 7, 8.
+| What you want | Scenario |
+|---|---|
+| Run a background task and forget it (its own GPIO) | [1](#1-heartbeat-led--a-worker-on-its-own-pin) (`$pi->worker`) |
+| Sample periodically; main reads the latest value | [2](#2-periodic-sampler-handing-data-back-interval--shared) (`worker` + `interval`/`shared`) |
+| Stream every value the worker produces back to main | [3](#3-streaming-every-result-results) (`worker` + `results`) |
+| Do one background job once, then exit | [4](#4-a-one-shot-background-task-once) (`worker` + `once`) |
+| Several independent workers, each on its own pin | [5](#5-several-workers-on-distinct-pins) (`$pi->worker`) |
+| Share memory directly between main and the worker | [6](#6-shared-memory--the-opt-in-ithread-mechanism) (`worker` + `mechanism => 'thread'`) |
+| React to a pin edge in the background | [`$pi->background_interrupts`](#reacting-to-interrupts-in-the-background) (in [interrupt-examples.md](interrupt-examples.md)) |
+| Understand/hand-roll the raw mechanism | [7](#7-manual-fork), [8](#8-raw-ithreads-threads-create) |
+
+---
 
 ## Background workers (`$pi->worker`)
 
 ### 1. Heartbeat LED — a worker on its own pin
 
-A self-contained background task on its own GPIO while main does its own work.
-The method owns the loop and the lifecycle; you write only the body.
+**Why/when:** Run a self-contained background task on its own GPIO while main does
+its own work; the simplest possible case.
+
+**Real-world:** A status heartbeat LED blinking on its own cadence while the main
+program does its real work.
+
+**Main & background:** The method owns the loop and the lifecycle. You write only
+the body; `$pi->worker` repeats it until you `stop` (or `$pi->cleanup`).
 
 ```perl
 use strict;
@@ -85,9 +116,15 @@ automatic.
 
 ### 2. Periodic sampler handing data back (`interval` + `shared`)
 
-`{ interval => $secs }` paces the loop (the body needs no `sleep`);
-`{ shared => 1 }` publishes the body's return value as a lossy latest value the
-parent reads with `$w->value`.
+**Why/when:** Timer-driven sampling where main only ever wants the **latest**
+reading, not every sample.
+
+**Real-world:** Polling a sensor every second into a value the main app (a web
+handler or display loop) reads on demand.
+
+**Main & background:** `{ interval => $secs }` paces the loop (the body needs no
+`sleep`); `{ shared => 1 }` publishes the body's return value as a lossy latest
+value the parent reads with `$w->value`.
 
 ```perl
 my $pi  = RPi::WiringPi->new;
@@ -110,8 +147,14 @@ gives you the most recent sample and discards the ones you didn't read.
 
 ### 3. Streaming every result (`results`)
 
-`{ results => 1 }` length-frames every defined return value back over a pipe.
-Drain it with `$w->read` (non-blocking), or select on `$w->fh`.
+**Why/when:** When you need **every** value the worker produces, in order, not
+just the latest.
+
+**Real-world:** A logger that records each reading, or a counter feeding an
+event-loop via `select`.
+
+**Main & background:** `{ results => 1 }` length-frames every defined return value
+back over a pipe. Drain it with `$w->read` (non-blocking), or select on `$w->fh`.
 
 ```perl
 my $pi  = RPi::WiringPi->new;
@@ -134,8 +177,15 @@ This is identical to `$pi->background_interrupts`' `{ results => 1 }` channel.
 
 ### 4. A one-shot background task (`once`)
 
-`{ once => 1 }` runs the body exactly once; the child then exits and
-`$w->running` becomes false.
+**Why/when:** A single background job — run it off the main path and let it exit
+on its own.
+
+**Real-world:** Firing a one-shot solenoid pulse, or taking a single sensor
+reading, without blocking main.
+
+**Main & background:** `{ once => 1 }` runs the body exactly once; the child then
+exits and `$w->running` becomes false. `$pi->cleanup` (or `$w->stop`) still tidies
+up.
 
 ```perl
 my $pi  = RPi::WiringPi->new;
@@ -155,9 +205,15 @@ $pi->cleanup;                     # the pulse has usually already finished
 
 ### 5. Several workers on distinct pins
 
-Configure every pin **once in main**, then start one worker per pin. Each runs
-independently and returns its own handle; all are tracked on the object and
-stopped together by `$pi->cleanup`.
+**Why/when:** Multiple independent background tasks at once, each owning its own
+pin.
+
+**Real-world:** A multi-channel relay board where each channel toggles on its own
+cadence while main runs the control logic.
+
+**Main & background:** Configure every pin **once in main**, then start one worker
+per pin. Each runs independently and returns its own handle; all are tracked on
+the object and stopped together by `$pi->cleanup`.
 
 ```perl
 my $pi = RPi::WiringPi->new;
@@ -174,17 +230,24 @@ my @workers = map {
 $pi->cleanup;                     # stops all @workers at once
 ```
 
-Workers must drive **distinct** pins — see [The setup-once-in-main
+Workers must drive **distinct** pins — see [the setup-once-in-main
 contract](#the-setup-once-in-main-contract).
 
 ### 6. Shared memory — the opt-in ithread mechanism
 
-`{ mechanism => 'thread' }` runs the body in an ithread instead of a fork. It
-**requires** `use threads` (croaks otherwise) and rejects the `results`/`shared`
-pipe channels — share a `:shared` variable and serialize it with
-`WiringPi::API::pi_lock`/`WiringPi::API::pi_unlock` (keys 0–3) instead. There is
-**no** OO proxy for the lock — thread mode is a niche opt-in, so you call the
-`WiringPi::API` functions directly.
+**Why/when:** You specifically want to share memory directly between main and the
+worker (no IPC), and you have a threaded Perl.
+
+**Real-world:** A counter or state machine the worker mutates and main reads in
+the same address space.
+
+**Main & background:** `{ mechanism => 'thread' }` runs the body in an ithread
+instead of a fork. It **requires `use threads`** (croaks otherwise) and rejects
+the `results`/`shared` pipe channels — share a `:shared` variable and serialize it
+with `WiringPi::API::pi_lock`/`WiringPi::API::pi_unlock` (keys 0–3) instead. There
+is **no** OO proxy for the lock — thread mode is a niche opt-in, so you call the
+`WiringPi::API` functions directly. `stop` sets the stop flag and joins the
+thread.
 
 ```perl
 use strict;
@@ -218,6 +281,8 @@ $w->stop;                         # sets the stop flag and joins
 
 Check for a threaded Perl with `perl -V:useithreads` (Raspberry Pi OS ships one).
 The fork default (scenarios 1–5) never locks and never needs `threads`.
+
+---
 
 ## Reacting to interrupts in the background
 
@@ -266,12 +331,23 @@ on **distinct** pins.
   process-guard in `cleanup()` ensures only the parent stops workers and restores
   pins, so a worker exiting never disturbs the parent's state.
 
+---
+
 ## Under the hood
 
 These are the raw mechanisms `$pi->worker` packages up. You rarely need them
-directly.
+directly; they are here to show what the method does and to cover cases it
+doesn't.
 
 ### 7. Manual fork
+
+**Why/when:** The fork worker (scenario 1) without the helper — full control over
+the child, at the cost of writing the loop, the signal handling and the reaping
+yourself.
+
+**Main & background:** The child is a separate process: truly concurrent and
+crash-isolated, but it **cannot** touch main's variables — pass data back via a
+pipe, and reap it yourself.
 
 ```perl
 my $pi  = RPi::WiringPi->new;
@@ -299,6 +375,12 @@ and the `waitpid` — done for you, with an idempotent `stop`, automatic reaping
 `$pi->cleanup`, and an END-block safety net in `WiringPi::API`.
 
 ### 8. Raw ithreads (`threads->create`)
+
+**Why/when:** The thread worker (scenario 6) without the helper — when you want to
+manage the thread object yourself.
+
+**Main & background:** The body runs in its **own** interpreter; it can't see
+main's lexicals — share only via `:shared` variables guarded by `pi_lock`/`lock`.
 
 ```perl
 use threads;
@@ -350,6 +432,23 @@ flag and a clean `stop`/join, so you don't hand-roll the lifecycle.
 - **Combining `mechanism => 'thread'` with `results`/`shared`.** Those are fork
   pipe channels and are rejected under thread mode — share a `:shared` variable
   with `pi_lock` instead.
+
+## API reference for these examples
+
+| Method | Purpose | Returns |
+|---|---|---|
+| `$pi->pin($n)` | get a pin object to configure/drive | pin object |
+| `$pin->mode($mode)` | set pin mode (`INPUT` / `OUTPUT`) | — |
+| `$pin->write($val)` / `$pin->read` | pin I/O | — / pin level (`HIGH`/`LOW`) |
+| `$pi->worker(\&body [, \%opts])` | run `\&body` in the background. `\%opts`: `{once, interval, results, shared, mechanism}` | handle `$w` (`stop` / `pid` / `running` / `read` / `fh` / `value`) |
+| `$pi->background_interrupts([$pin,$edge,$cb[,$deb]], ...)` | background **edge** handler (see [interrupt-examples.md](interrupt-examples.md)) | handle `$h` (`stop` / `pid` / `running` / `arm` / `disarm`) |
+| `$pi->cleanup` | stop every worker + interrupt and restore pins (also runs at `DESTROY`) | — |
+| `WiringPi::API::pi_lock($key)` / `pi_unlock($key)` | mutex (keys 0–3) for shared state under thread mode | — |
+
+> See `perldoc RPi::WiringPi` ("CONCURRENCY / BACKGROUND WORKERS") for the
+> authoritative per-method documentation, and `perldoc RPi::WiringPi::WORKERS` for
+> this guide in `perldoc` form. For interrupts, see
+> [interrupt-examples.md](interrupt-examples.md).
 
 ## See also
 

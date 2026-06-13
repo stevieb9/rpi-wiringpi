@@ -678,7 +678,7 @@ first letter:
 
     'gpio'      - GPIO (BCM) numbering; the default if not sent in
     'wiringpi'  - WiringPi's own (WPI) numbering
-    'none'      - Kkip board setup entirely (the pin scheme remains
+    'none'      - Skip board setup entirely (the pin scheme remains
                   uninitialized; primarily for testing)
 
 Any other value will croak. Note that if another application in the process

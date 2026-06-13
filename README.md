@@ -157,8 +157,8 @@ scheme) to initialize the board with. Matching is case-insensitive on the
 first letter:
 
     'gpio'      - GPIO (BCM) numbering; the default if not sent in
-    'wiringpi'  - wiringPi's own (WPI) numbering
-    'none'      - skip board setup entirely (the pin scheme remains
+    'wiringpi'  - WiringPi's own (WPI) numbering
+    'none'      - Skip board setup entirely (the pin scheme remains
                   uninitialized; primarily for testing)
 
 Any other value will croak. Note that if another application in the process
