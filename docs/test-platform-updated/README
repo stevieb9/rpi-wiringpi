@@ -1,0 +1,105 @@
+RPi::WiringPi test platform GPIO pin connections (re-derived from the test suite)
+
+This directory was regenerated FROM SCRATCH by reading the test suite (t/*.t,
+t/multi/*.pl, t/RPiTest.pm, t/crontab) as the source of truth, decoding every
+device constructor against the driver submodules under ~/repos, and filling the
+gaps the tests cannot prove (passive values, supply rails, the I2C level-shifter,
+exact module identities) from README/FAQ/lib. See test-pinout-doc.md for the full
+reference, loop-back topology, default-pin-state tables and collision analysis.
+
+Tags: [T] proven by a test (cited)  ·  [L] submodule default the test relies on
+but does not set  ·  [F] gap-filled from non-test sources.
+
+Note: test numbers here are the CURRENT ones taken from the live suite. The OLED
+tests are t/500-520 and the LCD test is t/525 (the older README referenced
+t/900-909/t/920/t/925, which no longer exist).
+
+Left of '->' is the Pi BCM GPIO (or a signal/rail); right is the destination.
+Numbers in (parens) on the right are the peripheral IC's own chip pin, NOT a Pi
+GPIO.
+
+Design note: the platform is self-verifying. Every output the library drives is
+looped back into an ADC (or a sister port) so a test can measure what it drove.
+
+# I2C bus (shared: GPIO2 = SDA, GPIO3 = SCL, one pull-up pair)
+
+    0x04  Arduino (I2C slave)     [T] t/305  (t/300 probes absent addr 0x99)
+    0x20  MCP23017 expander       [T] t/330 + t/450
+    0x3c  OLED SSD1306 128x64     [T] t/500-520
+    0x48  ADS1115 ADC #1          [T] t/140, t/325, t/345
+    0x49  ADS1115 ADC #2          [T] t/450
+    0x57  AT24C32 EEPROM          [T] t/420-422   ([F] same board as RTC)
+    0x68  DS3231 RTC              [L] t/320  (default addr; test sets none)
+    0x77  BMP180 pressure/temp    [L] t/340  (bmp(100) arg is a pin-base)
+    0x05  ATMega-328P standalone  [F] optional; not exercised by any test
+
+# LCD (HD44780, 20x4, 4-bit; pins excluded from the pin-status check) [T] t/525
+
+5  -> RS        4  -> D4        27 -> D6
+6  -> E         17 -> D5        22 -> D7
+
+# ADS1115 ADC #1 (0x48) - analog read-back for the PWM-side devices [T]
+
+18  -> A0   (GPIO18 PWM/servo output looped back; t/140, t/325)
+            A1 <- MCP4XXXX digital-pot wiper        (t/345, reads ch 1)
+
+# ADS1115 ADC #2 (0x49) - stepper position sense [T] t/450 (sensors=[F])
+
+            A0 <- position sensor (right)           (reads ch 0)
+            A1 <- position sensor (centre)          (reads ch 1)
+            A2 <- position sensor (left)            (reads ch 2)
+
+# MCP3008 ADC (SPI; CS = GPIO26, bit-banged) - SPI-side read-back [T]
+#  clock/data ride hardware SPI (GPIO9/10/11) [L]; CS is bit-banged GPIO [T];
+#  the hardware CE0/CE1 (GPIO8/7) are left free.
+
+11 -> 13 (SCLK)    9 -> 12 (MISO)    10 -> 11 (MOSI)    26 -> 10 (CS)
+            CH1 <- MCP4922 DAC out A                  (t/310)
+            CH3 <- MCP4922 DAC out B                  (t/310)
+            CH2 <- 74HC595 first Q-output (vpin 401)  (t/335)
+
+# MCP4XXXX Digital Potentiometer (SPI; CS = GPIO13, bit-banged) [T] t/345
+
+13 -> 1 (CS)   11 -> 2 (SCLK)   10 -> 3 (MOSI)
+            wiper -> ADS1115 #1 (0x48) A1   (end terminals to 3V3/GND ref [F])
+
+# MCP4922 DAC (SPI; CS = GPIO12, bit-banged) [T] t/310
+
+12 -> 3 (CS)   11 -> 4 (SCLK)   10 -> 5 (MOSI)
+            out A -> MCP3008 CH1     out B -> MCP3008 CH3
+
+# 74HC595 Shift Register (fully bit-banged GPIO) [T] t/335
+#  shift_register(400, 8, 21, 20, 16)
+
+21 -> 14 (DATA/DS)   16 -> 12 (LATCH/ST_CP)   20 -> 11 (SHCP/SH_CP)
+            first Q-output -> MCP3008 CH2
+
+# Serial (UART loopback; needs the primary UART freed from Bluetooth) [T] t/315
+
+14 -> 15 (TXD -> RXD)
+
+# MCP23017 GPIO Expander (single chip, 0x20) - Bank A split: stepper + loopback
+
+SCL/SDA on the I2C bus.  RESET (chip pin 18) tied high [F] (NOT Pi GPIO18).
+# Bank A pins 0-3 drive the stepper via a ULN2003 [T] t/450:
+A0 -> IN1   A1 -> IN2   A2 -> IN3   A3 -> IN4
+# Bank A pins 4-7 loop to Bank B 4-7 for the expander GPIO test [T] t/330:
+A4 -> B4   A5 -> B5   A6 -> B6   A7 -> B7    (B0-B3 unused)
+
+# GPIO18 is multiplexed (see test-pinout-doc.md section 6) [T]
+
+Hardware PWM/servo output (t/109, t/140, t/325), a SELF-triggered edge-interrupt
+input (t/200-212; edges made by toggling the INTERNAL pull resistor, no external
+driver), and a generic register/multi test pin. Its only physical connection is
+ADS1115 #1 A0. Keep this net free of external pulls and loads or the interrupt
+tests fail.
+
+# Provenance / regeneration
+
+Re-derived model:    scripts/helpers/model-from-tests.py
+Regenerate visuals:  <schematic-venv>/bin/python scripts/helpers/gen-updated-visuals.py
+The orchestrator injects the test-derived model into the existing renderers,
+files the artifacts here, validates the KiCad project with check-kicad.py, and
+diffs the re-derived model against the in-repo gen-schematic.py model. As of this
+generation the independent re-derivation MATCHES the in-repo model exactly
+(24 components, 41 nets) - i.e. the existing platform model is fully test-grounded.

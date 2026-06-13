@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "test-platform")(type "KiCad")(uri "${KIPRJMOD}/test-platform.pretty")(options "")(descr "RPi::WiringPi test-platform footprints"))
+)
