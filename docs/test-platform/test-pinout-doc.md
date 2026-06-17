@@ -12,6 +12,28 @@ header position) or "chip pin" (a peripheral IC's own pin).
 
 ---
 
+## Table of contents
+
+- [1. Design philosophy: everything loops back](#1-design-philosophy-everything-loops-back)
+- [2. Master GPIO map (by BCM)](#2-master-gpio-map-by-bcm)
+  - [2.1 Board layout sketch](#21-board-layout-sketch)
+- [3. I2C bus (GPIO2 SDA / GPIO3 SCL)](#3-i2c-bus-gpio2-sda--gpio3-scl)
+  - [3.1 MCP23017 — pin allocation](#31-mcp23017--pin-allocation-single-expander-3v3)
+- [4. SPI bus (GPIO9 MISO / GPIO10 MOSI / GPIO11 SCLK)](#4-spi-bus-gpio9-miso--gpio10-mosi--gpio11-sclk)
+- [5. LCD — HD44780 in 4-bit mode](#5-lcd--hd44780-in-4-bit-mode-t925)
+- [6. GPIO18 — the heavily multiplexed pin](#6-gpio18--the-heavily-multiplexed-pin-physical-pin-12)
+- [7. Shift register & stepper](#7-shift-register--stepper-indirect-drives)
+- [8. Pins NOT wired to fixtures](#8-pins-not-wired-to-fixtures-free-for-generic-tests)
+- [9. Collisions & shared-net warnings](#9-collisions--shared-net-warnings)
+- [10. Power rails — supply connections](#10-power-rails--supply-connections)
+  - [10.1 +3V3 bus](#101-3v3-bus)
+  - [10.2 +5V bus](#102-5v-bus)
+  - [10.3 Current budget (estimate)](#103-current-budget-estimate)
+- [11. Pi 5 (RP1) expected default pin states](#11-pi-5-rp1-expected-default-pin-states)
+- [12. Quick PCB build checklist](#12-quick-pcb-build-checklist)
+
+---
+
 ## 1. Design philosophy: everything loops back
 
 The platform is self-verifying. Every *output* the library can drive is wired
@@ -256,7 +278,7 @@ sensor.
 There is only one MCP23017, strapped to **0x20**. Both `t/330` (expander GPIO
 test) and `t/450` (stepper) address it there.
 
-### MCP23017 — pin allocation (single expander, 3V3)
+### 3.1 MCP23017 — pin allocation (single expander, 3V3)
 
 Bank A is split between two jobs by design; Bank B mirrors only the loopback
 half. There is no full Port-A→Port-B loopback — this split *is* the wiring:
@@ -383,11 +405,21 @@ for break-out test points on the PCB:
 > Software-wise nothing conflicts — tests run sequentially and each cleans up.
 > The items below are the **physical-net decisions** the PCB must make.
 
-1. **Shared I2C bus (GPIO2/3)** — 8+ devices, intended. Provide one set of
-   bus pull-ups (do **not** stack a pull-up per device). Two ADS1115 (0x48/0x49)
-   need their address-select pins strapped to the distinct addresses. There is
-   only **one** MCP23017, strapped to **0x20** (both `t/330` and `t/450` use it
-   there).
+1. **Shared I2C bus (GPIO2/3)** — 8+ devices, intended. The Pi already provides
+   ~1.8 kΩ pull-ups on SDA/SCL to 3V3 (every 40-pin model, Pi 3 through Pi 5/RP1),
+   so **add no external pull-up pair**. The Pi's 1.8 kΩ dominates; typical breakout
+   pull-ups (4.7–10 kΩ) only nudge the combined value down and on a busy bus help
+   drive the extra capacitance — which is why a fully-populated bus generally just
+   works. Watch the opposite case: if several breakouts carry *aggressive* low-value
+   pulls (2.2 kΩ) the combined resistance can drop too low to pull SDA/SCL cleanly
+   below 0.4 V — symptoms are missing/flickering addresses in `i2cdetect`, NAKs, or
+   intermittent reads. To verify after assembly: measure SDA→3V3 / SCL→3V3 (≥0.6 kΩ
+   is fine), run `i2cdetect -y 1` plus a soak loop, and if flaky drop to 100 kHz
+   (`dtparam=i2c_arm_baudrate=100000`) for margin. Note a BSS138-type level-shifter
+   for the 5V Arduino adds its own ~10 kΩ pulls on the Pi side. Two ADS1115
+   (0x48/0x49) need their address-select pins strapped to the distinct addresses.
+   There is only **one** MCP23017, strapped to **0x20** (both `t/330` and `t/450`
+   use it there).
 
 2. **Shared SPI bus (GPIO9/10/11)** — three devices, intended. Only one CS
    (26/12/13) may be active at a time; the library guarantees this, but ensure
@@ -423,10 +455,131 @@ for break-out test points on the PCB:
    through a **3V3↔5V level-shifter** (assumed present), so the Pi-side SDA/SCL
    stay at 3V3. Provide both a 3V3 and a 5V rail. *(Rail assignments are
    best-effort from standard module voltages — confirm against your actual parts.)*
+   Full per-rail device lists are in §10.
 
 ---
 
-## 10. Pi 5 (RP1) expected default pin states
+## 10. Power rails — supply connections
+
+> The Pi feeds two rails from the 40-pin header: **+3V3** (header pins 1, 17) and
+> **+5V** (header pins 2, 4), with a common **GND** (pins 6, 9, 14, 20, 25, 30,
+> 34, 39). All Pi logic is 3V3; the 5V parts accept the Pi's 3V3 control signals
+> but need a 5V supply on their power pin. The 5V Arduino/ATMega reach the I2C bus
+> through a 3V3↔5V level-shifter so SDA/SCL stay at 3V3 on the Pi side (see §9.7).
+> Rail assignments follow standard module voltages — confirm against your parts.
+
+### 10.1 +3V3 bus
+
+All I2C and SPI ICs plus the 74HC595 run at 3V3 (so the DAC/dpot/ADC analog range
+matches the Pi's 3V3 PWM/GPIO levels):
+
+| Device                | Ref / addr   | Power pin     | Notes                              |
+|-----------------------|--------------|---------------|------------------------------------|
+| ADS1115 ADC #1        | I2C 0x48     | VDD           | A0=PWM/servo, A1=dpot wiper        |
+| ADS1115 ADC #2        | I2C 0x49     | VDD           | A0/A1/A2 = stepper photo resistors |
+| MCP23017 GPIO expander| I2C 0x20     | VDD           | RESET (chip pin 18) also tied 3V3  |
+| DS3231 RTC            | I2C 0x68     | VCC           | RTC/EEPROM breakout                |
+| AT24C32 EEPROM        | I2C 0x57     | VCC           | same breakout board as the RTC     |
+| BMP180 pressure/temp  | I2C 0x77     | VIN           | 3V3 only — **not** 5V tolerant     |
+| OLED SSD1306 128×64   | I2C 0x3c     | VCC           |                                    |
+| MCP3008 ADC           | SPI CS26     | VDD + VREF    | the SPI read-back reader           |
+| MCP4922 DAC           | SPI CS12     | VDD + VREFA/B | out0→MCP3008 CH1, out1→CH3         |
+| MCP4XXXX digital pot  | SPI CS13     | VDD           | wiper → ADS#1 A1                    |
+| 74HC595 shift register| bit-banged   | VCC           | 3V3 logic; Q-outputs → MCP3008 CH2 |
+
+Other 3V3 connections (not a device power pin):
+
+- **I2C pull-ups** — the Pi already supplies ~1.8 kΩ pull-ups on SDA/SCL (GPIO2/3)
+  to 3V3 on every 40-pin model (Pi 3 through Pi 5/RP1), so **no external pull-up
+  pair is needed**. The risk is the opposite — breakout on-board pull-ups parallel
+  against the Pi's 1.8 kΩ; verify the combined value isn't too low and run at
+  100 kHz for margin if needed (see §9.1).
+- **MCP23017 RESET** (chip pin 18) — tie HIGH to 3V3 (active-low reset).
+- **MCP4XXXX dpot end-terminal** — high terminal to 3V3, other to GND (reference).
+- **Level-shifter LV side** — low-voltage reference = 3V3.
+
+### 10.2 +5V bus
+
+The 5V parts take 3V3 control/logic signals but are powered from 5V:
+
+| Device                  | Ref / role        | Power pin       | Notes                              |
+|-------------------------|-------------------|-----------------|------------------------------------|
+| HD44780 LCD             | display (`t/925`) | VDD + backlight | logic inputs (RS/E/D4-7) are 3V3   |
+| 28BYJ-48 stepper        | via ULN2003       | motor V+        | coils, `t/450`                     |
+| ULN2003 driver          | stepper driver    | COM / VCC       | driven by MCP23017 GPA0-3          |
+| Servo                   | on GPIO18 PWM     | V+              | signal 3V3, power 5V               |
+| Arduino Metro Mini      | I2C 0x04          | VIN / 5V        | joins bus via level-shifter        |
+| ATMega-328P (standalone)| I2C 0x05          | VCC             | optional; only in I2C mode         |
+
+Other 5V connections:
+
+- **Level-shifter HV side** — high-voltage reference = 5V.
+
+### 10.3 Current budget (estimate)
+
+> Datasheet-typical figures, **not measured** — confirm against your parts before
+> sizing traces/connectors. The suite runs tests **sequentially** (§9), so the
+> stepper (`t/450`) and servo (`t/325`) never draw at the same instant; the
+> "naive all-on" column is therefore conservative and is the number to size a
+> supply against, while real per-test peaks are lower. Servo figures are for the
+> **Tower Pro SG90** micro servo.
+
+**+3V3 bus** — all I2C/SPI ICs + the 74HC595:
+
+| Device | Ref | Typ (mA) | Peak (mA) | Note |
+|--------|-----|---------:|----------:|------|
+| ADS1115 #1 | 0x48 | 0.15 | 0.20 | continuous-conversion |
+| ADS1115 #2 | 0x49 | 0.15 | 0.20 | |
+| MCP23017 | 0x20 | 1.0 | 1.0 | logic only; loopback drive is high-Z |
+| DS3231 RTC | 0x68 | 0.2 | 0.2 | **+~3 mA if breakout power-LED fitted** |
+| AT24C32 EEPROM | 0x57 | 0.5 | 3.0 | peak during page write |
+| BMP180 | 0x77 | 0.01 | 0.65 | µA between samples |
+| OLED SSD1306 | 0x3c | 15 | 30 | **dominant 3V3 load**; scales with lit pixels |
+| MCP3008 | CS26 | 0.5 | 0.55 | |
+| MCP4922 DAC | CS12 | 0.7 | 0.9 | |
+| MCP4XXXX dpot | CS13 | 0.5 | 1.0 | +~0.33 mA ladder (10 kΩ, 3V3→GND) |
+| 74HC595 | bit-bang | 0.5 | 2.0 | dynamic/switching |
+| I2C pull-ups (Pi 1.8 kΩ ×2) | — | ~0 | ~4 | momentary, only while a line is held low |
+| dpot ladder + 3× photo dividers | — | ~1 | ~1.5 | into ADS high-Z |
+| **+3V3 subtotal** | | **~20** | **~45** | OLED is ~75%; +~3 mA w/ RTC LED |
+
+**+5V bus** — LCD, stepper, servo, Arduino:
+
+| Device | Ref | Typ (mA) | Peak/stall (mA) | Note |
+|--------|-----|---------:|----------------:|------|
+| HD44780 logic | t/925 | 1.5 | 2 | |
+| HD44780 backlight | t/925 | 25 | 120 | depends on series R / jumper |
+| 28BYJ-48 stepper (via ULN2003) | t/450 | 160 | 240 | 2-phase → all-coil energized |
+| ULN2003 | — | 0.5 | 1 | own draw; motor current counted above |
+| Servo SG90 | t/325 | 10 idle / 250 run | 700 | stall is the big spike |
+| Arduino Metro Mini | 0x04 | 25 | 40 | regulator + power LED |
+| ATMega-328P standalone | 0x05 | 12 | 20 | **optional** — often absent |
+| **+5V naive all-on** | | | **~1120** | sizing figure (see note) |
+
+Realistic per-test 5V peaks (sequential): **servo test ≈ 770 mA** (SG90 stall +
+backlight + Arduino + idle rest), **stepper test ≈ 300 mA**, everything else far
+lower.
+
+**Totals (both rails off the Pi header):**
+
+| Rail | Typical (active) | Peak (sizing) |
+|------|-----------------:|--------------:|
+| +3V3 | ~20 mA | ~45–48 mA |
+| +5V | ~0.3–0.8 A | ~1.12 A |
+| **Overall** | **~0.35–0.85 A** | **~1.15 A** |
+
+**Supply notes:**
+
+- The Pi's on-board 3V3 regulator covers the ~45 mA on that rail with huge margin.
+- The ~1.1 A 5V peak rides the Pi's main input rail (header pins 2/4), *on top of*
+  the Pi's own draw. Fine with the official Pi 5 (5 A/27 W) supply, but the
+  inductive **stepper + servo spikes should ideally have their own 5V feed** (or at
+  minimum a bulk cap, ~470–1000 µF, near the ULN2003 and servo) rather than riding
+  the Pi's 5V — and mind header-pin/connector current limits.
+
+---
+
+## 11. Pi 5 (RP1) expected default pin states
 
 From `rpi_default_pin_config()` — the at-rest mode/state every wired pin must
 return to after a test run (used to detect a dirty board). Alt `31` = RP1
@@ -457,11 +610,12 @@ check against.
 
 ---
 
-## 11. Quick PCB build checklist
+## 12. Quick PCB build checklist
 
 - [ ] 40-pin header pass-through; route only the BCM pins in §2.
-- [ ] One I2C pull-up pair on SDA/SCL; address straps for the two ADS1115
-      (0x48/0x49) and the single MCP23017 (0x20).
+- [ ] **No** external I2C pull-up pair — the Pi's built-in ~1.8 kΩ on SDA/SCL is
+      enough; just check the breakouts' on-board pulls don't parallel too low (§9.1).
+      Address straps for the two ADS1115 (0x48/0x49) and the single MCP23017 (0x20).
 - [ ] SPI fan-out (9/10/11) to MCP3008 + MCP4922 + MCP4XXXX with **bit-banged
       CS** 26/12/13 (hardware CE0/CE1 left free).
 - [ ] DAC out0/out1 → MCP3008 CH1/CH3; 74HC595 (bit-banged) Q → MCP3008 CH2.
