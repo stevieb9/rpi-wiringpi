@@ -2,6 +2,8 @@ use strict;
 use warnings;
 use Test::More;
 
+# Note: A0, A1 and A2 MUST be died to Gnd
+
 BEGIN {
 
     if (! $ENV{RPI_MCP23017}){
@@ -31,7 +33,8 @@ my $pi = RPi::WiringPi->new(
 );
 my $o = $pi->expander(0x20);
 
-{ # registers.t
+# registers.t
+{
 
     # writable registers
 
@@ -61,7 +64,8 @@ my $o = $pi->expander(0x20);
     }
 }
 
-{ # register_bit.t
+# register_bit.t
+{
 
     my @bits = (1, 2, 4, 8, 16, 32, 64, 128);
 
@@ -89,9 +93,8 @@ my $o = $pi->expander(0x20);
     $o->register(MCP23017_INTCAPB);
 }
 
+# mode.t
 {
-    # mode.t
-
     for my $reg (MCP23017_IODIRA .. MCP23017_IODIRB) {
         is $o->register($reg, 0xFF), 0xFF, "pins in bank $reg are INPUT ok";
 
@@ -137,8 +140,8 @@ my $o = $pi->expander(0x20);
     }
 }
 
-{ # write.t
-
+# write.t
+{
      for my $reg (MCP23017_IODIRA .. MCP23017_IODIRB){
         is $o->register($reg, 0xFF), 0xFF, "pins in bank $reg are INPUT ok";
 
@@ -192,7 +195,8 @@ my $o = $pi->expander(0x20);
     }
 }
 
-{ # bank_mode.t
+# bank_mode.t
+{
 
      { # set on bank A (0)
 
@@ -282,7 +286,8 @@ my $o = $pi->expander(0x20);
 
 }
 
-{ # bank_write.t
+# bank_write.t
+{
 
      $o->cleanup;
 
@@ -396,7 +401,8 @@ my $o = $pi->expander(0x20);
     }
 }
 
-{ # pullup.t
+# pullup.t
+{
 
      for my $reg (MCP23017_GPPUA .. MCP23017_GPPUB){
         is $o->register($reg, 0x00), 0x00, "pullups in bank $reg are off ok";
@@ -467,7 +473,8 @@ my $o = $pi->expander(0x20);
 
 }
 
-{ # pullup_bank.t
+# pullup_bank.t
+{
 
      for my $reg (MCP23017_GPPUA .. MCP23017_GPPUB){
         is $o->register($reg, 0x00), 0x00, "pullups in bank $reg are off ok";
@@ -499,7 +506,8 @@ my $o = $pi->expander(0x20);
     }
 }
 
-{ # mode_all.t
+# mode_all.t
+{
 
     my @regs = (MCP23017_IODIRA .. MCP23017_IODIRB);
 
@@ -526,7 +534,8 @@ my $o = $pi->expander(0x20);
     }
 }
 
-{ # write_all.t
+# write_all.t
+{
 
      my @regs = (MCP23017_GPIOA .. MCP23017_GPIOB);
 
@@ -560,7 +569,8 @@ my $o = $pi->expander(0x20);
     }
 }
 
-{ # pullup_all.t
+# pullup_all.t
+{
 
     my @regs = (MCP23017_GPPUA .. MCP23017_GPPUB);
 
@@ -594,7 +604,8 @@ my $o = $pi->expander(0x20);
     }
 }
 
-{ # default_registers.t
+# default_registers.t
+{
 
     # Poll (bounded ~6s) until the GPIO state registers reset after the
     # pullup toggling above, instead of a fixed sleep; the per-register
