@@ -203,6 +203,10 @@ if (-f $doc_md && $pandoc && which('xelatex')) {
         . '\newunicodechar{★}{{\dejavusans ★}}';
     my $doc_ok = run_in($out_dir, $pandoc, 'test-pinout-doc.md',
         '-o', 'test-pinout-doc.pdf',
+        # Read as GitHub-flavoured Markdown so the heading anchors match the
+        # ToC links (which use GitHub's numbered slugs, so they also resolve
+        # when the doc is browsed on GitHub).
+        '-f', 'gfm',
         '--pdf-engine=xelatex',
         '-V', 'mainfont=DejaVu Serif',
         '-V', 'monofont=DejaVu Sans Mono',

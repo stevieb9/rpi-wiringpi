@@ -29,27 +29,28 @@ numbering scheme (`pin_scheme()` ⇒ GPIO; `t/106`), and `last_interrupt()` repo
 
 ## Table of contents
 
-- [1. Design philosophy: everything loops back](#design-philosophy-everything-loops-back-t)
-- [2. Master GPIO map (by BCM)](#master-gpio-map-by-bcm)
-  - [2.1 Bare 40-pin header (J8)](#bare-40-pin-header-j8-native-functions-orientation-only)
-  - [2.2 Every pin mapped to its fixture](#every-pin-mapped-to-its-test-platform-fixture)
-  - [2.3 Bus topology and loop-backs](#bus-topology-and-loop-backs)
-  - [2.4 Generated artifacts & regeneration](#generated-artifacts-regeneration)
-- [3. I2C bus (GPIO2 SDA / GPIO3 SCL)](#i2c-bus-gpio2-sda-gpio3-scl)
-  - [3.1 MCP23017 — pin allocation](#mcp23017-pin-allocation-single-expander-t)
-- [4. SPI bus (GPIO9 MISO / GPIO10 MOSI / GPIO11 SCLK)](#spi-bus-gpio9-miso-gpio10-mosi-gpio11-sclk)
-- [5. LCD — HD44780, 4-bit mode](#lcd-hd44780-4-bit-mode-t525-t)
-- [6. GPIO18 — the multiplexed workhorse pin](#gpio18-the-multiplexed-workhorse-pin-physical-pin-12)
-- [7. Shift register & stepper](#shift-register-stepper-indirect-drives)
-- [8. Pins NOT wired to fixtures](#pins-not-wired-to-fixtures-free-for-generic-tests-t)
-- [9. Collisions & shared-net warnings](#collisions-shared-net-warnings)
-- [10. Power rails — supply connections](#power-rails-supply-connections-f)
-  - [10.1 +3V3 bus](#v3-bus)
-  - [10.2 +5V bus](#v-bus)
-  - [10.3 Current budget (estimate)](#current-budget-estimate)
-- [11. Expected default pin states](#expected-default-pin-states-from-trpitest.pm-t)
-- [12. Environment gating](#environment-gating-how-to-actually-run-the-suite-t)
-- [13. Quick PCB build checklist](#quick-pcb-build-checklist-test-grounded)
+- [1. Design philosophy: everything loops back](#1-design-philosophy-everything-loops-back-t)
+- [2. Master GPIO map (by BCM)](#2-master-gpio-map-by-bcm)
+  - [2.1 Bare 40-pin header (J8)](#21-bare-40-pin-header-j8--native-functions-orientation-only)
+  - [2.2 Every pin mapped to its fixture](#22-every-pin-mapped-to-its-test-platform-fixture)
+  - [2.3 Bus topology and loop-backs](#23-bus-topology-and-loop-backs)
+  - [2.4 Generated artifacts & regeneration](#24-generated-artifacts--regeneration)
+- [3. Devices & pinouts per test file](#3-devices--pinouts-per-test-file-t)
+- [4. I2C bus (GPIO2 SDA / GPIO3 SCL)](#4-i2c-bus-gpio2-sda--gpio3-scl)
+  - [4.1 MCP23017 — pin allocation](#41-mcp23017--pin-allocation-single-expander-t)
+- [5. SPI bus (GPIO9 MISO / GPIO10 MOSI / GPIO11 SCLK)](#5-spi-bus-gpio9-miso--gpio10-mosi--gpio11-sclk)
+- [6. LCD — HD44780, 4-bit mode](#6-lcd--hd44780-4-bit-mode-t525-t)
+- [7. GPIO18 — the multiplexed workhorse pin](#7-gpio18--the-multiplexed-workhorse-pin-physical-pin-12)
+- [8. Shift register & stepper](#8-shift-register--stepper-indirect-drives)
+- [9. Pins NOT wired to fixtures](#9-pins-not-wired-to-fixtures-free-for-generic-tests-t)
+- [10. Collisions & shared-net warnings](#10-collisions--shared-net-warnings)
+- [11. Power rails — supply connections](#11-power-rails--supply-connections-f)
+  - [11.1 +3V3 bus](#111-3v3-bus)
+  - [11.2 +5V bus](#112-5v-bus)
+  - [11.3 Current budget (estimate)](#113-current-budget-estimate)
+- [12. Expected default pin states](#12-expected-default-pin-states-from-trpitestpm-t)
+- [13. Environment gating](#13-environment-gating-how-to-actually-run-the-suite-t)
+- [14. Quick PCB build checklist](#14-quick-pcb-build-checklist-test-grounded)
 
 ---
 
@@ -90,7 +91,7 @@ Loop-back evidence (representative):
 `Phys` = 40-pin header position. `★` = wired to a test fixture (a peripheral is
 attached). "generic" = the pin is claimed/toggled as an ordinary GPIO by the
 registration test (`t/110`) and/or the multi-process tests (`t/111-114`,
-`t/multi/*`) — see §9. Every role here is **[T]** unless marked otherwise.
+`t/multi/*`) — see §10. Every role here is **[T]** unless marked otherwise.
 
 | BCM | Phys | Wired | Net / role | Proven by |
 |----:|-----:|:-----:|------------|-----------|
@@ -99,8 +100,8 @@ registration test (`t/110`) and/or the multi-process tests (`t/111-114`,
 |  4 |  7 | ★ | LCD D4 (`d0`) | t/525:36-50 |
 |  5 | 29 | ★ | LCD RS (`rs`) | t/525:36-50 |
 |  6 | 31 | ★ | LCD E (`strb`) | t/525:36-50 |
-|  7 | 26 |   | SPI CE1 — **unused** (CS is bit-banged) | default-config alt; §4 |
-|  8 | 24 |   | SPI CE0 — **unused** (CS is bit-banged) | default-config alt; §4 |
+|  7 | 26 |   | SPI CE1 — **unused** (CS is bit-banged) | default-config alt; §5 |
+|  8 | 24 |   | SPI CE0 — **unused** (CS is bit-banged) | default-config alt; §5 |
 |  9 | 21 | ★ | **SPI MISO** (shared) — MCP3008 read-back only | t/310,335 [L] pin# |
 | 10 | 19 | ★ | **SPI MOSI** (shared) — MCP3008/MCP4922/MCP4XXXX | t/310,335,345 [L] pin# |
 | 11 | 23 | ★ | **SPI SCLK** (shared) | t/310,335,345 [L] pin# |
@@ -181,14 +182,14 @@ registration test (`t/110`) and/or the multi-process tests (`t/111-114`,
 
 **Bit-banged chip-selects [T].** The three SPI chip-selects (GPIO26/12/13) are
 ordinary GPIOs toggled in software, **not** the hardware CE0/CE1 (GPIO8/7) — see
-§4 for the decoding. The 74HC595 (GPIO21/20/16) is fully bit-banged GPIO
+§5 for the decoding. The 74HC595 (GPIO21/20/16) is fully bit-banged GPIO
 (`t/335:35`). Clock/data still ride hardware SPI (GPIO9/10/11) **[L]**.
 
 ### 2.3 Bus topology and loop-backs
 
 Top-down floorplan; devices cluster by bus off the Pi header. Each part is tagged
 with its supply rail — **(3V3)** or **(5V)** **[F]** (rails are not test-derivable;
-see §9 item 9 and §10). All Pi logic (GPIO, I2C, SPI, PWM) is 3V3; 5V parts take
+see §10 item 9 and §11). All Pi logic (GPIO, I2C, SPI, PWM) is 3V3; 5V parts take
 3V3 control signals but need a 5V supply. Dashed arrows are the analog/digital
 **loop-backs** from §1.
 
@@ -268,7 +269,54 @@ skips that step with a warning.
 
 ---
 
-## 3. I2C bus (GPIO2 SDA / GPIO3 SCL)
+## 3. Devices & pinouts per test file **[T]**
+
+Every test that touches a pin or a device, decoded from its constructor call to
+the concrete devices and pins it needs on the board. Tests that exercise no
+hardware — module-load (`t/00,02,03,05`), identification/config (`t/100,104,106`),
+in-process metadata (`t/111`), signal/exit (`t/153,154`), sysinfo (`t/400-408`),
+the OLED lock-file cleanup (`t/520`), and POD/manifest (`t/899,900,905,910,915`) —
+are omitted here.
+
+Pins are **BCM GPIO**; I2C devices are given by bus address. "generic GPIO" =
+the pin is claimed/toggled as an ordinary GPIO with no peripheral attached. SPI
+clock/data ride hardware SPI0 (**MOSI=GPIO10, SCLK=GPIO11, MISO=GPIO9** — `[L]`
+pin numbers); each SPI device's chip-select is a **bit-banged** GPIO. All I2C
+devices share **SDA=GPIO2 / SCL=GPIO3**. See the cited sections for full decoding.
+
+| Test file | Device(s) required | Pinout / connections |
+|-----------|--------------------|----------------------|
+| `105-pin.t` | — (generic GPIO) | GPIO18 — plain read/write |
+| `107-alt_modes.t` | — (generic GPIO) | GPIO21 — ALT0–ALT7 round-trip |
+| `108-mode_state_all_pins.t` | — (generic GPIO) | all checked pins: GPIO 0,1,2,3,7,8,9,10,11,12,13,14,15,16,18,19,20,21,23,24,25,26 (default mode/state; 4,5,6,17,22,27 excluded for LCD) |
+| `109-pwm_hw_mods.t` | ADS1115 #1 | GPIO18 (hardware PWM out) → ADS1115 #1 @0x48 A0; I2C SDA2/SCL3 |
+| `110-register.t` | — (generic GPIO) | GPIO12, 18, 26 — registration/counting |
+| `112-metadata_multi_pi_multi_script.t` | — (generic GPIO) | GPIO12, 16, 18, 21, 26 (via `multi/full_master.pl` + `full_slave.pl`) |
+| `113-metadata_multi_pi_multi_script_die.t` | — (generic GPIO) | GPIO12, 18 (via `multi/die_master.pl` + `die_slave.pl`) |
+| `114-metadata_multi_pi_multi_script_sigint.t` | — (generic GPIO) | GPIO12, 18 (via `multi/int_master.pl` + `int_slave.pl`) |
+| `140-pwm_spi_adc.t` | ADS1115 #1 | GPIO18 (PWM out) → ADS1115 #1 @0x48 A0; I2C SDA2/SCL3 |
+| `150-cleanup.t` | — (generic GPIO) | GPIO12, 18, 26 |
+| `200-interrupt_rising_and_pud.t` … `212-pin_background_interrupt.t` (13 interrupt tests, incl. `204-last_interrupt.t`), `213-worker.t` | — (generic GPIO) | GPIO18 — self-triggered via internal pull (PUD_UP→PUD_DOWN); **no external driver/load** (§7) |
+| `300-i2c_exceptions.t` | — (I2C error path) | I2C SDA2/SCL3; probes deliberately-absent addr 0x99 — no device responds |
+| `305-i2c.t` | Arduino (I2C slave) | I2C SDA2/SCL3 @0x04 |
+| `310-dac.t` | MCP4922 DAC, MCP3008 ADC | SPI MOSI10/SCLK11/MISO9; DAC CS=GPIO12 (bit-bang), ADC CS=GPIO26 (bit-bang); DAC out A→MCP3008 CH1, out B→CH3 |
+| `315-serial.t` | — (UART loopback) | UART TXD GPIO14 → RXD GPIO15 |
+| `320-rtc.t` | DS3231 RTC | I2C SDA2/SCL3 @0x68 |
+| `325-servo.t` | Servo, ADS1115 #1 | GPIO18 (servo PWM) → ADS1115 #1 @0x48 A0; I2C SDA2/SCL3 |
+| `330-mcp23017.t` | MCP23017 expander | I2C SDA2/SCL3 @0x20; GPA4–7 ↔ GPB4–7 loopback |
+| `335-shift_reg_adc.t` | 74HC595, MCP3008 ADC | 74HC595 DATA=GPIO21, CLOCK=GPIO20, LATCH=GPIO16 (bit-bang); SPI MOSI10/SCLK11/MISO9, MCP3008 CS=GPIO26; 595 Q0→MCP3008 CH2 |
+| `340-bmp.t` | BMP180 | I2C SDA2/SCL3 @0x77 |
+| `345-dpot.t` | MCP4XXXX dpot, ADS1115 #1 | SPI MOSI10/SCLK11; dpot CS=GPIO13 (bit-bang); wiper → ADS1115 #1 @0x48 A1; I2C SDA2/SCL3 |
+| `420-eeprom_args.t` | AT24C32 EEPROM | I2C SDA2/SCL3 @0x57 |
+| `421-eeprom_read_write_byte_croak.t` | AT24C32 EEPROM | I2C SDA2/SCL3 @0x57 |
+| `422-eeprom_read_write_byte.t` | AT24C32 EEPROM | I2C SDA2/SCL3 @0x57 |
+| `450-stepper.t` | MCP23017, ULN2003, 28BYJ-48 stepper, ADS1115 #2 | MCP23017 @0x20 GPA0–3 → ULN2003 IN1–4 → 28BYJ-48 coils; 3 position sensors → ADS1115 #2 @0x49 A0/A1/A2; I2C SDA2/SCL3 |
+| `500-oled_new.t` … `509-oled_horizontal_line.t` (10 OLED tests) | OLED SSD1306 128×64 | I2C SDA2/SCL3 @0x3c |
+| `525-lcd.t` | HD44780 LCD (20×4, 4-bit) | RS=GPIO5, E=GPIO6, D4=GPIO4, D5=GPIO17, D6=GPIO27, D7=GPIO22 |
+
+---
+
+## 4. I2C bus (GPIO2 SDA / GPIO3 SCL)
 
 One shared 2-wire bus; each device by address. Addresses below are **[T]** when
 the test passes them explicitly, **[L]** when the test relies on the submodule
@@ -312,7 +360,7 @@ ADC channel with a sensor.
 
 **One MCP23017 [T]**, strapped to `0x20`; both `t/330` and `t/450` use it there.
 
-### 3.1 MCP23017 — pin allocation (single expander) **[T]**
+### 4.1 MCP23017 — pin allocation (single expander) **[T]**
 
 Bank A is split between two jobs; Bank B mirrors only the loopback half. There is
 **no** full Port-A→Port-B loopback — this split *is* the wiring (`t/330` comments
@@ -334,7 +382,7 @@ StepperMotor driver writes via I2C, not Pi GPIO — `StepperMotor.pm:159-163`).
 
 ---
 
-## 4. SPI bus (GPIO9 MISO / GPIO10 MOSI / GPIO11 SCLK)
+## 5. SPI bus (GPIO9 MISO / GPIO10 MOSI / GPIO11 SCLK)
 
 Clock and data ride **hardware SPI0** (GPIO9/10/11) **[L]**. Each device's
 **chip-select is a bit-banged GPIO** — decoded from the constructor args via the
@@ -375,7 +423,7 @@ The hardware CE0/CE1 (GPIO8/7) stay free. All three SPI devices are powered at
 
 ---
 
-## 5. LCD — HD44780, 4-bit mode (`t/525`) **[T]**
+## 6. LCD — HD44780, 4-bit mode (`t/525`) **[T]**
 
 `lcd(... cols=>20, rows=>4, bits=>4, d4..d7=>0 ...)` (`t/525:36-50`) ⇒ a **20×4**
 character module in **4-bit** mode (lower data lines D0–D3 unused; `RPi::LCD`
@@ -400,7 +448,7 @@ generic pins.
 
 ---
 
-## 6. GPIO18 — the multiplexed workhorse pin (physical pin 12)
+## 7. GPIO18 — the multiplexed workhorse pin (physical pin 12)
 
 One physical net wired to **ADS1115 #1 channel A0**, reused across many tests:
 
@@ -423,7 +471,7 @@ default is INPUT (`get_alt(18)==0`, `t/213:151`).
 
 ---
 
-## 7. Shift register & stepper (indirect drives)
+## 8. Shift register & stepper (indirect drives)
 
 **74HC595 (`t/335`) — fully bit-banged GPIO [T].** `shift_register(400, 8, 21, 20, 16)`
 (`t/335:35`) decodes (via `WiringPi.pm:334`) to base=400, 8 outputs,
@@ -439,7 +487,7 @@ The first Q-output is exposed as virtual pin **401**; writing it HIGH/LOW is rea
 back on **MCP3008 CH2** (`t/335:39,43-64`). Virtual pins 400-407 are not Pi GPIO.
 
 **Stepper (`t/450`) — no direct Pi GPIO [T].** Coils are driven through a ULN2003
-by the single MCP23017's Bank A pins 0-3 (§3.1). Position is sensed by **three
+by the single MCP23017's Bank A pins 0-3 (§4.1). Position is sensed by **three
 analog sensors** into **ADS1115 #2 (0x49)**, channels **A0/A1/A2 = Right/Centre/Left**
 (`t/450:34`: `my ($l,$c,$r)=(2,1,0)`), read with `raw()` and thresholded
 (HIGH > 1850, LOW < 1650; `t/450:35`); the test rotates ±90° and asserts exactly
@@ -451,7 +499,7 @@ one sensor reads HIGH per position.
 
 ---
 
-## 8. Pins NOT wired to fixtures (free for generic tests) **[T]**
+## 9. Pins NOT wired to fixtures (free for generic tests) **[T]**
 
 Exercised only for default-mode/state, registration counting and alt-mode round
 trips — no peripheral attached; candidates for break-out test points:
@@ -466,7 +514,7 @@ trips — no peripheral attached; candidates for break-out test points:
 
 ---
 
-## 9. Collisions & shared-net warnings
+## 10. Collisions & shared-net warnings
 
 > Software-wise nothing conflicts — tests run **serially** and each cleans up
 > (`RPiTest.pm:3-7`). The items below are physical-net decisions for the PCB.
@@ -488,7 +536,7 @@ trips — no peripheral attached; candidates for break-out test points:
 2. **Shared SPI bus (GPIO9/10/11) [T]** — three devices, one active CS at a time
    (26/12/13). Write-only DAC/dpot must not drive MISO.
 3. **GPIO18 over-subscribed [T]** — PWM + servo + interrupt + generic + ADS#1 A0
-   on one wire. Honour the "no external pull / no load" rule of §6.
+   on one wire. Honour the "no external pull / no load" rule of §7.
 4. **Device-control pins doubling as generic GPIO [T]** — `t/110` and the
    multi-process tests register/toggle **GPIO12, 16, 18, 21, 26** as plain pins
    (`t/110:22-24`; `full_slave.pl:13-20`; `full_master.pl:28`). On the board these
@@ -514,11 +562,11 @@ trips — no peripheral attached; candidates for break-out test points:
    design runs all Pi logic + I2C/SPI ICs + 74HC595 at 3V3, and the LCD, stepper
    (via ULN2003), servo and Arduino at 5V, with a level-shifter for the 5V I2C.
    Verify against your actual parts. Full per-rail device lists and the current
-   budget are in §10.
+   budget are in §11.
 
 ---
 
-## 10. Power rails — supply connections **[F]**
+## 11. Power rails — supply connections **[F]**
 
 > Supply rails are **not** test-derivable — none of the tests read a voltage rail —
 > so this whole section is **[F]**: from standard module voltages and the existing
@@ -528,10 +576,10 @@ trips — no peripheral attached; candidates for break-out test points:
 > **+5V** (header pins 2, 4), with a common **GND** (pins 6, 9, 14, 20, 25, 30,
 > 34, 39). All Pi logic is 3V3; the 5V parts accept the Pi's 3V3 control signals
 > but need a 5V supply on their power pin. The 5V Arduino/ATMega reach the I2C bus
-> through a 3V3↔5V level-shifter so SDA/SCL stay at 3V3 on the Pi side (see §9
+> through a 3V3↔5V level-shifter so SDA/SCL stay at 3V3 on the Pi side (see §10
 > item 9).
 
-### 10.1 +3V3 bus
+### 11.1 +3V3 bus
 
 All I2C and SPI ICs plus the 74HC595 run at 3V3 (so the DAC/dpot/ADC analog range
 matches the Pi's 3V3 PWM/GPIO levels):
@@ -556,12 +604,12 @@ Other 3V3 connections (not a device power pin):
   to 3V3 on every 40-pin model (Pi 3 through Pi 5/RP1), so **no external pull-up
   pair is needed**. The risk is the opposite — breakout on-board pull-ups parallel
   against the Pi's 1.8 kΩ; verify the combined value isn't too low and run at
-  100 kHz for margin if needed (see §9 item 1).
+  100 kHz for margin if needed (see §10 item 1).
 - **MCP23017 RESET** (chip pin 18) — tie HIGH to 3V3 (active-low reset).
 - **MCP4XXXX dpot end-terminal** — high terminal to 3V3, other to GND (reference).
 - **Level-shifter LV side** — low-voltage reference = 3V3.
 
-### 10.2 +5V bus
+### 11.2 +5V bus
 
 The 5V parts take 3V3 control/logic signals but are powered from 5V:
 
@@ -578,10 +626,10 @@ Other 5V connections:
 
 - **Level-shifter HV side** — high-voltage reference = 5V.
 
-### 10.3 Current budget (estimate)
+### 11.3 Current budget (estimate)
 
 > Datasheet-typical figures, **not measured** — confirm against your parts before
-> sizing traces/connectors. The suite runs tests **sequentially** (§9), so the
+> sizing traces/connectors. The suite runs tests **sequentially** (§10), so the
 > stepper (`t/450`) and servo (`t/325`) never draw at the same instant; the
 > "naive all-on" column is therefore conservative and is the number to size a
 > supply against, while real per-test peaks are lower. Servo figures are for the
@@ -642,7 +690,7 @@ lower.
 
 ---
 
-## 11. Expected default pin states (from `t/RPiTest.pm`) **[T]**
+## 12. Expected default pin states (from `t/RPiTest.pm`) **[T]**
 
 `rpi_default_pin_config()` is the at-rest mode/state every checked pin must return
 to after a run; `rpi_check_pin_status()` asserts it. `rpi_board_tag()` selects one
@@ -684,7 +732,7 @@ for **23** is `0`, with all "null" pins reading alt `0` instead of `31`. CS pins
 
 ---
 
-## 12. Environment gating (how to actually run the suite) **[T]**
+## 13. Environment gating (how to actually run the suite) **[T]**
 
 From `t/RPiTest.pm` and `t/01`:
 
@@ -704,12 +752,12 @@ objects/pins in the same shm segment.
 
 ---
 
-## 13. Quick PCB build checklist (test-grounded)
+## 14. Quick PCB build checklist (test-grounded)
 
 - [ ] 40-pin header pass-through; route the BCM pins in §2.
 - [ ] **No** external I2C pull-up pair — the Pi's built-in ~1.8 kΩ on SDA/SCL is
       enough; just check the breakouts' on-board pulls don't parallel too low
-      (§9 item 1). Address straps: ADS1115 0x48 & 0x49, MCP23017 0x20. **[T]** addresses.
+      (§10 item 1). Address straps: ADS1115 0x48 & 0x49, MCP23017 0x20. **[T]** addresses.
 - [ ] SPI fan-out (9/10/11) → MCP3008 + MCP4922 + MCP4XXXX with **bit-banged CS**
       26/12/13; hardware CE0/CE1 left free. **[T]**
 - [ ] DAC out A/out B → MCP3008 CH1/CH3; 74HC595 first Q → MCP3008 CH2. **[T]**
@@ -723,4 +771,4 @@ objects/pins in the same shm segment.
 - [ ] Leave GPIO0/1 unrouted (reserved ID-EEPROM). **[F]**
 - [ ] Provide 3V3 + 5V rails + common ground; I2C level-shifter for the 5V
       Arduino. 3V3: all I2C/SPI ICs + 74HC595. 5V: LCD, stepper(+ULN2003), servo,
-      Arduino. **[F]** — verify rails/parts against your hardware (§10).
+      Arduino. **[F]** — verify rails/parts against your hardware (§11).
