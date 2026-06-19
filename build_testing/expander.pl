@@ -4,7 +4,7 @@ use strict;
 use RPi::Const qw(:all);
 use RPi::GPIOExpander::MCP23017;
 
-my $mcp23017_i2c_addr = 0x20;
+my $mcp23017_i2c_addr = 0x21;
 my $exp = RPi::GPIOExpander::MCP23017->new($mcp23017_i2c_addr);
 
 # Wired loopback pairs (datasheet pins 1-28, 2-27, 3-26, 4-25):

@@ -18,7 +18,7 @@ if ($> == 0){
 
 if (! $ENV{RPI_BOARD}){
     $ENV{NO_BOARD} = 1;
-    plan skip_all => "Not on a Pi board\n";
+    plan skip_all => "RPI_BOARD environment variable not set\n";
 }
 
 if ($> != 0){

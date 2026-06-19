@@ -39,7 +39,7 @@ use WiringPi::API qw(:perl);
 
 if (! $ENV{RPI_BOARD} && ! $ENV{SUDO_USER}){
     $ENV{NO_BOARD} = 1;
-    plan skip_all => "Not on a Pi board";
+    plan skip_all => "RPI_BOARD environment variable not set";
 }
 
 # RPI_OBJECT_COUNT / RPI_PIN_COUNT are optional baseline overrides, not a run
@@ -291,6 +291,12 @@ sub rpi_verify_pin_status {
 # a different funcsel scheme (e.g. 31 == "null / no peripheral function").
 
 sub rpi_board_tag {
+    # piRP1Model() (behind pi_rp1_model) only reports the RP1 after a wiringPi
+    # setup*() routine has run - called cold it reads falsey, which would
+    # misdetect a Pi 5 as a legacy board. setup_gpio() is idempotent, so run it
+    # first to make the probe reliable regardless of call order.
+    setup_gpio();
+
     return 'pi5' if WiringPi::API::pi_rp1_model();
 
     my $info  = WiringPi::API::pi_board_id();
@@ -421,7 +427,7 @@ sub rpi_default_pin_config {
       '20' => { 'alt' => 31, 'state' => 0 },
       '21' => { 'alt' => 31, 'state' => 0 },
       '22' => { 'alt' => 1,  'state' => 0 },
-      '23' => { 'alt' => 1,  'state' => 0 },
+      '23' => { 'alt' => 31, 'state' => 0 }, # Unconfigured - no test drives 23, so RP1 idles it null (31)
       '24' => { 'alt' => 31, 'state' => 0 },
       '25' => { 'alt' => 31, 'state' => 0 },
       '26' => { 'alt' => 31, 'state' => undef }, # ADC CS - mode-only check
