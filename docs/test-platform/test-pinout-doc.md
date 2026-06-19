@@ -514,10 +514,6 @@ and asserts both magnet edges trip within **±5%** of these measured means
 | 4    | half / 0.01   | 17816 ms | 17176 ms |
 | 5    | half / 0.00   | 4170 ms  | 4028 ms  |
 
-> The earlier rig sensed three analog positions (R/C/L) via an ADS1115 at `0x49`;
-> the redesigned board drops that ADC entirely in favour of the two magnetic
-> switches above, with centre inferred from the symmetric sweep.
-
 ---
 
 ## 9. Pins NOT wired to fixtures (free for generic tests) **[T]**

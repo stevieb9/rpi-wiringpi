@@ -49,7 +49,6 @@ looped back into an ADC (or a sister port) so a test can measure what it drove.
 17 <- CW limit switch     (rising-edge interrupt; t/450:118,127)
 27 <- CCW limit switch    (rising-edge interrupt; t/450:122,133)
 19 -> centre LED          (centre is computed from symmetric ticks, not sensed; t/450:113)
-            (the redesigned board drops the old ADS1115 #2 (0x49) / laser sensors)
 
 # MCP3008 ADC (SPI; CS = GPIO26, bit-banged) - SPI-side read-back [T]
 #  clock/data ride hardware SPI (GPIO9/10/11) [L]; CS is bit-banged GPIO [T];
@@ -104,6 +103,6 @@ The orchestrator injects the test-derived model into the existing renderers,
 files the artifacts here, validates the KiCad project with check-kicad.py, and
 diffs the re-derived model against the in-repo gen-schematic.py model. The
 independent re-derivation MATCHED the in-repo model exactly. After the stepper-rig
-redesign (two MCP23017s @0x20/0x21; ADS#2/0x49 + laser sensors removed; magnetic
+redesign (two MCP23017s @0x20/0x21; ADS#2/0x49 removed; magnetic
 limit switches on GPIO17/27 + centre LED on GPIO19), re-run the regenerators to
 refresh the model and artifacts.

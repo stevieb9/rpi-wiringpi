@@ -49,8 +49,8 @@ Empirical conformance check for Part A = build + run each dependent sibling's te
 Per `docs/test-platform/test-pinout-doc.md` (§ pin 18, § I2C map):
 
 1. **Power the I2C peripherals** (3V3 rail): at minimum ADS1115 #1 at **0x48**.
-   Verify with `i2cdetect -y 1` — `48` must ACK. (ADS1115 #2 0x49 etc. may
-   also appear; not needed for V47.)
+   Verify with `i2cdetect -y 1` — `48` must ACK. (Other addresses may also
+   appear; not needed for V47.)
 2. **Servo**: power from the **5V rail**; signal lead on **GPIO 18** (3V3 PWM).
 3. **GPIO 18 net**: physical pin 12 must be one net shared by the servo signal
    and **ADS1115 #1 channel A0** only — high-impedance; no series resistor, no

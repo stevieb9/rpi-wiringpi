@@ -82,11 +82,19 @@ use constant {
     DEBOUNCE  => 5000,    # Kernel debounce (microseconds) for the switch ISRs
     TOLERANCE => 0.05,    # Edge must land within +/-5% of its measured mean
     FLASH     => 0.15,    # Centre-LED hold (seconds)
+    SEEK_STEP => 12,      # Degrees per homing tick (one full-step quantum)
 };
 
-# Homing seek bound: ~1.25x the full designed travel (CCW_TICKS + CW_TICKS), so a
-# dead switch fails fast instead of driving the motor into the hard stop.
-use constant SEEK_MAX => int((CCW_TICKS + CW_TICKS) * 1.25);
+# Homing steps by SEEK_STEP degrees per tick, never one degree: $sm->ccw(1)
+# rounds to ZERO movement (int(1 / 11.25 + 0.5) * 64 == 0), so a per-degree seek
+# would never move the motor. SEEK_STEP (~one 11.25-degree full-step quantum) is
+# the smallest amount that actually rotates; all homing counts and bounds below
+# are expressed in these ticks.
+#
+# Seek bound in SEEK_STEP-degree ticks: ~1.25x the full designed travel
+# (CCW_TICKS + CW_TICKS degrees), so a dead switch fails fast instead of driving
+# the motor into the hard stop.
+use constant SEEK_MAX => int((CCW_TICKS + CW_TICKS) * 1.25 / SEEK_STEP);
 
 # Expected edge-trip latency (ms) from out-sweep start to magnet, per
 # "speed/delay" config. Measured on-rig as the mean of 4 iterations; run-to-run
@@ -238,16 +246,16 @@ sub home {
     # Bounded seeks: undef means the switch never tripped within SEEK_MAX (a hard
     # fault). Home to the CCW limit, then seek CW counting ticks = the travel
     # span. Skip the span seek if the CCW home already failed (don't keep driving).
-    my $to_ccw = seek_limit(sub { $ccw_pin->read }, sub { $sm->ccw(1) }, SEEK_MAX);
+    my $to_ccw = seek_limit(sub { $ccw_pin->read }, sub { $sm->ccw(SEEK_STEP) }, SEEK_MAX);
     my $span   = defined $to_ccw
-        ? seek_limit(sub { $cw_pin->read }, sub { $sm->cw(1) }, SEEK_MAX)
+        ? seek_limit(sub { $cw_pin->read }, sub { $sm->cw(SEEK_STEP) }, SEEK_MAX)
         : undef;
 
     # Decide outcome + centre (pure; StepperSeek::home_target, unit-tested in
     # t/451): out-of-bounds on either seek, or a stuck-high switch (tiny span),
-    # fails; otherwise centre = half the measured span.
+    # fails; otherwise centre = half the measured span. min_span is in seek ticks.
     my ($ok, $centre, $reason) =
-        home_target($to_ccw, $span, int((CCW_TICKS + CW_TICKS) / 2));
+        home_target($to_ccw, $span, int((CCW_TICKS + CW_TICKS) / 2 / SEEK_STEP));
 
     ok $ok, "homed and centred within bounds (reason: $reason"
         . (defined $span ? ", span ${span}t" : '') . ')';
@@ -257,8 +265,9 @@ sub home {
         return 0;
     }
 
-    # Move from the CW limit back to centre = half the measured span.
-    $sm->ccw($centre);
+    # Move from the CW limit back to centre = half the measured span. $centre is
+    # in seek ticks; scale by SEEK_STEP back to degrees for the move.
+    $sm->ccw($centre * SEEK_STEP);
     $sm->cleanup;
 
     # The homing sweep tripped both switches; drain those edges so the timed
