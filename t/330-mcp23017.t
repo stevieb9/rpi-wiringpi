@@ -110,7 +110,6 @@ sub test_register_bit {
     $o->register(MCP23017_INTCAPA);
     $o->register(MCP23017_INTCAPB);
 }
-
 sub test_mode {
     for my $reg (MCP23017_IODIRA .. MCP23017_IODIRB) {
         is $o->register($reg, 0xFF), 0xFF, "pins in bank $reg are INPUT ok";
@@ -156,7 +155,6 @@ sub test_mode {
         }
     }
 }
-
 sub test_write {
      for my $reg (MCP23017_IODIRA .. MCP23017_IODIRB){
         is $o->register($reg, 0xFF), 0xFF, "pins in bank $reg are INPUT ok";
@@ -210,7 +208,6 @@ sub test_write {
         is eval { $o->write(5, 5); 1; }, undef, "fails on invalid state";
     }
 }
-
 sub test_bank_mode {
 
      { # set on bank A (0)
@@ -310,7 +307,6 @@ sub test_bank_mode {
     }
 
 }
-
 sub test_bank_write {
 
      $o->cleanup;
@@ -444,7 +440,6 @@ sub test_bank_write {
 
     }
 }
-
 sub test_pullup {
 
      for my $reg (MCP23017_GPPUA .. MCP23017_GPPUB){
@@ -515,7 +510,6 @@ sub test_pullup {
     }
 
 }
-
 sub test_pullup_bank {
 
      for my $reg (MCP23017_GPPUA .. MCP23017_GPPUB){
@@ -547,7 +541,6 @@ sub test_pullup_bank {
         is $o->mode_bank(BANK_A), 0xFF, "returns bank register if no state sent";
     }
 }
-
 sub test_mode_all {
 
     my @regs = (MCP23017_IODIRA .. MCP23017_IODIRB);
@@ -574,7 +567,6 @@ sub test_mode_all {
         is eval { $o->mode_all(5); 1; }, undef, "fails on invalid mode";
     }
 }
-
 sub test_write_all {
 
      my @regs = (MCP23017_GPIOA .. MCP23017_GPIOB);
@@ -608,7 +600,6 @@ sub test_write_all {
         is eval { $o->write_all(5); 1; }, undef, "fails on invalid state";
     }
 }
-
 sub test_pullup_all {
     my @regs = (MCP23017_GPPUA .. MCP23017_GPPUB);
 
@@ -641,7 +632,6 @@ sub test_pullup_all {
         is eval { $o->pullup_all(5); 1; }, undef, "fails on invalid state";
     }
 }
-
 sub test_named_pins {
 
     # Wired loopback per datasheet 1-28,2-27,..,8-21: A(n) <-> B(7-n),
@@ -711,7 +701,6 @@ sub test_named_pins {
         $o->cleanup;
     }
 }
-
 sub test_default_registers {
 
     # The live-state registers below are excluded from the "back to default"
