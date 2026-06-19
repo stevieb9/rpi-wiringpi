@@ -35,16 +35,36 @@ my $drift_out = qx("$python" "$drift" 2>&1);
 is $? >> 8, 0, 'test-platform model: re-derivation matches canonical board-model.py'
     or diag $drift_out;
 
-# 2. The generated KiCad project still validates (every symbol's footprint
-#    resolves and covers its pins - the "Update PCB from Schematic" invariant).
-my $kdir = File::Spec->catdir($root, 'docs', 'test-platform', 'kicad');
-SKIP: {
-    skip 'no KiCad project at docs/test-platform/kicad', 1
-        if ! -d $kdir;
+# 2. Each populated KiCad board project under docs/test-platform/kicad/ still
+#    validates (every symbol's footprint resolves and covers its pins - the
+#    "Update PCB from Schematic" invariant). Each board is its own self-contained
+#    project subdirectory (legacy/, rpi-wiringpi-unit-test-platform-board-N/);
+#    those are scaffolded once by gen-kicad.py then hand-managed, so empty
+#    placeholders (no .kicad_sch yet) are skipped rather than failed.
+my $kroot = File::Spec->catdir($root, 'docs', 'test-platform', 'kicad');
+my @projects;
 
-    my $kicad_out = qx("$python" "$kicad" "$kdir" 2>&1);
-    is $? >> 8, 0, 'test-platform KiCad project validates'
-        or diag $kicad_out;
+if (opendir my $dh, $kroot) {
+    for my $name (sort readdir $dh) {
+        next if $name =~ /^\./;
+        my $dir = File::Spec->catdir($kroot, $name);
+        next if ! -d $dir;
+        my @sch = glob File::Spec->catfile($dir, '*.kicad_sch');
+        push @projects, [$name, $dir] if @sch;
+    }
+    closedir $dh;
+}
+
+SKIP: {
+    skip 'no populated KiCad board projects under docs/test-platform/kicad', 1
+        if ! @projects;
+
+    for my $project (@projects) {
+        my ($name, $dir) = @$project;
+        my $kicad_out = qx("$python" "$kicad" "$dir" 2>&1);
+        is $? >> 8, 0, "test-platform KiCad project validates: $name"
+            or diag $kicad_out;
+    }
 }
 
 # 3. The generated pin doc must be up to date with its template + sources

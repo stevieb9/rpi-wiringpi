@@ -1,12 +1,23 @@
 #!/usr/bin/env python3
 """
-Emit an openable KiCad project for the RPi::WiringPi unit-test platform:
-  t/test-platform.kicad_sch    -- flat schematic, net-label style (Eeschema)
-  t/test-platform.kicad_pro    -- KiCad project file
-  t/fp-lib-table               -- registers the project-local footprint library
-  t/test-platform.pretty/      -- one .kicad_mod footprint per symbol
+Scaffold a stand-alone, openable KiCad project for an RPi::WiringPi unit-test
+platform board. This is a ONE-SHOT generator: it writes a complete starting
+project into a target directory, then refuses to touch it again -- each board is
+hand-managed in KiCad after scaffolding (it is NOT part of the every-run regen).
 
-Reuses the exact component/net model from gen-schematic.py (imported as a
+  python3 scripts/helpers/gen-kicad.py <output-project-dir> [project-name] [--model PATH]
+
+writes, with <project> defaulting to the directory's basename and the board model
+defaulting to board-model.py (--model selects a per-board model file):
+  <dir>/<project>.kicad_sch    -- flat schematic, net-label style (Eeschema)
+  <dir>/<project>.kicad_pro    -- KiCad project file
+  <dir>/fp-lib-table           -- registers the project-local footprint library
+  <dir>/<project>.pretty/      -- one .kicad_mod footprint per symbol
+
+If any of those already exist the tool exits without writing, so a hand-finalized
+board is never clobbered by a re-run.
+
+Reuses the exact component/net model from board-model.py (imported as a
 module, no duplication). The schematic is "net-label style": every component is
 drawn as a labelled box and each connected pin carries a local net label, so
 KiCad resolves connectivity by net name -- no wire routing required. Symbol
@@ -29,10 +40,8 @@ embedded symbols: the project opens and transfers identically on any host,
 independent of which KiCad footprint libs happen to be installed.
 
 File format targets KiCad 7 (version 20230121); KiCad 8 opens it unchanged.
-UUIDs are derived deterministically (uuid5) so re-running produces no git churn.
-
-Normally invoked via scripts/gen-test-platform.pl. Stand-alone, from the repo
-root:  python3 scripts/helpers/gen-kicad.py
+UUIDs are derived deterministically (uuid5, namespaced per project) so a given
+board always scaffolds identically.
 """
 
 import importlib.util
@@ -43,17 +52,21 @@ import uuid
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-# The data model lives in board-model.py (the single source of truth). The
-# hyphen blocks a plain import, so load it by path. No side effects.
-def load_model():
-    path = os.path.join(HERE, 'board-model.py')
+# The data model lives in a board-model file (the single source of truth). The
+# hyphen blocks a plain import, so load it by path. No side effects. The default
+# is the whole-board board-model.py; a per-board model is selected with --model.
+DEFAULT_MODEL = os.path.join(HERE, 'board-model.py')
+
+def load_model(path):
     spec = importlib.util.spec_from_file_location('board_model', path)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
 
-S = load_model()
+S = load_model(DEFAULT_MODEL)
 
+# Project (board) name; set per-run from argv in main(). Used in symbol lib_ids,
+# footprint refs, the fp-lib-table nickname and the output filenames.
 PROJECT = 'test-platform'
 # Fixed namespace so uuid5-derived ids are stable across runs (no git churn).
 NS = uuid.UUID('5f3e9a10-7c2b-5d4e-8a1f-0b1c2d3e4f50')
@@ -66,30 +79,50 @@ BODY_W = 20.32
 FONT = 1.27
 
 def uid(*parts):
-    return str(uuid.uuid5(NS, ':'.join(parts)))
+    # Namespace every id under the project name so distinct boards never share
+    # UUIDs, while a given board always scaffolds identically.
+    return str(uuid.uuid5(NS, ':'.join((PROJECT, *parts))))
 
-ROOT_UUID = uid('root-sheet')
+# Set per-run in main(), once PROJECT is known.
+ROOT_UUID = None
 
-# net name per (ref, pin), from the shared model
-PINNET = {}
-for _nm, _nodes in S.NETS:
-    for _ref, _pin in _nodes:
-        PINNET[(_ref, _pin)] = _nm
+def build_pinnet(model):
+    # net name per (ref, pin), from the model
+    pinnet = {}
+    for nm, nodes in model.NETS:
+        for ref, pin in nodes:
+            pinnet[(ref, pin)] = nm
+    return pinnet
+
+PINNET = build_pinnet(S)
 
 def fnum(v):
     # Fixed 4-dp formatting keeps a pin tip and its label byte-identical, which
     # is how KiCad decides the label connects to the pin.
     return f'{v:.4f}'
 
+def is_pi_header(ref):
+    # The Raspberry Pi 2x20 header gets header-specific pin naming/placement;
+    # recognise it by its footprint hint so the tool stays board-agnostic (a
+    # satellite board has no Pi header and reuses J* refs for its connectors).
+    return S.COMPONENTS[ref][1] == 'PinHeader_2x20'
+
+def pi_header_ref():
+    """The board's Pi-header ref, or None if the board has no Pi header."""
+    for ref in S.COMPONENTS:
+        if is_pi_header(ref):
+            return ref
+    return None
+
 def pin_name(ref, pin):
-    if ref == 'J1':
+    if is_pi_header(ref):
         return S.J1FUNC[int(pin)]
     return S.COMPONENTS[ref][2][pin]
 
 def split_pins(ref):
     """Return (left_pins, right_pins) as ordered lists of pin-number strings."""
     pins = list(S.COMPONENTS[ref][2].keys())
-    if ref == 'J1':
+    if is_pi_header(ref):
         # Mirror the physical 2x20 header: odd pins left, even pins right.
         left = [p for p in pins if int(p) % 2 == 1]
         right = [p for p in pins if int(p) % 2 == 0]
@@ -153,28 +186,35 @@ def lib_symbol(ref):
 def place_all():
     """Assign a schematic position to every component.
 
-    J1 gets its own tall left lane; everything else flows top-to-bottom in
-    columns to the right. Returns {ref: (sx, sy)} and the page extent.
+    A Pi header (if the board has one) gets its own tall left lane; everything
+    else flows top-to-bottom in columns to the right. A board with no Pi header
+    just flows all parts in columns from the left margin. Returns {ref: (sx, sy)}
+    and the page extent.
     """
     refs = list(S.COMPONENTS.keys())
     margin = 25.0
     pos = {}
+    hub = pi_header_ref()
 
-    # J1 lane.
-    _, j1_half = pin_geom('J1')
-    j1_x = margin + 45.0
-    j1_y = margin + j1_half
-    pos['J1'] = (j1_x, j1_y)
-    max_bottom = j1_y + j1_half
+    if hub is not None:
+        # Pi-header lane down the left; columns start to its right.
+        _, hub_half = pin_geom(hub)
+        hub_x = margin + 45.0
+        hub_y = margin + hub_half
+        pos[hub] = (hub_x, hub_y)
+        max_bottom = hub_y + hub_half
+        col_x = hub_x + 110.0
+    else:
+        max_bottom = margin
+        col_x = margin + 45.0
 
-    # Remaining parts in columns to the right of J1.
-    col_x = j1_x + 110.0
+    # Remaining parts in columns.
     col_pitch = 100.0
     col_top = margin
     col_limit = max(max_bottom, 360.0)
     cur_x = col_x
     for ref in refs:
-        if ref == 'J1':
+        if ref == hub:
             continue
         _, half = pin_geom(ref)
         if col_top + 2 * half > col_limit and col_top > margin:
@@ -245,16 +285,16 @@ FP_VERSION = 20221018          # KiCad 7 footprint format
 def pad_layout(ref):
     """Pad placement as [(pad_name, x, y), ...] in millimetres.
 
-    Three shapes, chosen by reference designator:
-      J1   -- a physical 2x20 header (pins 1/2 adjacent, odd/even in two columns).
-      U*   -- a DIP IC: pads run down the left side and back up the right, placed
-              by the part's real package pin numbers so the two rows mirror the
-              physical chip (gaps where a pin number is unused).
-      rest -- a single-row header strip (modules, resistors, pots, servo).
+    Three shapes:
+      Pi header -- a physical 2x20 header (pins 1/2 adjacent, odd/even columns).
+      U*        -- a DIP IC: pads run down the left side and back up the right,
+              placed by the part's real package pin numbers so the two rows
+              mirror the physical chip (gaps where a pin number is unused).
+      rest -- a single-row strip (connectors, modules, LEDs, resistors, switches).
     """
     pins = list(S.COMPONENTS[ref][2].keys())
     out = []
-    if ref == 'J1':
+    if is_pi_header(ref):
         for p in pins:
             n = int(p)
             out.append((p, (n - 1) % 2 * FP_PITCH, (n - 1) // 2 * FP_PITCH))
@@ -384,13 +424,52 @@ def write_project(path):
     with open(path, 'w') as fh:
         json.dump(doc, fh, indent=2)
 
-def main():
-    pos, page_w, page_h = place_all()
-    sch = 't/test-platform.kicad_sch'
-    pro = 't/test-platform.kicad_pro'
-    fptbl = 't/fp-lib-table'
-    fpdir = 't/test-platform.pretty'
+def main(argv=None):
+    global PROJECT, ROOT_UUID, S, PINNET
+    argv = list(sys.argv[1:] if argv is None else argv)
+
+    # Optional --model PATH selects the board model file (default: the
+    # whole-board board-model.py). Each board has its own model.
+    model_path = DEFAULT_MODEL
+    if '--model' in argv:
+        i = argv.index('--model')
+        if i + 1 >= len(argv):
+            sys.exit('--model requires a path argument')
+        model_path = os.path.abspath(argv[i + 1])
+        del argv[i:i + 2]
+
+    if not argv:
+        sys.exit(
+            'usage: gen-kicad.py <output-project-dir> [project-name] [--model PATH]\n'
+            '  Scaffold a stand-alone KiCad project (schematic + project file +\n'
+            '  footprint library) into <output-project-dir>. project-name\n'
+            "  defaults to the directory's basename; --model selects the board\n"
+            '  model (default board-model.py). Refuses to overwrite an existing\n'
+            '  project -- boards are scaffolded once, then hand-managed.')
+
+    S = load_model(model_path)
+    PINNET = build_pinnet(S)
+
+    outdir = os.path.abspath(argv[0])
+    PROJECT = argv[1] if len(argv) > 1 else os.path.basename(outdir.rstrip(os.sep))
+    if not PROJECT:
+        sys.exit('cannot determine a project name from the output directory')
+    ROOT_UUID = uid('root-sheet')
+
+    sch = os.path.join(outdir, f'{PROJECT}.kicad_sch')
+    pro = os.path.join(outdir, f'{PROJECT}.kicad_pro')
+    fptbl = os.path.join(outdir, 'fp-lib-table')
+    fpdir = os.path.join(outdir, f'{PROJECT}.pretty')
+
+    # One-shot: never clobber a project that may already be hand-finalized.
+    existing = [p for p in (sch, pro, fptbl, fpdir) if os.path.exists(p)]
+    if existing:
+        sys.exit('refusing to overwrite existing project files:\n  '
+                 + '\n  '.join(existing))
+
     try:
+        os.makedirs(outdir, exist_ok=True)
+        pos, page_w, page_h = place_all()
         write_schematic(sch, pos, page_w, page_h)
         write_project(pro)
         write_fp_lib_table(fptbl)
@@ -398,7 +477,7 @@ def main():
     except OSError as e:
         sys.exit(f'failed writing KiCad project: {e}')
     n_lbl = sum(1 for r in S.COMPONENTS for p in S.COMPONENTS[r][2] if (r, p) in PINNET)
-    print(f'wrote {sch} / {pro} - {len(S.COMPONENTS)} symbols, '
+    print(f'scaffolded {PROJECT} -> {outdir}: {len(S.COMPONENTS)} symbols, '
           f'{len(S.NETS)} nets, {n_lbl} net labels, '
           f'{len(S.COMPONENTS)} footprints')
 

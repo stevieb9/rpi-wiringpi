@@ -243,29 +243,32 @@ Legend: **(3V3)/(5V)** = component supply rail · `<==`/`==>` analog loop-back �
 The three views above (bare header, mapped fixtures, bus floorplan) are also
 rendered, colour-coded by supply rail, as **`test-pinout-overview.jpg`** (bus/block
 view) and **`test-pinout-detail.jpg`** (pin-by-pin). The full electrical schematic
-ships as a multi-page vector **PDF**, and the KiCad project lives under **`kicad/`**:
+ships as a multi-page vector **PDF**, and the KiCad board projects live under
+**`kicad/`**:
 
 - **`test-platform-schematic-A3.pdf`** / **`-A4.pdf`** — the schematic deliverable:
   a multi-page vector PDF (title/contents page + whole board + one page each for
   I2C / SPI / stepper / display), orthogonally wire-routed via netlistsvg/ELK.
   Open and zoom to read; the best single file to read/print.
-- **`kicad/`** — the KiCad project: `test-platform.kicad_sch` / `.kicad_pro`, the
-  `test-platform.pretty/` footprint library, and `fp-lib-table`. Open the
-  `.kicad_pro` in KiCad; "Update PCB from Schematic" transfers every symbol with
-  its footprint.
+- **`kicad/`** — one self-contained KiCad project per PCB (`legacy/` plus
+  `rpi-wiringpi-unit-test-platform-board-1..4/`), each with its own
+  `.kicad_sch` / `.kicad_pro`, `<board>.pretty/` footprint library and
+  `fp-lib-table`. These are **not** part of the every-run regeneration: each
+  board is scaffolded once with `gen-kicad.py`, then hand-finalized in KiCad.
 - **`facts/test-platform.net`** — KiCad-importable netlist; every connection with
   datasheet-accurate pinouts.
 
 This document is itself rendered from **`test-pinout-doc.tmpl.md`**; its only
 generated block is the §12 Pi 5 default-state table (from `t/RPiTest.pm`).
 
-Regenerate everything with **`scripts/gen-test-platform.pl`** (needs the schematic
-venv + `netlistsvg`). It drives the Python generators (`gen-pinout-images.py`,
-`gen-schematic.py`, `gen-pdf.py`, `gen-kicad.py`, `render-doc.py`), files the
-outputs here, and validates the KiCad project — it never writes to `t/`. The
-wire-routed SVGs are scratch intermediates that feed the PDF and are not kept.
-Without `netlistsvg`, the script produces everything else and skips the schematic
-PDF with a warning.
+Regenerate the views, netlist, schematic PDFs and this doc with
+**`scripts/gen-test-platform.pl`** (needs the schematic venv + `netlistsvg`). It
+drives the Python generators (`gen-pinout-images.py`, `gen-schematic.py`,
+`gen-pdf.py`, `render-doc.py`), files the outputs here, and never writes to `t/`
+or to `kicad/`. The wire-routed SVGs are scratch intermediates that feed the PDF
+and are not kept. Without `netlistsvg`, the script produces everything else and
+skips the schematic PDF with a warning. The KiCad board projects are scaffolded
+separately and once, with `scripts/helpers/gen-kicad.py <kicad/board-dir>`.
 
 ---
 

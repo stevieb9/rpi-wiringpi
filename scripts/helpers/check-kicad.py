@@ -22,6 +22,7 @@ PROJECT_DIR defaults to docs/test-platform/kicad relative to this script. Exits 
 when every invariant holds, non-zero (with a per-failure message) otherwise.
 """
 
+import glob
 import os
 import re
 import shutil
@@ -31,8 +32,6 @@ import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_DIR = os.path.normpath(os.path.join(HERE, '..', '..', 'docs', 'test-platform', 'kicad'))
-
-PROJECT = 'test-platform'
 
 # --- tiny s-expression reader ---------------------------------------------
 
@@ -79,6 +78,15 @@ def kid(node, name):
 
 # --- the checks ------------------------------------------------------------
 
+def find_schematic(project_dir):
+    """The project's sole .kicad_sch path, or None (with a reason in [1])."""
+    hits = sorted(glob.glob(os.path.join(project_dir, '*.kicad_sch')))
+    if not hits:
+        return None, f'no .kicad_sch in {project_dir}'
+    if len(hits) > 1:
+        return None, f'multiple .kicad_sch in {project_dir}: {[os.path.basename(h) for h in hits]}'
+    return hits[0], None
+
 def schematic_symbols(sch_root):
     """[(reference, footprint_value, {pin numbers}), ...] for placed instances.
 
@@ -117,10 +125,10 @@ def resolve_libs(fp_table_path, project_dir):
     return libs
 
 def check_parse(project_dir, errors):
-    sch = os.path.join(project_dir, f'{PROJECT}.kicad_sch')
+    sch, why = find_schematic(project_dir)
     tbl = os.path.join(project_dir, 'fp-lib-table')
-    if not os.path.isfile(sch):
-        errors.append(f'missing schematic: {sch}')
+    if not sch:
+        errors.append(f'missing schematic: {why}')
         return 0
     if not os.path.isfile(tbl):
         errors.append(f'missing fp-lib-table: {tbl}')
@@ -157,7 +165,9 @@ def check_kicad_cli(project_dir, warnings):
     cli = shutil.which('kicad-cli')
     if not cli:
         return False, []
-    sch = os.path.join(project_dir, f'{PROJECT}.kicad_sch')
+    sch, _ = find_schematic(project_dir)
+    if not sch:
+        return False, []
     with tempfile.TemporaryDirectory() as tmp:
         net = os.path.join(tmp, 'out.net')
         proc = subprocess.run(

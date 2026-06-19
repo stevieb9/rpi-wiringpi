@@ -3,12 +3,13 @@
 Regenerate the docs/test-platform-updated visuals from the TEST-DERIVED model
 (scripts/helpers/model-from-tests.py), reusing the existing renderers unchanged.
 
-It injects the re-derived model into gen-schematic.py and gen-kicad.py (by
-overwriting their module-level data), runs the netlist / netlistsvg-JSON /
-schematic / KiCad / pinout-image generators in a scratch tree, optionally drives
-netlistsvg + gen-pdf.py if `netlistsvg` is on PATH, then files every artifact
-into docs/test-platform-updated. Finally it validates the KiCad project with
-check-kicad.py.
+It injects the re-derived model into gen-schematic.py (by overwriting its
+module-level data), runs the netlist / netlistsvg-JSON / schematic / pinout-image
+generators in a scratch tree, optionally drives netlistsvg + gen-pdf.py if
+`netlistsvg` is on PATH, then files every artifact into docs/test-platform-updated.
+
+(KiCad projects are no longer generated here -- each board is scaffolded once by
+gen-kicad.py and then hand-managed in KiCad; see docs/test-platform/kicad/.)
 
 It also DIFFS the re-derived model against the in-repo gen-schematic.py model and
 prints whether the independent derivation matches (it should -- the in-repo model
@@ -30,7 +31,6 @@ ROOT = os.path.normpath(os.path.join(HERE, '..', '..'))
 OUT = os.path.join(ROOT, 'docs', 'test-platform-updated')
 SVG = os.path.join(OUT, 'svg')
 FACTS = os.path.join(OUT, 'facts')
-KICAD = os.path.join(OUT, 'kicad')
 BUILD = os.path.join(ROOT, '.build-test-platform-updated')
 BUILD_T = os.path.join(BUILD, 't')
 
@@ -87,8 +87,6 @@ def classify(name):
         return SVG
     if name.endswith('.net'):
         return FACTS
-    if name.endswith(('.kicad_sch', '.kicad_pro')) or name == 'fp-lib-table':
-        return KICAD
     if name.endswith(('.jpg', '.pdf')):
         return OUT
     return OUT
@@ -100,7 +98,7 @@ def main():
     if os.path.isdir(BUILD):
         shutil.rmtree(BUILD)
     os.makedirs(BUILD_T)
-    for d in (OUT, SVG, FACTS, KICAD):
+    for d in (OUT, SVG, FACTS):
         os.makedirs(d, exist_ok=True)
 
     # gen-schematic: inject model, render in the scratch tree (uses relative t/).
@@ -113,15 +111,6 @@ def main():
                   exclude={'+5V', '+3V3', 'GND'}, power=True)
     for snm, keep in M.SHEETS.items():
         G.write_nlsvg(f't/sheet-{snm}.nlsvg.json', keep=keep, power=True)
-
-    # gen-kicad: it loads its own model copy (S) at import; override it, rebuild
-    # PINNET, then emit the schematic/project/footprints.
-    K = load(os.path.join(HERE, 'gen-kicad.py'), 'gen_kicad_inj')
-    K.S.COMPONENTS = M.COMPONENTS
-    K.S.NETS = M.NETS
-    K.S.J1FUNC = M.J1FUNC
-    K.PINNET = {(ref, pin): nm for nm, nodes in M.NETS for ref, pin in nodes}
-    K.main()
 
     # pinout JPEGs: self-contained generator (encodes the same test-derived map).
     runpy.run_path(os.path.join(HERE, 'gen-pinout-images.py'), run_name='__main__')
@@ -143,7 +132,7 @@ def main():
         print('  netlistsvg not on PATH - skipping wire-routed SVGs and PDFs')
 
     # File artifacts into docs/test-platform-updated.
-    moved = {'svg': 0, 'facts': 0, 'kicad': 0, 'doc': 0, 'drop': 0}
+    moved = {'svg': 0, 'facts': 0, 'doc': 0, 'drop': 0}
     for name in sorted(os.listdir(BUILD_T)):
         src = os.path.join(BUILD_T, name)
         if not os.path.isfile(src):
@@ -154,27 +143,13 @@ def main():
             continue
         shutil.move(src, os.path.join(dest_dir, name))
         moved['svg' if dest_dir == SVG else 'facts' if dest_dir == FACTS
-              else 'kicad' if dest_dir == KICAD else 'doc'] += 1
-    pretty_src = os.path.join(BUILD_T, 'test-platform.pretty')
-    if os.path.isdir(pretty_src):
-        pretty_dest = os.path.join(KICAD, 'test-platform.pretty')
-        if os.path.isdir(pretty_dest):
-            shutil.rmtree(pretty_dest)
-        shutil.move(pretty_src, pretty_dest)
-        print('  filed test-platform.pretty/')
+              else 'doc'] += 1
 
     os.chdir(ROOT)
     shutil.rmtree(BUILD)
     print(f'filed: {moved["doc"]} artifacts -> docs/test-platform-updated, '
-          f'{moved["kicad"]} kicad, {moved["svg"]} svg, {moved["facts"]} netlist, '
+          f'{moved["svg"]} svg, {moved["facts"]} netlist, '
           f'{moved["drop"]} intermediates dropped')
-
-    # Validate the KiCad project.
-    chk = subprocess.run([sys.executable, os.path.join(HERE, 'check-kicad.py'), KICAD],
-                         capture_output=True, text=True)
-    print(chk.stdout.strip() or chk.stderr.strip())
-    if chk.returncode != 0:
-        sys.exit('KiCad validation FAILED for docs/test-platform-updated')
 
     print('re-derivation', 'MATCHES in-repo model' if matched else 'DIVERGES from in-repo model')
 

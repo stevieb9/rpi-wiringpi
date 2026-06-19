@@ -9,8 +9,6 @@
 #   *.svg                                  -> discarded (scratch; gen-pdf input)
 #   *.net                                  -> docs/test-platform/facts/
 #   *.jpg, *.pdf                           -> docs/test-platform/
-#   *.kicad_sch, *.kicad_pro, fp-lib-table -> docs/test-platform/kicad/ (open in KiCad)
-#   test-platform.pretty/                  -> docs/test-platform/kicad/ (footprint lib)
 #   *.nlsvg.json                           -> discarded (netlistsvg inputs)
 #   anything else unexpected               -> repo root (for the user to triage)
 #
@@ -72,7 +70,6 @@ my $helpers_dir = File::Spec->catdir($script_dir, 'helpers');
 my $root        = abs_path(File::Spec->catdir($script_dir, File::Spec->updir));
 my $out_dir    = File::Spec->catdir($root, 'docs', 'test-platform');
 my $facts_dir  = File::Spec->catdir($out_dir, 'facts');
-my $kicad_dir  = File::Spec->catdir($out_dir, 'kicad');
 my $build      = File::Spec->catdir($root, '.build-test-platform');
 my $build_t    = File::Spec->catdir($build, 't');
 
@@ -108,7 +105,6 @@ print "netlistsvg: ", (@netlistsvg ? "@netlistsvg" : "(not found - schematic PDF
 remove_tree($build) if -d $build;
 make_path($build_t);
 make_path($facts_dir);
-make_path($kicad_dir);
 
 # 1. Pinout JPEGs (independent of the schematic chain).
 run_in($build, $python, File::Spec->catfile($helpers_dir, 'gen-pinout-images.py'))
@@ -137,19 +133,14 @@ elsif ($schematic_ok) {
     print "Install it (e.g. `npm i -g netlistsvg`) and re-run to produce them.\n\n";
 }
 
-# 4. KiCad project (.kicad_sch + .kicad_pro). Pure-stdlib and independent of the
-# schematic/netlistsvg chain - it reuses gen-schematic.py's model directly.
-run_in($build, $python, File::Spec->catfile($helpers_dir, 'gen-kicad.py'))
-    or warn "WARN: gen-kicad.py failed - KiCad project may be missing\n";
-
-# 4b. Pin doc: render docs/test-platform/test-pinout-doc.md from its template,
+# 4. Pin doc: render docs/test-platform/test-pinout-doc.md from its template,
 # filling the generated blocks (the Pi5 default-state table from RPiTest.pm).
 # It reads/writes docs/test-platform directly, not via the scratch tree.
 run_in($root, $python, File::Spec->catfile($helpers_dir, 'render-doc.py'))
     or warn "WARN: render-doc.py failed - test-pinout-doc.md may be stale\n";
 
 # 5. File every produced artifact into its destination (or discard it).
-my %count = (facts => 0, kicad => 0, doc => 0, root => 0, drop => 0);
+my %count = (facts => 0, doc => 0, root => 0, drop => 0);
 opendir my $dh, $build_t or die "opendir $build_t: $!\n";
 for my $name (sort readdir $dh) {
     my $src = File::Spec->catfile($build_t, $name);
@@ -163,30 +154,11 @@ for my $name (sort readdir $dh) {
     move($src, $dest) or die "move $name -> $dest_dir: $!\n";
     printf "  %-38s -> %s\n", $name, rel($dest_dir);
     my $bucket = $dest_dir eq $facts_dir ? 'facts'
-               : $dest_dir eq $kicad_dir ? 'kicad'
                : $dest_dir eq $out_dir   ? 'doc'
                :                           'root';
     $count{$bucket}++;
 }
 closedir $dh;
-
-# The footprint library is a directory, so the file loop above skips it; move
-# the whole .pretty tree into place, replacing any stale copy from a prior run.
-my $pretty_src = File::Spec->catdir($build_t, 'test-platform.pretty');
-if (-d $pretty_src) {
-    my $pretty_dest = File::Spec->catdir($kicad_dir, 'test-platform.pretty');
-    remove_tree($pretty_dest) if -d $pretty_dest;
-    move($pretty_src, $pretty_dest) or die "move test-platform.pretty -> $kicad_dir: $!\n";
-    printf "  %-38s -> %s\n", 'test-platform.pretty/', rel($kicad_dir);
-}
-
-# 6. Validate the filed KiCad project: every symbol must have a resolvable
-# footprint whose pads cover its pins - the condition "Update PCB from Schematic"
-# enforces. The helper also cross-checks with kicad-cli when that tool exists.
-my $kicad_ok = run_in($root, $python,
-    File::Spec->catfile($helpers_dir, 'check-kicad.py'), $kicad_dir);
-warn "WARN: KiCad project validation FAILED - see the messages above.\n"
-    unless $kicad_ok;
 
 # Removing the scratch tree also disposes of the discarded intermediates.
 remove_tree($build);
@@ -194,8 +166,8 @@ remove_tree($build);
 # Sweep macOS AppleDouble / .DS_Store cruft a Mac may have left in the tree.
 my $cruft = prune_apple_cruft($out_dir);
 
-printf "\nDone: %d netlist -> facts/, %d KiCad -> kicad/, %d artifacts -> %s, %d extra -> repo root, %d intermediate discarded.\n",
-    $count{facts}, $count{kicad}, $count{doc}, rel($out_dir), $count{root}, $count{drop};
+printf "\nDone: %d netlist -> facts/, %d artifacts -> %s, %d extra -> repo root, %d intermediate discarded.\n",
+    $count{facts}, $count{doc}, rel($out_dir), $count{root}, $count{drop};
 print "Pruned $cruft macOS cruft file(s) (._* / .DS_Store).\n" if $cruft;
 
 # --- helpers ---------------------------------------------------------------
@@ -210,8 +182,6 @@ sub classify_dest {
     return undef     if $name =~ /\.svg$/;
     return $facts_dir if $name =~ /\.net$/;
     return $out_dir   if $name =~ /\.(jpg|pdf)$/;
-    return $kicad_dir if $name =~ /\.(kicad_sch|kicad_pro)$/;
-    return $kicad_dir if $name eq 'fp-lib-table';
     # Anything unexpected: leave at the repo root for the user to triage.
     return $root;
 }
