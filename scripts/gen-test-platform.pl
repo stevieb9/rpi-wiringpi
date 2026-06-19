@@ -6,7 +6,7 @@
 # images and electrical schematic, then files the outputs into their final
 # homes:
 #
-#   *.svg                                  -> docs/test-platform/svg/
+#   *.svg                                  -> discarded (scratch; gen-pdf input)
 #   *.net                                  -> docs/test-platform/facts/
 #   *.jpg, *.pdf                           -> docs/test-platform/
 #   *.kicad_sch, *.kicad_pro, fp-lib-table -> docs/test-platform/kicad/ (open in KiCad)
@@ -71,7 +71,6 @@ my $script_dir  = dirname(abs_path($0));
 my $helpers_dir = File::Spec->catdir($script_dir, 'helpers');
 my $root        = abs_path(File::Spec->catdir($script_dir, File::Spec->updir));
 my $out_dir    = File::Spec->catdir($root, 'docs', 'test-platform');
-my $svg_dir    = File::Spec->catdir($out_dir, 'svg');
 my $facts_dir  = File::Spec->catdir($out_dir, 'facts');
 my $kicad_dir  = File::Spec->catdir($out_dir, 'kicad');
 my $build      = File::Spec->catdir($root, '.build-test-platform');
@@ -108,7 +107,6 @@ print "netlistsvg: ", (@netlistsvg ? "@netlistsvg" : "(not found - schematic PDF
 # Fresh scratch tree so stale output from a prior run can't leak through.
 remove_tree($build) if -d $build;
 make_path($build_t);
-make_path($svg_dir);
 make_path($facts_dir);
 make_path($kicad_dir);
 
@@ -151,7 +149,7 @@ run_in($root, $python, File::Spec->catfile($helpers_dir, 'render-doc.py'))
     or warn "WARN: render-doc.py failed - test-pinout-doc.md may be stale\n";
 
 # 5. File every produced artifact into its destination (or discard it).
-my %count = (svg => 0, facts => 0, kicad => 0, doc => 0, root => 0, drop => 0);
+my %count = (facts => 0, kicad => 0, doc => 0, root => 0, drop => 0);
 opendir my $dh, $build_t or die "opendir $build_t: $!\n";
 for my $name (sort readdir $dh) {
     my $src = File::Spec->catfile($build_t, $name);
@@ -164,8 +162,7 @@ for my $name (sort readdir $dh) {
     my $dest = File::Spec->catfile($dest_dir, $name);
     move($src, $dest) or die "move $name -> $dest_dir: $!\n";
     printf "  %-38s -> %s\n", $name, rel($dest_dir);
-    my $bucket = $dest_dir eq $svg_dir   ? 'svg'
-               : $dest_dir eq $facts_dir ? 'facts'
+    my $bucket = $dest_dir eq $facts_dir ? 'facts'
                : $dest_dir eq $kicad_dir ? 'kicad'
                : $dest_dir eq $out_dir   ? 'doc'
                :                           'root';
@@ -197,8 +194,8 @@ remove_tree($build);
 # Sweep macOS AppleDouble / .DS_Store cruft a Mac may have left in the tree.
 my $cruft = prune_apple_cruft($out_dir);
 
-printf "\nDone: %d SVG -> svg/, %d netlist -> facts/, %d KiCad -> kicad/, %d artifacts -> %s, %d extra -> repo root, %d intermediate discarded.\n",
-    $count{svg}, $count{facts}, $count{kicad}, $count{doc}, rel($out_dir), $count{root}, $count{drop};
+printf "\nDone: %d netlist -> facts/, %d KiCad -> kicad/, %d artifacts -> %s, %d extra -> repo root, %d intermediate discarded.\n",
+    $count{facts}, $count{kicad}, $count{doc}, rel($out_dir), $count{root}, $count{drop};
 print "Pruned $cruft macOS cruft file(s) (._* / .DS_Store).\n" if $cruft;
 
 # --- helpers ---------------------------------------------------------------
@@ -206,10 +203,11 @@ print "Pruned $cruft macOS cruft file(s) (._* / .DS_Store).\n" if $cruft;
 # Decide which directory a generated file belongs in, or undef to discard it.
 sub classify_dest {
     my ($name) = @_;
-    # netlistsvg input JSON: a throwaway intermediate, regenerated every run and
-    # referenced by nothing shipped. Discard (it dies with the scratch dir).
+    # netlistsvg JSON inputs and the wire-routed SVGs they render are throwaway
+    # intermediates: gen-pdf.py consumes the SVGs in the scratch tree to build the
+    # multi-page PDF (the committed schematic deliverable). Discard both.
     return undef     if $name =~ /\.nlsvg\.json$/;
-    return $svg_dir   if $name =~ /\.svg$/;
+    return undef     if $name =~ /\.svg$/;
     return $facts_dir if $name =~ /\.net$/;
     return $out_dir   if $name =~ /\.(jpg|pdf)$/;
     return $kicad_dir if $name =~ /\.(kicad_sch|kicad_pro)$/;

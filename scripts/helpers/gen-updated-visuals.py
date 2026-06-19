@@ -113,7 +113,6 @@ def main():
                   exclude={'+5V', '+3V3', 'GND'}, power=True)
     for snm, keep in M.SHEETS.items():
         G.write_nlsvg(f't/sheet-{snm}.nlsvg.json', keep=keep, power=True)
-    G.render_schematic()
 
     # gen-kicad: it loads its own model copy (S) at import; override it, rebuild
     # PINNET, then emit the schematic/project/footprints.

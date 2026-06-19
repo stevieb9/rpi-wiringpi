@@ -243,30 +243,29 @@ Legend: **(3V3)/(5V)** = component supply rail · `<==`/`==>` analog loop-back �
 The three views above (bare header, mapped fixtures, bus floorplan) are also
 rendered, colour-coded by supply rail, as **`test-pinout-overview.jpg`** (bus/block
 view) and **`test-pinout-detail.jpg`** (pin-by-pin). The full electrical schematic
-ships as JPEG/PDF in this directory, with every vector **SVG** under **`svg/`**:
+ships as a multi-page vector **PDF**, and the KiCad project lives under **`kicad/`**:
 
-- **`test-platform-schematic-A3.pdf`** / **`-A4.pdf`** — multi-page vector PDF
-  (title/contents page + whole board + one page each for I2C / SPI / stepper /
-  display). Best single file to read/print.
-- **`svg/sheet-i2c.svg`**, **`svg/sheet-spi.svg`**, **`svg/sheet-stepper.svg`**,
-  **`svg/sheet-display.svg`** — per-subsystem sheets (clearest — start here).
-  Wire-routed, with each device's supply drawn as proper schematic power symbols.
-- **`svg/test-pinout-schematic-signals.svg`** — the whole board on one
-  wire-routed sheet (signals + per-device power flags).
-- **`svg/test-pinout-schematic-wired.svg`** — fully wire-routed, including the
-  +3V3/+5V/GND nets (busier/taller). The wire-routed sheets are orthogonally
-  routed via netlistsvg/ELK; open and zoom to read.
-- **`svg/test-pinout-schematic.svg`** (and the raster **`test-pinout-schematic.jpg`**)
-  — the same design in net-label style.
+- **`test-platform-schematic-A3.pdf`** / **`-A4.pdf`** — the schematic deliverable:
+  a multi-page vector PDF (title/contents page + whole board + one page each for
+  I2C / SPI / stepper / display), orthogonally wire-routed via netlistsvg/ELK.
+  Open and zoom to read; the best single file to read/print.
+- **`kicad/`** — the KiCad project: `test-platform.kicad_sch` / `.kicad_pro`, the
+  `test-platform.pretty/` footprint library, and `fp-lib-table`. Open the
+  `.kicad_pro` in KiCad; "Update PCB from Schematic" transfers every symbol with
+  its footprint.
 - **`facts/test-platform.net`** — KiCad-importable netlist; every connection with
   datasheet-accurate pinouts.
 
-Regenerate everything above with **`scripts/gen-test-platform.pl`**: it drives the
-Python generators (`gen-pinout-images.py`, `gen-schematic.py`, `gen-pdf.py`) and
-`netlistsvg`, then files the outputs into this directory and `svg/` — it never
-writes to `t/`. The schematic PDFs and the wire-routed SVGs require `netlistsvg`
-on `PATH`; without it, the script still produces everything else and skips that
-step with a warning.
+This document is itself rendered from **`test-pinout-doc.tmpl.md`**; its only
+generated block is the §12 Pi 5 default-state table (from `t/RPiTest.pm`).
+
+Regenerate everything with **`scripts/gen-test-platform.pl`** (needs the schematic
+venv + `netlistsvg`). It drives the Python generators (`gen-pinout-images.py`,
+`gen-schematic.py`, `gen-pdf.py`, `gen-kicad.py`, `render-doc.py`), files the
+outputs here, and validates the KiCad project — it never writes to `t/`. The
+wire-routed SVGs are scratch intermediates that feed the PDF and are not kept.
+Without `netlistsvg`, the script produces everything else and skips the schematic
+PDF with a warning.
 
 ---
 

@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 """
-Full electrical model of the RPi::WiringPi unit-test platform.
-Emits:
-  t/test-platform.net          -- KiCad-importable netlist (every connection)
-  t/test-pinout-schematic.svg  -- rendered schematic (net-label style)
-  t/test-pinout-schematic.jpg
-Pinouts are datasheet-verified (see comments).  Normally invoked via
-scripts/gen-test-platform.pl; to run standalone, from the repo root with the
-schematic venv:  /tmp/sch-venv/bin/python scripts/helpers/gen-schematic.py
-Style: bare ICs for logic (74HC595/MCP3008/MCP4922/MCP42010/MCP23017), module
-blocks for sensor breakouts + level-shifter + stepper driver board.
+Schematic renderer for the RPi::WiringPi unit-test platform. The data model
+itself lives in board-model.py (loaded at the top); this emits:
+  t/test-platform.net    -- KiCad-importable netlist (every connection)
+  t/*.nlsvg.json         -- netlistsvg inputs for the wire-routed sheets + PDF
+Normally invoked via scripts/gen-test-platform.pl; to run standalone, from the
+repo root with the schematic venv:
+  /tmp/sch-venv/bin/python scripts/helpers/gen-schematic.py
 """
 
 import sys
@@ -118,78 +115,9 @@ def write_nlsvg(path='t/test-platform.nlsvg.json', exclude=(), keep=None, power=
 # per-subsystem sheets (cleaner reads)
 # SHEETS now comes from board-model.py (loaded at the top).
 
-# ------------------------------------------------------------------ SCHEMATIC (schemdraw, net-label style)
-def render_schematic():
-  try:
-    import schemdraw, schemdraw.elements as e
-    schemdraw.config(fontsize=10)
-    # net name per (ref,pin)
-    pinnet = {}
-    for nm,nodes in NETS:
-        for ref,pin in nodes: pinnet[(ref,pin)] = nm
-
-    def ic_pins(ref, layout):
-        """layout: {side: [pin,...]} -> list of IcPin with net label as name."""
-        out=[]
-        for side,pins in layout.items():
-            for pin in pins:
-                net = pinnet.get((ref,pin),'')
-                nm = COMPONENTS[ref][2][pin]
-                lbl = f'{nm}' + (f'  [{net}]' if net else '')
-                out.append(e.IcPin(name=lbl, pin=pin, side=side))
-        return out
-
-    LAYOUT = {
-     'U1':{'L':['12','13','18','9','10'],'R':['21','22','23','24','25','26','27','28'],'B':['5','6','7','8'],'T':['15','16','17']},
-     'U6':{'L':['12','13','18','9','10'],'R':['21','22','23','24','25','26','27','28'],'B':['5','6','7','8'],'T':['15','16','17']},
-     'U2':{'L':['14','11','12','13','10','16','8'],'R':['15','1','9']},
-     'U3':{'L':['11','12','13','10','16','15','9','14'],'R':['1','2','3','4']},
-     'U4':{'L':['3','4','5','1','8','9'],'R':['14','13','10','11','12']},
-     'U5':{'L':['1','2','3','8','4','11','10'],'R':['13','12','14']},
-    }
-    MODL = {
-     'M1':{'L':['VDD','GND','SCL','SDA','ADDR'],'R':['A0','A1']},
-     'M3':{'L':['VCC','GND','SCL','SDA']},'M4':{'L':['VIN','GND','SCL','SDA']},
-     'M5':{'L':['VCC','GND','SCL','SDA']},
-     'M6':{'L':['LV','GND1','LV1','LV2'],'R':['HV','GND2','HV1','HV2']},
-     'M7':{'L':['IN1','IN2','IN3','IN4','V+','GND']},
-     'M8':{'L':['4','6','11','12','13','14','3','15','2','1','5','16']},
-     'A1':{'L':['SDA','SCL','5V','GND']},'SV1':{'L':['SIG','V+','GND']},
-    }
-    # grid placement
-    import math
-    with schemdraw.Drawing(file='t/test-pinout-schematic.svg', show=False) as d:
-        d.config(fontsize=9)
-        d += e.Label().label('RPi::WiringPi unit-test platform — schematic', fontsize=20).at((30, 11))
-        d += e.Label().label('net-label style: each pin tagged [NET]; trace connections by net name. Full wire-by-wire list: t/test-platform.net',
-                             fontsize=11).at((30, 9))
-        # J1 in its own far-left lane, full height
-        jpins=[e.IcPin(name=f'{p}:{COMPONENTS["J1"][2][p]}'+(f' [{pinnet[("J1",p)]}]' if (("J1",p) in pinnet) else ' [-]'),
-                       pin=p, side=('L' if int(p)%2 else 'R')) for p in (str(i) for i in range(1,41))]
-        d += e.Ic(pins=jpins, w=6, h=34, pinspacing=1.6).at((-2, -19)).label('J1  Raspberry Pi 40-pin (J8)', loc='top', fontsize=11)
-        # the rest in a 3-column grid to the right of J1
-        order = ['U1','U6','U2','U3','U4','U5','M1','M3','M4','M5','M6','M7','M8','A1','SV1']
-        cols, x0, dx, dy = 3, 12, 11.0, -12.0
-        for idx,ref in enumerate(order):
-            r,c = divmod(idx, cols)
-            x,y = x0 + c*dx, 0 + r*dy
-            lay = LAYOUT.get(ref) or MODL[ref]
-            npins = sum(len(v) for v in lay.values())
-            h = max(5.5, 0.95*max(len(lay.get('L',[])), len(lay.get('R',[]))))
-            d += e.Ic(pins=ic_pins(ref,lay), w=4.2, h=h, pinspacing=1.0).at((x,y)).label(f'{ref}  {COMPONENTS[ref][0]}', loc='top', fontsize=10)
-        d.save('t/test-pinout-schematic.svg')
-    # schemdraw's SVG backend cannot save raster; render the JPG from the SVG.
-    import cairosvg, io
-    from PIL import Image
-    png = cairosvg.svg2png(url='t/test-pinout-schematic.svg', dpi=120)
-    img = Image.open(io.BytesIO(png)).convert('RGBA')
-    bg = Image.new('RGB', img.size, 'white')
-    bg.paste(img, mask=img.split()[3])
-    bg.save('t/test-pinout-schematic.jpg', quality=90)
-    print('wrote t/test-pinout-schematic.svg / .jpg')
-  except Exception as ex:
-    import traceback; traceback.print_exc()
-    print('schematic render skipped:', ex)
+# The net-label schematic (schemdraw) renderer was removed: the wire-routed
+# netlistsvg sheets -> multi-page PDF are the schematic deliverable. The
+# *.nlsvg.json emitted above are netlistsvg's inputs for those sheets.
 
 # Importing this module yields only the data model (COMPONENTS / NETS / J1FUNC /
 # DRIVER / POWER / SHEETS) and the writer functions, with no side effects, so
@@ -200,4 +128,3 @@ if __name__ == '__main__':
     write_nlsvg('t/test-platform.signals.nlsvg.json', exclude={'+5V','+3V3','GND'}, power=True)  # signals + power flags
     for snm, keep in SHEETS.items():
         write_nlsvg(f't/sheet-{snm}.nlsvg.json', keep=keep, power=True)
-    render_schematic()
