@@ -18,6 +18,20 @@ against the in-repo model to prove the re-derivation matches.
 Tags in comments: [T]=proven by a test, [L]=submodule default, [F]=gap-filled.
 """
 
+# Curated [F] facts (not test-derivable, e.g. power rails) come from the shared
+# board-facts.py, loaded by path (the hyphen blocks a plain import).
+import importlib.util as _ilu
+import os as _os
+
+def _load_facts():
+    p = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'board-facts.py')
+    spec = _ilu.spec_from_file_location('board_facts', p)
+    m = _ilu.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+_FACTS = _load_facts()
+
 # ------------------------------------------------------------------ COMPONENTS
 # ref: (value, footprint-hint, {pin: name})   pin keys are strings.
 #
@@ -176,18 +190,9 @@ DRIVER = {'+5V':'J1','+3V3':'J1','GND':'J1','I2C_SDA':'J1','I2C_SCL':'J1','ARD_S
  'LED_CTRL':'J1','LED_ANODE':'R8','EXP_IN1':'U6','EXP_IN2':'U6','EXP_IN3':'U6','EXP_IN4':'U6',
  'EXP_LB0':'U1*21','EXP_LB1':'U1*22','EXP_LB2':'U1*23','EXP_LB3':'U1*24',
  'EXP_LB4':'U1*25','EXP_LB5':'U1*26','EXP_LB6':'U1*27','EXP_LB7':'U1*28'}
-# per-device power flags (pin, rail) -- [F] rails not test-derivable
-POWER = {
- 'U1':[('9','+3V3'),('10','GND')], 'U2':[('16','+3V3'),('8','GND')],
- 'U3':[('16','+3V3'),('9','GND')], 'U4':[('1','+3V3'),('12','GND')],
- 'U5':[('8','+3V3'),('4','GND')],  'M1':[('VDD','+3V3'),('GND','GND')],
- 'U6':[('9','+3V3'),('10','GND')], 'M3':[('VCC','+3V3'),('GND','GND')],
- 'M4':[('VIN','+3V3'),('GND','GND')], 'M5':[('VCC','+3V3'),('GND','GND')],
- 'M6':[('LV','+3V3'),('HV','+5V'),('GND1','GND')], 'M7':[('V+','+5V'),('GND','GND')],
- 'M8':[('2','+5V'),('1','GND')],  'A1':[('5V','+5V'),('GND','GND')],
- 'SV1':[('V+','+5V'),('GND','GND')], 'RV1':[('1','+5V'),('3','GND')], 'R7':[('1','+5V')],
- 'SW1':[('2','+3V3')],'SW2':[('2','+3V3')],'D1':[('K','GND')],
-}
+# Per-device power flags are [F] (rails are not test-derivable), so they come
+# from the shared curated board-facts.py rather than being re-stated here.
+POWER = _FACTS.POWER
 # per-subsystem sheets (cleaner reads)
 SHEETS = {
  'i2c':     {'I2C_SDA','I2C_SCL','ARD_SDA','ARD_SCL'},

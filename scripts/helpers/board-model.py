@@ -21,6 +21,20 @@ Shapes:
   SHEETS      per-subsystem net groupings (cleaner sheet renders)
 """
 
+# Curated [F] facts (not test-derivable) live in board-facts.py, loaded by path
+# (the hyphen blocks a plain import) and shared with model-from-tests.py.
+import importlib.util as _ilu
+import os as _os
+
+def _load_facts():
+    p = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'board-facts.py')
+    spec = _ilu.spec_from_file_location('board_facts', p)
+    m = _ilu.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+_FACTS = _load_facts()
+
 # ------------------------------------------------------------------ COMPONENTS
 # ref: (value, footprint-hint, {pin: name})   pin keys are strings.
 COMPONENTS = {
@@ -156,18 +170,9 @@ DRIVER = {'+5V':'J1','+3V3':'J1','GND':'J1','I2C_SDA':'J1','I2C_SCL':'J1','ARD_S
  'EXP_LB0':'U1*21','EXP_LB1':'U1*22','EXP_LB2':'U1*23','EXP_LB3':'U1*24',
  'EXP_LB4':'U1*25','EXP_LB5':'U1*26','EXP_LB6':'U1*27','EXP_LB7':'U1*28'}
 
-# per-device power: (pin, rail-label) -> drawn as a small flag at the device
-POWER = {
- 'U1':[('9','+3V3'),('10','GND')], 'U2':[('16','+3V3'),('8','GND')],
- 'U3':[('16','+3V3'),('9','GND')], 'U4':[('1','+3V3'),('12','GND')],
- 'U5':[('8','+3V3'),('4','GND')],  'M1':[('VDD','+3V3'),('GND','GND')],
- 'U6':[('9','+3V3'),('10','GND')], 'M3':[('VCC','+3V3'),('GND','GND')],
- 'M4':[('VIN','+3V3'),('GND','GND')], 'M5':[('VCC','+3V3'),('GND','GND')],
- 'M6':[('LV','+3V3'),('HV','+5V'),('GND1','GND')], 'M7':[('V+','+5V'),('GND','GND')],
- 'M8':[('2','+5V'),('1','GND')],  'A1':[('5V','+5V'),('GND','GND')],
- 'SV1':[('V+','+5V'),('GND','GND')], 'RV1':[('1','+5V'),('3','GND')], 'R7':[('1','+5V')],
- 'SW1':[('2','+3V3')],'SW2':[('2','+3V3')],'D1':[('K','GND')],
-}
+# per-device power flags are curated [F] facts (rails are not test-derivable),
+# so they live in board-facts.py - stated once and shared with model-from-tests.py.
+POWER = _FACTS.POWER
 
 # per-subsystem sheets (cleaner reads)
 SHEETS = {
