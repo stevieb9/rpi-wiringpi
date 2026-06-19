@@ -39,10 +39,12 @@ Shapes match board-model.py:
   SHEETS      per-subsystem net groupings
 """
 
-# The full MCP23017 pin map (NC pins 11/14 omitted), shared by both expanders.
+# The full physical MCP23017 DIP-28 pin map, shared by both expanders. Pins 11
+# and 14 are NC on the MCP23017 but are real package pins, so they are included
+# here to give the footprint all 28 holes.
 _MCP = {
- '9':'VDD','10':'VSS','12':'SCL','13':'SDA','18':'RESET','15':'A0','16':'A1','17':'A2',
- '20':'INTA','19':'INTB',
+ '9':'VDD','10':'VSS','11':'NC','12':'SCL','13':'SDA','14':'NC','18':'RESET',
+ '15':'A0','16':'A1','17':'A2','20':'INTA','19':'INTB',
  '21':'GPA0','22':'GPA1','23':'GPA2','24':'GPA3','25':'GPA4','26':'GPA5','27':'GPA6','28':'GPA7',
  '1':'GPB0','2':'GPB1','3':'GPB2','4':'GPB3','5':'GPB4','6':'GPB5','7':'GPB6','8':'GPB7',
 }
@@ -73,7 +75,8 @@ COMPONENTS = {
  'R3': ('330', 'R', {'1':'1','2':'2'}),   # yellow LED series
  'R4': ('4k7', 'R', {'1':'1','2':'2'}),   # SDA pull-up -> +3V3
  'R5': ('4k7', 'R', {'1':'1','2':'2'}),   # SCL pull-up -> +3V3
- # --- 3-bank DIP switch (3x SPST, 6 holes): bank n = pins (2n-1, 2n) ---
+ # --- 3-bank DIP switch (3x SPST, two rows of three): switch n bridges the two
+ #     pins directly across the package, i.e. (1,6), (2,5), (3,4) ---
  'SW1': ('DIP_SW_x3', 'DIP-SW-3', {'1':'1','2':'2','3':'3','4':'4','5':'5','6':'6'}),
 }
 
@@ -93,14 +96,14 @@ NETS = [
  # I2C bus (shared by both expanders, pulled up locally)
  ('I2C_SDA',[('J2','1'),('U1','13'),('U2','13'),('R4','1')]),
  ('I2C_SCL',[('J2','2'),('U1','12'),('U2','12'),('R5','1')]),
- # Pi GPIO control lines in from board 1
- ('GPIO17',[('J2','3'),('SW1','1'),('J4','1')]),   # -> DIP bank 1, out to CW magnet switch
- ('GPIO27',[('J2','4'),('SW1','3'),('J4','2')]),   # -> DIP bank 2, out to CCW magnet switch
- ('GPIO19',[('J2','5'),('SW1','5')]),              # -> DIP bank 3 (centre LED, local only)
- # LED legs: DIP-switched anode; cathode -> series R -> GND
- ('LED_G_A',[('SW1','2'),('D1','A')]),   # green anode (after DIP bank 1)
- ('LED_R_A',[('SW1','4'),('D2','A')]),   # red anode   (after DIP bank 2)
- ('LED_Y_A',[('SW1','6'),('D3','A')]),   # yellow anode(after DIP bank 3)
+ # Pi GPIO control lines in from board 1 (each enters one side of a DIP switch)
+ ('GPIO17',[('J2','3'),('SW1','1'),('J4','1')]),   # -> DIP sw1 (pin 1), out to CW magnet switch
+ ('GPIO27',[('J2','4'),('SW1','2'),('J4','2')]),   # -> DIP sw2 (pin 2), out to CCW magnet switch
+ ('GPIO19',[('J2','5'),('SW1','3')]),              # -> DIP sw3 (pin 3), centre LED, local only
+ # LED legs: anode off the DIP switch's far side; cathode -> series R -> GND
+ ('LED_G_A',[('SW1','6'),('D1','A')]),   # green anode  (DIP sw1 far side, pin 6)
+ ('LED_R_A',[('SW1','5'),('D2','A')]),   # red anode    (DIP sw2 far side, pin 5)
+ ('LED_Y_A',[('SW1','4'),('D3','A')]),   # yellow anode (DIP sw3 far side, pin 4)
  ('LED_G_K',[('D1','K'),('R1','1')]),
  ('LED_R_K',[('D2','K'),('R2','1')]),
  ('LED_Y_K',[('D3','K'),('R3','1')]),

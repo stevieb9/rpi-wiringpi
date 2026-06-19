@@ -107,6 +107,15 @@ def is_pi_header(ref):
     # satellite board has no Pi header and reuses J* refs for its connectors).
     return S.COMPONENTS[ref][1] == 'PinHeader_2x20'
 
+def is_dip(ref):
+    # DIP packages -- ICs and DIP switches -- get the two-row footprint. Keyed
+    # on the footprint hint ('DIP-28', 'DIP-SW-3', ...) so it is board-agnostic.
+    return S.COMPONENTS[ref][1].startswith('DIP')
+
+def is_resistor(ref):
+    # Old-school axial through-hole resistors get a wider, multi-pitch lead span.
+    return S.COMPONENTS[ref][1] == 'R'
+
 def pi_header_ref():
     """The board's Pi-header ref, or None if the board has no Pi header."""
     for ref in S.COMPONENTS:
@@ -280,17 +289,19 @@ FP_PITCH = 2.54
 FP_PAD = 1.7
 FP_DRILL = 1.0
 DIP_WIDTH = 7.62               # 0.3" row spacing for the IC (DIP) footprints
+R_PITCH = 2 * FP_PITCH         # axial resistor lead span: two holes, not one
 FP_VERSION = 20221018          # KiCad 7 footprint format
 
 def pad_layout(ref):
     """Pad placement as [(pad_name, x, y), ...] in millimetres.
 
-    Three shapes:
+    Four shapes:
       Pi header -- a physical 2x20 header (pins 1/2 adjacent, odd/even columns).
-      U*        -- a DIP IC: pads run down the left side and back up the right,
-              placed by the part's real package pin numbers so the two rows
-              mirror the physical chip (gaps where a pin number is unused).
-      rest -- a single-row strip (connectors, modules, LEDs, resistors, switches).
+      DIP       -- a DIP IC or DIP switch: pads run down the left side by package
+              pin number and back up the right (two rows), mirroring the physical
+              part (gaps where a pin number is unused).
+      resistor  -- a single-row pair on a two-hole (R_PITCH) axial lead span.
+      rest -- a single-row strip on 2.54 mm pitch (connectors, modules, LEDs).
     """
     pins = list(S.COMPONENTS[ref][2].keys())
     out = []
@@ -298,7 +309,7 @@ def pad_layout(ref):
         for p in pins:
             n = int(p)
             out.append((p, (n - 1) % 2 * FP_PITCH, (n - 1) // 2 * FP_PITCH))
-    elif ref.startswith('U'):
+    elif is_dip(ref):
         maxpin = max(int(p) for p in pins)
         half = maxpin // 2          # pins 1..half on the left, rest on the right
         for p in pins:
@@ -307,6 +318,9 @@ def pad_layout(ref):
                 out.append((p, 0.0, (n - 1) * FP_PITCH))
             else:
                 out.append((p, DIP_WIDTH, (maxpin - n) * FP_PITCH))
+    elif is_resistor(ref):
+        for i, p in enumerate(pins):
+            out.append((p, 0.0, i * R_PITCH))
     else:
         for i, p in enumerate(pins):
             out.append((p, 0.0, i * FP_PITCH))
