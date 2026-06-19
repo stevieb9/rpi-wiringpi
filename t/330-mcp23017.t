@@ -31,10 +31,13 @@ my $pi = RPi::WiringPi->new(
     label => 't/330-mcp23017.t',
     shm_key => 'rpit'
 );
+
 my $o = $pi->expander(0x20);
 
-# registers.t
-{
+test_registers()        if ! @ARGV || $ARGV[0] == 1;
+test_register_bit()     if ! @ARGV || $ARGV[0] == 2;
+
+sub test_registers {
 
     # writable registers
 
@@ -63,10 +66,7 @@ my $o = $pi->expander(0x20);
         }
     }
 }
-
-# register_bit.t
-{
-
+sub test_register_bit {
     my @bits = (1, 2, 4, 8, 16, 32, 64, 128);
 
     for my $reg (0x00 .. 0x09, 0x0C .. 0x0D, 0x14 .. 0x15) {
@@ -93,7 +93,7 @@ my $o = $pi->expander(0x20);
     $o->register(MCP23017_INTCAPB);
 }
 
-# mode.t
+# mode
 {
     for my $reg (MCP23017_IODIRA .. MCP23017_IODIRB) {
         is $o->register($reg, 0xFF), 0xFF, "pins in bank $reg are INPUT ok";
@@ -140,7 +140,7 @@ my $o = $pi->expander(0x20);
     }
 }
 
-# write.t
+# write
 {
      for my $reg (MCP23017_IODIRA .. MCP23017_IODIRB){
         is $o->register($reg, 0xFF), 0xFF, "pins in bank $reg are INPUT ok";
@@ -195,7 +195,7 @@ my $o = $pi->expander(0x20);
     }
 }
 
-# bank_mode.t
+# bank_mode
 {
 
      { # set on bank A (0)
@@ -296,7 +296,7 @@ my $o = $pi->expander(0x20);
 
 }
 
-# bank_write.t
+# bank_write
 {
 
      $o->cleanup;
@@ -431,7 +431,7 @@ my $o = $pi->expander(0x20);
     }
 }
 
-# pullup.t
+# pullup
 {
 
      for my $reg (MCP23017_GPPUA .. MCP23017_GPPUB){
@@ -503,7 +503,7 @@ my $o = $pi->expander(0x20);
 
 }
 
-# pullup_bank.t
+# pullup_bank
 {
 
      for my $reg (MCP23017_GPPUA .. MCP23017_GPPUB){
@@ -536,7 +536,7 @@ my $o = $pi->expander(0x20);
     }
 }
 
-# mode_all.t
+# mode_all
 {
 
     my @regs = (MCP23017_IODIRA .. MCP23017_IODIRB);
@@ -564,7 +564,7 @@ my $o = $pi->expander(0x20);
     }
 }
 
-# write_all.t
+# write_all
 {
 
      my @regs = (MCP23017_GPIOA .. MCP23017_GPIOB);
@@ -599,9 +599,8 @@ my $o = $pi->expander(0x20);
     }
 }
 
-# pullup_all.t
+# pullup_all
 {
-
     my @regs = (MCP23017_GPPUA .. MCP23017_GPPUB);
 
     { # set/unset
@@ -634,9 +633,7 @@ my $o = $pi->expander(0x20);
     }
 }
 
-# named_pins.t - the same loopback read/write checks as bank_mode.t above, but
-# driven entirely through the A0-A7 / B0-B7 named pin constants (RPi::Const's
-# :mcp23017_pins, pulled in by the ':all' import) instead of raw 0-15 numbers
+# named_pins
 {
 
     # Wired loopback per datasheet 1-28,2-27,..,8-21: A(n) <-> B(7-n),
@@ -707,7 +704,7 @@ my $o = $pi->expander(0x20);
     }
 }
 
-# default_registers.t
+# default_registers
 {
 
     # The live-state registers below are excluded from the "back to default"
@@ -767,6 +764,5 @@ $o->cleanup;
 $pi->cleanup;
 
 rpi_check_pin_status();
-#rpi_metadata_clean();
 
 done_testing();
