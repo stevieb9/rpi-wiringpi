@@ -144,8 +144,8 @@ In this document we use constants that are provided with the `:all` tag in
 
 # GLOSSARY OF TERMS
 
-    HIGH         -  Outputting 3.3v
-    LOW          -  Connected to 0v (ground)
+    HIGH         -  Outputting or reading 3.3v
+    LOW          -  Outputting or reading 0v
     floating     -  The state where a pin is not stable at HIGH or LOW
     PWM          -  Pulse Width Modulation (potentiometer-like)
     INPUT        -  Pin is listening only
@@ -193,8 +193,8 @@ First thing to do is to install the appropriate `cpanm` version:
 
 Then, install an instance of Perl, and switch to it:
 
-    perlbrew install perl-5.30.0
-    perlbrew switch perl-5.30.0
+    perlbrew install perl-5.42.0
+    perlbrew switch perl-5.42.0
 
 ## sudo configuration
 
@@ -205,7 +205,7 @@ To use `sudo` to run your scripts within the appropriate Perl
 installation, you need to modify the `/etc/sudoers` file. Prepend the string
 value for the `secure_path` directive to include the path to the new
 `perlbrew` managed perl, followed by a colon. For example:
-`/home/pi/perl5/perlbrew/perls/perl-5.30.0/bin:`. Leave the existing part of
+`/home/pi/perl5/perlbrew/perls/perl-5.42.0/bin:`. Leave the existing part of
 the string in place.
 
 Test that it looks correctly:
@@ -300,7 +300,7 @@ Bookworm):
 
     dtparam=spi=on
 
-NOTE: If you get permission errors accessing the SPI bus, you may need to add
+**Note**: If you get permission errors accessing the SPI bus, you may need to add
 the `pi` user to the `spi` group:
 
     sudo adduser pi spi
@@ -1030,7 +1030,7 @@ Before an LCD can be used, it must be initialized. This may look like a lot,
 but you only need to do it once. Essentially, you're configuring all pins up
 front.
 
-NOTE: In 4-bit mode the LCD uses only its upper four data lines, `DB4`
+**Note**: In 4-bit mode the LCD uses only its upper four data lines, `DB4`
 through `DB7` (`DB0` through `DB3` stay unconnected). In this module you
 still populate the `d0` through `d3` parameters with your GPIO pins and set
 `d4` through `d7` to `0`. The catch is the wiring: `d0` through `d3` must
@@ -1224,11 +1224,11 @@ usage information.
 
     # Pins are INPUT by default. Turn the first pin to OUTPUT
 
-    $exp->mode(0, 0); # Or MCP23017_OUTPUT if using RPi::Const
+    $exp->mode(0, MCP23917_OUTPUT); # Or 0
 
-    # Turn the pin on (HIGH)
+    # Turn the pin on
 
-    $exp->write(0, 1); # or HIGH
+    $exp->write(0, HIGH); # or 1
 
     # Read the pin's status (HIGH or LOW)
 
@@ -1236,17 +1236,17 @@ usage information.
 
     # Turn the first bank (0) of pins (0-7) to OUTPUT, and make them live (HIGH)
 
-    $exp->mode_bank(0, 0);  # bank A, MCP23017_OUTPUT
-    $exp->write_bank(0, 1); # bank A, HIGH
+    $exp->mode_bank(0, MCP23017_OUTPUT);
+    $exp->write_bank(0, HIGH);
 
     # Enable internal pullup resistors on the entire bank A (0)
 
     $exp->pullup_bank(0, 1); # bank A, pullup enabled
 
-    # Put all 16 pins as OUTPUT, and put them on (HIGH)
+    # Put all 16 pins as OUTPUT, and put them on
 
-    $exp->mode_all(0);  # or MCP23017_OUTPUT
-    $exp->write_all(1); # or HIGH
+    $exp->mode_all(MCP23017_OUTPUT);
+    $exp->write_all(HIGH);
 
     # Cleanup all pins and reset them to default before exiting your program
 
@@ -1290,7 +1290,7 @@ instead of the GPIO on the Pi:
 
     my $sm = $pi->stepper_motor(
         expander => $expander,
-        pins => [0, 1, 2, 3]    # first four GPIO expander pins
+        pins => [0, 1, 2, 3]    # First four GPIO expander pins
     );
 
     $sm->cw(180);
@@ -1479,10 +1479,11 @@ variables a given test needs on top of `RPI_BOARD` - if it reads `(none)`,
     405-sysinfo_network_info.t                   SysInfo: network information         (none)
     406-sysinfo_file_system.t                    SysInfo: filesystem information      (none)
     407-sysinfo_pi_details.t                     SysInfo: board/OS details            (none)
+    409-board_tag.t                              Board-family detection (rpi_board_tag) (none)
     420-eeprom_args.t                            EEPROM argument validation           RPI_EEPROM
     421-eeprom_read_write_byte_croak.t           EEPROM byte r/w error handling       RPI_EEPROM
     422-eeprom_read_write_byte.t                 EEPROM byte read/write               RPI_EEPROM
-    450-stepper.t                                Stepper motor (read via ADC)         RPI_STEPPER
+    450-stepper.t                                Stepper motor (timed limit switches) RPI_MCP23017, RPI_STEPPER
     500-oled_new.t                               OLED object creation                 RPI_OLED
     501-oled_string.t                            OLED draw string                     RPI_OLED
     502-oled_rect.t                              OLED rectangle                       RPI_OLED
@@ -1681,10 +1682,14 @@ These tests skip by default unless `RPI_SERVO` is set.
 
 ### Stepper Motor Testing
 
-The test for this uses three photo resistors, with a laser on the stepper.
-We measure the luminosity to determine if the motor is in each position
-properly. To run these tests, set the following environment variable:
+The stepper is driven through an MCP23017 expander (at `0x21`) into a ULN2003.
+Travel is bounded by two magnetic limit switches (CW on GPIO17, CCW on GPIO27)
+read as rising-edge interrupts; centre is computed from the symmetric step counts
+(no sensor) and shown on a centre LED (GPIO19). The test sweeps the motor across
+several speed/delay configs and asserts each limit switch trips within its
+expected time window. To run these tests, set both environment variables:
 
+    export RPI_MCP23017=1
     export RPI_STEPPER=1
 
 ### EEPROM Testing
@@ -1839,10 +1844,10 @@ hardware test platform:
 
     0x04  Arduino Metro Mini
     0x05  ATMega-328P IC (not always in I2C mode, so not always available)
-    0x20  GPIO Expander (one MCP23017; expander test + stepper)
+    0x20  GPIO Expander #1 (MCP23017; expander loopback test, t/330)
+    0x21  GPIO Expander #2 (MCP23017; stepper drive, t/450)
     0x3c  OLED (main case)
     0x48  ADC ADS 1 (main case)
-    0x49  ADC ADS 2 (2nd case)
     0x57  AT24C32 EEPROM (on same breakout board as RTC)
     0x68  DS3231 RTC
     0x77  BMP180 Barometric Pressure Sensor

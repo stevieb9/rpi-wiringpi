@@ -54,8 +54,7 @@ def overview():
     d.line([890, 138, 890, 226], fill=BUS, width=4)
     d.text((46, 200), 'I2C BUS   ·   SDA=GPIO2  SCL=GPIO3   ·   3V3 pull-ups', font=F(14, True), fill=BUS)
     i2c = [('ADS1115 #1', ['0x48', 'PWM/servo+dpot'], V3),
-           ('ADS1115 #2', ['0x49', 'stepper sense'], V3),
-           ('MCP23017',   ['0x20', 'GPIO expander'], V3),
+           ('MCP23017',   ['0x20/0x21', 'expanders'], V3),
            ('DS3231 RTC', ['0x68'], V3),
            ('AT24C32',    ['0x57', 'EEPROM'], V3),
            ('BMP180',     ['0x77', '3V3 only'], V3),
@@ -92,9 +91,9 @@ def overview():
     box(d, 760, 548, 240, 64, 'GPIO18 net', ['PWM / servo / interrupt', 'one wire -> ADS#1 A0'], PI)
 
     # Stepper subsystem
-    box(d, 40, 600, 230, 74, 'ULN2003 driver', ['5V', 'in <- MCP23017 GPA0-3'], V5)
+    box(d, 40, 600, 230, 74, 'ULN2003 driver', ['5V', 'in <- MCP23017 #2 (0x21)'], V5)
     box(d, 300, 600, 230, 74, '28BYJ-48 stepper', ['5V motor'], V5)
-    box(d, 560, 600, 300, 74, '3x photo resistor (R/C/L)', ['laser position rig', '-> ADS#2 0x49 A0/A1/A2'], PASS)
+    box(d, 560, 600, 300, 74, 'Limit switches + LED', ['CW=GPIO17 CCW=GPIO27', 'centre LED=GPIO19'], PASS)
     d.line([270, 637, 300, 637], fill=LOOP, width=4)        # ULN2003 -> stepper
     d.line([cx_for['MCP23017'], 334, cx_for['MCP23017'], 590, 155, 590, 155, 600], fill=LOOP, width=3, joint='curve')
 
@@ -107,8 +106,8 @@ def overview():
            'MCP4922 DAC out0 / out1       ===>  MCP3008 CH1 / CH3',
            '74HC595 Q-outputs             ===>  MCP3008 CH2',
            'MCP23017 GPA4-7              <===>  MCP23017 GPB4-7   (loopback pairs)',
-           'MCP23017 GPA0-3  -> ULN2003 -> 28BYJ-48 stepper      (drive)',
-           '3x photo resistor (R/C/L)     ===>  ADS#2 (0x49) A0/A1/A2',
+           'MCP23017 #2 GPA0-3 -> ULN2003 -> 28BYJ-48 stepper    (drive)',
+           '28BYJ-48 sweep                ===>  CW/CCW limit switches (GPIO17/27)',
            'UART GPIO14 TXD               ===>  GPIO15 RXD']
     for i, s in enumerate(lbs):
         d.text((px+24, py+44+i*38), s, font=F(15), fill=INK)
@@ -126,8 +125,8 @@ PINS = {
  5:('GPIO3   I2C SCL  -> bus','i2c'),6:('GND','gnd'),
  7:('GPIO4   -> LCD D4','lcd'),8:('GPIO14  UART TXD -> GPIO15','uart'),
  9:('GND','gnd'),10:('GPIO15  UART RXD <- GPIO14','uart'),
- 11:('GPIO17  -> LCD D5','lcd'),12:('GPIO18  PWM/servo/INT -> ADS#1 A0','pwm'),
- 13:('GPIO27  -> LCD D6','lcd'),14:('GND','gnd'),
+ 11:('GPIO17  LCD D5 / stepper CW sw','lcd'),12:('GPIO18  PWM/servo/INT -> ADS#1 A0','pwm'),
+ 13:('GPIO27  LCD D6 / stepper CCW sw','lcd'),14:('GND','gnd'),
  15:('GPIO22  -> LCD D7','lcd'),16:('GPIO23  (spare)','spare'),
  17:('3V3','pwr3'),18:('GPIO24  (spare)','spare'),
  19:('GPIO10  SPI MOSI -> 3 SPI dev','spi'),20:('GND','gnd'),
@@ -138,7 +137,7 @@ PINS = {
  29:('GPIO5   -> LCD RS','lcd'),30:('GND','gnd'),
  31:('GPIO6   -> LCD E','lcd'),32:('GPIO12  MCP4922 DAC CS (bit-bang)','spi'),
  33:('GPIO13  MCP4XXXX dpot CS (bit-bang)','spi'),34:('GND','gnd'),
- 35:('GPIO19  (spare)','spare'),36:('GPIO16  74HC595 LATCH','shift'),
+ 35:('GPIO19  stepper centre LED','lcd'),36:('GPIO16  74HC595 LATCH','shift'),
  37:('GPIO26  MCP3008 CS (bit-bang)','spi'),38:('GPIO20  74HC595 CLOCK','shift'),
  39:('GND','gnd'),40:('GPIO21  74HC595 DATA','shift'),
 }
@@ -173,8 +172,8 @@ def detail():
     text_c(d, 760, py+10, 'Inter-device loop-backs (no Pi pin) — drive ===> read back', F(17, True), LOOP)
     rows = ['MCP4922 DAC out0 ===> MCP3008 CH1        MCP4922 DAC out1 ===> MCP3008 CH3',
             '74HC595 Q-output ===> MCP3008 CH2        MCP4XXXX dpot wiper ===> ADS#1 (0x48) A1',
-            'MCP23017 GPA0-3 -> ULN2003 -> 28BYJ-48 stepper      GPA4-7 <===> GPB4-7 (loopback)',
-            '3x photo resistor R/C/L ===> ADS#2 (0x49) A0/A1/A2   (laser position rig)',
+            'MCP23017 #2 (0x21) GPA0-3 -> ULN2003 -> 28BYJ-48     #1 GPA4-7 <===> GPB4-7 (loopback)',
+            '28BYJ-48 sweep ===> CW/CCW limit switches (GPIO17/27)   centre LED = GPIO19',
             'MCP23017 RESET (chip pin 18) -> 3V3      5V Arduino I2C via 3V3<->5V level-shifter']
     for i, s in enumerate(rows):
         d.text((84, py+44+i*32), s, font=F(14), fill=INK)

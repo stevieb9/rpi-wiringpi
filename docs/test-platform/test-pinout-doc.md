@@ -37,7 +37,7 @@ numbering scheme (`pin_scheme()` ⇒ GPIO; `t/106`), and `last_interrupt()` repo
   - [2.4 Generated artifacts & regeneration](#24-generated-artifacts--regeneration)
 - [3. Devices & pinouts per test file](#3-devices--pinouts-per-test-file-t)
 - [4. I2C bus (GPIO2 SDA / GPIO3 SCL)](#4-i2c-bus-gpio2-sda--gpio3-scl)
-  - [4.1 MCP23017 — pin allocation](#41-mcp23017--pin-allocation-single-expander-t)
+  - [4.1 MCP23017 expanders — pin allocation](#41-mcp23017-expanders--pin-allocation-t)
 - [5. SPI bus (GPIO9 MISO / GPIO10 MOSI / GPIO11 SCLK)](#5-spi-bus-gpio9-miso--gpio10-mosi--gpio11-sclk)
 - [6. LCD — HD44780, 4-bit mode](#6-lcd--hd44780-4-bit-mode-t525-t)
 - [7. GPIO18 — the multiplexed workhorse pin](#7-gpio18--the-multiplexed-workhorse-pin-physical-pin-12)
@@ -69,9 +69,9 @@ in the tests, which write a value and then read it back to compare.
    MCP4922 DAC out A (set 0,..)  ─►  MCP3008 (CS=GPIO26) CH1      t/310
    MCP4922 DAC out B (set 1,..)  ─►  MCP3008 (CS=GPIO26) CH3      t/310
    74HC595 first Q (vpin 401)    ─►  MCP3008 (CS=GPIO26) CH2      t/335
-   MCP23017 GPA4-7              <─►  MCP23017 GPB4-7  (loopback)  t/330
-   MCP23017 GPA0-3 ► ULN2003 ► 28BYJ-48 stepper (drive)          t/450
-   stepper position (3 sensors)  ─►  ADS1115 #2 (0x49) A0/A1/A2   t/450
+   MCP23017 #1 (0x20) GPA4-7   <─► MCP23017 #1 GPB4-7 (loopback) t/330
+   MCP23017 #2 (0x21) GPA0-3 ► ULN2003 ► 28BYJ-48 stepper (drive) t/450
+   28BYJ-48 sweep ─► CW switch (GPIO17) / CCW switch (GPIO27)     t/450
    UART TXD (GPIO14)             ─►  UART RXD (GPIO15)            t/315
 ```
 
@@ -81,7 +81,7 @@ Loop-back evidence (representative):
 - `t/310:24-25,58-61,76-80` writes DAC A/B, reads MCP3008 CH1/CH3.
 - `t/335:39,43-64` writes shift-register output (virtual pin `401`), reads MCP3008 CH2.
 - `t/330:218-231` drives MCP23017 `GPA(n)` and reads `GPB(n)=GPA(n)+8` for n=4..7.
-- `t/450:27-35` steps via expander Bank A and reads three ADS @ `0x49` channels.
+- `t/450:215-243` steps via expander Bank A (0x21); the CW/CCW magnetic limit switches on GPIO17/27 fire edges captured by `background_interrupt` (`t/450:127,133`). Centre is computed, not sensed.
 - `t/315:26-43` writes a byte/string to the serial port and reads the same back.
 
 ---
@@ -110,9 +110,9 @@ registration test (`t/110`) and/or the multi-process tests (`t/111-114`,
 | 14 |  8 | ★ | UART TXD → GPIO15 | t/315 |
 | 15 | 10 | ★ | UART RXD ← GPIO14 | t/315 |
 | 16 | 36 | ★ | 74HC595 LATCH (ST_CP) (+ generic) | t/335:35; multi |
-| 17 | 11 | ★ | LCD D5 (`d1`) | t/525:36-50 |
+| 17 | 11 | ★ | LCD D5 (`d1`) + stepper **CW limit switch** | t/525:36-50; t/450:118 |
 | 18 | 12 | ★ | **PWM/servo out + interrupt source + ADS#1 A0** (+ generic) | t/105,109,140,200-213,325,110,150,multi |
-| 19 | 35 |   | spare / generic test pin | default-config; state checks |
+| 19 | 35 | ★ | stepper **centre LED** (computed centre) | t/450:113-114 |
 | 20 | 38 | ★ | 74HC595 CLOCK (SH_CP) | t/335:35 |
 | 21 | 40 | ★ | 74HC595 DATA (DS) (+ alt-mode test, generic) | t/335:35; t/107; multi |
 | 22 | 15 | ★ | LCD D7 (`d3`) | t/525:36-50 |
@@ -120,7 +120,7 @@ registration test (`t/110`) and/or the multi-process tests (`t/111-114`,
 | 24 | 18 |   | spare / generic test pin | default-config; state checks |
 | 25 | 22 |   | spare / generic test pin | default-config; state checks |
 | 26 | 37 | ★ | MCP3008 ADC **CS** (bit-banged) (+ generic) | t/310,335; t/110, multi |
-| 27 | 13 | ★ | LCD D6 (`d2`) | t/525:36-50 |
+| 27 | 13 | ★ | LCD D6 (`d2`) + stepper **CCW limit switch** | t/525:36-50; t/450:122 |
 |  0 | 27 |   | ID_SD — generic test pin | default-config (idles high) |
 |  1 | 28 |   | ID_SC — generic test pin | default-config (idles high) |
 
@@ -163,8 +163,8 @@ registration test (`t/110`) and/or the multi-process tests (`t/111-114`,
        I2C SCL -> all I2C devs   3  ( 5)   ( 6)  --   GND
                        LCD D4    4  ( 7)   ( 8)  14   UART TXD --+ loopback
                           GND   --  ( 9)   (10)  15   UART RXD <-+
-                       LCD D5   17  (11)   (12)  18   PWM/servo/INT -> ADS#1 A0
-                       LCD D6   27  (13)   (14)  --   GND
+               LCD D5 / CW sw   17  (11)   (12)  18   PWM/servo/INT -> ADS#1 A0
+              LCD D6 / CCW sw   27  (13)   (14)  --   GND
                        LCD D7   22  (15)   (16)  23   (spare)
                           3V3   --  (17)   (18)  24   (spare)
         SPI MOSI -> 3 SPI devs  10  (19)   (20)  --   GND
@@ -175,7 +175,7 @@ registration test (`t/110`) and/or the multi-process tests (`t/111-114`,
                        LCD RS    5  (29)   (30)  --   GND
                         LCD E    6  (31)   (32)  12   MCP4922 DAC CS (bit-bang)
             MCP4XXXX dpot CS    13  (33)   (34)  --   GND
-                      (spare)   19  (35)   (36)  16   74HC595 LATCH
+                   centre LED   19  (35)   (36)  16   74HC595 LATCH
           MCP3008 ADC CS (bb)   26  (37)   (38)  20   74HC595 CLOCK
                           GND   --  (39)   (40)  21   74HC595 DATA
 ```
@@ -198,20 +198,23 @@ see §10 item 9 and §11). All Pi logic (GPIO, I2C, SPI, PWM) is 3V3; 5V parts t
    ===========================================================================
 
    I2C RAIL (SDA2 / SCL3, one 3V3 pull-up pair)
-   ==+========+==========+======+========+========+=======+=========
-     |        |          |      |        |        |       |
-  [ADS#1]  [ADS#2]  [MCP23017] [RTC]  [EEPROM] [BMP180] [OLED]  [Arduino]
-   0x48     0x49     0x20      0x68   0x57     0x77     0x3c     0x04
-   (3V3)    (3V3)    (3V3)     (3V3)  (3V3)    (3V3)    (3V3)    (5V *)
-     |        |        |
-     |        |        +-- GPA0-3 ==> ULN2003 ==> 28BYJ-48 stepper coils  (5V)
-     |        |        +-- GPA4-7 <-> GPB4-7        (Port A<->B loopback, t/330)
-     |        |        +-- RESET (chip pin 18) -> 3V3
-     |        |
-     |        +-- A0/A1/A2 <-- 3x position sensor (R/C/L, stepper sense)
+   ==+===========+============+=======+========+========+=======+=========
+     |           |            |       |        |        |       |
+  [ADS#1] [MCP23017#1] [MCP23017#2] [RTC] [EEPROM] [BMP180] [OLED] [Arduino]
+   0x48      0x20         0x21      0x68   0x57     0x77     0x3c    0x04
+   (3V3)     (3V3)        (3V3)     (3V3)  (3V3)    (3V3)    (3V3)   (5V *)
+     |         |            |
+     |         |            +-- GPA0-3 ==> ULN2003 ==> 28BYJ-48 stepper (5V)  t/450
+     |         |            +-- RESET (chip pin 18) -> 3V3
+     |         |
+     |         +-- GPA4-7 <-> GPB4-7    (Port A<->B loopback)  t/330
+     |         +-- RESET (chip pin 18) -> 3V3
      |
      +-- A0 <==== GPIO18 (PWM / servo signal, 3V3)
      +-- A1 <==== MCP4XXXX dpot wiper
+
+   Stepper feedback is Pi GPIO, not I2C:  CW limit = GPIO17,  CCW limit = GPIO27
+   (magnetic switches);  centre LED = GPIO19  (centre computed, not sensed).  t/450
 
    SPI RAIL (MOSI10 / SCLK11 / MISO9; hardware SPI, CS bit-banged)
    ==+==============+==============+==============
@@ -255,8 +258,8 @@ ships as JPEG/PDF in this directory, with every vector **SVG** under **`svg/`**:
   routed via netlistsvg/ELK; open and zoom to read.
 - **`svg/test-pinout-schematic.svg`** (and the raster **`test-pinout-schematic.jpg`**)
   — the same design in net-label style.
-- **`facts/test-platform.net`** — KiCad-importable netlist (24 components, 41
-  nets); every connection, datasheet-accurate pinouts.
+- **`facts/test-platform.net`** — KiCad-importable netlist; every connection with
+  datasheet-accurate pinouts.
 - **`test-pinout-doc.pdf`** — this document, typeset from the Markdown.
 
 Regenerate everything above with **`scripts/gen-test-platform.pl`**: it drives the
@@ -273,7 +276,7 @@ skips that step with a warning.
 
 Every test that touches a pin or a device, decoded from its constructor call to
 the concrete devices and pins it needs on the board. Tests that exercise no
-hardware — module-load (`t/00,02,03,05`), identification/config (`t/100,104,106`),
+hardware — module-load (`t/00,02,03,05`), identification/config (`t/100,104,106,409`),
 in-process metadata (`t/111`), signal/exit (`t/153,154`), sysinfo (`t/400-408`),
 the OLED lock-file cleanup (`t/520`), and POD/manifest (`t/899,900,905,910,915`) —
 are omitted here.
@@ -310,7 +313,7 @@ devices share **SDA=GPIO2 / SCL=GPIO3**. See the cited sections for full decodin
 | `420-eeprom_args.t` | AT24C32 EEPROM | I2C SDA2/SCL3 @0x57 |
 | `421-eeprom_read_write_byte_croak.t` | AT24C32 EEPROM | I2C SDA2/SCL3 @0x57 |
 | `422-eeprom_read_write_byte.t` | AT24C32 EEPROM | I2C SDA2/SCL3 @0x57 |
-| `450-stepper.t` | MCP23017, ULN2003, 28BYJ-48 stepper, ADS1115 #2 | MCP23017 @0x20 GPA0–3 → ULN2003 IN1–4 → 28BYJ-48 coils; 3 position sensors → ADS1115 #2 @0x49 A0/A1/A2; I2C SDA2/SCL3 |
+| `450-stepper.t` | MCP23017 (0x21), ULN2003, 28BYJ-48 stepper | MCP23017 @0x21 GPA0–3 → ULN2003 IN1–4 → 28BYJ-48 coils; CW limit switch GPIO17, CCW limit switch GPIO27 (rising-edge interrupts), centre LED GPIO19 (centre computed, not sensed); I2C SDA2/SCL3 |
 | `500-oled_new.t` … `509-oled_horizontal_line.t` (10 OLED tests) | OLED SSD1306 128×64 | I2C SDA2/SCL3 @0x3c |
 | `525-lcd.t` | HD44780 LCD (20×4, 4-bit) | RS=GPIO5, E=GPIO6, D4=GPIO4, D5=GPIO17, D6=GPIO27, D7=GPIO22 |
 
@@ -325,10 +328,10 @@ default.
 | Addr | Device | Tests | Source of address |
 |------|--------|-------|-------------------|
 | 0x04 | Arduino (I2C slave) | t/305 (‡t/300) | **[T]** `ARDUINO_ADDR` t/305:11,31 |
-| 0x20 | MCP23017 GPIO expander | t/330, t/450 | **[T]** `expander(0x20)` t/330:32, t/450:24 |
+| 0x20 | MCP23017 #1 GPIO expander | t/330 | **[T]** `expander(0x20)` t/330:32 |
+| 0x21 | MCP23017 #2 GPIO expander (stepper drive) | t/450 | **[T]** `expander(0x21)` t/450:108 |
 | 0x3c | OLED SSD1306 128×64 | t/500-520 | **[T]** `oled('128x64',0x3C,0)` t/500:22 |
 | 0x48 | ADS1115 ADC #1 | t/140,325,345 | **[T]** `adc(addr=>0x48)` t/140:42, t/325:77, t/345:35 |
-| 0x49 | ADS1115 ADC #2 | t/450 | **[T]** `adc(addr=>0x49)` t/450:25 |
 | 0x57 | AT24C32 EEPROM | t/420-422 | **[T]** asserted default t/420:21-24 |
 | 0x68 | DS3231 RTC | t/320 | **[L]** `rtc()` passes no addr; default 0x68 (DS3231.pm:13) |
 | 0x77 | BMP180 pressure/temp | t/340 | **[L]** `bmp(100)` arg is a pin-base, not an addr; 0x77 from driver/datasheet |
@@ -348,34 +351,33 @@ default.
 ```
             +3V3 ── pull-ups ──┐     ┌──────┬──────┬──────┬──── ... (all I2C devices)
  GPIO2 (SDA) ──────────────────┴─SDA─┤      │      │      │
- GPIO3 (SCL) ───────────────────SCL──┤ 0x20 │ 0x48 │ 0x49 │ 0x68 0x77 0x57 0x3c 0x04
-                                    MCP23017  ADS#1  ADS#2  RTC  BMP  EEPROM OLED Ardu
+ GPIO3 (SCL) ───────────────────SCL──┤ 0x20 │ 0x21 │ 0x48 │ 0x68 0x77 0x57 0x3c 0x04
+                                    MCP#1   MCP#2  ADS#1  RTC  BMP  EEPROM OLED Ardu
 ```
 
-**Two ADS1115 ADCs [T].** `0x48` (PWM/servo + dpot feedback) and `0x49` (stepper
-sense) are both addressed explicitly in different tests. Two are required: the
-suite reads five analog inputs (PWM/servo, dpot wiper, three stepper sensors) —
-more than one 4-channel chip can carry, and the PWM output line can't share an
-ADC channel with a sensor.
+**One ADS1115 ADC [T].** `0x48` carries the two analog read-backs the suite needs
+— PWM/servo on A0 (`t/140,325`) and the dpot wiper on A1 (`t/345`). The stepper no
+longer uses an ADC: its limits are magnetic switches on Pi GPIO17/27 and centre is
+computed (§8).
 
-**One MCP23017 [T]**, strapped to `0x20`; both `t/330` and `t/450` use it there.
+**Two MCP23017 expanders [T].** `0x20` is the loopback chip (`t/330`); `0x21` is a
+separate expander that drives the stepper coils (`t/450:108`).
 
-### 4.1 MCP23017 — pin allocation (single expander) **[T]**
+### 4.1 MCP23017 expanders — pin allocation **[T]**
 
-Bank A is split between two jobs; Bank B mirrors only the loopback half. There is
-**no** full Port-A→Port-B loopback — this split *is* the wiring (`t/330` comments
-at lines 217,253; `t/450:28`):
+Two **separate** MCP23017s, one per job — `t/330`'s loopback chip at `0x20` and
+the stepper's drive chip at `0x21`:
 
 ```
-  GPA0..GPA3  ─► ULN2003 IN1..IN4 ─► 28BYJ-48 stepper coils   (t/450; drive)
-  GPA4..GPA7 <-> GPB4..GPB7                                   (t/330 loopback pairs)
-  GPB0..GPB3  — unused
+  #2 @0x21:  GPA0..GPA3  ─► ULN2003 IN1..IN4 ─► 28BYJ-48 coils   (t/450; drive)
+  #1 @0x20:  GPA4..GPA7 <-> GPB4..GPB7                           (t/330 loopback)
 ```
 
 `t/330` writes `GPA(n)` and reads `GPB(n) = GPA(n)+8` for **n = 4,5,6,7** only,
-bidirectionally (`t/330:218-231,254-267`). `t/450` drives `pins => [0,1,2,3]` =
-**GPA0-3** through the expander (the `expander => $expander` path means the
-StepperMotor driver writes via I2C, not Pi GPIO — `StepperMotor.pm:159-163`).
+bidirectionally on the **0x20** chip (`t/330:218-231,254-267`). `t/450` drives
+`pins => [A0,A1,A2,A3]` = **GPA0-3** on the **0x21** chip (`t/450:108,215-216`);
+the `expander => $exp` path means the StepperMotor driver writes via I2C, not Pi
+GPIO — `StepperMotor.pm:159-163`.
 
 > **[F]** The MCP23017 RESET (chip pin 18) tie-high to 3V3 is standard practice;
 > the tests don't touch it.
@@ -442,6 +444,10 @@ requires `d4..d7 = 0` for 4-bit — `LCD.pm:114-120`).
 LCD" (`RPiTest.pm:204`) — they are reserved for the display and not asserted as
 generic pins.
 
+> **Shared with the stepper:** GPIO17 (D5) and GPIO27 (D6) also serve as the
+> stepper's CW/CCW magnetic limit switches in `t/450` (§8). The two tests never run
+> at once (serial suite), but it is a shared physical net — see §10.
+
 > **[F]** The logical `d0..d3` → physical DB4..DB7 mapping is the standard HD44780
 > 4-bit convention; the test proves logical wiring + 4-bit mode, not silkscreen
 > pin numbers. R/W tied to GND (write-only) is also convention.
@@ -486,16 +492,19 @@ default is INPUT (`get_alt(18)==0`, `t/213:151`).
 The first Q-output is exposed as virtual pin **401**; writing it HIGH/LOW is read
 back on **MCP3008 CH2** (`t/335:39,43-64`). Virtual pins 400-407 are not Pi GPIO.
 
-**Stepper (`t/450`) — no direct Pi GPIO [T].** Coils are driven through a ULN2003
-by the single MCP23017's Bank A pins 0-3 (§4.1). Position is sensed by **three
-analog sensors** into **ADS1115 #2 (0x49)**, channels **A0/A1/A2 = Right/Centre/Left**
-(`t/450:34`: `my ($l,$c,$r)=(2,1,0)`), read with `raw()` and thresholded
-(HIGH > 1850, LOW < 1650; `t/450:35`); the test rotates ±90° and asserts exactly
-one sensor reads HIGH per position.
+**Stepper (`t/450`) — coils via I2C expander, limits on Pi GPIO [T].** Coils are
+driven through a ULN2003 by **MCP23017 #2 (0x21)** Bank A pins 0-3 (§4.1), so they
+use no direct Pi GPIO. Travel is bounded by **two magnetic limit switches** read
+directly on the Pi: **CW on GPIO17** (`t/450:118`) and **CCW on GPIO27**
+(`t/450:122`), each armed as a rising-edge `background_interrupt` (`t/450:127,133`).
+**Centre is computed, not sensed** — symmetric tick counts return the motor to
+mid-travel — and shown on a **centre LED on GPIO19** (`t/450:113-114`). The test
+sweeps ccw/cw across several speed/delay configs and asserts each limit edge fires
+within its expected time window (`t/450:215-243`).
 
-> **[F]** That the three sensors are **photo-resistors in 10 kΩ dividers**, lit by
-> a "laser position rig", is design detail from README/the existing schematic —
-> the tests only establish three analog channels that go HIGH/LOW with position.
+> The earlier rig sensed three analog positions (R/C/L) via an ADS1115 at `0x49`;
+> the redesigned board drops that ADC entirely in favour of the two magnetic
+> switches above, with centre inferred from the symmetric sweep.
 
 ---
 
@@ -504,7 +513,8 @@ one sensor reads HIGH per position.
 Exercised only for default-mode/state, registration counting and alt-mode round
 trips — no peripheral attached; candidates for break-out test points:
 
-- **GPIO19, 23, 24, 25** — fully spare (appear only in the default-state table).
+- **GPIO23, 24, 25** — fully spare (appear only in the default-state table).
+  GPIO19 is now the stepper **centre LED** (§8).
 - **GPIO7 (CE1), GPIO8 (CE0)** — at SPI-alt default; unused because CS is
   bit-banged on 26/12/13.
 - **GPIO21** — also the alt-mode round-trip pin in `t/107` (loops ALT0–ALT7), in
@@ -531,8 +541,8 @@ trips — no peripheral attached; candidates for break-out test points:
    reads. To verify after assembly: measure SDA→3V3 / SCL→3V3 (≥0.6 kΩ is fine),
    run `i2cdetect -y 1` plus a soak loop, and if flaky drop to 100 kHz
    (`dtparam=i2c_arm_baudrate=100000`) for margin. A BSS138-type level-shifter for
-   the 5V Arduino adds its own ~10 kΩ pulls on the Pi side. Strap the two ADS1115
-   to 0x48/0x49 and the single MCP23017 to 0x20.
+   the 5V Arduino adds its own ~10 kΩ pulls on the Pi side. Strap the ADS1115
+   to 0x48 and the two MCP23017s to 0x20 (t/330) and 0x21 (stepper).
 2. **Shared SPI bus (GPIO9/10/11) [T]** — three devices, one active CS at a time
    (26/12/13). Write-only DAC/dpot must not drive MISO.
 3. **GPIO18 over-subscribed [T]** — PWM + servo + interrupt + generic + ADS#1 A0
@@ -563,6 +573,12 @@ trips — no peripheral attached; candidates for break-out test points:
    (via ULN2003), servo and Arduino at 5V, with a level-shifter for the 5V I2C.
    Verify against your actual parts. Full per-rail device lists and the current
    budget are in §11.
+10. **GPIO17/27 shared — LCD vs stepper limits [T].** GPIO17 (LCD D5) and GPIO27
+   (LCD D6) also read the stepper's CW/CCW magnetic limit switches (`t/450`).
+   `t/525` drives them as LCD outputs; `t/450` reads them as switch inputs. The
+   serial suite keeps them apart in software, but they are one shared net on the
+   board — don't add a pull/load that fights either role. GPIO19 (stepper centre
+   LED) is dedicated.
 
 ---
 
@@ -587,8 +603,8 @@ matches the Pi's 3V3 PWM/GPIO levels):
 | Device                | Ref / addr   | Power pin     | Notes                              |
 |-----------------------|--------------|---------------|------------------------------------|
 | ADS1115 ADC #1        | I2C 0x48     | VDD           | A0=PWM/servo, A1=dpot wiper        |
-| ADS1115 ADC #2        | I2C 0x49     | VDD           | A0/A1/A2 = stepper position sensors|
-| MCP23017 GPIO expander| I2C 0x20     | VDD           | RESET (chip pin 18) also tied 3V3  |
+| MCP23017 #1 expander  | I2C 0x20     | VDD           | t/330 loopback; RESET tied 3V3     |
+| MCP23017 #2 expander  | I2C 0x21     | VDD           | t/450 stepper drive; RESET tied 3V3|
 | DS3231 RTC            | I2C 0x68     | VCC           | RTC/EEPROM breakout                |
 | AT24C32 EEPROM        | I2C 0x57     | VCC           | same breakout board as the RTC     |
 | BMP180 pressure/temp  | I2C 0x77     | VIN           | 3V3 only — **not** 5V tolerant     |
@@ -617,7 +633,7 @@ The 5V parts take 3V3 control/logic signals but are powered from 5V:
 |-------------------------|-------------------|-----------------|------------------------------------|
 | HD44780 LCD             | display (`t/525`) | VDD + backlight | logic inputs (RS/E/D4-7) are 3V3   |
 | 28BYJ-48 stepper        | via ULN2003       | motor V+        | coils, `t/450`                     |
-| ULN2003 driver          | stepper driver    | COM / VCC       | driven by MCP23017 GPA0-3          |
+| ULN2003 driver          | stepper driver    | COM / VCC       | driven by MCP23017 #2 (0x21) GPA0-3|
 | Servo                   | on GPIO18 PWM     | V+              | signal 3V3, power 5V               |
 | Arduino                 | I2C 0x04          | VIN / 5V        | joins bus via level-shifter        |
 | ATMega-328P (standalone)| I2C 0x05          | VCC             | optional; only in I2C mode         |
@@ -640,8 +656,8 @@ Other 5V connections:
 | Device | Ref | Typ (mA) | Peak (mA) | Note |
 |--------|-----|---------:|----------:|------|
 | ADS1115 #1 | 0x48 | 0.15 | 0.20 | continuous-conversion |
-| ADS1115 #2 | 0x49 | 0.15 | 0.20 | |
-| MCP23017 | 0x20 | 1.0 | 1.0 | logic only; loopback drive is high-Z |
+| MCP23017 #1 | 0x20 | 1.0 | 1.0 | logic only; loopback drive is high-Z |
+| MCP23017 #2 | 0x21 | 1.0 | 1.0 | stepper drive (ULN2003 inputs, high-Z) |
 | DS3231 RTC | 0x68 | 0.2 | 0.2 | **+~3 mA if breakout power-LED fitted** |
 | AT24C32 EEPROM | 0x57 | 0.5 | 3.0 | peak during page write |
 | BMP180 | 0x77 | 0.01 | 0.65 | µA between samples |
@@ -651,7 +667,7 @@ Other 5V connections:
 | MCP4XXXX dpot | CS13 | 0.5 | 1.0 | +~0.33 mA ladder (10 kΩ, 3V3→GND) |
 | 74HC595 | bit-bang | 0.5 | 2.0 | dynamic/switching |
 | I2C pull-ups (Pi 1.8 kΩ ×2) | — | ~0 | ~4 | momentary, only while a line is held low |
-| dpot ladder + 3× sensor dividers | — | ~1 | ~1.5 | into ADS high-Z |
+| dpot ladder | — | ~0.33 | ~0.5 | into ADS#1 A1 (high-Z) |
 | **+3V3 subtotal** | | **~20** | **~45** | OLED is ~75%; +~3 mA w/ RTC LED |
 
 **+5V bus** — LCD, stepper, servo, Arduino:
@@ -694,7 +710,7 @@ lower.
 
 `rpi_default_pin_config()` is the at-rest mode/state every checked pin must return
 to after a run; `rpi_check_pin_status()` asserts it. `rpi_board_tag()` selects one
-of three tables (`RPiTest.pm:293-304`): **pi5** (RP1, via `pi_rp1_model()`),
+of three tables (`RPiTest.pm:293-310`): **pi5** (RP1, via `pi_rp1_model()`),
 **pi4** (model 17/19/20), else **pi3**. `alt`/funcsel encodings: on Pi 5/RP1
 `31` = null/no-peripheral, `7` = I2C, `4` = SPI, `3` = UART; on Pi 3/4 the legacy
 scheme has ALT0 = `4`. `state = undef` ⇒ mode-only check (the CS pins).
@@ -708,7 +724,7 @@ scheme has ALT0 = `4`. `state = undef` ⇒ mode-only check (the CS pins).
 | BCM | alt | state | | BCM | alt | state | | BCM | alt | state |
 |----:|----:|------:|-|----:|----:|------:|-|----:|----:|------:|
 | 0  | 0  | 1 | | 11 | 4  | 0 | | 22 | 1  | 0 |
-| 1  | 0  | 1 | | 12 | 31 | *undef* | | 23 | 1  | 0 |
+| 1  | 0  | 1 | | 12 | 31 | *undef* | | 23 | 31 | 0 |
 | 2  | 7  | 1 | | 13 | 31 | 0 | | 24 | 31 | 0 |
 | 3  | 7  | 1 | | 14 | 3  | 1 | | 25 | 31 | 0 |
 | 4  | 31 | 0 | | 15 | 3  | 1 | | 26 | 31 | *undef* |
@@ -757,15 +773,15 @@ objects/pins in the same shm segment.
 - [ ] 40-pin header pass-through; route the BCM pins in §2.
 - [ ] **No** external I2C pull-up pair — the Pi's built-in ~1.8 kΩ on SDA/SCL is
       enough; just check the breakouts' on-board pulls don't parallel too low
-      (§10 item 1). Address straps: ADS1115 0x48 & 0x49, MCP23017 0x20. **[T]** addresses.
+      (§10 item 1). Address straps: ADS1115 0x48, MCP23017 0x20 (t/330) & 0x21 (t/450 stepper). **[T]** addresses.
 - [ ] SPI fan-out (9/10/11) → MCP3008 + MCP4922 + MCP4XXXX with **bit-banged CS**
       26/12/13; hardware CE0/CE1 left free. **[T]**
 - [ ] DAC out A/out B → MCP3008 CH1/CH3; 74HC595 first Q → MCP3008 CH2. **[T]**
 - [ ] dpot wiper → ADS#1 A1. **[T]** (dpot end-terminals to 3V3/GND ref — **[F]**.)
 - [ ] GPIO18 → ADS#1 A0 only; **no pull, no load** (series R ok). **[T]**
-- [ ] MCP23017 (0x20): GPA4-7 ↔ GPB4-7 loopback; GPA0-3 → ULN2003 → 28BYJ-48
-      stepper; three position sensors → ADS#2 (0x49) A0/A1/A2. **[T]**
-      (RESET→3V3 — **[F]**.)
+- [ ] MCP23017 #1 (0x20): GPA4-7 ↔ GPB4-7 loopback (t/330). **[T]** (RESET→3V3 — **[F]**.)
+- [ ] MCP23017 #2 (0x21): GPA0-3 → ULN2003 → 28BYJ-48 stepper; CW switch → GPIO17,
+      CCW switch → GPIO27, centre LED → GPIO19. **[T]** (RESET→3V3 — **[F]**.)
 - [ ] LCD (20×4, 4-bit): 4=D4, 5=RS, 6=E, 17=D5, 27=D6, 22=D7. **[T]**
 - [ ] UART: GPIO14 → GPIO15 (header UART freed). **[T]**
 - [ ] Leave GPIO0/1 unrouted (reserved ID-EEPROM). **[F]**

@@ -14,7 +14,7 @@ SHEETS = [
  ('Whole board — all signals + power', 't/test-pinout-schematic-signals.svg'),
  ('I2C bus',                            't/sheet-i2c.svg'),
  ('SPI bus',                            't/sheet-spi.svg'),
- ('Stepper + ADC position sense',       't/sheet-stepper.svg'),
+ ('Stepper + limit switches',           't/sheet-stepper.svg'),
  ('Display / PWM / UART',               't/sheet-display.svg'),
 ]
 rows = "".join(

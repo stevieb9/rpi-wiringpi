@@ -19,7 +19,12 @@ import sys
 COMPONENTS = {
  'J1': ('Raspberry_Pi_40pin', 'PinHeader_2x20', {str(i): f'P{i}' for i in range(1,41)}),
  # --- bare logic ICs ---
- 'U1': ('MCP23017', 'DIP-28', {  # I2C GPIO expander, 0x20
+ 'U1': ('MCP23017', 'DIP-28', {  # I2C GPIO expander #1, 0x20 (t/330 loopback)
+   '9':'VDD','10':'VSS','12':'SCL','13':'SDA','18':'RESET','15':'A0','16':'A1','17':'A2',
+   '20':'INTA','19':'INTB',
+   '21':'GPA0','22':'GPA1','23':'GPA2','24':'GPA3','25':'GPA4','26':'GPA5','27':'GPA6','28':'GPA7',
+   '1':'GPB0','2':'GPB1','3':'GPB2','4':'GPB3','5':'GPB4','6':'GPB5','7':'GPB6','8':'GPB7'}),
+ 'U6': ('MCP23017', 'DIP-28', {  # I2C GPIO expander #2, 0x21 (t/450 stepper drive)
    '9':'VDD','10':'VSS','12':'SCL','13':'SDA','18':'RESET','15':'A0','16':'A1','17':'A2',
    '20':'INTA','19':'INTB',
    '21':'GPA0','22':'GPA1','23':'GPA2','24':'GPA3','25':'GPA4','26':'GPA5','27':'GPA6','28':'GPA7',
@@ -38,7 +43,6 @@ COMPONENTS = {
    '14':'PB0','13':'PW0','12':'PA0','5':'PB1','6':'PW1','7':'PA1'}),
  # --- sensor / breakout modules ---
  'M1': ('ADS1115_0x48', 'Module', {'VDD':'VDD','GND':'GND','SCL':'SCL','SDA':'SDA','ADDR':'ADDR','A0':'A0','A1':'A1','A2':'A2','A3':'A3'}),
- 'M2': ('ADS1115_0x49', 'Module', {'VDD':'VDD','GND':'GND','SCL':'SCL','SDA':'SDA','ADDR':'ADDR','A0':'A0','A1':'A1','A2':'A2','A3':'A3'}),
  'M3': ('DS3231_ZS042', 'Module', {'VCC':'VCC','GND':'GND','SCL':'SCL','SDA':'SDA','SQW':'SQW','32K':'32K'}),  # +AT24C32 onboard
  'M4': ('BMP180', 'Module', {'VIN':'VIN','GND':'GND','SCL':'SCL','SDA':'SDA'}),
  'M5': ('SSD1306_OLED', 'Module', {'VCC':'VCC','GND':'GND','SCL':'SCL','SDA':'SDA'}),
@@ -50,8 +54,10 @@ COMPONENTS = {
  'SV1': ('Servo', 'Conn-3', {'SIG':'SIG','V+':'V+','GND':'GND'}),
  # --- passives ---
  'RV1': ('10k_pot', 'Pot', {'1':'A','2':'W','3':'B'}),     # LCD contrast
- 'R1': ('LDR', 'LDR', {'1':'1','2':'2'}), 'R2': ('LDR','LDR',{'1':'1','2':'2'}), 'R3': ('LDR','LDR',{'1':'1','2':'2'}),
- 'R4': ('10k', 'R', {'1':'1','2':'2'}), 'R5': ('10k','R',{'1':'1','2':'2'}), 'R6': ('10k','R',{'1':'1','2':'2'}),
+ 'SW1': ('CW_limit_switch', 'SW', {'1':'1','2':'2'}),   # magnetic, GPIO17 <-> +3V3
+ 'SW2': ('CCW_limit_switch', 'SW', {'1':'1','2':'2'}),  # magnetic, GPIO27 <-> +3V3
+ 'D1': ('centre_LED', 'LED', {'A':'A','K':'K'}),        # GPIO19 via R8
+ 'R8': ('330', 'R', {'1':'1','2':'2'}),                 # centre-LED series
  'R7': ('220', 'R', {'1':'1','2':'2'}),  # LCD backlight series
 }
 
@@ -61,17 +67,19 @@ NETS = [
  ('+5V', [('J1','2'),('J1','4'),('M6','HV'),('A1','5V'),('M7','V+'),('M8','2'),('SV1','V+'),('RV1','1'),('R7','1')]),
  ('+3V3',[('J1','1'),('J1','17'),('U1','9'),('U1','18'),('U2','16'),('U2','10'),
           ('U3','16'),('U3','15'),('U4','1'),('U4','13'),('U4','11'),('U4','9'),
-          ('U5','8'),('U5','11'),('U5','10'),('U5','12'),('M1','VDD'),('M2','VDD'),('M2','ADDR'),
+          ('U5','8'),('U5','11'),('U5','10'),('U5','12'),('M1','VDD'),
+          ('U6','9'),('U6','18'),('U6','15'),('SW1','2'),('SW2','2'),
           ('M3','VCC'),('M4','VIN'),('M5','VCC'),('M6','LV')]),
  ('GND',[('J1','6'),('J1','9'),('J1','14'),('J1','20'),('J1','25'),('J1','30'),('J1','34'),('J1','39'),
          ('U1','10'),('U1','15'),('U1','16'),('U1','17'),('U2','8'),('U2','13'),
          ('U3','9'),('U3','14'),('U4','12'),('U4','8'),('U5','4'),('U5','14'),
-         ('M1','GND'),('M1','ADDR'),('M2','GND'),('M3','GND'),('M4','GND'),('M5','GND'),
+         ('M1','GND'),('M1','ADDR'),('M3','GND'),('M4','GND'),('M5','GND'),
          ('M6','GND1'),('M6','GND2'),('M7','GND'),('M8','1'),('M8','5'),('M8','16'),
-         ('A1','GND'),('SV1','GND'),('RV1','3'),('R4','2'),('R5','2'),('R6','2')]),
+         ('U6','10'),('U6','16'),('U6','17'),('D1','K'),
+         ('A1','GND'),('SV1','GND'),('RV1','3')]),
  # I2C bus (3V3 side)
- ('I2C_SDA',[('J1','3'),('U1','13'),('M1','SDA'),('M2','SDA'),('M3','SDA'),('M4','SDA'),('M5','SDA'),('M6','LV1')]),
- ('I2C_SCL',[('J1','5'),('U1','12'),('M1','SCL'),('M2','SCL'),('M3','SCL'),('M4','SCL'),('M5','SCL'),('M6','LV2')]),
+ ('I2C_SDA',[('J1','3'),('U1','13'),('U6','13'),('M1','SDA'),('M3','SDA'),('M4','SDA'),('M5','SDA'),('M6','LV1')]),
+ ('I2C_SCL',[('J1','5'),('U1','12'),('U6','12'),('M1','SCL'),('M3','SCL'),('M4','SCL'),('M5','SCL'),('M6','LV2')]),
  # Arduino I2C (5V side of level-shifter)
  ('ARD_SDA',[('M6','HV1'),('A1','SDA')]),
  ('ARD_SCL',[('M6','HV2'),('A1','SCL')]),
@@ -90,8 +98,8 @@ NETS = [
  ('LCD_RS',[('J1','29'),('M8','4')]),     # GPIO5
  ('LCD_E', [('J1','31'),('M8','6')]),     # GPIO6
  ('LCD_D4',[('J1','7'), ('M8','11')]),    # GPIO4
- ('LCD_D5',[('J1','11'),('M8','12')]),    # GPIO17
- ('LCD_D6',[('J1','13'),('M8','13')]),    # GPIO27
+ ('LCD_D5',[('J1','11'),('M8','12'),('SW1','1')]),    # GPIO17 (+ stepper CW limit switch)
+ ('LCD_D6',[('J1','13'),('M8','13'),('SW2','1')]),    # GPIO27 (+ stepper CCW limit switch)
  ('LCD_D7',[('J1','15'),('M8','14')]),    # GPIO22
  ('LCD_V0',[('M8','3'),('RV1','2')]),     # contrast wiper
  ('LCD_BL',[('M8','15'),('R7','2')]),     # backlight anode via R7
@@ -106,28 +114,25 @@ NETS = [
  ('DAC_A_CH1', [('U4','14'),('U3','2')]),        # VOUTA -> MCP3008 CH1
  ('DAC_B_CH3', [('U4','10'),('U3','4')]),        # VOUTB -> MCP3008 CH3
  ('SR_Q_CH2',  [('U2','1'),('U3','3')]),         # 74HC595 Q1 -> MCP3008 CH2
- # photo-resistor dividers -> ADS#2
- ('PHOTO_R',[('R1','2'),('R4','1'),('M2','A0')]),
- ('PHOTO_C',[('R2','2'),('R5','1'),('M2','A1')]),
- ('PHOTO_L',[('R3','2'),('R6','1'),('M2','A2')]),
- ('PHOTO_TOP',[('R1','1'),('R2','1'),('R3','1')]),   # LDR tops -> +3V3 (joined below)
- # expander -> stepper driver
- ('EXP_IN1',[('U1','21'),('M7','IN1')]),  # GPA0
- ('EXP_IN2',[('U1','22'),('M7','IN2')]),  # GPA1
- ('EXP_IN3',[('U1','23'),('M7','IN3')]),  # GPA2
- ('EXP_IN4',[('U1','24'),('M7','IN4')]),  # GPA3
+ # stepper centre LED (GPIO19 -> R8 -> LED -> GND)
+ ('LED_CTRL',[('J1','35'),('R8','1')]),   # GPIO19
+ ('LED_ANODE',[('R8','2'),('D1','A')]),
+ # expander #2 (0x21) -> stepper driver
+ ('EXP_IN1',[('U6','21'),('M7','IN1')]),  # #2 GPA0
+ ('EXP_IN2',[('U6','22'),('M7','IN2')]),  # #2 GPA1
+ ('EXP_IN3',[('U6','23'),('M7','IN3')]),  # #2 GPA2
+ ('EXP_IN4',[('U6','24'),('M7','IN4')]),  # #2 GPA3
  # expander internal loopback A4-7 <-> B4-7
  ('EXP_LB4',[('U1','25'),('U1','5')]),
  ('EXP_LB5',[('U1','26'),('U1','6')]),
  ('EXP_LB6',[('U1','27'),('U1','7')]),
  ('EXP_LB7',[('U1','28'),('U1','8')]),
 ]
-# fold PHOTO_TOP into +3V3, and dpot terminal B to GND, clean the placeholder
+# dpot terminal B to GND, clean the placeholder
 NETS = [n for n in NETS if n[0] != 'DPOT_PB0']
 for nm, nodes in NETS:
-    if nm == '+3V3': nodes += [('R1','1'),('R2','1'),('R3','1')]
     if nm == 'GND':  nodes += [('U5','14')]   # PB0 terminal B
-NETS = [n for n in NETS if n[0] not in ('PHOTO_TOP','DPOT_PA0')]
+NETS = [n for n in NETS if n[0] not in ('DPOT_PA0',)]
 
 # ------------------------------------------------------------------ NETLIST
 def write_netlist(path='t/test-platform.net'):
@@ -162,8 +167,8 @@ DRIVER = {'+5V':'J1','+3V3':'J1','GND':'J1','I2C_SDA':'J1','I2C_SCL':'J1','ARD_S
  'SPI_MOSI':'J1','SPI_SCLK':'J1','SPI_MISO':'U3','CS_ADC':'J1','CS_DAC':'J1','CS_DPOT':'J1',
  'SR_DATA':'J1','SR_CLK':'J1','SR_LATCH':'J1','LCD_RS':'J1','LCD_E':'J1','LCD_D4':'J1','LCD_D5':'J1',
  'LCD_D6':'J1','LCD_D7':'J1','LCD_V0':'RV1','LCD_BL':'R7','PWM18':'J1','UART_LOOP':'J1*8',
- 'DPOT_WIPER':'U5','DAC_A_CH1':'U4','DAC_B_CH3':'U4','SR_Q_CH2':'U2','PHOTO_R':'R1','PHOTO_C':'R2',
- 'PHOTO_L':'R3','EXP_IN1':'U1','EXP_IN2':'U1','EXP_IN3':'U1','EXP_IN4':'U1',
+ 'DPOT_WIPER':'U5','DAC_A_CH1':'U4','DAC_B_CH3':'U4','SR_Q_CH2':'U2',
+ 'LED_CTRL':'J1','LED_ANODE':'R8','EXP_IN1':'U6','EXP_IN2':'U6','EXP_IN3':'U6','EXP_IN4':'U6',
  'EXP_LB4':'U1*25','EXP_LB5':'U1*26','EXP_LB6':'U1*27','EXP_LB7':'U1*28'}
 
 # per-device power: (pin, rail-label) -> drawn as a small flag at the device
@@ -171,13 +176,12 @@ POWER = {
  'U1':[('9','+3V3'),('10','GND')], 'U2':[('16','+3V3'),('8','GND')],
  'U3':[('16','+3V3'),('9','GND')], 'U4':[('1','+3V3'),('12','GND')],
  'U5':[('8','+3V3'),('4','GND')],  'M1':[('VDD','+3V3'),('GND','GND')],
- 'M2':[('VDD','+3V3'),('GND','GND')], 'M3':[('VCC','+3V3'),('GND','GND')],
+ 'U6':[('9','+3V3'),('10','GND')], 'M3':[('VCC','+3V3'),('GND','GND')],
  'M4':[('VIN','+3V3'),('GND','GND')], 'M5':[('VCC','+3V3'),('GND','GND')],
  'M6':[('LV','+3V3'),('HV','+5V'),('GND1','GND')], 'M7':[('V+','+5V'),('GND','GND')],
  'M8':[('2','+5V'),('1','GND')],  'A1':[('5V','+5V'),('GND','GND')],
  'SV1':[('V+','+5V'),('GND','GND')], 'RV1':[('1','+5V'),('3','GND')], 'R7':[('1','+5V')],
- 'R1':[('1','+3V3')],'R2':[('1','+3V3')],'R3':[('1','+3V3')],
- 'R4':[('2','GND')],'R5':[('2','GND')],'R6':[('2','GND')],
+ 'SW1':[('2','+3V3')],'SW2':[('2','+3V3')],'D1':[('K','GND')],
 }
 
 def write_nlsvg(path='t/test-platform.nlsvg.json', exclude=(), keep=None, power=False):
@@ -239,7 +243,7 @@ SHEETS = {
  'spi':     {'SPI_MOSI','SPI_MISO','SPI_SCLK','CS_ADC','CS_DAC','CS_DPOT','SR_DATA','SR_CLK',
              'SR_LATCH','DAC_A_CH1','DAC_B_CH3','SR_Q_CH2','DPOT_WIPER'},
  'stepper': {'EXP_IN1','EXP_IN2','EXP_IN3','EXP_IN4','EXP_LB4','EXP_LB5','EXP_LB6','EXP_LB7',
-             'PHOTO_R','PHOTO_C','PHOTO_L'},
+             'LED_CTRL','LED_ANODE','LCD_D5','LCD_D6'},
  'display': {'LCD_RS','LCD_E','LCD_D4','LCD_D5','LCD_D6','LCD_D7','LCD_V0','LCD_BL','PWM18','UART_LOOP'},
 }
 
@@ -266,6 +270,7 @@ def render_schematic():
 
     LAYOUT = {
      'U1':{'L':['12','13','18','9','10'],'R':['21','22','23','24','25','26','27','28'],'B':['5','6','7','8'],'T':['15','16','17']},
+     'U6':{'L':['12','13','18','9','10'],'R':['21','22','23','24','25','26','27','28'],'B':['5','6','7','8'],'T':['15','16','17']},
      'U2':{'L':['14','11','12','13','10','16','8'],'R':['15','1','9']},
      'U3':{'L':['11','12','13','10','16','15','9','14'],'R':['1','2','3','4']},
      'U4':{'L':['3','4','5','1','8','9'],'R':['14','13','10','11','12']},
@@ -273,7 +278,6 @@ def render_schematic():
     }
     MODL = {
      'M1':{'L':['VDD','GND','SCL','SDA','ADDR'],'R':['A0','A1']},
-     'M2':{'L':['VDD','GND','SCL','SDA','ADDR'],'R':['A0','A1','A2']},
      'M3':{'L':['VCC','GND','SCL','SDA']},'M4':{'L':['VIN','GND','SCL','SDA']},
      'M5':{'L':['VCC','GND','SCL','SDA']},
      'M6':{'L':['LV','GND1','LV1','LV2'],'R':['HV','GND2','HV1','HV2']},
@@ -293,7 +297,7 @@ def render_schematic():
                        pin=p, side=('L' if int(p)%2 else 'R')) for p in (str(i) for i in range(1,41))]
         d += e.Ic(pins=jpins, w=6, h=34, pinspacing=1.6).at((-2, -19)).label('J1  Raspberry Pi 40-pin (J8)', loc='top', fontsize=11)
         # the rest in a 3-column grid to the right of J1
-        order = ['U1','U2','U3','U4','U5','M1','M2','M3','M4','M5','M6','M7','M8','A1','SV1']
+        order = ['U1','U6','U2','U3','U4','U5','M1','M3','M4','M5','M6','M7','M8','A1','SV1']
         cols, x0, dx, dy = 3, 12, 11.0, -12.0
         for idx,ref in enumerate(order):
             r,c = divmod(idx, cols)

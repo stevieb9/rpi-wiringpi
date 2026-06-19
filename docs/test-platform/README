@@ -24,10 +24,10 @@ looped back into an ADC (or a sister port) so a test can measure what it drove.
 # I2C bus (shared: GPIO2 = SDA, GPIO3 = SCL, one pull-up pair)
 
     0x04  Arduino (I2C slave)     [T] t/305  (t/300 probes absent addr 0x99)
-    0x20  MCP23017 expander       [T] t/330 + t/450
+    0x20  MCP23017 expander #1    [T] t/330  (Port A<->B loopback)
+    0x21  MCP23017 expander #2    [T] t/450  (stepper drive)
     0x3c  OLED SSD1306 128x64     [T] t/500-520
     0x48  ADS1115 ADC #1          [T] t/140, t/325, t/345
-    0x49  ADS1115 ADC #2          [T] t/450
     0x57  AT24C32 EEPROM          [T] t/420-422   ([F] same board as RTC)
     0x68  DS3231 RTC              [L] t/320  (default addr; test sets none)
     0x77  BMP180 pressure/temp    [L] t/340  (bmp(100) arg is a pin-base)
@@ -37,17 +37,19 @@ looped back into an ADC (or a sister port) so a test can measure what it drove.
 
 5  -> RS        4  -> D4        27 -> D6
 6  -> E         17 -> D5        22 -> D7
+# Note: 17 (D5) and 27 (D6) are shared with the stepper CW/CCW limit switches (t/450).
 
 # ADS1115 ADC #1 (0x48) - analog read-back for the PWM-side devices [T]
 
 18  -> A0   (GPIO18 PWM/servo output looped back; t/140, t/325)
             A1 <- MCP4XXXX digital-pot wiper        (t/345, reads ch 1)
 
-# ADS1115 ADC #2 (0x49) - stepper position sense [T] t/450 (sensors=[F])
+# Stepper position feedback - magnetic limit switches + computed centre [T] t/450
 
-            A0 <- position sensor (right)           (reads ch 0)
-            A1 <- position sensor (centre)          (reads ch 1)
-            A2 <- position sensor (left)            (reads ch 2)
+17 <- CW limit switch     (rising-edge interrupt; t/450:118,127)
+27 <- CCW limit switch    (rising-edge interrupt; t/450:122,133)
+19 -> centre LED          (centre is computed from symmetric ticks, not sensed; t/450:113)
+            (the redesigned board drops the old ADS1115 #2 (0x49) / laser sensors)
 
 # MCP3008 ADC (SPI; CS = GPIO26, bit-banged) - SPI-side read-back [T]
 #  clock/data ride hardware SPI (GPIO9/10/11) [L]; CS is bit-banged GPIO [T];
@@ -78,12 +80,12 @@ looped back into an ADC (or a sister port) so a test can measure what it drove.
 
 14 -> 15 (TXD -> RXD)
 
-# MCP23017 GPIO Expander (single chip, 0x20) - Bank A split: stepper + loopback
+# MCP23017 GPIO Expanders (two chips) - SCL/SDA on the I2C bus; RESET (chip pin 18)
+#  tied high [F] (NOT Pi GPIO18).
 
-SCL/SDA on the I2C bus.  RESET (chip pin 18) tied high [F] (NOT Pi GPIO18).
-# Bank A pins 0-3 drive the stepper via a ULN2003 [T] t/450:
+# #2 @0x21: Bank A pins 0-3 drive the stepper via a ULN2003 [T] t/450:
 A0 -> IN1   A1 -> IN2   A2 -> IN3   A3 -> IN4
-# Bank A pins 4-7 loop to Bank B 4-7 for the expander GPIO test [T] t/330:
+# #1 @0x20: Bank A pins 4-7 loop to Bank B 4-7 for the expander GPIO test [T] t/330:
 A4 -> B4   A5 -> B5   A6 -> B6   A7 -> B7    (B0-B3 unused)
 
 # GPIO18 is multiplexed (see test-pinout-doc.md section 6) [T]
@@ -100,6 +102,8 @@ Re-derived model:    scripts/helpers/model-from-tests.py
 Regenerate visuals:  <schematic-venv>/bin/python scripts/helpers/gen-updated-visuals.py
 The orchestrator injects the test-derived model into the existing renderers,
 files the artifacts here, validates the KiCad project with check-kicad.py, and
-diffs the re-derived model against the in-repo gen-schematic.py model. As of this
-generation the independent re-derivation MATCHES the in-repo model exactly
-(24 components, 41 nets) - i.e. the existing platform model is fully test-grounded.
+diffs the re-derived model against the in-repo gen-schematic.py model. The
+independent re-derivation MATCHED the in-repo model exactly. After the stepper-rig
+redesign (two MCP23017s @0x20/0x21; ADS#2/0x49 + laser sensors removed; magnetic
+limit switches on GPIO17/27 + centre LED on GPIO19), re-run the regenerators to
+refresh the model and artifacts.
