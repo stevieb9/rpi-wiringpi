@@ -9,6 +9,7 @@ use RPi::WiringPi;
 use RPi::StepperMotor;
 use Time::HiRes qw(clock_gettime CLOCK_MONOTONIC);
 use Test::More;
+use StepperSeek qw(seek_limit home_target);
 
 # ===========================================================================
 # t/450-stepper.t - stepper / I2C expander timing integration test
@@ -83,6 +84,10 @@ use constant {
     FLASH     => 0.15,    # Centre-LED hold (seconds)
 };
 
+# Homing seek bound: ~1.25x the full designed travel (CCW_TICKS + CW_TICKS), so a
+# dead switch fails fast instead of driving the motor into the hard stop.
+use constant SEEK_MAX => int((CCW_TICKS + CW_TICKS) * 1.25);
+
 # Expected edge-trip latency (ms) from out-sweep start to magnet, per
 # "speed/delay" config. Measured on-rig as the mean of 4 iterations; run-to-run
 # jitter was under ~1%, so the +/-5% window has comfortable headroom.
@@ -146,8 +151,17 @@ my $ccw_proc = $ccw_pin->background_interrupt(
 
 my $pass_num = 0;
 
-for my $pass (@PASSES) {
-    run_pass(++$pass_num, $pass);
+# Establish a known base before timing anything: home against the two magnetic
+# limits, measure the travel span, and move to the computed centre. Each move is
+# bounded (seek_limit) so a dead switch fails the test instead of driving into a
+# hard stop. The timed passes are skipped if homing fails (no known base).
+if (home($exp)) {
+    for my $pass (@PASSES) {
+        run_pass(++$pass_num, $pass);
+    }
+}
+else {
+    note "homing failed - skipping the timed passes (no known base position)";
 }
 
 $cw_proc->stop;
@@ -207,6 +221,54 @@ sub flash_centre {
         },
         { once => 1 },
     );
+}
+
+sub home {
+    my ($exp) = @_;
+
+    note "==== homing: seek limits, measure span, move to centre ====";
+
+    my $sm = RPi::StepperMotor->new(
+        pins     => [A0, A1, A2, A3],
+        expander => $exp,
+        speed    => 'full',
+        delay    => 0.00,
+    );
+
+    # Bounded seeks: undef means the switch never tripped within SEEK_MAX (a hard
+    # fault). Home to the CCW limit, then seek CW counting ticks = the travel
+    # span. Skip the span seek if the CCW home already failed (don't keep driving).
+    my $to_ccw = seek_limit(sub { $ccw_pin->read }, sub { $sm->ccw(1) }, SEEK_MAX);
+    my $span   = defined $to_ccw
+        ? seek_limit(sub { $cw_pin->read }, sub { $sm->cw(1) }, SEEK_MAX)
+        : undef;
+
+    # Decide outcome + centre (pure; StepperSeek::home_target, unit-tested in
+    # t/451): out-of-bounds on either seek, or a stuck-high switch (tiny span),
+    # fails; otherwise centre = half the measured span.
+    my ($ok, $centre, $reason) =
+        home_target($to_ccw, $span, int((CCW_TICKS + CW_TICKS) / 2));
+
+    ok $ok, "homed and centred within bounds (reason: $reason"
+        . (defined $span ? ", span ${span}t" : '') . ')';
+
+    if (! $ok) {
+        $sm->cleanup;
+        return 0;
+    }
+
+    # Move from the CW limit back to centre = half the measured span.
+    $sm->ccw($centre);
+    $sm->cleanup;
+
+    # The homing sweep tripped both switches; drain those edges so the timed
+    # passes start with empty results channels.
+    1 while defined $cw_proc->read;
+    1 while defined $ccw_proc->read;
+
+    note "centred: span ${span}t, centre = " . int($span / 2) . "t from the CW limit";
+
+    return 1;
 }
 
 sub run_pass {
