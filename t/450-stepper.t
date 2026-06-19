@@ -21,7 +21,7 @@ use constant {
 rpi_running_test(__FILE__);
 
 my $pi = RPi::WiringPi->new(label => 't/450-stepper.t', shm_key => 'rpit');
-my $expander = $pi->expander(0x20);
+my $expander = $pi->expander(0x21);
 my $adc = $pi->adc(addr => 0x49);   # ADS1115 #2 (stepper rig; sensors on ch 0/1/2)
 
 my $s = $pi->stepper_motor(
