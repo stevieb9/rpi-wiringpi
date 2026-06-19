@@ -218,9 +218,14 @@ my $o = $pi->expander(0x20);
         $o->mode_bank(BANK_B, MCP23017_INPUT);
         is $o->register(MCP23017_IODIRB), 0xFF, "pins in bank 1 are INPUT ok";
 
-        # GPA0-3 drive the stepper (no A<->B loopback wire); test pins 4-7 only
-        for (4..7){
-            my ($pin_a, $pin_b) = ($_, $_ + 8);
+        for (0..7){
+            # Loopback wired per datasheet 1-28,2-27,..,8-21: A(n) <-> B(7-n),
+            # so bank A pin $_ pairs with bank B pin (15 - $_)
+            my ($pin_a, $pin_b) = ($_, 15 - $_);
+
+            # B7 (pin 15) is output-only on the MCP23017; skip reading it
+            next if $pin_b == 15;
+
             $o->write($pin_a, HIGH);
             is
                 $o->read($pin_b),
@@ -254,9 +259,14 @@ my $o = $pi->expander(0x20);
         $o->mode_bank(BANK_A, MCP23017_INPUT);
         is $o->register(MCP23017_IODIRA), 0xFF, "pins in bank 0(A) are INPUT ok";
 
-        # GPA0-3 drive the stepper (no A<->B loopback wire); test pins 4-7 only
-        for (4..7){
-            my ($pin_a, $pin_b) = ($_, $_ + 8);
+        for (0..7){
+            # Loopback wired per datasheet 1-28,2-27,..,8-21: A(n) <-> B(7-n),
+            # so bank A pin $_ pairs with bank B pin (15 - $_)
+            my ($pin_a, $pin_b) = ($_, 15 - $_);
+
+            # A7 (pin 7) is output-only on the MCP23017; skip reading it
+            next if $pin_a == 7;
+
             $o->write($pin_b, HIGH);
             is
                 $o->read($pin_a),
@@ -320,9 +330,14 @@ my $o = $pi->expander(0x20);
 
         is $o->register(MCP23017_GPIOA), 0xFF, "pins in bank 0 are HIGH ok";
 
-        # GPA0-3 drive the stepper (no A<->B loopback wire); test pins 4-7 only
-        for (4..7){
-            my ($pin_a, $pin_b) = ($_, $_ + 8);
+        for (0..7){
+            # Loopback wired per datasheet 1-28,2-27,..,8-21: A(n) <-> B(7-n),
+            # so bank A pin $_ pairs with bank B pin (15 - $_)
+            my ($pin_a, $pin_b) = ($_, 15 - $_);
+
+            # B7 (pin 15) is output-only on the MCP23017; skip reading it
+            next if $pin_b == 15;
+
             is
                 $o->read($pin_b),
                 HIGH,
@@ -332,9 +347,14 @@ my $o = $pi->expander(0x20);
         $o->write_bank(BANK_A, LOW);
         is $o->register(MCP23017_GPIOA), LOW, "pins in bank 0 are LOW ok";
 
-        # GPA0-3 drive the stepper (no A<->B loopback wire); test pins 4-7 only
-        for (4..7){
-            my ($pin_a, $pin_b) = ($_, $_ + 8);
+        for (0..7){
+            # Loopback wired per datasheet 1-28,2-27,..,8-21: A(n) <-> B(7-n),
+            # so bank A pin $_ pairs with bank B pin (15 - $_)
+            my ($pin_a, $pin_b) = ($_, 15 - $_);
+
+            # B7 (pin 15) is output-only on the MCP23017; skip reading it
+            next if $pin_b == 15;
+
             is
                 $o->read($pin_b),
                 LOW,
@@ -365,9 +385,14 @@ my $o = $pi->expander(0x20);
         $o->write_bank(BANK_B, HIGH);
         is $o->register(MCP23017_GPIOB), 255, "pins in bank 1(B) are HIGH ok";
 
-        # GPA0-3 drive the stepper (no A<->B loopback wire); test pins 4-7 only
-        for (4..7){
-            my ($pin_a, $pin_b) = ($_, $_ + 8);
+        for (0..7){
+            # Loopback wired per datasheet 1-28,2-27,..,8-21: A(n) <-> B(7-n),
+            # so bank A pin $_ pairs with bank B pin (15 - $_)
+            my ($pin_a, $pin_b) = ($_, 15 - $_);
+
+            # A7 (pin 7) is output-only on the MCP23017; skip reading it
+            next if $pin_a == 7;
+
             is
                 $o->read($pin_a),
                 HIGH,
@@ -377,9 +402,14 @@ my $o = $pi->expander(0x20);
         $o->write_bank(BANK_B, LOW);
         is $o->register(MCP23017_GPIOB), 0, "pins in bank 1 are LOW ok";
 
-        # GPA0-3 drive the stepper (no A<->B loopback wire); test pins 4-7 only
-        for (4..7){
-            my ($pin_a, $pin_b) = ($_, $_ + 8);
+        for (0..7){
+            # Loopback wired per datasheet 1-28,2-27,..,8-21: A(n) <-> B(7-n),
+            # so bank A pin $_ pairs with bank B pin (15 - $_)
+            my ($pin_a, $pin_b) = ($_, 15 - $_);
+
+            # A7 (pin 7) is output-only on the MCP23017; skip reading it
+            next if $pin_a == 7;
+
             is
                 $o->read($pin_a),
                 LOW,
@@ -604,10 +634,99 @@ my $o = $pi->expander(0x20);
     }
 }
 
+# named_pins.t - the same loopback read/write checks as bank_mode.t above, but
+# driven entirely through the A0-A7 / B0-B7 named pin constants (RPi::Const's
+# :mcp23017_pins, pulled in by the ':all' import) instead of raw 0-15 numbers
+{
+
+    # Wired loopback per datasheet 1-28,2-27,..,8-21: A(n) <-> B(7-n),
+    # i.e. A0<->B7, A1<->B6, .. A7<->B0
+    my @pairs = (
+        [A0, B7],
+        [A1, B6],
+        [A2, B5],
+        [A3, B4],
+        [A4, B3],
+        [A5, B2],
+        [A6, B1],
+        [A7, B0],
+    );
+
+    { # bank A OUTPUT, bank B INPUT: drive the A pin, read its B partner
+
+        $o->cleanup;
+        $o->mode_bank(BANK_A, MCP23017_OUTPUT);
+        $o->mode_bank(BANK_B, MCP23017_INPUT);
+
+        for my $pair (@pairs) {
+            my ($pin_a, $pin_b) = @$pair;
+
+            # B7 (pin 15) is output-only on the MCP23017; skip reading it
+            next if $pin_b == B7;
+
+            $o->write($pin_a, HIGH);
+            is
+                $o->read($pin_b),
+                HIGH,
+                "A/B constants: A pin $pin_a HIGH read on B pin $pin_b ok";
+
+            $o->write($pin_a, LOW);
+            is
+                $o->read($pin_b),
+                LOW,
+                "A/B constants: A pin $pin_a LOW read on B pin $pin_b ok";
+        }
+    }
+
+    { # bank B OUTPUT, bank A INPUT: drive the B pin, read its A partner
+
+        $o->cleanup;
+        $o->mode_bank(BANK_B, MCP23017_OUTPUT);
+        $o->mode_bank(BANK_A, MCP23017_INPUT);
+
+        for my $pair (@pairs) {
+            my ($pin_a, $pin_b) = @$pair;
+
+            # A7 (pin 7) is output-only on the MCP23017; skip reading it
+            next if $pin_a == A7;
+
+            $o->write($pin_b, HIGH);
+            is
+                $o->read($pin_a),
+                HIGH,
+                "A/B constants: B pin $pin_b HIGH read on A pin $pin_a ok";
+
+            $o->write($pin_b, LOW);
+            is
+                $o->read($pin_a),
+                LOW,
+                "A/B constants: B pin $pin_b LOW read on A pin $pin_a ok";
+        }
+
+        $o->cleanup;
+    }
+}
+
 # default_registers.t
 {
 
-    # Poll (bounded ~6s) until the GPIO state registers reset after the
+    # The live-state registers below are excluded from the "back to default"
+    # check. cleanup() cannot drive them to 0x00 on a board with real wiring:
+    #   GPIOA/GPIOB (0x12/0x13) mirror live pin levels, so floating loopback
+    #     inputs read as noise rather than 0x00.
+    #   INTCAPA/INTCAPB (0x10/0x11) are read-only interrupt-capture latches.
+    #     cleanup() skips them (they cannot be written), so a capture triggered
+    #     by the earlier register write tests stays frozen until the next
+    #     interrupt-on-change event.
+
+    my %live_state = (
+        MCP23017_GPIOA()   => 1,
+        MCP23017_GPIOB()   => 1,
+        MCP23017_INTCAPA() => 1,
+        MCP23017_INTCAPB() => 1,
+    );
+
+    # Poll (bounded ~6s) until the controllable registers reset after the
     # pullup toggling above, instead of a fixed sleep; the per-register
     # assertions below still run in full
 
@@ -615,6 +734,8 @@ my $o = $pi->expander(0x20);
         my $settled = 1;
 
         for my $reg (0x00 .. 0x15){
+            next if $live_state{$reg};
+
             my $want =
                 ($reg == MCP23017_IODIRA || $reg == MCP23017_IODIRB)
                 ? 0xFF
@@ -631,6 +752,8 @@ my $o = $pi->expander(0x20);
     }
 
     for (0x00..0x15){
+        next if $live_state{$_};
+
         if ($_ == MCP23017_IODIRA || $_ == MCP23017_IODIRB){
             is $o->register($_), 0xFF, "register $_ back to 0xFF ok";
         }
@@ -640,6 +763,7 @@ my $o = $pi->expander(0x20);
     }
 }
 
+$o->cleanup;
 $pi->cleanup;
 
 rpi_check_pin_status();
