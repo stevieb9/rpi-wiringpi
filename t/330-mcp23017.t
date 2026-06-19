@@ -34,8 +34,26 @@ my $pi = RPi::WiringPi->new(
 
 my $o = $pi->expander(0x20);
 
-test_registers()        if ! @ARGV || $ARGV[0] == 1;
-test_register_bit()     if ! @ARGV || $ARGV[0] == 2;
+test_registers()         if ! @ARGV || $ARGV[0] == 1;
+test_register_bit()      if ! @ARGV || $ARGV[0] == 2;
+test_mode()              if ! @ARGV || $ARGV[0] == 3;
+test_write()             if ! @ARGV || $ARGV[0] == 4;
+test_bank_mode()         if ! @ARGV || $ARGV[0] == 5;
+test_bank_write()        if ! @ARGV || $ARGV[0] == 6;
+test_pullup()            if ! @ARGV || $ARGV[0] == 7;
+test_pullup_bank()       if ! @ARGV || $ARGV[0] == 8;
+test_mode_all()          if ! @ARGV || $ARGV[0] == 9;
+test_write_all()         if ! @ARGV || $ARGV[0] == 10;
+test_pullup_all()        if ! @ARGV || $ARGV[0] == 11;
+test_named_pins()        if ! @ARGV || $ARGV[0] == 12;
+test_default_registers() if ! @ARGV || $ARGV[0] == 13;
+
+$o->cleanup;
+$pi->cleanup;
+
+rpi_check_pin_status();
+
+done_testing();
 
 sub test_registers {
 
@@ -93,8 +111,7 @@ sub test_register_bit {
     $o->register(MCP23017_INTCAPB);
 }
 
-# mode
-{
+sub test_mode {
     for my $reg (MCP23017_IODIRA .. MCP23017_IODIRB) {
         is $o->register($reg, 0xFF), 0xFF, "pins in bank $reg are INPUT ok";
 
@@ -140,8 +157,7 @@ sub test_register_bit {
     }
 }
 
-# write
-{
+sub test_write {
      for my $reg (MCP23017_IODIRA .. MCP23017_IODIRB){
         is $o->register($reg, 0xFF), 0xFF, "pins in bank $reg are INPUT ok";
 
@@ -195,8 +211,7 @@ sub test_register_bit {
     }
 }
 
-# bank_mode
-{
+sub test_bank_mode {
 
      { # set on bank A (0)
 
@@ -296,8 +311,7 @@ sub test_register_bit {
 
 }
 
-# bank_write
-{
+sub test_bank_write {
 
      $o->cleanup;
 
@@ -431,8 +445,7 @@ sub test_register_bit {
     }
 }
 
-# pullup
-{
+sub test_pullup {
 
      for my $reg (MCP23017_GPPUA .. MCP23017_GPPUB){
         is $o->register($reg, 0x00), 0x00, "pullups in bank $reg are off ok";
@@ -503,8 +516,7 @@ sub test_register_bit {
 
 }
 
-# pullup_bank
-{
+sub test_pullup_bank {
 
      for my $reg (MCP23017_GPPUA .. MCP23017_GPPUB){
         is $o->register($reg, 0x00), 0x00, "pullups in bank $reg are off ok";
@@ -536,8 +548,7 @@ sub test_register_bit {
     }
 }
 
-# mode_all
-{
+sub test_mode_all {
 
     my @regs = (MCP23017_IODIRA .. MCP23017_IODIRB);
 
@@ -564,8 +575,7 @@ sub test_register_bit {
     }
 }
 
-# write_all
-{
+sub test_write_all {
 
      my @regs = (MCP23017_GPIOA .. MCP23017_GPIOB);
 
@@ -599,8 +609,7 @@ sub test_register_bit {
     }
 }
 
-# pullup_all
-{
+sub test_pullup_all {
     my @regs = (MCP23017_GPPUA .. MCP23017_GPPUB);
 
     { # set/unset
@@ -633,8 +642,7 @@ sub test_register_bit {
     }
 }
 
-# named_pins
-{
+sub test_named_pins {
 
     # Wired loopback per datasheet 1-28,2-27,..,8-21: A(n) <-> B(7-n),
     # i.e. A0<->B7, A1<->B6, .. A7<->B0
@@ -704,8 +712,7 @@ sub test_register_bit {
     }
 }
 
-# default_registers
-{
+sub test_default_registers {
 
     # The live-state registers below are excluded from the "back to default"
     # check. cleanup() cannot drive them to 0x00 on a board with real wiring:
@@ -759,10 +766,3 @@ sub test_register_bit {
         }
     }
 }
-
-$o->cleanup;
-$pi->cleanup;
-
-rpi_check_pin_status();
-
-done_testing();
