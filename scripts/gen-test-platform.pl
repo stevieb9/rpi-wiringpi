@@ -144,6 +144,12 @@ elsif ($schematic_ok) {
 run_in($build, $python, File::Spec->catfile($helpers_dir, 'gen-kicad.py'))
     or warn "WARN: gen-kicad.py failed - KiCad project may be missing\n";
 
+# 4b. Pin doc: render docs/test-platform/test-pinout-doc.md from its template,
+# filling the generated blocks (the Pi5 default-state table from RPiTest.pm).
+# It reads/writes docs/test-platform directly, not via the scratch tree.
+run_in($root, $python, File::Spec->catfile($helpers_dir, 'render-doc.py'))
+    or warn "WARN: render-doc.py failed - test-pinout-doc.md may be stale\n";
+
 # 5. File every produced artifact into its destination (or discard it).
 my %count = (svg => 0, facts => 0, kicad => 0, doc => 0, root => 0, drop => 0);
 opendir my $dh, $build_t or die "opendir $build_t: $!\n";

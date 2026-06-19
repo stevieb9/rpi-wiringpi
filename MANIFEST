@@ -72,6 +72,7 @@ t/00-load.t
 t/01-validate_test_suite_config.t
 t/02-shm_key.t
 t/03-meta.t
+t/04-test-platform-model.t
 t/05-checksum_uuid.t
 t/100-identification_and_label.t
 t/104-core_regressions.t
