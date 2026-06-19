@@ -30,6 +30,7 @@ ROOT = os.path.normpath(os.path.join(HERE, '..', '..'))
 OUT = os.path.join(ROOT, 'docs', 'test-platform-updated')
 SVG = os.path.join(OUT, 'svg')
 FACTS = os.path.join(OUT, 'facts')
+KICAD = os.path.join(OUT, 'kicad')
 BUILD = os.path.join(ROOT, '.build-test-platform-updated')
 BUILD_T = os.path.join(BUILD, 't')
 
@@ -86,7 +87,9 @@ def classify(name):
         return SVG
     if name.endswith('.net'):
         return FACTS
-    if name.endswith(('.jpg', '.pdf', '.kicad_sch', '.kicad_pro')) or name == 'fp-lib-table':
+    if name.endswith(('.kicad_sch', '.kicad_pro')) or name == 'fp-lib-table':
+        return KICAD
+    if name.endswith(('.jpg', '.pdf')):
         return OUT
     return OUT
 
@@ -97,7 +100,7 @@ def main():
     if os.path.isdir(BUILD):
         shutil.rmtree(BUILD)
     os.makedirs(BUILD_T)
-    for d in (OUT, SVG, FACTS):
+    for d in (OUT, SVG, FACTS, KICAD):
         os.makedirs(d, exist_ok=True)
 
     # gen-schematic: inject model, render in the scratch tree (uses relative t/).
@@ -141,7 +144,7 @@ def main():
         print('  netlistsvg not on PATH - skipping wire-routed SVGs and PDFs')
 
     # File artifacts into docs/test-platform-updated.
-    moved = {'svg': 0, 'facts': 0, 'doc': 0, 'drop': 0}
+    moved = {'svg': 0, 'facts': 0, 'kicad': 0, 'doc': 0, 'drop': 0}
     for name in sorted(os.listdir(BUILD_T)):
         src = os.path.join(BUILD_T, name)
         if not os.path.isfile(src):
@@ -151,10 +154,11 @@ def main():
             moved['drop'] += 1
             continue
         shutil.move(src, os.path.join(dest_dir, name))
-        moved['svg' if dest_dir == SVG else 'facts' if dest_dir == FACTS else 'doc'] += 1
+        moved['svg' if dest_dir == SVG else 'facts' if dest_dir == FACTS
+              else 'kicad' if dest_dir == KICAD else 'doc'] += 1
     pretty_src = os.path.join(BUILD_T, 'test-platform.pretty')
     if os.path.isdir(pretty_src):
-        pretty_dest = os.path.join(OUT, 'test-platform.pretty')
+        pretty_dest = os.path.join(KICAD, 'test-platform.pretty')
         if os.path.isdir(pretty_dest):
             shutil.rmtree(pretty_dest)
         shutil.move(pretty_src, pretty_dest)
@@ -163,10 +167,11 @@ def main():
     os.chdir(ROOT)
     shutil.rmtree(BUILD)
     print(f'filed: {moved["doc"]} artifacts -> docs/test-platform-updated, '
-          f'{moved["svg"]} svg, {moved["facts"]} netlist, {moved["drop"]} intermediates dropped')
+          f'{moved["kicad"]} kicad, {moved["svg"]} svg, {moved["facts"]} netlist, '
+          f'{moved["drop"]} intermediates dropped')
 
     # Validate the KiCad project.
-    chk = subprocess.run([sys.executable, os.path.join(HERE, 'check-kicad.py'), OUT],
+    chk = subprocess.run([sys.executable, os.path.join(HERE, 'check-kicad.py'), KICAD],
                          capture_output=True, text=True)
     print(chk.stdout.strip() or chk.stderr.strip())
     if chk.returncode != 0:

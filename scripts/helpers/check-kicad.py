@@ -18,8 +18,8 @@ Two layers:
 
 Usage:
   python3 scripts/helpers/check-kicad.py [PROJECT_DIR]
-PROJECT_DIR defaults to docs/test-platform relative to this script. Exits 0 when
-every invariant holds, non-zero (with a per-failure message) otherwise.
+PROJECT_DIR defaults to docs/test-platform/kicad relative to this script. Exits 0
+when every invariant holds, non-zero (with a per-failure message) otherwise.
 """
 
 import os
@@ -30,7 +30,7 @@ import sys
 import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_DIR = os.path.normpath(os.path.join(HERE, '..', '..', 'docs', 'test-platform'))
+DEFAULT_DIR = os.path.normpath(os.path.join(HERE, '..', '..', 'docs', 'test-platform', 'kicad'))
 
 PROJECT = 'test-platform'
 

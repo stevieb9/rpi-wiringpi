@@ -43,11 +43,11 @@ import uuid
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-# Reuse the data model from gen-schematic.py (hyphen in the name blocks a plain
-# import, so load it by path). Importing has no side effects by design.
+# The data model lives in board-model.py (the single source of truth). The
+# hyphen blocks a plain import, so load it by path. No side effects.
 def load_model():
-    path = os.path.join(HERE, 'gen-schematic.py')
-    spec = importlib.util.spec_from_file_location('gen_schematic', path)
+    path = os.path.join(HERE, 'board-model.py')
+    spec = importlib.util.spec_from_file_location('board_model', path)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod

@@ -9,8 +9,8 @@
 #   *.svg                                  -> docs/test-platform/svg/
 #   *.net                                  -> docs/test-platform/facts/
 #   *.jpg, *.pdf                           -> docs/test-platform/
-#   *.kicad_sch, *.kicad_pro, fp-lib-table -> docs/test-platform/ (open in KiCad)
-#   test-platform.pretty/                  -> docs/test-platform/ (footprint lib)
+#   *.kicad_sch, *.kicad_pro, fp-lib-table -> docs/test-platform/kicad/ (open in KiCad)
+#   test-platform.pretty/                  -> docs/test-platform/kicad/ (footprint lib)
 #   *.nlsvg.json                           -> discarded (netlistsvg inputs)
 #   anything else unexpected               -> repo root (for the user to triage)
 #
@@ -73,6 +73,7 @@ my $root        = abs_path(File::Spec->catdir($script_dir, File::Spec->updir));
 my $out_dir    = File::Spec->catdir($root, 'docs', 'test-platform');
 my $svg_dir    = File::Spec->catdir($out_dir, 'svg');
 my $facts_dir  = File::Spec->catdir($out_dir, 'facts');
+my $kicad_dir  = File::Spec->catdir($out_dir, 'kicad');
 my $build      = File::Spec->catdir($root, '.build-test-platform');
 my $build_t    = File::Spec->catdir($build, 't');
 
@@ -109,6 +110,7 @@ remove_tree($build) if -d $build;
 make_path($build_t);
 make_path($svg_dir);
 make_path($facts_dir);
+make_path($kicad_dir);
 
 # 1. Pinout JPEGs (independent of the schematic chain).
 run_in($build, $python, File::Spec->catfile($helpers_dir, 'gen-pinout-images.py'))
@@ -143,7 +145,7 @@ run_in($build, $python, File::Spec->catfile($helpers_dir, 'gen-kicad.py'))
     or warn "WARN: gen-kicad.py failed - KiCad project may be missing\n";
 
 # 5. File every produced artifact into its destination (or discard it).
-my %count = (svg => 0, facts => 0, doc => 0, root => 0, drop => 0);
+my %count = (svg => 0, facts => 0, kicad => 0, doc => 0, root => 0, drop => 0);
 opendir my $dh, $build_t or die "opendir $build_t: $!\n";
 for my $name (sort readdir $dh) {
     my $src = File::Spec->catfile($build_t, $name);
@@ -158,6 +160,7 @@ for my $name (sort readdir $dh) {
     printf "  %-38s -> %s\n", $name, rel($dest_dir);
     my $bucket = $dest_dir eq $svg_dir   ? 'svg'
                : $dest_dir eq $facts_dir ? 'facts'
+               : $dest_dir eq $kicad_dir ? 'kicad'
                : $dest_dir eq $out_dir   ? 'doc'
                :                           'root';
     $count{$bucket}++;
@@ -168,17 +171,17 @@ closedir $dh;
 # the whole .pretty tree into place, replacing any stale copy from a prior run.
 my $pretty_src = File::Spec->catdir($build_t, 'test-platform.pretty');
 if (-d $pretty_src) {
-    my $pretty_dest = File::Spec->catdir($out_dir, 'test-platform.pretty');
+    my $pretty_dest = File::Spec->catdir($kicad_dir, 'test-platform.pretty');
     remove_tree($pretty_dest) if -d $pretty_dest;
-    move($pretty_src, $pretty_dest) or die "move test-platform.pretty -> $out_dir: $!\n";
-    printf "  %-38s -> %s\n", 'test-platform.pretty/', rel($out_dir);
+    move($pretty_src, $pretty_dest) or die "move test-platform.pretty -> $kicad_dir: $!\n";
+    printf "  %-38s -> %s\n", 'test-platform.pretty/', rel($kicad_dir);
 }
 
 # 6. Validate the filed KiCad project: every symbol must have a resolvable
 # footprint whose pads cover its pins - the condition "Update PCB from Schematic"
 # enforces. The helper also cross-checks with kicad-cli when that tool exists.
 my $kicad_ok = run_in($root, $python,
-    File::Spec->catfile($helpers_dir, 'check-kicad.py'), $out_dir);
+    File::Spec->catfile($helpers_dir, 'check-kicad.py'), $kicad_dir);
 warn "WARN: KiCad project validation FAILED - see the messages above.\n"
     unless $kicad_ok;
 
@@ -188,8 +191,8 @@ remove_tree($build);
 # Sweep macOS AppleDouble / .DS_Store cruft a Mac may have left in the tree.
 my $cruft = prune_apple_cruft($out_dir);
 
-printf "\nDone: %d SVG -> svg/, %d netlist -> facts/, %d artifacts -> %s, %d extra -> repo root, %d intermediate discarded.\n",
-    $count{svg}, $count{facts}, $count{doc}, rel($out_dir), $count{root}, $count{drop};
+printf "\nDone: %d SVG -> svg/, %d netlist -> facts/, %d KiCad -> kicad/, %d artifacts -> %s, %d extra -> repo root, %d intermediate discarded.\n",
+    $count{svg}, $count{facts}, $count{kicad}, $count{doc}, rel($out_dir), $count{root}, $count{drop};
 print "Pruned $cruft macOS cruft file(s) (._* / .DS_Store).\n" if $cruft;
 
 # --- helpers ---------------------------------------------------------------
@@ -199,11 +202,12 @@ sub classify_dest {
     my ($name) = @_;
     # netlistsvg input JSON: a throwaway intermediate, regenerated every run and
     # referenced by nothing shipped. Discard (it dies with the scratch dir).
-    return undef    if $name =~ /\.nlsvg\.json$/;
-    return $svg_dir  if $name =~ /\.svg$/;
+    return undef     if $name =~ /\.nlsvg\.json$/;
+    return $svg_dir   if $name =~ /\.svg$/;
     return $facts_dir if $name =~ /\.net$/;
-    return $out_dir  if $name =~ /\.(jpg|pdf|kicad_sch|kicad_pro)$/;
-    return $out_dir  if $name eq 'fp-lib-table';
+    return $out_dir   if $name =~ /\.(jpg|pdf)$/;
+    return $kicad_dir if $name =~ /\.(kicad_sch|kicad_pro)$/;
+    return $kicad_dir if $name eq 'fp-lib-table';
     # Anything unexpected: leave at the repo root for the user to triage.
     return $root;
 }
