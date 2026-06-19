@@ -93,9 +93,16 @@ my %EXPECT = (
     'half/0.00' => { ccw => 4170.0,  cw => 4028.3 },
 );
 
-# The five passes, in run order. full/0.00 runs twice (repeatability); the
-# 0.01 and half-step passes exercise the expander write path at slower cadences
-# and the half-step pattern, surfacing rate-dependent XS bugs.
+# The five passes, in run order. full/0.00 runs twice (repeatability); the 0.01
+# and half-step passes exercise the expander write path at slower cadences and
+# the half-step pattern, surfacing rate-dependent XS bugs.
+#
+#   Pass   speed/delay   ccw edge    cw edge      (expected means; +/-5% window)
+#   ----   -----------   --------   --------
+#   1, 2   full/0.00      2088 ms    2048 ms
+#   3      full/0.01      8926 ms    8604 ms
+#   4      half/0.01     17816 ms   17176 ms
+#   5      half/0.00      4170 ms    4028 ms
 my @PASSES = (
     { speed => 'full', delay => 0.00 },
     { speed => 'full', delay => 0.00 },

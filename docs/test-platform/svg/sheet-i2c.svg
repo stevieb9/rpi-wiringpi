@@ -45,7 +45,23 @@
       <text x="-3" y="-4" class="inputPortLabel cell_U1">VSS</text>
     </g>
   </g>
-  <g s:type="generic" transform="translate(288,717)" s:width="30" s:height="40" id="cell_M1">
+  <g s:type="generic" transform="translate(288,717)" s:width="30" s:height="40" id="cell_U6">
+    <text x="15" y="-4" class="nodelabel cell_U6" s:attribute="ref">U6 MCP23017</text>
+    <rect width="30" height="80" s:generic="body" class="cell_U6"/>
+    <g transform="translate(0,10)" s:x="0" s:y="10" s:pid="in0" id="port_U6~SCL">
+      <text x="-3" y="-4" class="inputPortLabel cell_U6">SCL</text>
+    </g>
+    <g transform="translate(0,30)" s:x="0" s:y="10" s:pid="in0" id="port_U6~SDA">
+      <text x="-3" y="-4" class="inputPortLabel cell_U6">SDA</text>
+    </g>
+    <g transform="translate(0,50)" s:x="0" s:y="10" s:pid="in0" id="port_U6~VDD">
+      <text x="-3" y="-4" class="inputPortLabel cell_U6">VDD</text>
+    </g>
+    <g transform="translate(0,70)" s:x="0" s:y="10" s:pid="in0" id="port_U6~VSS">
+      <text x="-3" y="-4" class="inputPortLabel cell_U6">VSS</text>
+    </g>
+  </g>
+  <g s:type="generic" transform="translate(288,584)" s:width="30" s:height="40" id="cell_M1">
     <text x="15" y="-4" class="nodelabel cell_M1" s:attribute="ref">M1 ADS1115_0x48</text>
     <rect width="30" height="80" s:generic="body" class="cell_M1"/>
     <g transform="translate(0,10)" s:x="0" s:y="10" s:pid="in0" id="port_M1~SCL">
@@ -59,22 +75,6 @@
     </g>
     <g transform="translate(0,70)" s:x="0" s:y="10" s:pid="in0" id="port_M1~GND">
       <text x="-3" y="-4" class="inputPortLabel cell_M1">GND</text>
-    </g>
-  </g>
-  <g s:type="generic" transform="translate(288,584)" s:width="30" s:height="40" id="cell_M2">
-    <text x="15" y="-4" class="nodelabel cell_M2" s:attribute="ref">M2 ADS1115_0x49</text>
-    <rect width="30" height="80" s:generic="body" class="cell_M2"/>
-    <g transform="translate(0,10)" s:x="0" s:y="10" s:pid="in0" id="port_M2~SCL">
-      <text x="-3" y="-4" class="inputPortLabel cell_M2">SCL</text>
-    </g>
-    <g transform="translate(0,30)" s:x="0" s:y="10" s:pid="in0" id="port_M2~SDA">
-      <text x="-3" y="-4" class="inputPortLabel cell_M2">SDA</text>
-    </g>
-    <g transform="translate(0,50)" s:x="0" s:y="10" s:pid="in0" id="port_M2~VDD">
-      <text x="-3" y="-4" class="inputPortLabel cell_M2">VDD</text>
-    </g>
-    <g transform="translate(0,70)" s:x="0" s:y="10" s:pid="in0" id="port_M2~GND">
-      <text x="-3" y="-4" class="inputPortLabel cell_M2">GND</text>
     </g>
   </g>
   <g s:type="generic" transform="translate(288,185)" s:width="30" s:height="40" id="cell_M3">
@@ -180,32 +180,32 @@
       <text x="5" y="-4" style="fill:#000; stroke:none" class="cell_PF_U1_10">P</text>
     </g>
   </g>
-  <g s:type="generic" transform="translate(175,709)" s:width="30" s:height="40" id="cell_PF_M1_VDD">
+  <g s:type="generic" transform="translate(175,709)" s:width="30" s:height="40" id="cell_PF_U6_9">
+    <text x="15" y="-4" class="nodelabel cell_PF_U6_9" s:attribute="ref">PWR_3V3</text>
+    <rect width="30" height="20" s:generic="body" class="cell_PF_U6_9"/>
+    <g transform="translate(30,10)" s:x="30" s:y="10" s:pid="out0" id="port_PF_U6_9~P">
+      <text x="5" y="-4" style="fill:#000; stroke:none" class="cell_PF_U6_9">P</text>
+    </g>
+  </g>
+  <g s:type="generic" transform="translate(175,777)" s:width="30" s:height="40" id="cell_PF_U6_10">
+    <text x="15" y="-4" class="nodelabel cell_PF_U6_10" s:attribute="ref">PWR_GND</text>
+    <rect width="30" height="20" s:generic="body" class="cell_PF_U6_10"/>
+    <g transform="translate(30,10)" s:x="30" s:y="10" s:pid="out0" id="port_PF_U6_10~P">
+      <text x="5" y="-4" style="fill:#000; stroke:none" class="cell_PF_U6_10">P</text>
+    </g>
+  </g>
+  <g s:type="generic" transform="translate(175,576)" s:width="30" s:height="40" id="cell_PF_M1_VDD">
     <text x="15" y="-4" class="nodelabel cell_PF_M1_VDD" s:attribute="ref">PWR_3V3</text>
     <rect width="30" height="20" s:generic="body" class="cell_PF_M1_VDD"/>
     <g transform="translate(30,10)" s:x="30" s:y="10" s:pid="out0" id="port_PF_M1_VDD~P">
       <text x="5" y="-4" style="fill:#000; stroke:none" class="cell_PF_M1_VDD">P</text>
     </g>
   </g>
-  <g s:type="generic" transform="translate(175,777)" s:width="30" s:height="40" id="cell_PF_M1_GND">
+  <g s:type="generic" transform="translate(175,644)" s:width="30" s:height="40" id="cell_PF_M1_GND">
     <text x="15" y="-4" class="nodelabel cell_PF_M1_GND" s:attribute="ref">PWR_GND</text>
     <rect width="30" height="20" s:generic="body" class="cell_PF_M1_GND"/>
     <g transform="translate(30,10)" s:x="30" s:y="10" s:pid="out0" id="port_PF_M1_GND~P">
       <text x="5" y="-4" style="fill:#000; stroke:none" class="cell_PF_M1_GND">P</text>
-    </g>
-  </g>
-  <g s:type="generic" transform="translate(175,576)" s:width="30" s:height="40" id="cell_PF_M2_VDD">
-    <text x="15" y="-4" class="nodelabel cell_PF_M2_VDD" s:attribute="ref">PWR_3V3</text>
-    <rect width="30" height="20" s:generic="body" class="cell_PF_M2_VDD"/>
-    <g transform="translate(30,10)" s:x="30" s:y="10" s:pid="out0" id="port_PF_M2_VDD~P">
-      <text x="5" y="-4" style="fill:#000; stroke:none" class="cell_PF_M2_VDD">P</text>
-    </g>
-  </g>
-  <g s:type="generic" transform="translate(175,644)" s:width="30" s:height="40" id="cell_PF_M2_GND">
-    <text x="15" y="-4" class="nodelabel cell_PF_M2_GND" s:attribute="ref">PWR_GND</text>
-    <rect width="30" height="20" s:generic="body" class="cell_PF_M2_GND"/>
-    <g transform="translate(30,10)" s:x="30" s:y="10" s:pid="out0" id="port_PF_M2_GND~P">
-      <text x="5" y="-4" style="fill:#000; stroke:none" class="cell_PF_M2_GND">P</text>
     </g>
   </g>
   <g s:type="generic" transform="translate(175,177)" s:width="30" s:height="40" id="cell_PF_M3_VCC">

@@ -11,7 +11,6 @@
 #   *.jpg, *.pdf                           -> docs/test-platform/
 #   *.kicad_sch, *.kicad_pro, fp-lib-table -> docs/test-platform/ (open in KiCad)
 #   test-platform.pretty/                  -> docs/test-platform/ (footprint lib)
-#   test-pinout-doc.pdf                    -> docs/test-platform/ (typeset in place)
 #   *.nlsvg.json                           -> discarded (netlistsvg inputs)
 #   anything else unexpected               -> repo root (for the user to triage)
 #
@@ -22,11 +21,6 @@
 # The schematic PDF + the wire-routed SVGs need the external `netlistsvg` tool.
 # If it is not installed, those steps are skipped with a warning and the rest
 # (pinout JPEGs, net-label schematic SVG, netlist) are still produced.
-#
-# The human-readable pinout PDF (test-pinout-doc.pdf) is typeset from the in-repo
-# test-pinout-doc.md with `pandoc` + `xelatex` (using the DejaVu fonts). When
-# either is absent that step is skipped with a warning; the Markdown is the
-# source of record and is never modified.
 #
 # Usage:
 #   perl scripts/gen-test-platform.pl
@@ -187,42 +181,6 @@ my $kicad_ok = run_in($root, $python,
     File::Spec->catfile($helpers_dir, 'check-kicad.py'), $out_dir);
 warn "WARN: KiCad project validation FAILED - see the messages above.\n"
     unless $kicad_ok;
-
-# 7. Typeset the human-readable pinout doc to PDF (pandoc + xelatex). Unlike the
-# steps above, this works on the in-repo Markdown in place, not the scratch tree.
-# Skipped cleanly when either tool is absent, mirroring the netlistsvg handling.
-my $doc_md  = File::Spec->catfile($out_dir, 'test-pinout-doc.md');
-my $pandoc  = which('pandoc');
-if (-f $doc_md && $pandoc && which('xelatex')) {
-    # DejaVu fonts carry the box-drawing, arrows and star glyphs the doc uses
-    # (Latin Modern does not); the header maps the one glyph DejaVu Serif lacks
-    # (the star marker) to DejaVu Sans.
-    my $star_fallback =
-          '\usepackage{newunicodechar}'
-        . '\newfontfamily\dejavusans{DejaVu Sans}'
-        . '\newunicodechar{★}{{\dejavusans ★}}';
-    my $doc_ok = run_in($out_dir, $pandoc, 'test-pinout-doc.md',
-        '-o', 'test-pinout-doc.pdf',
-        # Read as GitHub-flavoured Markdown so the heading anchors match the
-        # ToC links (which use GitHub's numbered slugs, so they also resolve
-        # when the doc is browsed on GitHub).
-        '-f', 'gfm',
-        '--pdf-engine=xelatex',
-        '-V', 'mainfont=DejaVu Serif',
-        '-V', 'monofont=DejaVu Sans Mono',
-        '-V', 'monofontoptions=Scale=0.85',
-        '-V', "header-includes=$star_fallback");
-    if ($doc_ok) {
-        printf "  %-38s -> %s\n", 'test-pinout-doc.pdf', rel($out_dir);
-    }
-    else {
-        warn "WARN: pandoc failed - test-pinout-doc.pdf may be stale\n";
-    }
-}
-else {
-    print "\nSkipping test-pinout-doc.pdf (needs pandoc + xelatex on PATH).\n";
-    print "Install them (e.g. `apt install pandoc texlive-xetex fonts-dejavu`) and re-run.\n\n";
-}
 
 # Removing the scratch tree also disposes of the discarded intermediates.
 remove_tree($build);

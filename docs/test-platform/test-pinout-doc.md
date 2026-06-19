@@ -260,15 +260,13 @@ ships as JPEG/PDF in this directory, with every vector **SVG** under **`svg/`**:
   — the same design in net-label style.
 - **`facts/test-platform.net`** — KiCad-importable netlist; every connection with
   datasheet-accurate pinouts.
-- **`test-pinout-doc.pdf`** — this document, typeset from the Markdown.
 
 Regenerate everything above with **`scripts/gen-test-platform.pl`**: it drives the
 Python generators (`gen-pinout-images.py`, `gen-schematic.py`, `gen-pdf.py`) and
-`netlistsvg`, typesets this doc to PDF (pandoc), then files the outputs into this
-directory and `svg/` — it never writes to `t/`. The schematic PDFs and the
-wire-routed SVGs require `netlistsvg` on `PATH`, and the doc PDF requires
-`pandoc` + `xelatex`; without each, the script still produces everything else and
-skips that step with a warning.
+`netlistsvg`, then files the outputs into this directory and `svg/` — it never
+writes to `t/`. The schematic PDFs and the wire-routed SVGs require `netlistsvg`
+on `PATH`; without it, the script still produces everything else and skips that
+step with a warning.
 
 ---
 
@@ -313,7 +311,7 @@ devices share **SDA=GPIO2 / SCL=GPIO3**. See the cited sections for full decodin
 | `420-eeprom_args.t` | AT24C32 EEPROM | I2C SDA2/SCL3 @0x57 |
 | `421-eeprom_read_write_byte_croak.t` | AT24C32 EEPROM | I2C SDA2/SCL3 @0x57 |
 | `422-eeprom_read_write_byte.t` | AT24C32 EEPROM | I2C SDA2/SCL3 @0x57 |
-| `450-stepper.t` | MCP23017 (0x21), ULN2003, 28BYJ-48 stepper | MCP23017 @0x21 GPA0–3 → ULN2003 IN1–4 → 28BYJ-48 coils; CW limit switch GPIO17, CCW limit switch GPIO27 (rising-edge interrupts), centre LED GPIO19 (centre computed, not sensed); I2C SDA2/SCL3 |
+| `450-stepper.t` | MCP23017 (0x21), ULN2003, 28BYJ-48 stepper | MCP23017 @0x21 GPA0–3 → ULN2003 IN1–4 → 28BYJ-48 coils; CW switch GPIO17 + CCW switch GPIO27 via `background_interrupt` (forked ISR children); centre LED GPIO19 flashed by a one-shot `worker` (fork); centre computed, not sensed; I2C SDA2/SCL3. **Also exercises the interrupt + worker concurrency machinery.** |
 | `500-oled_new.t` … `509-oled_horizontal_line.t` (10 OLED tests) | OLED SSD1306 128×64 | I2C SDA2/SCL3 @0x3c |
 | `525-lcd.t` | HD44780 LCD (20×4, 4-bit) | RS=GPIO5, E=GPIO6, D4=GPIO4, D5=GPIO17, D6=GPIO27, D7=GPIO22 |
 
@@ -498,9 +496,23 @@ use no direct Pi GPIO. Travel is bounded by **two magnetic limit switches** read
 directly on the Pi: **CW on GPIO17** (`t/450:118`) and **CCW on GPIO27**
 (`t/450:122`), each armed as a rising-edge `background_interrupt` (`t/450:127,133`).
 **Centre is computed, not sensed** — symmetric tick counts return the motor to
-mid-travel — and shown on a **centre LED on GPIO19** (`t/450:113-114`). The test
+mid-travel — and shown on a **centre LED on GPIO19** (`t/450:113`), pulsed by a
+one-shot fork **`worker`** so the LED hold never stalls the sweep. So beyond the
+expander drive, the test concurrently exercises both the `background_interrupt`
+(ISR) and `worker` (fork) subsystems. The test
 sweeps ccw/cw across several speed/delay configs and asserts each limit edge fires
 within its expected time window (`t/450:215-243`).
+
+**Per-config timing map (`t/450`) [T].** Each pass sweeps one `speed/delay` config
+and asserts both magnet edges trip within **±5%** of these measured means
+(out-sweep start → magnet); `%EXPECT` in the test holds the same numbers:
+
+| Pass | speed / delay | ccw edge | cw edge  |
+|-----:|---------------|---------:|---------:|
+| 1, 2 | full / 0.00   | 2088 ms  | 2048 ms  |
+| 3    | full / 0.01   | 8926 ms  | 8604 ms  |
+| 4    | half / 0.01   | 17816 ms | 17176 ms |
+| 5    | half / 0.00   | 4170 ms  | 4028 ms  |
 
 > The earlier rig sensed three analog positions (R/C/L) via an ADS1115 at `0x49`;
 > the redesigned board drops that ADC entirely in favour of the two magnetic
