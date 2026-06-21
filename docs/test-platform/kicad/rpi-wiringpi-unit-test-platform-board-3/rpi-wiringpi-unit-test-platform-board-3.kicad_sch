@@ -556,6 +556,145 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "power:+3V3"
+			(power global)
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "#PWR"
+				(at 0 -3.81 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "+3V3"
+				(at 0 3.556 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Power symbol creates a global label with name \"+3V3\""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "global power"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "+3V3_0_1"
+				(polyline
+					(pts
+						(xy -0.762 1.27) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 2.54) (xy 0.762 1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 0) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "+3V3_1_1"
+				(pin power_in line
+					(at 0 0 90)
+					(length 0)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "rpi-wiringpi-unit-test-platform-board-3:D1"
 			(pin_names
 				(offset 1.016)
@@ -3873,13 +4012,13 @@
 	)
 	(wire
 		(pts
-			(xy 58.42 143.51) (xy 63.5 143.51)
+			(xy 50.8 143.51) (xy 63.5 143.51)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "487cddeb-b4aa-4a09-8e1b-76cab4b3a5ee")
+		(uuid "561b6e74-7580-4806-ac85-c88404907e9d")
 	)
 	(wire
 		(pts
@@ -4240,6 +4379,16 @@
 			(justify left)
 		)
 		(uuid "3a995bdb-52c9-5bae-9f64-d2da1a987210")
+	)
+	(label "+3V3"
+		(at 58.42 143.51 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "3cfdee87-fad5-43df-87d3-a476e8d3cf21")
 	)
 	(label "+3V3"
 		(at 170.18 227.33 0)
@@ -4771,16 +4920,6 @@
 		)
 		(uuid "bcee958b-3463-5130-bff6-f4184c37e2ee")
 	)
-	(label "+3V3"
-		(at 58.42 143.51 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "bf8b7ba3-56c0-44e5-9a0b-ec54ae0bfee4")
-	)
 	(label "LED_G_K"
 		(at 85.24 344.7 0)
 		(effects
@@ -5129,7 +5268,7 @@
 				)
 			)
 		)
-		(property "Value" "LED_red"
+		(property "Value" "LED_R"
 			(at 170 32.62 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5665,6 +5804,83 @@
 		)
 	)
 	(symbol
+		(lib_id "power:+3V3")
+		(at 50.8 143.51 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "3f0734cc-4caf-4ada-ba38-e8fec8f83ded")
+		(property "Reference" "#PWR01"
+			(at 50.8 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 50.038 137.922 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 50.8 143.51 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 50.8 143.51 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3V3\""
+			(at 50.8 143.51 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "e738a824-e05d-4778-99ea-92033c55e47a")
+		)
+		(instances
+			(project "rpi-wiringpi-unit-test-platform-board-3"
+				(path "/d32517a0-ba1d-5be2-8d0f-f7fb5839afe5"
+					(reference "#PWR01")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:C_Polarized_Small_US")
 		(at 170.18 257.81 0)
 		(unit 1)
@@ -6006,7 +6222,7 @@
 				)
 			)
 		)
-		(property "Value" "LED_green"
+		(property "Value" "LED_G"
 			(at 70 349.78 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6165,7 +6381,7 @@
 				)
 			)
 		)
-		(property "Value" "LED_yellow"
+		(property "Value" "LED_Y"
 			(at 170 55.7 0)
 			(show_name no)
 			(do_not_autoplace no)
