@@ -41,12 +41,27 @@ is $? >> 8, 0, 'test-platform model: re-derivation matches canonical board-model
 #    project subdirectory (legacy/, rpi-wiringpi-unit-test-platform-board-N/);
 #    those are scaffolded once by gen-kicad.py then hand-managed, so empty
 #    placeholders (no .kicad_sch yet) are skipped rather than failed.
+# Finalized boards are FROZEN: once a board has been hand-completed in KiCad
+# and physically ordered it is deliberately left untouched. Its hand-managed
+# footprints intentionally diverge from the generator's self-contained project,
+# so validating it here would be both wrong and a way for a frozen board to
+# break the build. Frozen boards are listed here and skipped entirely.
+my %FROZEN = (
+    'rpi-wiringpi-unit-test-platform-board-3' => 1,
+);
+
 my $kroot = File::Spec->catdir($root, 'docs', 'test-platform', 'kicad');
 my @projects;
 
 if (opendir my $dh, $kroot) {
     for my $name (sort readdir $dh) {
         next if $name =~ /^\./;
+
+        if ($FROZEN{$name}) {
+            note "frozen (finalized + ordered) board left untouched: $name";
+            next;
+        }
+
         my $dir = File::Spec->catdir($kroot, $name);
         next if ! -d $dir;
         my @sch = glob File::Spec->catfile($dir, '*.kicad_sch');

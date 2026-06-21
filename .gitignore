@@ -24,3 +24,39 @@ pm_to_blib
 *.iml
 __pycache__/
 *.pyc
+
+# --- macOS ---
+.DS_Store
+
+# --- KiCad ---
+# local per-user project state (UI), not design data
+*.kicad_prl
+# Specctra autorouter export + session output (regenerable)
+*.dsn
+*.ses
+# Freerouting rules export (regenerable)
+*.rules
+# lock files (created while a project is open)
+*.lck
+# KiCad Local History autosave snapshots
+.history/
+# caches/backups that appear over time
+fp-info-cache
+*-backups/
+# KiCad restore-backup snapshots (timestamped dirs, e.g. _restore_backup_<ts>/)
+_restore_backup_*/
+# Fabrication outputs - all regenerable from the committed .kicad_pcb, so they
+# are not tracked (including the ordered gerber.zip archive).
+*.gbl
+*.gbs
+*.gbp
+*.gbo
+*.gtl
+*.gts
+*.gtp
+*.gto
+*.gm1
+*.gbrjob
+*.drl
+gerber/
+gerber.zip
