@@ -56,7 +56,7 @@ COMPONENTS = {
  'U1': ('MCP23017_0x20', 'DIP-28', dict(_MCP)),   # t/330 loopback
  'U2': ('MCP23017_0x21', 'DIP-28', dict(_MCP)),   # t/450 stepper drive
  # --- JST connectors ---
- 'J1': ('JST_IN_PWR',  'JST-3', {'1':'+5V','2':'+3V3','3':'GND'}),                       # in <- board 1
+ 'J1': ('JST_IN_PWR',  'JST-4', {'1':'+5V','2':'+3V3','3':'GND','4':'+3V3'}),            # in <- board 1 (pad 4 = 2nd +3V3, as-built)
  'J2': ('JST_IN_SIG',  'JST-5', {'1':'SDA','2':'SCL','3':'GPIO17','4':'GPIO27','5':'GPIO19'}),  # in <- board 1
  'J3': ('JST_OUT_PWR', 'JST-3', {'1':'+5V','2':'+3V3','3':'GND'}),                       # out -> stepper/magnets
  'J4': ('JST_OUT_SW',  'JST-2', {'1':'GPIO17','2':'GPIO27'}),                            # out -> magnet switches
@@ -85,7 +85,7 @@ COMPONENTS = {
 NETS = [
  # power rails (enter on J1, pass through to J3 for the external assembly)
  ('+5V', [('J1','1'),('J3','1')]),
- ('+3V3',[('J1','2'),('J3','2'),
+ ('+3V3',[('J1','2'),('J1','4'),('J3','2'),
           ('U1','9'),('U1','18'),               # VDD + RESET (active-low, tied high)
           ('U2','9'),('U2','18'),('U2','15'),   # VDD + RESET + A0 strap (-> 0x21)
           ('R4','2'),('R5','2')]),              # I2C pull-ups

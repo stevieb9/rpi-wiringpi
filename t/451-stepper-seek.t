@@ -3,7 +3,7 @@ use strict;
 
 use lib 't/';
 
-use StepperSeek qw(seek_limit home_target);
+use StepperSeek qw(seek_limit home_target stepper_calibrate stepper_skew SKEW_LIMIT_PCT);
 use Test::More;
 
 # Pure unit tests for the homing bound used by t/450 (StepperSeek::seek_limit).
@@ -93,9 +93,100 @@ use Test::More;
     is $centre, 185, "odd span 371 -> centre 185 (int division)";
 }
 
+# --- stepper_skew(): the centring math, exercised directly (no hardware) ---
+
+# 12. Equal edges -> truly centred: zero skew, no bias
+{
+    my $m = stepper_skew(2_000_000, 2_000_000, 3_600_000, 180);
+    is $m->{skew_us},   0,         "equal edges -> zero skew";
+    is $m->{skew_pct},  0,         "equal edges -> 0% skew";
+    is $m->{skew_deg},  0,         "equal edges -> 0 deg off centre";
+    is $m->{biased_to}, 'centred', "equal edges -> not biased to either limit";
+}
+
+# 13. cw edge later than ccw -> rest point biased toward the CCW limit
+{
+    # ccw 1.8s, cw 2.2s: skew = +200ms, mean 2.0s -> 10%; pace 180t / 3600ms
+    # = 0.05 deg/ms -> 10 deg -> 10/11.25 quanta
+    my $m = stepper_skew(1_800_000, 2_200_000, 3_600_000, 180);
+    is    $m->{skew_us},   200_000, "cw later -> +skew (toward CCW)";
+    about($m->{skew_pct},  10,         "skew_pct = 10% of the mean edge");
+    about($m->{skew_deg},  10,         "skew_deg = 10 deg via this sweep's pace");
+    about($m->{quanta},    10 / 11.25, "quanta = skew_deg / one full-step quantum");
+    is    $m->{biased_to}, 'CCW',   "biased toward the CCW limit";
+}
+
+# 14. ccw edge later than cw -> mirror image, biased toward the CW limit
+{
+    my $m = stepper_skew(2_200_000, 1_800_000, 3_600_000, 180);
+    is    $m->{skew_us},   -200_000, "ccw later -> -skew (toward CW)";
+    about($m->{skew_pct},  10, "magnitude is direction-independent (10%)");
+    about($m->{skew_deg},  10, "skew_deg magnitude is direction-independent");
+    is    $m->{biased_to}, 'CW',     "biased toward the CW limit";
+}
+
+# 15. skew_pct is speed-independent: same edges at half the pace -> same percent
+{
+    my $fast = stepper_skew(1_800_000, 2_200_000, 3_600_000, 180);
+    my $slow = stepper_skew(3_600_000, 4_400_000, 7_200_000, 180);
+    about($slow->{skew_pct}, $fast->{skew_pct},
+        "skew_pct identical when the rig is equally off at any speed");
+}
+
+# 16. Argument validation (croaks, in order)
+{
+    eval { stepper_skew(undef, 1, 1, 180) }; ok $@, "undef \$ccw_us croaks";
+    eval { stepper_skew('x',   1, 1, 180) }; ok $@, "non-numeric \$ccw_us croaks";
+    eval { stepper_skew(1, 'x', 1,   180) }; ok $@, "non-numeric \$cw_us croaks";
+    eval { stepper_skew(1, 1, 'x',   180) }; ok $@, "non-numeric \$cw_out_us croaks";
+    eval { stepper_skew(1, 1, 1,       0) }; ok $@, "\$cw_ticks of 0 croaks";
+}
+
+# --- stepper_calibrate(): the operator tool, with an injected sweep ---
+
+# 17. Within spec -> ok, within_spec true, no action needed
+{
+    # ~1.2% skew, comfortably under SKEW_LIMIT_PCT
+    my $cal = stepper_calibrate(sub { (2_000_000, 2_050_000, 3_600_000) }, 180);
+    is $cal->{ok},          1,      "real reading -> ok";
+    ok $cal->{within_spec},         "skew under spec -> within_spec true";
+    is $cal->{action},      'none', "within spec -> no operator action";
+    ok $cal->{skew_pct} <= SKEW_LIMIT_PCT, "reported skew is within the limit";
+}
+
+# 18. Off spec -> ok reading, but within_spec false + an actionable instruction
+{
+    # 10% skew toward CCW, well over spec
+    my $cal = stepper_calibrate(sub { (1_800_000, 2_200_000, 3_600_000) }, 180);
+    is $cal->{ok},          1,     "off-centre is still a real reading -> ok";
+    ok ! $cal->{within_spec},      "skew over spec -> within_spec false";
+    is $cal->{biased_to},   'CCW', "names the biased-toward limit";
+    like $cal->{action}, qr/backlash/, "action tells the operator to reduce slop";
+    like $cal->{action}, qr/CCW/,      "action names the direction";
+}
+
+# 19. Sweep captured no edge -> distinguishable failure, not a bogus 'centred'
+{
+    my $cal = stepper_calibrate(sub { (undef, 2_000_000, 3_600_000) }, 180);
+    is $cal->{ok},     0,          "missing edge -> not ok";
+    is $cal->{reason}, 'no_edges', "reason names the missing measurement";
+}
+
+# 20. Argument validation
+{
+    eval { stepper_calibrate('x',     180) }; ok $@, "non-coderef \$measure croaks";
+    eval { stepper_calibrate(sub {},    0) }; ok $@, "\$cw_ticks of 0 croaks";
+}
+
 done_testing();
 
 # SUBROUTINES
+
+# Float-tolerant equality for the derived skew metrics
+sub about {
+    my ($got, $exp, $msg) = @_;
+    ok abs($got - $exp) < 1e-9, $msg;
+}
 
 # Build a mock pair: the limit reads true once $trip_at steps have been taken
 # (undef = never trips). Returns ($at_limit, $step, \$steps) so a test can

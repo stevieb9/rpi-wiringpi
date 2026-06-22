@@ -22,6 +22,9 @@ my $helpers = File::Spec->catdir($root, 'scripts', 'helpers');
 my $drift   = File::Spec->catfile($helpers, 'check-model-drift.py');
 my $kicad   = File::Spec->catfile($helpers, 'check-kicad.py');
 my $render  = File::Spec->catfile($helpers, 'render-doc.py');
+my $locks   = File::Spec->catfile($helpers, 'check-board-locks.py');
+my $nets    = File::Spec->catfile($helpers, 'check-board-nets.py');
+my $sheets  = File::Spec->catfile($helpers, 'check-datasheets.py');
 
 my $python = which('python3');
 
@@ -95,6 +98,46 @@ SKIP: {
     my $render_out = qx("$python" "$render" --check 2>&1);
     is $? >> 8, 0, 'test-platform pin doc is up to date with its template'
         or diag $render_out;
+}
+
+# 4. Board lock: every finalized (blessed) board must be byte-for-byte unchanged
+#    from its committed snapshot. A blessed board cannot drift without an explicit
+#    re-bless (scripts/helpers/check-board-locks.py --bless). This is the positive
+#    enforcement behind the %FROZEN skip above - those boards are skipped from KiCad
+#    validation precisely because they are hand-finalized, so this freezes them.
+SKIP: {
+    skip 'check-board-locks.py not present', 1
+        if ! -f $locks;
+
+    my $lock_out = qx("$python" "$locks" 2>&1);
+    is $? >> 8, 0, 'finalized KiCad boards are unchanged since their bless'
+        or diag $lock_out;
+}
+
+# 5. Board nets: each board that has both a built PCB and a board-N-model.py must
+#    still implement that model pin-for-pin (PCB always; schematic too when
+#    kicad-cli is available). Catches a hand-edit that moves a net off the pin the
+#    tests expect - the gap neither the drift gate nor KiCad validation covered.
+SKIP: {
+    skip 'check-board-nets.py not present', 1
+        if ! -f $nets;
+
+    my $nets_out = qx("$python" "$nets" 2>&1);
+    is $? >> 8, 0, 'finalized KiCad boards still implement their board model'
+        or diag $nets_out;
+}
+
+# 6. Datasheet consistency (the ALL-STOP rule): every board model's IC pin map
+#    must match the manufacturer datasheet, recorded independently in
+#    datasheet-pinouts.json. A mismatch means the datasheet contradicts the
+#    design - the build stops so a human can resolve it.
+SKIP: {
+    skip 'check-datasheets.py not present', 1
+        if ! -f $sheets;
+
+    my $sheet_out = qx("$python" "$sheets" 2>&1);
+    is $? >> 8, 0, 'board models match the IC datasheets (datasheet-pinouts.json)'
+        or diag $sheet_out;
 }
 
 done_testing();

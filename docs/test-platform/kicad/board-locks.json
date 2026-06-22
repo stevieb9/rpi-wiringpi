@@ -1,0 +1,51 @@
+{
+  "boards": {
+    "rpi-wiringpi-unit-test-platform-board-2": {
+      "files": {
+        "fp-lib-table": "2a1ce6ecea2806ad7d577f17272924a6623953d4c523f8142486bc898e3731ba",
+        "rpi-wiringpi-unit-test-platform-board-2.kicad_pcb": "5dcbc615255bf16ef94cbb9ccad5982eafee81c25e21d1930317f6fad37c6cbb",
+        "rpi-wiringpi-unit-test-platform-board-2.kicad_pro": "00b0dd35b9b20cb7c8531740e15909ad8e38ccebb39a1ccfa4df8bcbed1eace3",
+        "rpi-wiringpi-unit-test-platform-board-2.kicad_sch": "8c2b5ef031b007ef70d9b5c5ab398d96f3a229ca6cf1fab2b0d5369fc939026c",
+        "rpi-wiringpi-unit-test-platform-board-2.pretty/J1.kicad_mod": "3354a7e12b96e680fd995133e80ec982edec234a0dfb68a11ae237bc61b3c9d6",
+        "rpi-wiringpi-unit-test-platform-board-2.pretty/J2.kicad_mod": "4f150de79d40bab27a8c42e3f8ee3e2bbfe94e464905c738735340aa1ed0ea86",
+        "rpi-wiringpi-unit-test-platform-board-2.pretty/J3.kicad_mod": "8e5e6988938758edf8135d0e02c0698a0a71d4d0aa28093e3eaaa1a22e21589e",
+        "rpi-wiringpi-unit-test-platform-board-2.pretty/J4.kicad_mod": "840836f3fa84a112385830eff9a2ba832aa903392f16c5ad709f4bd540f66e48",
+        "rpi-wiringpi-unit-test-platform-board-2.pretty/J5.kicad_mod": "0d476449ed917263979cf54af5b4376c3c2df59956358f227987f4e72a2f42b7",
+        "rpi-wiringpi-unit-test-platform-board-2.pretty/J6.kicad_mod": "e0f8ca45593508061196f93a4d1735a9b66a32fc7aa73deb8d28a177b62c5c82",
+        "rpi-wiringpi-unit-test-platform-board-2.pretty/J7.kicad_mod": "2c56f6ccc33c6a1ba20e445cf82cc1016c989ec518fc0331c3c0f19790f289ea",
+        "rpi-wiringpi-unit-test-platform-board-2.pretty/M1.kicad_mod": "6b624b267ae73581e7f91147a9bee8372e910433281d4f889b3c291be65f7fef",
+        "rpi-wiringpi-unit-test-platform-board-2.pretty/U1.kicad_mod": "3635880d9c906a309c72791a16575607916e9a4803cc66047727a4902c21ab04",
+        "rpi-wiringpi-unit-test-platform-board-2.pretty/U2.kicad_mod": "f8a360d39dc12fc2e78708a1e6f3977da2e76ab48bcd560042db1a376538b7bd",
+        "rpi-wiringpi-unit-test-platform-board-2.pretty/U3.kicad_mod": "730071ee18c194a2dc5dfd86742d1c8f63b9a6f6e6711c13d1cdec936f488072",
+        "rpi-wiringpi-unit-test-platform-board-2.pretty/U4.kicad_mod": "3b8f0ca42a5bea08b9d48e34de291333e3d5a662ea26b415abb5b4eee8c61266"
+      }
+    },
+    "rpi-wiringpi-unit-test-platform-board-3": {
+      "files": {
+        "fp-lib-table": "4106fcc03d43dc11731ad39eede42280cb2002f703e451bed1c59c89e1129a3e",
+        "rpi-wiringpi-unit-test-platform-board-3.kicad_pcb": "389162f9e55bd4930f9a98ae155b965953ee09de6f0b6adc49a243cfe5fda62f",
+        "rpi-wiringpi-unit-test-platform-board-3.kicad_pro": "333c71e765774006cd9683b11439017fdea89ddb6dc6823a6a9c89eb026e3374",
+        "rpi-wiringpi-unit-test-platform-board-3.kicad_sch": "7e49bc2dadc1d98d913b45abf9f6113609c0286785705e553d67379ddbe23b8a",
+        "rpi-wiringpi-unit-test-platform-board-3.pretty/D1.kicad_mod": "71ece785dfae3e0fd74bad2b88d9d0db63fc7ed6764c33136a8931896f603903",
+        "rpi-wiringpi-unit-test-platform-board-3.pretty/D2.kicad_mod": "415cf3bf040612d3ea5a7ccbf79f0b0806b76f3bd4519614e21c98cda536625b",
+        "rpi-wiringpi-unit-test-platform-board-3.pretty/D3.kicad_mod": "3adc283605b8ccb5aa90c0f5607d91d8ea289691486c45dca1c13388bffee9c0",
+        "rpi-wiringpi-unit-test-platform-board-3.pretty/J1.kicad_mod": "57f6f8ea31f5954cd38c7db9a2722489c6a068c22d44e22e4f658e2e517feffa",
+        "rpi-wiringpi-unit-test-platform-board-3.pretty/J2.kicad_mod": "bedd3cf65fbc461f2698385c975c519116f85b5c569dd5cb7f8b8987764c964a",
+        "rpi-wiringpi-unit-test-platform-board-3.pretty/J3.kicad_mod": "e9253a3f4a9862432d5d5114984b8187d0fb5e1b290d3a525a90a8f208f829d9",
+        "rpi-wiringpi-unit-test-platform-board-3.pretty/J4.kicad_mod": "d51acb1c1fdac257a787bf88c5f9e8a7f809df2898477e987ce263a8d085d068",
+        "rpi-wiringpi-unit-test-platform-board-3.pretty/J5.kicad_mod": "869f7098d9bfbdead754cb1b276cd382759cf8df1819f9aeada0916752b95676",
+        "rpi-wiringpi-unit-test-platform-board-3.pretty/J6.kicad_mod": "31bb7c960b301dff2fd83713144a8465ca8af9d94e42d94b73eecebc94c9c898",
+        "rpi-wiringpi-unit-test-platform-board-3.pretty/J7.kicad_mod": "98eac3d31b7127fea00675a01f4327b0b245e637743ceb13c34b54cf4c8bc8de",
+        "rpi-wiringpi-unit-test-platform-board-3.pretty/J8.kicad_mod": "4305c21479a160d95cf57bfce6d653f4ba7924c15c0953f09d3a5a5bf2dedf89",
+        "rpi-wiringpi-unit-test-platform-board-3.pretty/R1.kicad_mod": "c50feabd05309e38e920d68181631d1d228e3f5e8146382d64dcccfdc89956e3",
+        "rpi-wiringpi-unit-test-platform-board-3.pretty/R2.kicad_mod": "a05a25be744d3079235a3ddd1c8f2d255e41021eb2cbefb81c77d178a676afe2",
+        "rpi-wiringpi-unit-test-platform-board-3.pretty/R3.kicad_mod": "76b4affa1dccf9e1cfec0eded697c0b7ef1242e36bc59c5a904c9fedf91167aa",
+        "rpi-wiringpi-unit-test-platform-board-3.pretty/R4.kicad_mod": "94d0e6640643b7db2e03b74d385d968a71296ae705dae8dd4c21212a5ded6290",
+        "rpi-wiringpi-unit-test-platform-board-3.pretty/R5.kicad_mod": "22c1a5f1dcde16cc1bc09de4c28fde936a09f89ca5ba92e5c2780a8470f89470",
+        "rpi-wiringpi-unit-test-platform-board-3.pretty/SW1.kicad_mod": "d45154b74ec50a5aba7f6518f7bab2fb00b3fca45fdbaaa57252993bb6b2c88e",
+        "rpi-wiringpi-unit-test-platform-board-3.pretty/U1.kicad_mod": "dd882bc136d56dadd5bc9d18ca24278080b6c19d6d3dceb466285c9689fe24d9",
+        "rpi-wiringpi-unit-test-platform-board-3.pretty/U2.kicad_mod": "7762342d73c9328b9b27622e81f2da80077e12700de736e13d63f80f2a082e7b"
+      }
+    }
+  }
+}

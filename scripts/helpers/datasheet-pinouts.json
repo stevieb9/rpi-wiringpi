@@ -1,0 +1,142 @@
+{
+  "_doc": [
+    "Datasheet-verified pinouts for the bare ICs on the test platform - the EXTERNAL",
+    "ground truth behind the datasheet-consistency rule. Each pin map here was extracted",
+    "INDEPENDENTLY from the cited manufacturer datasheet (not copied from board-model.py),",
+    "then confirmed to match the model. check-datasheets.py diffs every board model against",
+    "this file; a mismatch is an ALL-STOP (the datasheet contradicts the design).",
+    "",
+    "Names follow the project's convention (so the diff is exact); each pin's FUNCTION was",
+    "verified against the datasheet, and 'notes' records any datasheet-literal name that",
+    "differs (e.g. MCP23017 pin 12 'SCK' = I2C SCL). To change an entry, re-verify against",
+    "the cited datasheet (doc + rev) and update 'verified'. Modules (ADS1115, DS3231, BMP180,",
+    "SSD1306, ...) are addressed/labelled parts, not pin-number-critical DIPs, and are not",
+    "covered here - their I2C addresses are tracked separately."
+  ],
+  "parts": {
+    "74HC595": {
+      "datasheet": "TI SCLS041J",
+      "url": "https://www.ti.com/lit/ds/symlink/sn74hc595.pdf",
+      "package": "PDIP-16",
+      "verified": "2026-06-22",
+      "notes": "TI literals: Q0-Q7=QA-QH, Q7S=QH', DS=SER, SHCP=SRCLK, STCP=RCLK, MR=SRCLR (active-low), OE active-low",
+      "pins": {
+        "1": "Q1", "2": "Q2", "3": "Q3", "4": "Q4", "5": "Q5", "6": "Q6", "7": "Q7",
+        "8": "GND", "9": "Q7S", "10": "MR", "11": "SHCP", "12": "STCP", "13": "OE",
+        "14": "DS", "15": "Q0", "16": "VCC"
+      }
+    },
+    "MCP3008": {
+      "datasheet": "Microchip DS20001295E",
+      "url": "https://ww1.microchip.com/downloads/aemDocuments/documents/MSLD/ProductDocuments/DataSheets/MCP3004-MCP3008-Data-Sheet-DS20001295.pdf",
+      "package": "PDIP-16",
+      "verified": "2026-06-22",
+      "notes": "datasheet pin10 = CS/SHDN, pin13 = SCLK",
+      "pins": {
+        "1": "CH0", "2": "CH1", "3": "CH2", "4": "CH3", "5": "CH4", "6": "CH5",
+        "7": "CH6", "8": "CH7", "9": "DGND", "10": "CS", "11": "DIN", "12": "DOUT",
+        "13": "CLK", "14": "AGND", "15": "VREF", "16": "VDD"
+      }
+    },
+    "MCP4922": {
+      "datasheet": "Microchip DS22250A",
+      "url": "https://ww1.microchip.com/downloads/en/devicedoc/22250a.pdf",
+      "package": "PDIP-14",
+      "verified": "2026-06-22",
+      "notes": "datasheet pin12 = VSS (model labels AVSS); LDAC/SHDN active-low; pins 2,6,7 are NC",
+      "pins": {
+        "1": "VDD", "2": "NC", "3": "CS", "4": "SCK", "5": "SDI", "6": "NC", "7": "NC",
+        "8": "LDAC", "9": "SHDN", "10": "VOUTB", "11": "VREFB", "12": "AVSS",
+        "13": "VREFA", "14": "VOUTA"
+      }
+    },
+    "MCP42010": {
+      "datasheet": "Microchip DS11195C",
+      "url": "https://ww1.microchip.com/downloads/en/DeviceDoc/11195c.pdf",
+      "package": "PDIP-14",
+      "verified": "2026-06-22",
+      "notes": "CS/RS/SHDN active-low; pins 8-14 had a historical reverse-numbering bug - confirmed correct per DS11195C (8=PA0,9=PW0,10=PB0,11=RS,12=SHDN,13=SO,14=VDD)",
+      "pins": {
+        "1": "CS", "2": "SCK", "3": "SI", "4": "VSS", "5": "PB1", "6": "PW1", "7": "PA1",
+        "8": "PA0", "9": "PW0", "10": "PB0", "11": "RS", "12": "SHDN", "13": "SO", "14": "VDD"
+      }
+    },
+    "MCP23017": {
+      "datasheet": "Microchip DS20001952D",
+      "url": "https://ww1.microchip.com/downloads/aemDocuments/documents/APID/ProductDocuments/DataSheets/MCP23017-Data-Sheet-DS20001952.pdf",
+      "package": "SPDIP-28",
+      "verified": "2026-06-22",
+      "notes": "datasheet pin12 'SCK' = I2C SCL; pins 11,14 are NC on the I2C MCP23017 (CS/SO on the SPI MCP23S17); RESET active-low; INTB=19, INTA=20",
+      "pins": {
+        "1": "GPB0", "2": "GPB1", "3": "GPB2", "4": "GPB3", "5": "GPB4", "6": "GPB5",
+        "7": "GPB6", "8": "GPB7", "9": "VDD", "10": "VSS", "11": "NC", "12": "SCL",
+        "13": "SDA", "14": "NC", "15": "A0", "16": "A1", "17": "A2", "18": "RESET",
+        "19": "INTB", "20": "INTA", "21": "GPA0", "22": "GPA1", "23": "GPA2", "24": "GPA3",
+        "25": "GPA4", "26": "GPA5", "27": "GPA6", "28": "GPA7"
+      }
+    },
+    "HD44780": {
+      "datasheet": "Hitachi HD44780U / Vishay LCD-016N002M",
+      "url": "https://www.vishay.com/docs/37481/lcd016n002mttiet.pdf",
+      "package": "16-pin module",
+      "verified": "2026-06-22",
+      "notes": "datasheet RW = R/W; D0-D3 (pins 7-10) unused in 4-bit mode; A=LED+ (15), K=LED- (16)",
+      "pins": {
+        "1": "VSS", "2": "VDD", "3": "V0", "4": "RS", "5": "RW", "6": "E",
+        "7": "D0", "8": "D1", "9": "D2", "10": "D3", "11": "D4", "12": "D5",
+        "13": "D6", "14": "D7", "15": "A", "16": "K"
+      }
+    }
+  },
+
+  "_i2c_doc": [
+    "Datasheet-verified I2C addressing for every addressable device. check-datasheets.py",
+    "computes each device's address from how the board model straps its address pins, then",
+    "checks it against the datasheet scheme below and the address declared in the component",
+    "value (e.g. 'MCP23017_0x20', 'ADS1115_0x48'). A disagreement is an ALL-STOP.",
+    "types: 'fixed' = no address pins; 'strap' = base + binary weights on named pins tied to",
+    "rails; 'strap_net' = one pin whose tied net selects the address; 'module' = strap is",
+    "internal to the breakout (not on the platform nets), address recorded for reference."
+  ],
+  "i2c": {
+    "MCP23017": {
+      "type": "strap",
+      "base": "0x20",
+      "weights": {"A0": 1, "A1": 2, "A2": 4},
+      "rails": {"GND": 0, "+3V3": 1},
+      "datasheet": "Microchip DS20001952D",
+      "note": "7-bit address = 0b0100_A2A1A0; range 0x20-0x27"
+    },
+    "ADS1115": {
+      "type": "strap_net",
+      "pin": "ADDR",
+      "map": {"GND": "0x48", "+3V3": "0x49", "I2C_SDA": "0x4A", "I2C_SCL": "0x4B"},
+      "datasheet": "TI SBAS444E (Table 7-2)",
+      "note": "ADDR pin tie selects the address"
+    },
+    "DS3231": {
+      "type": "fixed",
+      "address": "0x68",
+      "datasheet": "Maxim DS3231 (Rev 2)",
+      "note": "fixed in silicon, no address pins"
+    },
+    "BMP180": {
+      "type": "fixed",
+      "address": "0x77",
+      "datasheet": "Bosch BST-BMP180-DS000-09 (Rev 2.5)",
+      "note": "fixed, no address pins (0xEE write / 0xEF read)"
+    },
+    "AT24C32": {
+      "type": "module",
+      "address": "0x57",
+      "datasheet": "Microchip AT24C32D (DS20006047A)",
+      "note": "base 0x50 + A2/A1/A0; ZS042 module ties all high -> 0x57"
+    },
+    "SSD1306": {
+      "type": "module",
+      "address": "0x3C",
+      "datasheet": "Solomon Systech SSD1306 (Rev 1.1)",
+      "note": "SA0 via D/C# pin: SA0=0 -> 0x3C, SA0=1 -> 0x3D; module fixes 0x3C"
+    }
+  }
+}

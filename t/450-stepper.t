@@ -9,7 +9,7 @@ use RPi::WiringPi;
 use RPi::StepperMotor;
 use Time::HiRes qw(clock_gettime CLOCK_MONOTONIC);
 use Test::More;
-use StepperSeek qw(seek_limit home_target);
+use StepperSeek qw(seek_limit home_target stepper_calibrate stepper_skew SKEW_LIMIT_PCT);
 
 # ===========================================================================
 # t/450-stepper.t - stepper / I2C expander timing integration test
@@ -164,8 +164,30 @@ my $pass_num = 0;
 # bounded (seek_limit) so a dead switch fails the test instead of driving into a
 # hard stop. The timed passes are skipped if homing fails (no known base).
 if (home($exp)) {
-    for my $pass (@PASSES) {
-        run_pass(++$pass_num, $pass);
+
+    # Centring gate: one quick sweep up front to measure how far off centre the
+    # homed rest point sits. A persistent skew is gear backlash (the edges
+    # should be equidistant from a true centre); if it exceeds spec the timed
+    # passes cannot be trusted, so report the operator action and skip them
+    # rather than burn ~90s on passes that will all fail the same way.
+    my $cal = stepper_calibrate(\&measure_skew, CW_TICKS);
+
+    if (! $cal->{ok}) {
+        fail "centring gate: could not capture both edges ($cal->{reason})";
+    }
+    elsif (! ok $cal->{within_spec},
+        sprintf 'centring gate: skew %.1f%% within %.1f%% spec '
+              . '(%.1f deg / %.2f teeth toward %s)',
+            $cal->{skew_pct}, SKEW_LIMIT_PCT,
+            $cal->{skew_deg}, $cal->{quanta}, $cal->{biased_to})
+    {
+        diag "ACTION REQUIRED: $cal->{action}";
+        diag "skipping the timed passes until the rig is recentred";
+    }
+    else {
+        for my $pass (@PASSES) {
+            run_pass(++$pass_num, $pass);
+        }
     }
 }
 else {
@@ -280,6 +302,37 @@ sub home {
     return 1;
 }
 
+sub measure_skew {
+
+    # One quick full/0.00 out-and-back on each side, feeding the centring gate
+    # via stepper_calibrate(). Mirrors run_pass's geometry but asserts nothing
+    # and ends back at centre, ready for the timed passes. Returns the triple
+    # stepper_skew()/stepper_calibrate() consume: ($ccw_us, $cw_us, $cw_out_us).
+    my $sm = RPi::StepperMotor->new(
+        pins     => [A0, A1, A2, A3],
+        expander => $exp,
+        speed    => 'full',
+        delay    => 0.00,
+    );
+
+    # CCW out to the ccw magnet (timed edge), then back to centre
+    my $t0 = _now_us();
+    $sm->ccw(CCW_TICKS);
+    my $ccw_edge = drain_edge($ccw_proc, $t0);
+    $sm->cw(CCW_TICKS);
+
+    # CW out to the cw magnet (timed edge + out-sweep pace), then back to centre
+    $t0 = _now_us();
+    $sm->cw(CW_TICKS);
+    my $cw_out  = _now_us() - $t0;
+    my $cw_edge = drain_edge($cw_proc, $t0);
+    $sm->ccw(CW_TICKS);
+
+    $sm->cleanup;
+
+    return ($ccw_edge, $cw_edge, $cw_out);
+}
+
 sub run_pass {
     my ($num, $pass) = @_;
 
@@ -331,6 +384,16 @@ sub run_pass {
 
     edge_ok($ccw_edge, $expect->{ccw}, "$key ccw edge");
     edge_ok($cw_edge,  $expect->{cw},  "$key cw edge");
+
+    # Per-pass centring readout (diagnostic only; the up-front gate is the hard
+    # check). A skew over spec here corroborates an off-centre rest point.
+    if (defined $ccw_edge && defined $cw_edge) {
+        my $m = stepper_skew($ccw_edge, $cw_edge, $cw_out, CW_TICKS);
+
+        diag sprintf '%s centre skew: %.1f%% (~%.1f deg / %.2f teeth toward %s)',
+            $key, $m->{skew_pct}, $m->{skew_deg}, $m->{quanta}, $m->{biased_to}
+            if $m->{skew_pct} > SKEW_LIMIT_PCT;
+    }
 
     $sm->cleanup;
 }
