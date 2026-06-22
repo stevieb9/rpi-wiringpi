@@ -219,16 +219,22 @@ my $rtc = $pi->rtc;
     }
 }
 
-{ # temp() - celcius
+{ # temp() - celcius, within the DS3231 operating range
+  # (the old qr/\d+/ would pass a bogus +231, the sign bug's output for -25C;
+  # the negative path itself is logic-verified, not room-temp reachable)
 
     my $temp = $rtc->temp;
-    like $temp, qr/\d+(?:\.\d{2})?/, "temp() return is ok";
+    like $temp, qr/^-?\d+(?:\.\d{2})?$/, "temp() returns a number";
+    cmp_ok $temp, '>=', -40, "temp() >= -40C (DS3231 spec)";
+    cmp_ok $temp, '<=', 85,  "temp() <= 85C (DS3231 spec)";
 }
 
-{ # temp() - farenheit
+{ # temp() - farenheit, within the DS3231 operating range
 
     my $f = $rtc->temp('f');
-    like $f, qr/\d+(?:\.\d{2})?/, "temp('f') return is ok";
+    like $f, qr/^-?\d+(?:\.\d{2})?$/, "temp('f') returns a number";
+    cmp_ok $f, '>=', -40,  "temp('f') >= -40F";
+    cmp_ok $f, '<=', 185,  "temp('f') <= 185F";
 }
 
 { # hms()
@@ -331,6 +337,52 @@ my $rtc = $pi->rtc;
         "croak ok if datetime format invalid";
 
     like $@, qr/parameter must be in the format/, "...and error is sane";
+}
+
+{ # raw-register BCD checks -- comprehensive on-silicon falsification
+  #
+  # The month()/hour() round-trips above pass even with the raw-vs-BCD bug
+  # because getMonth/getHour do bcd2dec(reg) and bcd2dec(0x0C) == 12. Read the
+  # actual stored byte and assert valid BCD across the full range. These FAIL
+  # on the old raw-binary XS and PASS on the BCD XS, exercised through the
+  # RPi::WiringPi -> $pi->rtc integration path (board 4). Reg 0x05 = month bits
+  # 0-4 (+ century bit 7); reg 0x02 = hour bits 0-4 (+ AM/PM bit 5, 12/24 bit
+  # 6) per the DS3231 datasheet.
+
+    for my $m (1 .. 12) {
+        $rtc->month($m);
+        is $rtc->_get_register(0x05) & 0x1F, RPi::RTC::DS3231::dec2bcd($m),
+            "month $m stored as valid BCD in reg 0x05 (not raw binary)";
+    }
+
+    $rtc->clock_hours(12);
+
+    for my $h (1 .. 12) {
+        $rtc->hour($h);
+        is $rtc->_get_register(0x02) & 0x1F, RPi::RTC::DS3231::dec2bcd($h),
+            "12-hour hour $h stored as valid BCD in reg 0x02 (not raw binary)";
+    }
+
+    # The 12/24-select (0x40) and AM/PM (0x20) bits must survive an hour() write
+    $rtc->clock_hours(12);
+    $rtc->am_pm('PM');
+    $rtc->hour(11);
+    my $hreg = $rtc->_get_register(0x02);
+    ok $hreg & 0x40, '12/24-hour select bit preserved across hour() write';
+    ok $hreg & 0x20, 'AM/PM bit preserved across hour() write';
+
+    # The Century bit (0x80) must survive a month() write
+    RPi::RTC::DS3231::setRegister(
+        $rtc->_fd,
+        0x05,
+        0x80 | RPi::RTC::DS3231::dec2bcd(6),
+        'seed century',
+    );
+    $rtc->month(12);
+    ok $rtc->_get_register(0x05) & 0x80,
+        'Century bit (0x80) preserved across month() write';
+
+    $rtc->clock_hours(24);
 }
 
 $pi->cleanup;
