@@ -157,6 +157,12 @@ Pure 3V3, bus only, no GPIO. The four sensor breakouts just drop on SDA/SCL.
 
 *RTC + EEPROM are typically the same physical ZS-042 breakout (two addresses).*
 
+> **⚠️ OPEN (raised 2026-06-21) — verify before finalizing board 4:** the model
+> (`board-4-model.py` M1) assumes a **ZS-042** (DS3231 + on-board AT24C32). Confirm
+> the part you actually have. If it's a **bare DS3231** (no EEPROM), `t/420-422`
+> need a **separate AT24C32** added to the model (0x57 on the bus) + a re-scaffold.
+> Board 4 is scaffold-only with no hand-work yet, so changing it is cheap.
+
 ### Connectors (two JSTs, mirroring board 3's J1/J2 convention)
 
 | Ref | Role | Pins | Pinout |

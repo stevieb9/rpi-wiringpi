@@ -58,6 +58,13 @@ Shapes match board-model.py:
 # identifiers; values are the silk signal names.
 COMPONENTS = {
  # --- I2C breakout modules ---
+ # TODO [OPEN, raised 2026-06-21 -- verify before finalizing board 4]:
+ #   This models a ZS-042 breakout, which carries BOTH the DS3231 RTC (0x68) AND
+ #   an on-board AT24C32 EEPROM (0x57) on one 6-pin header. CONFIRM the physical
+ #   part you have. If it is a *bare* DS3231 (no on-board EEPROM), then t/420-422
+ #   need a SEPARATE AT24C32 chip -- add it here as its own module (VCC/GND/SCL/SDA
+ #   on the I2C bus, address 0x57) and re-scaffold. If it is the ZS-042, this is
+ #   already correct as-is.
  # ZS-042: standard 6-pin header order. 32K + SQW are unused (left unconnected).
  'M1': ('DS3231_0x68+AT24C32_0x57', 'Module',
         {'1':'32K','2':'SQW','3':'SCL','4':'SDA','5':'VCC','6':'GND'}),   # t/320, t/420-422
