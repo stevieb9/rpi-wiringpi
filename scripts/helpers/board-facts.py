@@ -16,7 +16,7 @@ like a device's power rail is stated ONCE, not duplicated and cross-checked.
 POWER = {
  'U1':[('9','+3V3'),('10','GND')], 'U2':[('16','+3V3'),('8','GND')],
  'U3':[('16','+3V3'),('9','GND')], 'U4':[('1','+3V3'),('12','GND')],
- 'U5':[('8','+3V3'),('4','GND')],  'M1':[('VDD','+3V3'),('GND','GND')],
+ 'U5':[('14','+3V3'),('4','GND')], 'M1':[('VDD','+3V3'),('GND','GND')],
  'U6':[('9','+3V3'),('10','GND')], 'M3':[('VCC','+3V3'),('GND','GND')],
  'M4':[('VIN','+3V3'),('GND','GND')], 'M5':[('VCC','+3V3'),('GND','GND')],
  'M6':[('LV','+3V3'),('HV','+5V'),('GND1','GND')], 'M7':[('V+','+5V'),('GND','GND')],

@@ -147,7 +147,10 @@ def pin_geom(ref):
     """
     left, right = split_pins(ref)
     rows = max(len(left), len(right), 1)
-    half_h = (rows + 1) * PITCH / 2
+    # Round the half-height up to a whole 2.54 mm pitch so every pin y lands on
+    # the 2.54 mm grid; a centred even-pin column would otherwise sit on the
+    # 1.27 mm half-grid and pins couldn't be snapped to in Eeschema.
+    half_h = -(-(rows + 1) // 2) * PITCH
     tip_x = BODY_W / 2 + PIN_LEN
     geom = {}
     for i, p in enumerate(left):
@@ -233,6 +236,14 @@ def place_all():
         pos[ref] = (cur_x, sy)
         col_top = sy + half + 18.0
         max_bottom = max(max_bottom, sy + half)
+
+    # Snap every symbol origin to the 2.54 mm (100 mil) grid. Pin offsets are all
+    # 2.54 mm multiples (tip_x = 6*PITCH, pin y from the gridded half-height), so a
+    # gridded origin puts every pin -- and its net label -- on the 2.54 mm grid.
+    # Without this, symbols land off-grid and Eeschema can't snap labels/wires to
+    # the pins.
+    pos = {r: (round(x / PITCH) * PITCH, round(y / PITCH) * PITCH)
+           for r, (x, y) in pos.items()}
 
     page_w = cur_x + 70.0
     page_h = max_bottom + margin

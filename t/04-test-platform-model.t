@@ -41,12 +41,15 @@ is $? >> 8, 0, 'test-platform model: re-derivation matches canonical board-model
 #    project subdirectory (legacy/, rpi-wiringpi-unit-test-platform-board-N/);
 #    those are scaffolded once by gen-kicad.py then hand-managed, so empty
 #    placeholders (no .kicad_sch yet) are skipped rather than failed.
-# Finalized boards are FROZEN: once a board has been hand-completed in KiCad
-# and physically ordered it is deliberately left untouched. Its hand-managed
-# footprints intentionally diverge from the generator's self-contained project,
-# so validating it here would be both wrong and a way for a frozen board to
-# break the build. Frozen boards are listed here and skipped entirely.
+# Hand-managed boards are FROZEN: once a board is being hand-finalized in KiCad
+# (custom parts and stock footprints that intentionally diverge from the
+# generated scaffold) it is deliberately left untouched. Validating such a board
+# here would be both wrong and a way for it to break the build, so frozen boards
+# are listed here and skipped entirely.
+#   board-3: finalized + ordered.
+#   board-2: hand-finalization in progress (decoupling caps + custom parts).
 my %FROZEN = (
+    'rpi-wiringpi-unit-test-platform-board-2' => 1,
     'rpi-wiringpi-unit-test-platform-board-3' => 1,
 );
 
@@ -58,7 +61,7 @@ if (opendir my $dh, $kroot) {
         next if $name =~ /^\./;
 
         if ($FROZEN{$name}) {
-            note "frozen (finalized + ordered) board left untouched: $name";
+            note "frozen (hand-managed) board left untouched: $name";
             next;
         }
 
