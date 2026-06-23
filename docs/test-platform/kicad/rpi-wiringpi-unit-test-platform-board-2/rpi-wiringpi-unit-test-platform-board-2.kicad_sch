@@ -2963,7 +2963,7 @@
 					)
 				)
 			)
-			(property "Description" ""
+			(property "Description" "MCP42010 dual SPI digital potentiometer; both channels active (PW0 -> ADS1115 A1, PW1 -> ADS1115 A2)"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -3252,18 +3252,6 @@
 	(no_connect
 		(at 85.09 149.86)
 		(uuid "6948a03c-0ed3-4576-a487-bf2947d2eb8a")
-	)
-	(no_connect
-		(at 85.09 154.94)
-		(uuid "8e96a88e-0698-4950-8633-572c3249d0de")
-	)
-	(no_connect
-		(at 85.09 157.48)
-		(uuid "aa01c950-e023-4acd-88a3-0575a66c122b")
-	)
-	(no_connect
-		(at 85.09 160.02)
-		(uuid "ab9f34cf-ae65-4a48-a8e3-0479e891c9e8")
 	)
 	(wire
 		(pts
@@ -4374,6 +4362,46 @@
 			(justify left bottom)
 		)
 		(uuid "f92daeae-5d2b-4797-ade3-10c86372f548")
+	)
+	(label "GND"
+		(at 85.09 154.94 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "62173da1-fb2a-4547-a693-9d8e039c8afd")
+	)
+	(label "DPOT_WIPER2"
+		(at 85.09 157.48 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "bcfc1e0a-0758-41bd-931c-645d9a9dcbe8")
+	)
+	(label "+3V3"
+		(at 85.09 160.02 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "4994962b-d8d1-48ba-b8ff-9c474f11a650")
+	)
+	(label "DPOT_WIPER2"
+		(at 85.24 188.44 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "647fa53e-5bd1-4613-8be2-7b05877596d6")
 	)
 	(label "+3V3"
 		(at 85.09 152.4 0)
@@ -6117,7 +6145,7 @@
 				)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "MCP42010 dual SPI digital potentiometer; both channels active (PW0 -> ADS1115 A1, PW1 -> ADS1115 A2)"
 			(at 69.85 152.4 0)
 			(show_name no)
 			(do_not_autoplace no)

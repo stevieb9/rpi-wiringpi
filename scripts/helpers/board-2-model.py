@@ -5,21 +5,24 @@ board-2-model.py - canonical electrical model for unit-test-platform BOARD 2.
 Board 2 is the SPI analog-loopback satellite (no Raspberry Pi on it); the Pi
 lives on board 1 and reaches board 2 over JST jumpers. It carries the SPI analog
 cluster plus the ADS1115, wired exactly as the suite's loopback tests drive them.
-FOUR of the five read-backs stay ON this board -- only the GPIO18 signal arrives
+FIVE of the six read-backs stay ON this board -- only the GPIO18 signal arrives
 from board 1 -- which is why this cluster is one board:
 
   U1  74HC595 shift register            -- t/335: Q1 -> MCP3008 CH2
   U2  MCP3008 SPI ADC (CS GPIO26)       -- the read-back reader (t/310, t/335)
   U3  MCP4922 dual SPI DAC (CS GPIO12)  -- t/310: VOUTA -> CH1, VOUTB -> CH3
-  U4  MCP42010 dual SPI digipot (CS GPIO13) -- t/345: wiper (PW0) -> ADS A1
+  U4  MCP42010 dual SPI digipot (CS GPIO13) -- t/345: wipers PW0 -> ADS A1,
+                                           PW1 -> ADS A2 (both channels active)
   M1  ADS1115 I2C ADC @ 0x48            -- t/140,325,345: A0 <- GPIO18 (PWM/
-                                           servo), A1 <- digipot wiper
+                                           servo), A1 <- digipot PW0,
+                                           A2 <- digipot PW1
 
 On-board analog loop-backs (the "everything loops back" property):
   MCP4922 VOUTA -> MCP3008 CH1     (t/310)
   MCP4922 VOUTB -> MCP3008 CH3     (t/310)
   74HC595 Q1    -> MCP3008 CH2     (t/335)
-  digipot wiper -> ADS1115 A1      (t/345)
+  digipot PW0   -> ADS1115 A1      (t/345)
+  digipot PW1   -> ADS1115 A2      (ch1 wiper)
   GPIO18 PWM    -> ADS1115 A0      (t/140,325; the signal arrives on J2)
 
 SPI clock/data (MISO/MOSI/SCLK) and the three bit-banged chip-selects
@@ -77,7 +80,7 @@ COMPONENTS = {
    '1':'VDD','3':'CS','4':'SCK','5':'SDI','8':'LDAC','9':'SHDN',
    '14':'VOUTA','13':'VREFA','12':'AVSS','11':'VREFB','10':'VOUTB',
    '2':'NC','6':'NC','7':'NC'}),   # NC package pins - included so the DIP-14 footprint gets all 14 holes
- 'U4': ('MCP42010', 'DIP-14', {  # dual SPI digital pot (ch0 used; CS = GPIO13)
+ 'U4': ('MCP42010', 'DIP-14', {  # dual SPI digital pot (ch0 + ch1 active; CS = GPIO13)
    # Pinout corrected to Microchip DS11195C - the prior right-column (pins 8-14)
    # numbering was reversed, which mis-wired VDD/PB0/PW0/SHDN/SO.
    '1':'CS','2':'SCK','3':'SI','4':'VSS','5':'PB1','6':'PW1','7':'PA1',
@@ -107,13 +110,13 @@ NETS = [
           ('U1','16'),('U1','10'),                       # 595 VCC + MR (active-low, tied high)
           ('U2','16'),('U2','15'),                       # MCP3008 VDD + VREF
           ('U3','1'),('U3','13'),('U3','11'),('U3','9'), # MCP4922 VDD + VREFA + VREFB + SHDN
-          ('U4','14'),('U4','11'),('U4','12'),('U4','8'),# MCP42010 VDD(14) + RS(11) + SHDN(12) + PA0(8, pot high)
+          ('U4','14'),('U4','11'),('U4','12'),('U4','8'),('U4','7'),# MCP42010 VDD(14) + RS(11) + SHDN(12) + PA0(8) + PA1(7) (both pot highs)
           ('M1','VDD')]),
  ('GND',[('J1','2'),('J2','2'),('J7','1'),
          ('U1','8'),('U1','13'),                         # 595 GND + OE (output-enable, tied low)
          ('U2','9'),('U2','14'),                         # MCP3008 DGND + AGND
          ('U3','12'),('U3','8'),                         # MCP4922 AVSS + LDAC (tied low)
-         ('U4','4'),('U4','10'),                         # MCP42010 VSS(4) + PB0(10, pot low)
+         ('U4','4'),('U4','10'),('U4','5'),              # MCP42010 VSS(4) + PB0(10) + PB1(5) (both pot lows)
          ('M1','GND'),('M1','ADDR')]),                   # ADS GND + ADDR strap -> 0x48
  # I2C bus (3V3); only the ADS is on it here
  ('I2C_SDA',[('J3','1'),('M1','SDA')]),
@@ -134,6 +137,7 @@ NETS = [
  ('PWM18',[('J2','3'),('M1','A0'),('J7','3')]),
  # analog loop-backs (all on-board)
  ('DPOT_WIPER',[('U4','9'),('M1','A1')]),    # PW0(9) -> ADS A1   (t/345)
+ ('DPOT_WIPER2',[('U4','6'),('M1','A2')]),   # PW1(6) -> ADS A2   (ch1 wiper)
  ('DAC_A_CH1', [('U3','14'),('U2','2')]),    # VOUTA -> CH1     (t/310)
  ('DAC_B_CH3', [('U3','10'),('U2','4')]),    # VOUTB -> CH3     (t/310)
  ('SR_Q_CH2',  [('U1','1'),('U2','3')]),     # 595 Q1 -> CH2    (t/335)
@@ -150,7 +154,7 @@ DRIVER = {
  'CS_ADC':'J5','CS_DAC':'J5','CS_DPOT':'J5',
  'SR_DATA':'J6','SR_CLK':'J6','SR_LATCH':'J6',
  'PWM18':'J2',
- 'DPOT_WIPER':'U4','DAC_A_CH1':'U3','DAC_B_CH3':'U3','SR_Q_CH2':'U1',
+ 'DPOT_WIPER':'U4','DPOT_WIPER2':'U4','DAC_A_CH1':'U3','DAC_B_CH3':'U3','SR_Q_CH2':'U1',
 }
 
 # per-device power flags (drawn at the device); board 2's rails enter on J1/J2.
@@ -166,6 +170,6 @@ POWER = {
 SHEETS = {
  'i2c':   {'I2C_SDA','I2C_SCL'},
  'spi':   {'SPI_MOSI','SPI_MISO','SPI_SCLK','CS_ADC','CS_DAC','CS_DPOT',
-           'SR_DATA','SR_CLK','SR_LATCH','DAC_A_CH1','DAC_B_CH3','SR_Q_CH2','DPOT_WIPER'},
+           'SR_DATA','SR_CLK','SR_LATCH','DAC_A_CH1','DAC_B_CH3','SR_Q_CH2','DPOT_WIPER','DPOT_WIPER2'},
  'servo': {'PWM18'},
 }
