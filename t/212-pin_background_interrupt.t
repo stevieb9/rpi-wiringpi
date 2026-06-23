@@ -11,16 +11,9 @@ use Test::More;
 
 rpi_running_test(__FILE__);
 
-# Pin-level background_interrupt() is provided by RPi::Pin >= 2.3609 (earlier
-# releases only inherit a non-functional method via @ISA to WiringPi::API).
-# Skip cleanly on older installs so this activates automatically once the
-# dependency is in place.
-
-if ($RPi::Pin::VERSION < 2.3609){
-    plan skip_all =>
-        "RPi::Pin $RPi::Pin::VERSION has no real pin-level background_interrupt "
-        . "(need >= 2.3609)";
-}
+# Pin-level background_interrupt() (with its {results => 1} channel) is provided
+# by RPi::Pin; this distribution's prerequisite floor (see Makefile.PL) already
+# requires a version that ships it, so no runtime version guard is needed here.
 
 my $mod = 'RPi::WiringPi';
 

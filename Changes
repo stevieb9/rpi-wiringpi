@@ -30,6 +30,11 @@ Revision history for Perl extension RPi::WiringPi.
     - Added t/142-adc_gain.t, verifying the ADS1115 gain => arg is applied via
       $pi->adc (the RPi::ADC::ADS gain-constructor fix) and actuating the PGA
       on hardware: raw() rises with gain for a fixed PWM-derived input
+    - Corrected stale "RPi::Pin 2.3609" references to the real prerequisite
+      floor (3.1802): the dependency note in the WiringPi.pm POD and the
+      comment in t/211. Dropped the now-redundant RPi::Pin version guard in
+      t/212 (the prereq floor already requires a version with the pin-level
+      background_interrupt(); the 2.3609 check never fired on a 3.18xx install)
 
 3.1802     2026-06-12
     - bump prereq of RPi::I2C to 2.3608

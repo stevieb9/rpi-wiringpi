@@ -16,7 +16,7 @@ my $mod = 'RPi::WiringPi';
 # this file asserts the croaks PROPAGATED from RPi::Pin / WiringPi::API. Every
 # bad call is rejected before any hardware is touched or any child is forked,
 # so there are no side effects to clean up. Regexes are anchored to the real
-# croak strings in RPi/Pin.pm (2.3609) and WiringPi/API.pm.
+# croak strings in RPi/Pin.pm and WiringPi/API.pm.
 
 my $pi = $mod->new(
     label => 't/211-interrupt_validation.t',

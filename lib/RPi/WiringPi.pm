@@ -1305,7 +1305,7 @@ spans several pins it lives on the Pi object, not on a single pin. See
 C<background_interrupts> in L<WiringPi::API> for details.
 
 B<Dependency note:> the per-pin C<< $pin->background_interrupt >> form referenced
-above requires L<RPi::Pin> C<2.3609> or greater (the version this distribution
+above requires L<RPi::Pin> C<3.1802> or greater (the version this distribution
 already requires). To drive multiple pins from a single background child rather
 than one child per pin, use this C<< $pi->background_interrupts >> method.
 
