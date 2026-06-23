@@ -109,6 +109,7 @@ t/305-i2c.t
 t/310-dac.t
 t/315-serial.t
 t/320-rtc.t
+t/321-rtc-bcd.t
 t/325-servo.t
 t/330-mcp23017.t
 t/335-shift_reg_adc.t

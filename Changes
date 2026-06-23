@@ -8,6 +8,7 @@ Revision history for Perl extension RPi::WiringPi.
     - Expanded the raw-register BCD checks in t/320-rtc.t to the full month
       and 12-hour ranges, plus century / AM-PM / 12-24 bit preservation, as
       the on-silicon falsification for the DS3231 BCD fix (board 4)
+    - Added the missing t/321-rtc-bcd.t to the MANIFEST
 
 3.1802     2026-06-12
     - bump prereq of RPi::I2C to 2.3608

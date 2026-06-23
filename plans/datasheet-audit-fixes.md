@@ -1,12 +1,11 @@
 # Plan: Address datasheet-validity audit findings (rpi-wiringpi + driver dists)
 
-> **NEXT ACTION:** V4 — AT24C32 `eeprom_write_block` fix/removal in `~/repos/rpi-eeprom-at24c32`
-> **LAST SESSION:** 2026-06-22 — V1-V3 done: one unified datasheet-grounded BCD refactor of `~/repos/rpi-rtc-ds3231` `DS3231.xs` (new `setBcdField`/`getBcdField`) — fixes month + 12-h hour raw-not-BCD and the negative-temp sign. Compile-verified + standalone logic test pass; `DS3231.xs` +38/-18, uncommitted (user commits/releases; hardware round-trip pending the dark rig).
-> **ARCHIVE:** See datasheet-audit-fixes-archive.md for completed V1-V3
+> **NEXT ACTION:** V5 — ADS1115 ctor drops `gain` arg in `~/repos/rpi-adc-ads` (`ADS.pm:172`)
+> **LAST SESSION:** 2026-06-22 — V4 done: removed the broken, off-OO-path `eeprom_write_block` (+ its XS export) from `~/repos/rpi-eeprom-at24c32` `AT24C32.xs` (never sent `addr_msb`; OOB `buf[2]` read; was a misnamed single-byte dup of `eeprom_write`). Rebuilt clean; hardware round-trip PASS at `delay => 10`. Changes 1.00 UNREL noted; uncommitted (user commits/releases).
+> **ARCHIVE:** See datasheet-audit-fixes-archive.md for completed V1-V4
 
 <!-- AI-STATE (terse resume state; authoritative over prose above on conflict)
-PTR=V4 | Q=V4>V5>V6>V7>V8>V9>V10>V11>V12 | RATE=1/turn (batch only if user auths)
-V4 eeprom_write_block @rpi-eeprom-at24c32/AT24C32.xs:124-139 (send MSB or rm XS export)
+PTR=V5 | Q=V5>V6>V7>V8>V9>V10>V11>V12 | RATE=1/turn (batch only if user auths)
 V5 ADS ctor drops gain @rpi-adc-ads/ADS.pm:172 ($args{mode}->$args{gain})
 V6 ADS hardcoded 4.096 FSR @rpi-adc-ads/ADS.xs:79,82 (scale by programmed PGA)
 V7 MCP42010 shutdown() no CS toggle @rpi-digipot-mcp4xxxx/MCP4XXXX.pm:56-72
@@ -16,6 +15,7 @@ V10 bmp() POD missing $pin_base @lib/RPi/WiringPi.pm:154
 V11 MCP4922 SHDN POD inverted @rpi-dac-mcp4922/MCP4922.pm:~450 (1=Active)
 V12 ADS POD typos @rpi-adc-ads/ADS.pm:~46-47(diff-MUX),~807(±1.024)
 CLOSE-V: Actual=PASS -> archive bullet -> DEL row -> mark F# RESOLVED -> advance PTR
+DONE V4 rm broken eeprom_write_block+XS export @rpi-eeprom-at24c32/AT24C32.xs (HW PASS delay=>10; uncommitted).
 DONE V1-3 DS3231 BCD+sign fix (DS3231.xs uncommitted, user commits). RTC tests rebalanced:
   core->rpi-wiringpi t/321-rtc-bcd(225,ungated,PASS)+t/320 full sweep(gated); simple guards->
   rpi-rtc-ds3231 t/01(9,ungated,PASS),t/40,t/15(gated). Gating verified. HW falsification
@@ -51,7 +51,6 @@ DONE V1-3 DS3231 BCD+sign fix (DS3231.xs uncommitted, user commits). RTC tests r
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V4 | **[MED]** AT24C32 `eeprom_write_block` broken & exported (`~/repos/rpi-eeprom-at24c32` `AT24C32.xs:124-139`): computes `addr_msb`, never sends it; passes a 2-byte `buf` to `_writeByte` (reads `buf[2]` OOB). Fix to send `[MSB,LSB,data...]` via the correct helper, or remove the export. | `cd ~/repos/rpi-eeprom-at24c32 && grep -nA15 'eeprom_write_block' AT24C32.xs` | `addr_msb` actually transmitted (or function removed from the XS export block); no OOB `buf` read | ⏳ |
 | V5 | ADS1115 constructor drops the `gain` arg (`~/repos/rpi-adc-ads` `ADS.pm:172` — `$self->gain($args{mode})` should be `$args{gain}`). | `cd ~/repos/rpi-adc-ads && sed -n '170,174p' lib/RPi/ADC/ADS.pm` | `gain()` fed `$args{gain}`; a non-default `gain =>` in `new()` is applied | ⏳ |
 | V6 | ADS1115 `volts`/`percent` hard-code 4.096 V FSR regardless of PGA (`ADS.xs:79,82`); wrong at any non-default gain (SBAS444E Tbl 8-3). Scale by the actually-programmed PGA range. | `cd ~/repos/rpi-adc-ads && grep -nE '4.096' ADS.xs` | Conversion uses the selected PGA's full-scale range, not a constant 4.096 | ⏳ |
 | V7 | MCP42010 `shutdown()` omits the CS toggle (`~/repos/rpi-digipot-mcp4xxxx` `MCP4XXXX.pm:56-72`) — unlike `set()` (l.34-55), so the command never latches under manual-GPIO CS. Bracket the `spiDataRW` with `digitalWrite($self->_cs, LOW/HIGH)`. | `cd ~/repos/rpi-digipot-mcp4xxxx && grep -nA16 'sub shutdown' lib/RPi/DigiPot/MCP4XXXX.pm` | `shutdown()` drives CS LOW before / HIGH after `spiDataRW`, matching `set()` | ⏳ |
@@ -72,7 +71,7 @@ Audit ledger from `proposal/test-platform-datasheet-validity-audit.md` (dual-AI,
 - **F1** ✅ RESOLVED (V1): DS3231 `setMonth` raw-not-BCD [HIGH, dual-confirmed]
 - **F2** ✅ RESOLVED (V2): DS3231 `setHour` 12-h raw-not-BCD [HIGH, dual-confirmed]
 - **F3** ✅ RESOLVED (V3): DS3231 negative-temp sign lost [MED]
-- **F4** (→V4): AT24C32 `eeprom_write_block` broken & exported, off-OO-path [MED]
+- **F4** ✅ RESOLVED (V4): AT24C32 `eeprom_write_block` broken & exported, off-OO-path [MED]
 - **F5** (→V5): ADS1115 constructor ignores `gain` arg [board-safe — board 2 uses default gain]
 - **F6** (→V6): ADS1115 fixed 4.096 V scaling vs PGA [board-safe — board 2 reads `percent()` at default]
 - **F7** (→V7): MCP42010 `shutdown()` no CS toggle [board-safe — board 2 uses only the wiper]
