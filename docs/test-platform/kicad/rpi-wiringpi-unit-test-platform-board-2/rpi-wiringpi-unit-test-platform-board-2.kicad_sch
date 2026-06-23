@@ -3359,7 +3359,7 @@
 		(uuid "0f2e99c6-f3fb-5c97-a9fd-d2aac5b69497")
 	)
 	(label "SR_CLK"
-		(at 54.76 321.62 180)
+		(at 57.15 281.94 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3389,7 +3389,7 @@
 		(uuid "13e8c67d-7d50-5ee2-a099-5e8f12da07eb")
 	)
 	(label "CS_DAC"
-		(at 54.76 314.0 180)
+		(at 57.15 274.32 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3429,7 +3429,7 @@
 		(uuid "25089f23-3097-5c32-a2fd-434c3df00e8a")
 	)
 	(label "I2C_SDA"
-		(at 54.76 262.76 180)
+		(at 57.15 240.03 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3519,7 +3519,7 @@
 		(uuid "3fce0f33-7067-515f-b2d8-3ecc93cc690a")
 	)
 	(label "SR_LATCH"
-		(at 54.76 324.16 180)
+		(at 57.15 284.48 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3527,6 +3527,16 @@
 			(justify right)
 		)
 		(uuid "458577c9-f09d-5e78-bfad-47b2bd61ec58")
+	)
+	(label "+3V3"
+		(at 85.09 160.02 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "4994962b-d8d1-48ba-b8ff-9c474f11a650")
 	)
 	(label "+3V3"
 		(at 85.24 111.8 0)
@@ -3539,7 +3549,7 @@
 		(uuid "49bb7e09-681f-5d41-8f10-fdc7d3a6c9ad")
 	)
 	(label "SR_DATA"
-		(at 54.76 319.08 180)
+		(at 57.15 279.4 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3559,7 +3569,7 @@
 		(uuid "53c30edc-3c67-478c-b732-464ab76f078e")
 	)
 	(label "CS_DPOT"
-		(at 54.76 316.54 180)
+		(at 57.15 276.86 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3569,7 +3579,7 @@
 		(uuid "5695decb-05e7-5207-ad7d-9220743af405")
 	)
 	(label "CS_ADC"
-		(at 54.76 311.46 180)
+		(at 57.15 271.78 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3648,6 +3658,16 @@
 		)
 		(uuid "61157102-18b3-57ad-9f78-5fe4c97629b1")
 	)
+	(label "GND"
+		(at 85.09 154.94 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "62173da1-fb2a-4547-a693-9d8e039c8afd")
+	)
 	(label "+3V3"
 		(at 54.76 215.33 180)
 		(effects
@@ -3657,6 +3677,16 @@
 			(justify right)
 		)
 		(uuid "6268b004-c95b-5871-b846-322a22715fa6")
+	)
+	(label "DPOT_WIPER2"
+		(at 85.24 188.44 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "647fa53e-5bd1-4613-8be2-7b05877596d6")
 	)
 	(label "+3V3"
 		(at 203.2 180.34 0)
@@ -3669,7 +3699,7 @@
 		(uuid "6a083398-6610-43ed-8ef5-8af2dcd0e0e0")
 	)
 	(label "SPI_MISO"
-		(at 54.76 267.84 180)
+		(at 57.15 245.11 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3689,7 +3719,7 @@
 		(uuid "709cef1d-6b58-5e4c-a401-957bfb35bff0")
 	)
 	(label "SPI_SCLK"
-		(at 54.76 272.92 180)
+		(at 57.15 250.19 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3789,7 +3819,7 @@
 		(uuid "8dcdec13-045b-47b2-9e85-f5664641ac4b")
 	)
 	(label "I2C_SCL"
-		(at 54.76 265.3 180)
+		(at 57.15 242.57 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3958,6 +3988,16 @@
 		)
 		(uuid "bb528d5d-926a-4fc1-8530-ee45d65502af")
 	)
+	(label "DPOT_WIPER2"
+		(at 85.09 157.48 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "bcfc1e0a-0758-41bd-931c-645d9a9dcbe8")
+	)
 	(label "PWM18"
 		(at 185.24 27.54 0)
 		(effects
@@ -4029,7 +4069,7 @@
 		(uuid "df4b6dd1-2a2e-5be0-bc41-a0cb9fee4114")
 	)
 	(label "SPI_MOSI"
-		(at 54.76 270.38 180)
+		(at 57.15 247.65 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4097,46 +4137,6 @@
 			(justify left bottom)
 		)
 		(uuid "f92daeae-5d2b-4797-ade3-10c86372f548")
-	)
-	(label "GND"
-		(at 85.09 154.94 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "62173da1-fb2a-4547-a693-9d8e039c8afd")
-	)
-	(label "DPOT_WIPER2"
-		(at 85.09 157.48 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "bcfc1e0a-0758-41bd-931c-645d9a9dcbe8")
-	)
-	(label "+3V3"
-		(at 85.09 160.02 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "4994962b-d8d1-48ba-b8ff-9c474f11a650")
-	)
-	(label "DPOT_WIPER2"
-		(at 85.24 188.44 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "647fa53e-5bd1-4613-8be2-7b05877596d6")
 	)
 	(label "+3V3"
 		(at 85.09 152.4 0)
@@ -4352,7 +4352,7 @@
 	)
 	(symbol
 		(lib_id "rpi-wiringpi-unit-test-platform-board-2:J3")
-		(at 70 317.81 0)
+		(at 72.39 278.13 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4362,7 +4362,7 @@
 		(dnp no)
 		(uuid "23d8aace-f5b3-52b2-a1f1-8d476a1b61ff")
 		(property "Reference" "J3"
-			(at 70 311.46 0)
+			(at 72.39 271.78 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4372,7 +4372,7 @@
 			)
 		)
 		(property "Value" "IN_CS_SR"
-			(at 70 327.97 0)
+			(at 72.39 288.29 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4382,7 +4382,7 @@
 			)
 		)
 		(property "Footprint" "rpi-wiringpi-unit-test-platform-board-2:J3"
-			(at 70 317.81 0)
+			(at 72.39 278.13 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4393,7 +4393,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 70 317.81 0)
+			(at 72.39 278.13 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4404,7 +4404,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 70 317.81 0)
+			(at 72.39 278.13 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5349,7 +5349,7 @@
 	)
 	(symbol
 		(lib_id "rpi-wiringpi-unit-test-platform-board-2:J2")
-		(at 70 267.84 0)
+		(at 72.39 245.11 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5359,7 +5359,7 @@
 		(dnp no)
 		(uuid "7ac7a143-f33d-5cef-89f1-e5c5afe6d6a4")
 		(property "Reference" "J2"
-			(at 70 262.76 0)
+			(at 72.39 240.03 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5369,7 +5369,7 @@
 			)
 		)
 		(property "Value" "IN_I2C_SPI"
-			(at 70 275.46 0)
+			(at 72.39 252.73 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5379,7 +5379,7 @@
 			)
 		)
 		(property "Footprint" "rpi-wiringpi-unit-test-platform-board-2:J2"
-			(at 70 267.84 0)
+			(at 72.39 245.11 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5390,7 +5390,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 70 267.84 0)
+			(at 72.39 245.11 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5401,7 +5401,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 70 267.84 0)
+			(at 72.39 245.11 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5657,6 +5657,7 @@
 		)
 		(property "Description" "MCP42010 dual SPI digital potentiometer; both channels active (PW0 -> ADS1115 A1, PW1 -> ADS1115 A2)"
 			(at 69.85 152.4 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
