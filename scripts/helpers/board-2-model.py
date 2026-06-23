@@ -30,21 +30,20 @@ SPI clock/data (MISO/MOSI/SCLK) and the three bit-banged chip-selects
 board 1. MISO is driven back toward board 1 by the MCP3008 -- the only SPI device
 that returns data; the DAC and digipot are write-only.
 
-Connectors (JSTs in from board 1; J7 is the servo header):
+Connectors (JSTs in from board 1; J4 is the servo header):
   J1  power+servo  (JST-5): 1:+5V 2:+3V3 3:GND 4:+3V3 5:PWM18   (combined power
                             and servo feed; pin 4 = +3V3 sense return to board 1;
                             +5V powers the servo; PWM18 = GPIO18, a SIGNAL not a
-                            supply.  Formerly two connectors J1 (power) + J2
-                            (servo); merged, one shared GND.)
-  J3  I2C+SPI in   (JST-5): 1:SDA 2:SCL 3:MISO 4:MOSI 5:SCLK   (I2C at the top;
-                            combined I2C (J3) + SPI (J4) feed from board 1)
-  J5  CS+shiftreg  (JST-6): 1:CS26 2:CS12 3:CS13 4:DATA21 5:CLK20 6:LATCH16
+                            supply.  Merged from two connectors; one shared GND.)
+  J2  I2C+SPI in   (JST-5): 1:SDA 2:SCL 3:MISO 4:MOSI 5:SCLK   (I2C at the top;
+                            merged I2C + SPI feed from board 1)
+  J3  CS+shiftreg  (JST-6): 1:CS26 2:CS12 3:CS13 4:DATA21 5:CLK20 6:LATCH16
                             (chip selects ADC/DAC/digipot + shift-register lines;
-                            combined CS (J5) + shift reg (J6) feed from board 1)
-  J7  servo        (Conn-3): 1:GND   2:V+    3:SIG    (the servo plugs in here;
+                            merged CS + shift-register feed from board 1)
+  J4  servo        (Conn-3): 1:GND   2:V+    3:SIG    (the servo plugs in here;
                             V+ = +5V, SIG = GPIO18)
 
-+5V is used ONLY by the servo: it enters on J1 and leaves on J7. Every IC on the
++5V is used ONLY by the servo: it enters on J1 and leaves on J4. Every IC on the
 board is 3V3. GPIO18 carries no external pull/load beyond the high-Z ADS A0 input
 (the interrupt tests depend on that -- platform doc section 7).
 
@@ -94,19 +93,19 @@ COMPONENTS = {
  # --- JST connectors (in <- board 1) ---
  # J1 merges the old J1 (power) + J2 (servo) into one 5-pin JST; one shared GND.
  'J1': ('JST_IN_PWR_SERVO', 'JST-5', {'1':'+5V','2':'+3V3','3':'GND','4':'+3V3','5':'PWM18'}),  # 4 = +3V3 return -> board 1
- # J3 merges the old J3 (I2C) + J4 (SPI) into one 5-pin JST; I2C at the top.
- 'J3': ('JST_IN_I2C_SPI', 'JST-5', {'1':'SDA','2':'SCL','3':'MISO','4':'MOSI','5':'SCLK'}),
- # J5 merges the old J5 (chip selects) + J6 (shift register) into one 6-pin JST.
- 'J5': ('JST_IN_CS_SR', 'JST-6', {'1':'CS26','2':'CS12','3':'CS13','4':'DATA21','5':'CLK20','6':'LATCH16'}),
+ # J2 = combined I2C + SPI input (one 5-pin JST; I2C at the top).
+ 'J2': ('JST_IN_I2C_SPI', 'JST-5', {'1':'SDA','2':'SCL','3':'MISO','4':'MOSI','5':'SCLK'}),
+ # J3 = combined chip-select + shift-register input (one 6-pin JST).
+ 'J3': ('JST_IN_CS_SR', 'JST-6', {'1':'CS26','2':'CS12','3':'CS13','4':'DATA21','5':'CLK20','6':'LATCH16'}),
  # --- servo header (the servo plugs in here) ---
- 'J7': ('Servo', 'Conn-3', {'1':'GND','2':'V+','3':'SIG'}),
+ 'J4': ('Servo', 'Conn-3', {'1':'GND','2':'V+','3':'SIG'}),
 }
 
 # ------------------------------------------------------------------ NETS
 # Each net: (name, [(ref, pin), ...]).
 NETS = [
- # +5V: servo only -- in on J1 (pin 1), out to the servo header J7
- ('+5V', [('J1','1'),('J7','2')]),
+ # +5V: servo only -- in on J1 (pin 1), out to the servo header J4
+ ('+5V', [('J1','1'),('J4','2')]),
  # +3V3: both J1 +3V3 pins (2 in, 4 return) + every IC supply/reference pin
  ('+3V3',[('J1','2'),('J1','4'),
           ('U1','16'),('U1','10'),                       # 595 VCC + MR (active-low, tied high)
@@ -114,29 +113,29 @@ NETS = [
           ('U3','1'),('U3','13'),('U3','11'),('U3','9'), # MCP4922 VDD + VREFA + VREFB + SHDN
           ('U4','14'),('U4','11'),('U4','12'),('U4','8'),('U4','7'),# MCP42010 VDD(14) + RS(11) + SHDN(12) + PA0(8) + PA1(7) (both pot highs)
           ('M1','VDD')]),
- ('GND',[('J1','3'),('J7','1'),
+ ('GND',[('J1','3'),('J4','1'),
          ('U1','8'),('U1','13'),                         # 595 GND + OE (output-enable, tied low)
          ('U2','9'),('U2','14'),                         # MCP3008 DGND + AGND
          ('U3','12'),('U3','8'),                         # MCP4922 AVSS + LDAC (tied low)
          ('U4','4'),('U4','10'),('U4','5'),              # MCP42010 VSS(4) + PB0(10) + PB1(5) (both pot lows)
          ('M1','GND'),('M1','ADDR')]),                   # ADS GND + ADDR strap -> 0x48
  # I2C bus (3V3); only the ADS is on it here
- ('I2C_SDA',[('J3','1'),('M1','SDA')]),
- ('I2C_SCL',[('J3','2'),('M1','SCL')]),
+ ('I2C_SDA',[('J2','1'),('M1','SDA')]),
+ ('I2C_SCL',[('J2','2'),('M1','SCL')]),
  # SPI bus: clock/data shared by all three; MISO only the MCP3008 drives
- ('SPI_MOSI',[('J3','4'),('U2','11'),('U3','5'),('U4','3')]),   # DIN / SDI / SI
- ('SPI_MISO',[('J3','3'),('U2','12')]),                          # MCP3008 DOUT only
- ('SPI_SCLK',[('J3','5'),('U2','13'),('U3','4'),('U4','2')]),   # CLK / SCK / SCK
+ ('SPI_MOSI',[('J2','4'),('U2','11'),('U3','5'),('U4','3')]),   # DIN / SDI / SI
+ ('SPI_MISO',[('J2','3'),('U2','12')]),                          # MCP3008 DOUT only
+ ('SPI_SCLK',[('J2','5'),('U2','13'),('U3','4'),('U4','2')]),   # CLK / SCK / SCK
  # bit-banged chip-selects (one per device)
- ('CS_ADC', [('J5','1'),('U2','10')]),    # GPIO26 -> MCP3008 CS
- ('CS_DAC', [('J5','2'),('U3','3')]),     # GPIO12 -> MCP4922 CS
- ('CS_DPOT',[('J5','3'),('U4','1')]),     # GPIO13 -> MCP42010 CS
+ ('CS_ADC', [('J3','1'),('U2','10')]),    # GPIO26 -> MCP3008 CS
+ ('CS_DAC', [('J3','2'),('U3','3')]),     # GPIO12 -> MCP4922 CS
+ ('CS_DPOT',[('J3','3'),('U4','1')]),     # GPIO13 -> MCP42010 CS
  # shift-register control (bit-banged GPIO)
- ('SR_DATA', [('J5','4'),('U1','14')]),   # GPIO21 -> DS
- ('SR_CLK',  [('J5','5'),('U1','11')]),   # GPIO20 -> SHCP
- ('SR_LATCH',[('J5','6'),('U1','12')]),   # GPIO16 -> STCP
+ ('SR_DATA', [('J3','4'),('U1','14')]),   # GPIO21 -> DS
+ ('SR_CLK',  [('J3','5'),('U1','11')]),   # GPIO20 -> SHCP
+ ('SR_LATCH',[('J3','6'),('U1','12')]),   # GPIO16 -> STCP
  # GPIO18: in on J1 (pin 5), fans to ADS A0 (read-back) and the servo SIG
- ('PWM18',[('J1','5'),('M1','A0'),('J7','3')]),
+ ('PWM18',[('J1','5'),('M1','A0'),('J4','3')]),
  # analog loop-backs (all on-board)
  ('DPOT_WIPER',[('U4','9'),('M1','A1')]),    # PW0(9) -> ADS A1   (t/345)
  ('DPOT_WIPER2',[('U4','6'),('M1','A2')]),   # PW1(6) -> ADS A2   (ch1 wiper)
@@ -151,10 +150,10 @@ J1FUNC = {}
 # which node(s) drive each net (become 'output'); buses/rails enter from board 1.
 DRIVER = {
  '+5V':'J1','+3V3':'J1','GND':'J1',
- 'I2C_SDA':'J3','I2C_SCL':'J3',
- 'SPI_MOSI':'J3','SPI_SCLK':'J3','SPI_MISO':'U2',
- 'CS_ADC':'J5','CS_DAC':'J5','CS_DPOT':'J5',
- 'SR_DATA':'J5','SR_CLK':'J5','SR_LATCH':'J5',
+ 'I2C_SDA':'J2','I2C_SCL':'J2',
+ 'SPI_MOSI':'J2','SPI_SCLK':'J2','SPI_MISO':'U2',
+ 'CS_ADC':'J3','CS_DAC':'J3','CS_DPOT':'J3',
+ 'SR_DATA':'J3','SR_CLK':'J3','SR_LATCH':'J3',
  'PWM18':'J1',
  'DPOT_WIPER':'U4','DPOT_WIPER2':'U4','DAC_A_CH1':'U3','DAC_B_CH3':'U3','SR_Q_CH2':'U1',
 }

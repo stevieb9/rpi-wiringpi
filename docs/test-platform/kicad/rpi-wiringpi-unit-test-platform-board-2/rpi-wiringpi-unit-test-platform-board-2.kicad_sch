@@ -916,7 +916,7 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "rpi-wiringpi-unit-test-platform-board-2:J3"
+		(symbol "rpi-wiringpi-unit-test-platform-board-2:J2"
 			(pin_names
 				(offset 1.016)
 			)
@@ -925,7 +925,7 @@
 			(on_board yes)
 			(in_pos_files yes)
 			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "J3"
+			(property "Reference" "J2"
 				(at 0 5.08 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -945,7 +945,7 @@
 					)
 				)
 			)
-			(property "Footprint" "rpi-wiringpi-unit-test-platform-board-2:J3"
+			(property "Footprint" "rpi-wiringpi-unit-test-platform-board-2:J2"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -978,7 +978,7 @@
 					)
 				)
 			)
-			(symbol "J3_0_1"
+			(symbol "J2_0_1"
 				(rectangle
 					(start -10.16 6.35)
 					(end 10.16 -6.35)
@@ -991,7 +991,7 @@
 					)
 				)
 			)
-			(symbol "J3_1_1"
+			(symbol "J2_1_1"
 				(pin passive line
 					(at -15.24 5.08 0)
 					(length 5.08)
@@ -1085,7 +1085,7 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "rpi-wiringpi-unit-test-platform-board-2:J5"
+		(symbol "rpi-wiringpi-unit-test-platform-board-2:J3"
 			(pin_names
 				(offset 1.016)
 			)
@@ -1094,7 +1094,7 @@
 			(on_board yes)
 			(in_pos_files yes)
 			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "J5"
+			(property "Reference" "J3"
 				(at 0 6.35 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1114,7 +1114,7 @@
 					)
 				)
 			)
-			(property "Footprint" "rpi-wiringpi-unit-test-platform-board-2:J5"
+			(property "Footprint" "rpi-wiringpi-unit-test-platform-board-2:J3"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1147,7 +1147,7 @@
 					)
 				)
 			)
-			(symbol "J5_0_1"
+			(symbol "J3_0_1"
 				(rectangle
 					(start -10.16 7.62)
 					(end 10.16 -7.62)
@@ -1160,7 +1160,7 @@
 					)
 				)
 			)
-			(symbol "J5_1_1"
+			(symbol "J3_1_1"
 				(pin passive line
 					(at -15.24 6.35 0)
 					(length 5.08)
@@ -1272,7 +1272,7 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "rpi-wiringpi-unit-test-platform-board-2:J7"
+		(symbol "rpi-wiringpi-unit-test-platform-board-2:J4"
 			(pin_names
 				(offset 1.016)
 			)
@@ -1281,7 +1281,7 @@
 			(on_board yes)
 			(in_pos_files yes)
 			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "J7"
+			(property "Reference" "J4"
 				(at 0 6.35 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1301,7 +1301,7 @@
 					)
 				)
 			)
-			(property "Footprint" "rpi-wiringpi-unit-test-platform-board-2:J7"
+			(property "Footprint" "rpi-wiringpi-unit-test-platform-board-2:J4"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1334,7 +1334,7 @@
 					)
 				)
 			)
-			(symbol "J7_0_1"
+			(symbol "J4_0_1"
 				(rectangle
 					(start -10.16 3.81)
 					(end 10.16 -3.81)
@@ -1347,7 +1347,7 @@
 					)
 				)
 			)
-			(symbol "J7_1_1"
+			(symbol "J4_1_1"
 				(pin passive line
 					(at -15.24 1.27 0)
 					(length 5.08)
@@ -4351,7 +4351,7 @@
 		)
 	)
 	(symbol
-		(lib_id "rpi-wiringpi-unit-test-platform-board-2:J5")
+		(lib_id "rpi-wiringpi-unit-test-platform-board-2:J3")
 		(at 70 317.81 0)
 		(unit 1)
 		(body_style 1)
@@ -4361,7 +4361,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "23d8aace-f5b3-52b2-a1f1-8d476a1b61ff")
-		(property "Reference" "J5"
+		(property "Reference" "J3"
 			(at 70 311.46 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4381,7 +4381,7 @@
 				)
 			)
 		)
-		(property "Footprint" "rpi-wiringpi-unit-test-platform-board-2:J5"
+		(property "Footprint" "rpi-wiringpi-unit-test-platform-board-2:J3"
 			(at 70 317.81 0)
 			(hide yes)
 			(show_name no)
@@ -4434,7 +4434,7 @@
 		(instances
 			(project "rpi-wiringpi-unit-test-platform-board-2"
 				(path "/7946ceed-5e50-51f0-9396-19e4533fa9f5"
-					(reference "J5")
+					(reference "J3")
 					(unit 1)
 				)
 			)
@@ -5011,7 +5011,7 @@
 		)
 	)
 	(symbol
-		(lib_id "rpi-wiringpi-unit-test-platform-board-2:J7")
+		(lib_id "rpi-wiringpi-unit-test-platform-board-2:J4")
 		(at 170 28.81 0)
 		(unit 1)
 		(body_style 1)
@@ -5021,7 +5021,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "5e94b4ee-43d6-5e5e-b405-c47e1f5878bc")
-		(property "Reference" "J7"
+		(property "Reference" "J4"
 			(at 170 22.46 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5041,7 +5041,7 @@
 				)
 			)
 		)
-		(property "Footprint" "rpi-wiringpi-unit-test-platform-board-2:J7"
+		(property "Footprint" "rpi-wiringpi-unit-test-platform-board-2:J4"
 			(at 170 28.81 0)
 			(hide yes)
 			(show_name no)
@@ -5085,7 +5085,7 @@
 		(instances
 			(project "rpi-wiringpi-unit-test-platform-board-2"
 				(path "/7946ceed-5e50-51f0-9396-19e4533fa9f5"
-					(reference "J7")
+					(reference "J4")
 					(unit 1)
 				)
 			)
@@ -5348,7 +5348,7 @@
 		)
 	)
 	(symbol
-		(lib_id "rpi-wiringpi-unit-test-platform-board-2:J3")
+		(lib_id "rpi-wiringpi-unit-test-platform-board-2:J2")
 		(at 70 267.84 0)
 		(unit 1)
 		(body_style 1)
@@ -5358,7 +5358,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "7ac7a143-f33d-5cef-89f1-e5c5afe6d6a4")
-		(property "Reference" "J3"
+		(property "Reference" "J2"
 			(at 70 262.76 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5378,7 +5378,7 @@
 				)
 			)
 		)
-		(property "Footprint" "rpi-wiringpi-unit-test-platform-board-2:J3"
+		(property "Footprint" "rpi-wiringpi-unit-test-platform-board-2:J2"
 			(at 70 267.84 0)
 			(hide yes)
 			(show_name no)
@@ -5428,7 +5428,7 @@
 		(instances
 			(project "rpi-wiringpi-unit-test-platform-board-2"
 				(path "/7946ceed-5e50-51f0-9396-19e4533fa9f5"
-					(reference "J3")
+					(reference "J2")
 					(unit 1)
 				)
 			)
