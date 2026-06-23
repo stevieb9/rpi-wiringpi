@@ -55,11 +55,26 @@ my @windows = (
 sweep_pot(POT0, ADC_PW0, 'PW0');
 sweep_pot(POT1, ADC_PW1, 'PW1');
 
-# The last write of each sweep was set(255) (data byte 0xFF), which leaves MOSI
-# idling high; park both pots at 0 so MOSI returns to its idle-low resting
-# default before the shared pin-status check.
-$pot->set(0, POT0);
-$pot->set(0, POT1);
+# shutdown() must actually reach the chip. In shutdown the MCP42010 disconnects
+# the A terminal and ties the wiper to the B terminal (GND on this board), so a
+# wiper parked near +3V3 collapses to ~0%. This only latches if shutdown()
+# brackets its SPI write with CS LOW/HIGH (matching set()); without that toggle
+# the device never sees the frame and the wiper stays where it was.
+for my $wiper ([POT0, ADC_PW0, 'PW0'], [POT1, ADC_PW1, 'PW1']){
+
+    my ($pot_select, $adc_ch, $label) = @$wiper;
+
+    $pot->set(255, $pot_select);
+    is $adc->percent($adc_ch) >= 96, 1, "$label: wiper near +3V3 before shutdown ok";
+
+    $pot->shutdown($pot_select);
+    is $adc->percent($adc_ch) <= 2, 1, "$label: shutdown() ties wiper to B (GND) ok";
+
+    $pot->set(0, $pot_select);   # Bring the pot back out of shutdown
+}
+
+# The shutdown checks above leave both pots parked at tap 0 (the set(0)
+# restore), so MOSI is already idling low for the shared pin-status check.
 
 $pi->cleanup;
 

@@ -1,15 +1,15 @@
 # Plan: Address datasheet-validity audit findings (rpi-wiringpi + driver dists)
 
-> **NEXT ACTION:** V7 — MCP42010 `shutdown()` omits the CS toggle in `~/repos/rpi-digipot-mcp4xxxx` (`MCP4XXXX.pm:56-72`)
-> **LAST SESSION:** 2026-06-22 — V10 done: documented `bmp()`'s mandatory `$pin_base` param in the `WiringPi.pm` POD (heading `bmp($pin_base)` + a Parameters block; it's the BMP180 pseudo-GPIO base, e.g. 100). Doc-only; podchecker clean. Also cleaned up V8 (user did the code: `RPi::Const` floor 1.04->1.06 in `Makefile.PL:48`, verified) — added its Changes entry. Uncommitted.
-> **ARCHIVE:** See datasheet-audit-fixes-archive.md for completed V1-V6, V8, V9, V10, V12
+> **NEXT ACTION:** V11 — MCP4922 SHDN POD inverts the bit polarity in `~/repos/rpi-dac-mcp4922` (`MCP4922.pm` ~l.450; "1 → shut down" vs DS22250A "1 = Active")
+> **LAST SESSION:** 2026-06-23 — V7 done: bracketed `shutdown()`'s `spiDataRW` with `digitalWrite($self->_cs, LOW/HIGH)` in `~/repos/rpi-digipot-mcp4xxxx` `MCP4XXXX.pm`, matching `set()`, so the shutdown command latches under manual-GPIO CS. perl -c clean; Changes 3.1802 UNREL entry added; uncommitted.
+> **ARCHIVE:** See datasheet-audit-fixes-archive.md for completed V1-V10, V12
 
 <!-- AI-STATE (terse resume state; authoritative over prose above on conflict)
-PTR=V7 | Q=V7>V11>V13 | RATE=1/turn (batch only if user auths)
-V7 MCP42010 shutdown() no CS toggle @rpi-digipot-mcp4xxxx/MCP4XXXX.pm:56-72
+PTR=V11 | Q=V11>V13 | RATE=1/turn (batch only if user auths)
 V11 MCP4922 SHDN POD inverted @rpi-dac-mcp4922/MCP4922.pm:~450 (1=Active)
 V13 ADS rate() not applied to conversion @rpi-adc-ads (8 SPS still read in ~9ms not ~125ms; data-rate change has no effect) -- DISCOVERED during averaging work; needs root-cause
 CLOSE-V: Actual=PASS -> archive bullet -> DEL row -> mark F# RESOLVED -> advance PTR
+DONE V7 MCP42010 shutdown() CS toggle @rpi-digipot-mcp4xxxx/MCP4XXXX.pm (brackets spiDataRW with CS LOW/HIGH like set(); Changes 3.1802 UNREL; uncommitted).
 DONE V10 bmp() POD documents $pin_base @lib/RPi/WiringPi.pm (doc-only; podchecker clean; uncommitted).
 DONE V8 RPi::Const floor ->1.06 @Makefile.PL:48 (USER did code; verified; Changes entry added; uncommitted).
 DONE V9 stale RPi::Pin 2.3609 refs @rpi-wiringpi lib+t (->3.1802; removed dead t/212 version guard; Changes history left intact; t/211+t/212 PASS; uncommitted).
@@ -52,7 +52,6 @@ DONE V1-3 DS3231 BCD+sign fix (DS3231.xs uncommitted, user commits). RTC tests r
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V7 | MCP42010 `shutdown()` omits the CS toggle (`~/repos/rpi-digipot-mcp4xxxx` `MCP4XXXX.pm:56-72`) — unlike `set()` (l.34-55), so the command never latches under manual-GPIO CS. Bracket the `spiDataRW` with `digitalWrite($self->_cs, LOW/HIGH)`. | `cd ~/repos/rpi-digipot-mcp4xxxx && grep -nA16 'sub shutdown' lib/RPi/DigiPot/MCP4XXXX.pm` | `shutdown()` drives CS LOW before / HIGH after `spiDataRW`, matching `set()` | ⏳ |
 | V11 | MCP4922 POD inverts the SHDN bit polarity (`~/repos/rpi-dac-mcp4922` `MCP4922.pm` "SHUTDOWN BITS" ≈ l.450: "1 → shut down" vs DS22250A Reg 5-1 bit12 "1 = Active"). Code is correct; fix the POD. | `cd ~/repos/rpi-dac-mcp4922 && grep -niA6 'SHUTDOWN BITS' lib/RPi/DAC/MCP4922.pm` | POD states 1 = Active / 0 = Shutdown, matching the datasheet + the XS | ⏳ |
 | V13 | **[discovered]** ADS1115 `rate()` has no effect on the conversion (`~/repos/rpi-adc-ads`): setting the slowest rate (8 SPS, ~125 ms/conversion) still reads in ~9 ms (the 128 SPS default), so the data-rate config never reaches the chip. Found while characterising the averaging feature. Needs root-cause (config bits / single-shot OS-poll). | `cd ~/repos/rpi-adc-ads && grep -nE 'rate|DR' ADS.xs lib/RPi/ADC/ADS.pm` | a non-default `rate()` measurably changes the per-conversion time | ⏳ |
 
@@ -70,7 +69,7 @@ Audit ledger from `proposal/test-platform-datasheet-validity-audit.md` (dual-AI,
 - **F4** ✅ RESOLVED (V4): AT24C32 `eeprom_write_block` broken & exported, off-OO-path [MED]
 - **F5** ✅ RESOLVED (V5): ADS1115 constructor ignores `gain` arg [board-safe — board 2 uses default gain]
 - **F6** ✅ RESOLVED (V6): ADS1115 fixed 4.096 V scaling vs PGA [board-safe — board 2 reads `percent()` at default]
-- **F7** (→V7): MCP42010 `shutdown()` no CS toggle [board-safe — board 2 uses only the wiper]
+- **F7** ✅ RESOLVED (V7): MCP42010 `shutdown()` no CS toggle [board-safe — board 2 uses only the wiper]
 - **F8** (→V11): MCP4922 POD SHDN polarity inverted [doc-only; code correct]
 - **F9** ✅ RESOLVED (V12): ADS1115 POD typos [doc-only]
 - **F10** ✅ RESOLVED (V8): `RPi::Const` floor 1.04 < needed 1.06 [transitively masked on normal install]
