@@ -88,6 +88,13 @@ my @output = (
     }
 }
 
+# Tear the MCP3008 down before cleanup. Its DESTROY forces the bit-banged CS
+# pin (26) to INPUT; left to run at global destruction it would fire *after*
+# the pin-status check below and strand pin 26 at alt 0, failing this and
+# every later test that expects the RP1 "no function" default (31). Destroying
+# it here lets $pi->cleanup restore pin 26 to alt 31 with the final word.
+undef $adc;
+
 $pi->cleanup;
 
 rpi_check_pin_status();
