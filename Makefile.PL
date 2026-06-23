@@ -45,7 +45,7 @@ WriteMakefile(
         'String::CRC32'             => 0,
         'RPi::ADC::ADS'             => 1.03,
         'RPi::ADC::MCP3008'         => 3.1801,
-        'RPi::Const'                => 1.04,
+        'RPi::Const'                => 1.06,
         'RPi::BMP180'               => 3.1801,
         'RPi::DAC::MCP4922'         => 3.1801,
         'RPi::DigiPot::MCP4XXXX'    => 3.1801,
