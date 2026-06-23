@@ -444,7 +444,7 @@ sub rpi_default_pin_config {
       '15' => { 'alt' => 3,  'state' => 1 },
       '16' => { 'alt' => 31, 'state' => 0 },
       '17' => { 'alt' => 1,  'state' => 0 },
-      '18' => { 'alt' => 0,  'state' => 0 },
+      '18' => { 'alt' => 31, 'state' => 0 }, # PWM pin, left INPUT at rest; RP1 idles it null (31)
       '19' => { 'alt' => 31, 'state' => 0 },
       '20' => { 'alt' => 31, 'state' => 0 },
       '21' => { 'alt' => 31, 'state' => 0 },

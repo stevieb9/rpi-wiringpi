@@ -63,6 +63,11 @@ for (0..255){
     }
 }
 
+# The last SPI write above was set(255) (data byte 0xFF), which leaves MOSI
+# idling high; restore the pot to 0 so MOSI returns to its idle-low resting
+# default before the shared pin-status check.
+$pot->set(0);
+
 $pi->cleanup;
 
 rpi_check_pin_status();
