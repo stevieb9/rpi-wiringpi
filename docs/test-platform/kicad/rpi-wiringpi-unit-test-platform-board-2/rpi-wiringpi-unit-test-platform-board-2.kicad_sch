@@ -5701,7 +5701,7 @@
 			)
 		)
 		(property "Value" "IN_PWR_SERVO"
-			(at 69.85 224.79 0)
+			(at 69.85 226.568 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
