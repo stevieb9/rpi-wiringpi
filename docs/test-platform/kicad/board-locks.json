@@ -3,14 +3,14 @@
     "rpi-wiringpi-unit-test-platform-board-2": {
       "files": {
         "fp-lib-table": "2a1ce6ecea2806ad7d577f17272924a6623953d4c523f8142486bc898e3731ba",
-        "rpi-wiringpi-unit-test-platform-board-2.kicad_pcb": "51a10ad3775b5062780c0a9e25cf08629f26443d9c2f70293b1c65721f1cce5d",
+        "rpi-wiringpi-unit-test-platform-board-2.kicad_pcb": "2eb273a5972a8ac084a5e64b35ef12c83078f60ab8b7f7c42f39ccdf7088ab2b",
         "rpi-wiringpi-unit-test-platform-board-2.kicad_pro": "00b0dd35b9b20cb7c8531740e15909ad8e38ccebb39a1ccfa4df8bcbed1eace3",
-        "rpi-wiringpi-unit-test-platform-board-2.kicad_sch": "0d424ea5ca3b1fe0ad312488f1fc32fff16a4120a0953ecdcfc1bc197f1e955e",
+        "rpi-wiringpi-unit-test-platform-board-2.kicad_sch": "114c1d465c7d0c4bf9ce7f807b974e754e26708083c0b0c86aa0db8966f006eb",
         "rpi-wiringpi-unit-test-platform-board-2.pretty/J1.kicad_mod": "e373348ebd142c0360ec6231ca8f1d5b285d01e8450e193afb5f6260dc7d8db1",
         "rpi-wiringpi-unit-test-platform-board-2.pretty/J2.kicad_mod": "35bdd889cbb8fddf00f765143977f73720815b23a3e699804e287fb4880c0135",
         "rpi-wiringpi-unit-test-platform-board-2.pretty/J3.kicad_mod": "03581b9803a85814151bdfec6320f527f4437a39f1f8a0c96df6fe1b67c0554c",
         "rpi-wiringpi-unit-test-platform-board-2.pretty/J4.kicad_mod": "1bc51df79f116030c80020b4879304cb342dff12a60aeabec20d58b2a4a55cb0",
-        "rpi-wiringpi-unit-test-platform-board-2.pretty/M1.kicad_mod": "6b624b267ae73581e7f91147a9bee8372e910433281d4f889b3c291be65f7fef",
+        "rpi-wiringpi-unit-test-platform-board-2.pretty/M1.kicad_mod": "decd94e025fbdcc2780924f7c46b9bd45ece3a8a3d04681703d331b3790a9310",
         "rpi-wiringpi-unit-test-platform-board-2.pretty/U1.kicad_mod": "3635880d9c906a309c72791a16575607916e9a4803cc66047727a4902c21ab04",
         "rpi-wiringpi-unit-test-platform-board-2.pretty/U2.kicad_mod": "f8a360d39dc12fc2e78708a1e6f3977da2e76ab48bcd560042db1a376538b7bd",
         "rpi-wiringpi-unit-test-platform-board-2.pretty/U3.kicad_mod": "730071ee18c194a2dc5dfd86742d1c8f63b9a6f6e6711c13d1cdec936f488072",

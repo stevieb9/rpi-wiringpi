@@ -1554,6 +1554,24 @@
 					)
 				)
 				(pin passive line
+					(at 15.24 -5.08 180)
+					(length 5.08)
+					(name "ALRT"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "ALRT"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
 					(at -15.24 -5.08 0)
 					(length 5.08)
 					(name "ADDR"
@@ -2400,7 +2418,7 @@
 				)
 			)
 			(property "Value" "MCP4922"
-				(at 0 -11.43 0)
+				(at 0 -16.43 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -2647,6 +2665,60 @@
 						)
 					)
 					(number "14"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -2.54 -13.97 90)
+					(length 5.08)
+					(name "NC"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -13.97 90)
+					(length 5.08)
+					(name "NC"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 -13.97 90)
+					(length 5.08)
+					(name "NC"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "7"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -4612,6 +4684,9 @@
 		(pin "A3"
 			(uuid "da0c2e55-acee-5e12-93cd-c02986e6611c")
 		)
+		(pin "ALRT"
+			(uuid "20941906-7708-4d8c-8001-ee6446e3a578")
+		)
 		(instances
 			(project "rpi-wiringpi-unit-test-platform-board-2"
 				(path "/7946ceed-5e50-51f0-9396-19e4533fa9f5"
@@ -4845,7 +4920,7 @@
 			)
 		)
 		(property "Value" "MCP4922"
-			(at 70 127.04 0)
+			(at 70 132.04 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4918,6 +4993,15 @@
 		)
 		(pin "10"
 			(uuid "a5d16946-b42e-511b-bf01-9821ad3c23e8")
+		)
+		(pin "2"
+			(uuid "9de332e7-2188-466d-a8db-c729581f8f7c")
+		)
+		(pin "6"
+			(uuid "22224260-81c0-4646-bfee-00df43000467")
+		)
+		(pin "7"
+			(uuid "a133a966-e6c6-4ee2-87f9-f0b2a49b23d9")
 		)
 		(instances
 			(project "rpi-wiringpi-unit-test-platform-board-2"

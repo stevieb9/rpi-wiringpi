@@ -741,7 +741,7 @@ scheme has ALT0 = `4`. `state = undef` ⇒ mode-only check (the CS pins).
 | 5 | 31 | 0 | | 15 | 3 | 1 | | 25 | 31 | 0 |
 | 6 | 31 | 0 | | 16 | 31 | 0 | | 26 | 31 | *undef* |
 | 7 | 1 | 1 | | 17 | 1 | 0 | | 27 | 1 | 0 |
-| 8 | 1 | 1 | | 18 | 0 | 0 | |   |   |   |
+| 8 | 1 | 1 | | 18 | 31 | 0 | |   |   |   |
 | 9 | 4 | 0 | | 19 | 31 | 0 | |   |   |   |
 
 ### Pi 3 / Pi 4 (identical to each other) — `RPiTest.pm:325-392`

@@ -88,8 +88,9 @@ COMPONENTS = {
    '8':'PA0','9':'PW0','10':'PB0','11':'RS','12':'SHDN','13':'SO','14':'VDD'}),
  # --- ADC breakout module ---
  'M1': ('ADS1115_0x48', 'Module',
-        {'VDD':'VDD','GND':'GND','SCL':'SCL','SDA':'SDA','ADDR':'ADDR',
-         'A0':'A0','A1':'A1','A2':'A2','A3':'A3'}),   # ADDR->GND = 0x48
+        {'VDD':'VDD','GND':'GND','SCL':'SCL','SDA':'SDA','ADDR':'ADDR','ALRT':'ALRT',
+         'A0':'A0','A1':'A1','A2':'A2','A3':'A3'}),   # ADDR->GND = 0x48; ALRT = ALERT/RDY
+        # (TI SBAS444E pin 2), brought out on the breakout header between ADDR and A0; unused here
  # --- JST connectors (in <- board 1) ---
  # J1 merges the old J1 (power) + J2 (servo) into one 5-pin JST; one shared GND.
  'J1': ('JST_IN_PWR_SERVO', 'JST-5', {'1':'+5V','2':'+3V3','3':'GND','4':'+3V3','5':'PWM18'}),  # 4 = +3V3 return -> board 1
