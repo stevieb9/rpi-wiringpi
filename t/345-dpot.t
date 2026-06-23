@@ -18,9 +18,12 @@ if (! $ENV{RPI_ADC}){
 }
 
 use constant {
-    DPOT_CS => 13,
-    DPOT_CH => 0,
-    ADC_CH => 1,
+    DPOT_CS => 13,   # Bit-banged SPI chip-select (GPIO13)
+    SPI_CH  => 0,    # MCP42010 SPI bus channel (CE0)
+    POT0    => 1,    # set() pot-select: pot 0 -> PW0 wiper
+    POT1    => 2,    # set() pot-select: pot 1 -> PW1 wiper
+    ADC_PW0 => 1,    # ADS1115 A1 reads the PW0 wiper
+    ADC_PW1 => 2,    # ADS1115 A2 reads the PW1 wiper
 };
 
 rpi_running_test(__FILE__);
@@ -32,10 +35,13 @@ my $pi = RPi::WiringPi->new(label => 't/345-dpot.t', shm_key => 'rpit');
 END { $pi->cleanup if $pi && ! $pi->{clean}; }
 
 
-my $adc = $pi->adc(addr => 0x48);   # ADS1115 #1 (dpot wiper on ch 1)
-my $pot = $pi->dpot(DPOT_CS, DPOT_CH);
+my $adc = $pi->adc(addr => 0x48);   # ADS1115 #1
+my $pot = $pi->dpot(DPOT_CS, SPI_CH);
 
-my @values = (
+# Expected ADC percentage window per tap. Both potentiometers are wired
+# identically (PA -> +3V3, PB -> GND, wiper -> ADS), so the same windows apply
+# to either wiper.
+my @windows = (
     [0, 1],
     [18, 20],
     [38, 40],
@@ -45,28 +51,15 @@ my @values = (
     [98, 100],
 );
 
-my $count = 0;
+# Pot 0's wiper (PW0) feeds ADS A1; pot 1's wiper (PW1) feeds ADS A2.
+sweep_pot(POT0, ADC_PW0, 'PW0');
+sweep_pot(POT1, ADC_PW1, 'PW1');
 
-for (0..255){
-
-    if ($_ % 50 == 0 || $_ == 255){
-        
-        $pot->set($_);
-        my $val = $adc->percent(ADC_CH);
-        
-        is
-            $val >= $values[$count]->[0] && $val <= $values[$count]->[1],
-            1,
-            "POT output at $_ tap ok";
-        
-        $count++;
-    }
-}
-
-# The last SPI write above was set(255) (data byte 0xFF), which leaves MOSI
-# idling high; restore the pot to 0 so MOSI returns to its idle-low resting
+# The last write of each sweep was set(255) (data byte 0xFF), which leaves MOSI
+# idling high; park both pots at 0 so MOSI returns to its idle-low resting
 # default before the shared pin-status check.
-$pot->set(0);
+$pot->set(0, POT0);
+$pot->set(0, POT1);
 
 $pi->cleanup;
 
@@ -74,3 +67,35 @@ rpi_check_pin_status();
 #rpi_metadata_clean();
 
 done_testing();
+
+# Sweep one potentiometer across its tap range and confirm the wiper voltage,
+# read back on the given ADS1115 channel, lands inside the expected window.
+sub sweep_pot {
+    my ($pot_select, $adc_ch, $label) = @_;
+
+    if (! defined $pot_select) {
+        die "sweep_pot() requires the \$pot_select param\n";
+    }
+
+    if (! defined $adc_ch) {
+        die "sweep_pot() requires the \$adc_ch param\n";
+    }
+
+    my $count = 0;
+
+    for (0..255){
+
+        if ($_ % 50 == 0 || $_ == 255){
+
+            $pot->set($_, $pot_select);
+            my $val = $adc->percent($adc_ch);
+
+            is
+                $val >= $windows[$count]->[0] && $val <= $windows[$count]->[1],
+                1,
+                "$label: POT output at $_ tap ok";
+
+            $count++;
+        }
+    }
+}
