@@ -503,7 +503,7 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "Switch:SW_DIP_x02"
+		(symbol "Switch:SW_DIP_x01"
 			(pin_names
 				(offset 0)
 				(hide yes)
@@ -514,7 +514,7 @@
 			(in_pos_files yes)
 			(duplicate_pin_numbers_are_jumpers no)
 			(property "Reference" "SW"
-				(at 0 6.35 0)
+				(at 0 3.81 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -523,7 +523,7 @@
 					)
 				)
 			)
-			(property "Value" "SW_DIP_x02"
+			(property "Value" "SW_DIP_x01"
 				(at 0 -3.81 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -555,7 +555,7 @@
 					)
 				)
 			)
-			(property "Description" "2x DIP Switch, Single Pole Single Throw (SPST) switch, small symbol"
+			(property "Description" "1x DIP Switch, Single Pole Single Throw (SPST) switch, small symbol"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -577,7 +577,7 @@
 					)
 				)
 			)
-			(property "ki_fp_filters" "SW?DIP?x2*"
+			(property "ki_fp_filters" "SW?DIP?x1*"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -588,33 +588,10 @@
 					)
 				)
 			)
-			(symbol "SW_DIP_x02_0_0"
-				(circle
-					(center -2.032 2.54)
-					(radius 0.508)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
+			(symbol "SW_DIP_x01_0_0"
 				(circle
 					(center -2.032 0)
 					(radius 0.508)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -1.524 2.667) (xy 2.3622 3.7084)
-					)
 					(stroke
 						(width 0)
 						(type default)
@@ -636,17 +613,6 @@
 					)
 				)
 				(circle
-					(center 2.032 2.54)
-					(radius 0.508)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
 					(center 2.032 0)
 					(radius 0.508)
 					(stroke
@@ -658,9 +624,9 @@
 					)
 				)
 			)
-			(symbol "SW_DIP_x02_0_1"
+			(symbol "SW_DIP_x01_0_1"
 				(rectangle
-					(start -3.81 5.08)
+					(start -3.81 2.54)
 					(end 3.81 -2.54)
 					(stroke
 						(width 0.254)
@@ -671,9 +637,9 @@
 					)
 				)
 			)
-			(symbol "SW_DIP_x02_1_1"
+			(symbol "SW_DIP_x01_1_1"
 				(pin passive line
-					(at -7.62 2.54 0)
+					(at -7.62 0 0)
 					(length 5.08)
 					(name ""
 						(effects
@@ -691,24 +657,6 @@
 					)
 				)
 				(pin passive line
-					(at -7.62 0 0)
-					(length 5.08)
-					(name ""
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
 					(at 7.62 0 180)
 					(length 5.08)
 					(name ""
@@ -718,25 +666,7 @@
 							)
 						)
 					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 7.62 2.54 180)
-					(length 5.08)
-					(name ""
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
+					(number "2"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1554,24 +1484,6 @@
 					)
 				)
 				(pin passive line
-					(at 15.24 -5.08 180)
-					(length 5.08)
-					(name "ALRT"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "ALRT"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
 					(at -15.24 -5.08 0)
 					(length 5.08)
 					(name "ADDR"
@@ -1582,6 +1494,24 @@
 						)
 					)
 					(number "ADDR"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 -5.08 180)
+					(length 5.08)
+					(name "ALRT"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "ALRT"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2493,6 +2423,24 @@
 					)
 				)
 				(pin passive line
+					(at -2.54 -13.97 90)
+					(length 5.08)
+					(name "NC"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
 					(at -15.24 3.81 0)
 					(length 5.08)
 					(name "CS"
@@ -2539,6 +2487,42 @@
 						)
 					)
 					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -13.97 90)
+					(length 5.08)
+					(name "NC"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 -13.97 90)
+					(length 5.08)
+					(name "NC"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "7"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2665,60 +2649,6 @@
 						)
 					)
 					(number "14"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -2.54 -13.97 90)
-					(length 5.08)
-					(name "NC"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 0 -13.97 90)
-					(length 5.08)
-					(name "NC"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "6"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 2.54 -13.97 90)
-					(length 5.08)
-					(name "NC"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "7"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -3060,15 +2990,69 @@
 			(embedded_fonts no)
 		)
 	)
-	(junction
-		(at 85.09 147.32)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "f1b0b8a0-0019-4d0e-96d7-767ebc1aad71")
+	(no_connect
+		(at 85.09 190.5)
+		(uuid "0268933e-1f1e-4435-bbeb-c96bb33e2175")
+	)
+	(no_connect
+		(at 85.09 43.18)
+		(uuid "1d5f5526-78f8-4b0c-89aa-b7e86a4f5c22")
+	)
+	(no_connect
+		(at 85.09 83.82)
+		(uuid "661ac3b8-72a7-4f28-beb6-33d9132edb44")
+	)
+	(no_connect
+		(at 85.09 78.74)
+		(uuid "66acb5ca-cb4d-49a7-be0c-723b62a5d72b")
 	)
 	(no_connect
 		(at 85.09 149.86)
 		(uuid "6948a03c-0ed3-4576-a487-bf2947d2eb8a")
+	)
+	(no_connect
+		(at 85.09 35.56)
+		(uuid "6df4f565-a56b-4d67-9c21-d4705ad81d85")
+	)
+	(no_connect
+		(at 85.09 38.1)
+		(uuid "84639ad2-64c3-431f-b636-0f82214336ab")
+	)
+	(no_connect
+		(at 85.09 33.02)
+		(uuid "884989cc-5b75-48cf-9400-e21d1156aaff")
+	)
+	(no_connect
+		(at 85.09 27.94)
+		(uuid "888d3b9c-40df-454c-8033-de4b133beb88")
+	)
+	(no_connect
+		(at 85.09 68.58)
+		(uuid "cc3159ec-a8ce-499d-84db-177b498122e8")
+	)
+	(no_connect
+		(at 85.09 86.36)
+		(uuid "cd214f87-2732-4004-af53-b12a555889b6")
+	)
+	(no_connect
+		(at 85.09 40.64)
+		(uuid "cea1b10b-82ee-4ae9-845d-ef467461fc05")
+	)
+	(no_connect
+		(at 54.61 45.72)
+		(uuid "d691e4e2-9311-4537-b377-07468ef3524d")
+	)
+	(no_connect
+		(at 85.09 45.72)
+		(uuid "dc9173e9-1368-4611-80a1-f52f74f0dbc6")
+	)
+	(no_connect
+		(at 85.09 193.04)
+		(uuid "f75a6ded-4112-456a-a5c1-65374a26205d")
+	)
+	(no_connect
+		(at 85.09 81.28)
+		(uuid "fc24e9d7-d226-488b-ab51-1257bc433e68")
 	)
 	(wire
 		(pts
@@ -5076,6 +5060,86 @@
 		)
 	)
 	(symbol
+		(lib_id "Switch:SW_DIP_x01")
+		(at 194.31 180.34 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "67dcff81-0257-4cf0-ac73-7f56d5d2d27c")
+		(property "Reference" "SW1"
+			(at 194.31 172.72 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "SW_DIP_x01"
+			(at 194.31 175.26 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Button_Switch_THT:SW_DIP_SPSTx01_Slide_9.78x4.72mm_W7.62mm_P2.54mm"
+			(at 194.31 180.34 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 194.31 180.34 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "1x DIP Switch, Single Pole Single Throw (SPST) switch, small symbol"
+			(at 194.31 180.34 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "3d2692da-0dcd-41f2-af3f-ace0d51442af")
+		)
+		(pin "2"
+			(uuid "09a471bf-4f34-4b01-bd6d-26592bc74890")
+		)
+		(instances
+			(project "rpi-wiringpi-unit-test-platform-board-2"
+				(path "/7946ceed-5e50-51f0-9396-19e4533fa9f5"
+					(reference "SW1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:LED_Small")
 		(at 168.91 171.45 0)
 		(unit 1)
@@ -5495,92 +5559,6 @@
 			(project "rpi-wiringpi-unit-test-platform-board-2"
 				(path "/7946ceed-5e50-51f0-9396-19e4533fa9f5"
 					(reference "C3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Switch:SW_DIP_x02")
-		(at 194.31 177.8 180)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "a03d0dec-f086-49cf-9530-1a7dd0e13780")
-		(property "Reference" "SW1"
-			(at 194.31 170.18 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "SW_DIP_x02"
-			(at 194.31 172.72 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Button_Switch_THT:SW_DIP_SPSTx02_Slide_9.78x7.26mm_W7.62mm_P2.54mm"
-			(at 194.31 177.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 194.31 177.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "2x DIP Switch, Single Pole Single Throw (SPST) switch, small symbol"
-			(at 194.31 177.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "2"
-			(uuid "3d5d567e-1f2d-4bb4-a88f-1e7bc09198f9")
-		)
-		(pin "1"
-			(uuid "fc09d042-7aa5-474c-ae0d-7b0650d2fda9")
-		)
-		(pin "3"
-			(uuid "9237ba43-c299-48c3-9294-fc8cc98d5cf1")
-		)
-		(pin "4"
-			(uuid "fa090502-0cc1-4abc-843b-a3abc1b08661")
-		)
-		(instances
-			(project "rpi-wiringpi-unit-test-platform-board-2"
-				(path "/7946ceed-5e50-51f0-9396-19e4533fa9f5"
-					(reference "SW1")
 					(unit 1)
 				)
 			)
