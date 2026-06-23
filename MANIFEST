@@ -86,7 +86,9 @@ t/111-metadata_multi_pi_single_script.t
 t/112-metadata_multi_pi_multi_script.t
 t/113-metadata_multi_pi_multi_script_die.t
 t/114-metadata_multi_pi_multi_script_sigint.t
-t/140-pwm_spi_adc.t
+t/140-pwm_i2c_adc.t
+t/141-adc_samples.t
+t/142-adc_gain.t
 t/150-cleanup.t
 t/153-sig_handlers.t
 t/154-fatal_exit.t

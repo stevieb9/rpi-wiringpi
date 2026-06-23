@@ -80,31 +80,49 @@ sub rpi_multi_check {
 }
 
 # PWM -> ADS1115 feedback calibration, single-sourced here for both PWM
-# feedback tests (t/109-pwm_hw_mods.t and t/140-pwm_spi_adc.t) so a hardware
+# feedback tests (t/109-pwm_hw_mods.t and t/140-pwm_i2c_adc.t) so a hardware
 # recalibration updates both in one place.
 #
 # %pwm_adc_windows holds the empirically calibrated ADC percent windows per
-# PWM level at the default PWM range (1023), as historically carried by
-# t/140. rpi_pwm_adc_window() returns the empirical window when one exists
-# for the requested level/range; for any other level/range combination
-# (e.g. t/109's range-2000 sweep) it falls back to the model: expected duty
-# (pwm / range * 100) +/- RPI_PWM_TOLERANCE percentage points, clamped to
-# 0..100. The tolerance is derived from the empirical windows, whose largest
-# deviation from ideal duty is 3.35 points.
+# PWM level at the default PWM range (1023), keyed by board family. The
+# PWM->ADC feedback reads cleanly on the legacy BCM Pi 3 (tight ~+/-2 windows,
+# the values historically carried by t/140) but is markedly noisier on the
+# Pi 5 / RP1: the single-read spread reaches ~9 points at mid-scale (the mean
+# still tracks ideal duty), so the Pi 5 windows are wider, set to the
+# min/max envelope observed over 75 samples/level plus a ~1-point margin.
+# rpi_pwm_adc_window() returns the empirical window when one exists for the
+# detected board + requested level/range; for any other combination (e.g.
+# t/109's range-2000 sweep, or a board with no table such as the Pi 4) it
+# falls back to the model: expected duty (pwm / range * 100) +/-
+# RPI_PWM_TOLERANCE percentage points, clamped to 0..100.
 
 use constant RPI_PWM_TOLERANCE => 4;
 
 my %pwm_adc_windows = (
-    100  => [8, 13],
-    200  => [18, 22],
-    300  => [27, 31],
-    400  => [36, 42],
-    500  => [46, 50],
-    600  => [58, 62],
-    700  => [67, 70],
-    800  => [75, 79],
-    900  => [86, 89],
-    1000 => [96, 100],
+    pi3 => {
+        100  => [8, 13],
+        200  => [18, 22],
+        300  => [27, 31],
+        400  => [36, 42],
+        500  => [46, 50],
+        600  => [58, 62],
+        700  => [67, 70],
+        800  => [75, 79],
+        900  => [86, 89],
+        1000 => [96, 100],
+    },
+    pi5 => {
+        100  => [7, 12],
+        200  => [16, 23],
+        300  => [24, 33],
+        400  => [33, 44],
+        500  => [43, 55],
+        600  => [53, 65],
+        700  => [64, 74],
+        800  => [74, 82],
+        900  => [85, 91],
+        1000 => [96, 100],
+    },
 );
 
 sub rpi_pwm_adc_window {
@@ -120,8 +138,12 @@ sub rpi_pwm_adc_window {
               "must be a positive integer";
     }
 
-    if ($range == 1023 && exists $pwm_adc_windows{$pwm}){
-        return @{ $pwm_adc_windows{$pwm} };
+    my $board = rpi_board_tag();
+
+    if ($range == 1023
+        && exists $pwm_adc_windows{$board}
+        && exists $pwm_adc_windows{$board}{$pwm}){
+        return @{ $pwm_adc_windows{$board}{$pwm} };
     }
 
     my $duty = $pwm / $range * 100;

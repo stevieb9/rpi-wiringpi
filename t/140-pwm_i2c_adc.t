@@ -39,16 +39,21 @@ rpi_i2c_check();
 
 rpi_running_test(__FILE__);
 
-my $pi = $mod->new(label => 't/140-pwm_spi_adc.t', shm_key => 'rpit');
+my $pi = $mod->new(label => 't/140-pwm_i2c_adc.t', shm_key => 'rpit');
 my $adc = $pi->adc(addr => 0x48);   # ADS1115 #1 (PWM feedback on ch 0)
 
 my $adc_in = 0;
 
 if (! $ENV{NO_BOARD}) {
 
+    # PWM_OUT (2) is the pinMode() setter; the read-back is get_alt(), whose
+    # value for GPIO18's hardware PWM is board-specific: ALT5 (2) on the legacy
+    # BCM chips, ALT3 (7) on the Pi 5 / RP1
+    my $pwm_alt = rpi_board_tag() eq 'pi5' ? ALT3 : ALT5;
+
     my $pin = $pi->pin(18);
-    $pin->mode(2);
-    is $pin->mode, 2, "pin mode set to PWM ok, and we can read it";
+    $pin->mode(PWM_OUT);
+    is $pin->mode, $pwm_alt, "pin mode set to PWM ok, and we can read it";
 
     # Acceptance windows are single-sourced in t/RPiTest.pm
     # (rpi_pwm_adc_window(); shared with t/109-pwm_hw_mods.t) - recalibrate

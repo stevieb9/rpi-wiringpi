@@ -9,6 +9,27 @@ Revision history for Perl extension RPi::WiringPi.
       and 12-hour ranges, plus century / AM-PM / 12-24 bit preservation, as
       the on-silicon falsification for the DS3231 BCD fix (board 4)
     - Added the missing t/321-rtc-bcd.t to the MANIFEST
+    - Renamed t/140-pwm_spi_adc.t to t/140-pwm_i2c_adc.t (the ADS1115 is an
+      I2C part, not SPI), and replaced its magic pin-mode integers with the
+      RPi::Const names: PWM_OUT to set, and the board-aware get_alt() readback
+      (ALT3 on the Pi 5 / RP1, ALT5 on the legacy boards)
+    - Made the RPiTest.pm PWM->ADC acceptance windows board-aware. The
+      historical (Pi 3) windows were too tight for the Pi 5 / RP1, whose
+      single-read ADC feedback is noisier; added an empirically sampled Pi 5
+      window set (boards without a table fall back to the +/- tolerance model)
+    - Aligned t/109-pwm_hw_mods.t's root-env gating with t/140 so it no longer
+      self-skips under the sudo re-exec
+    - Fixed t/109-pwm_hw_mods.t on the Pi 5. Its RANGE-2000 (~50Hz, servo-rate)
+      PWM makes a single ADC feedback read pure ripple (0..100); it now sweeps
+      in steps and has percent() average SAMPLES conversions per point (the
+      RPi::ADC::ADS 1.03 averaging feature), recovering the true duty to within
+      ~1 point
+    - Added t/141-adc_samples.t, exercising the RPi::ADC::ADS samples()
+      averaging feature through the $pi->adc integration path (mirrors that
+      dist's t/55-samples.t); requires RPi::ADC::ADS 1.03
+    - Added t/142-adc_gain.t, verifying the ADS1115 gain => arg is applied via
+      $pi->adc (the RPi::ADC::ADS gain-constructor fix) and actuating the PGA
+      on hardware: raw() rises with gain for a fixed PWM-derived input
 
 3.1802     2026-06-12
     - bump prereq of RPi::I2C to 2.3608

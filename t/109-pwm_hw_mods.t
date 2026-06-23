@@ -13,7 +13,12 @@ rpi_sudo_check();
 my $mod = 'RPi::WiringPi';
 
 if ($> == 0){
+    # The sudo re-exec below scrubs the environment, so (re)assert the gates
+    # the root run needs - matching t/140-pwm_i2c_adc.t. Without RPI_I2C here,
+    # rpi_i2c_check() below skips the whole file under sudo.
     $ENV{RPI_BOARD} = 1;
+    $ENV{RPI_ADC}   = 1;
+    $ENV{RPI_I2C}   = 1;
 }
 
 if (! $ENV{RPI_BOARD}){
@@ -40,8 +45,10 @@ use constant {
     PIN     => 18,
     DIVISOR => 192,
     RANGE   => 2000,
-    DELAY   => 0.01,
     ANALOG  => 0,
+    STEP    => 10,
+    SAMPLES => 40,
+    SETTLE  => 0.05,
 };
 
 my $pi = $mod->new(label => 't/109-pwm_hw_mods.t', shm_key => 'rpit');
@@ -77,32 +84,40 @@ if (! $ENV{NO_BOARD}) {
     #sleep 1;
 
     # Acceptance windows are single-sourced in t/RPiTest.pm
-    # (rpi_pwm_adc_window(); shared with t/140-pwm_spi_adc.t) - recalibrate
+    # (rpi_pwm_adc_window(); shared with t/140-pwm_i2c_adc.t) - recalibrate
     # there, not here. With this file's custom RANGE the helper returns the
     # duty-cycle model window, giving each cycle a real lower bound (the old
     # `>= -1` was unfailable) and a duty-tracking upper bound (the old flat
-    # ceiling was 40)
+    # ceiling was 40).
+    #
+    # RANGE 2000 at this clock is a ~50Hz (servo-rate) PWM, so the RC-filtered
+    # ADC feedback carries heavy ripple: a single percent() read lands anywhere
+    # from 0 to 100. We sweep in STEP increments and let percent() average
+    # SAMPLES conversions per point (the RPi::ADC::ADS >= 1.03 averaging
+    # feature), which recovers the true duty to within ~1 point - comfortably
+    # inside the +/- tolerance window. SETTLE lets the RC filter catch up after
+    # each step before we sample.
 
-    for (LEFT .. RIGHT){
-        # sweep all the way left to right
-        $pin->pwm($_);
-        $o = $adc->percent(ANALOG);
-        my ($min, $max) = rpi_pwm_adc_window($_, RANGE);
-        cmp_ok $o, '>=', $min, "output >= $min on cycle $_ going right ok";
-        cmp_ok $o, '<=', $max, "output <= $max on cycle $_ going right ok";
-        select(undef, undef, undef, DELAY);
+    for (my $duty = LEFT; $duty <= RIGHT; $duty += STEP){
+        # sweep left to right
+        $pin->pwm($duty);
+        select(undef, undef, undef, SETTLE);
+        $o = $adc->percent(ANALOG, SAMPLES);
+        my ($min, $max) = rpi_pwm_adc_window($duty, RANGE);
+        cmp_ok $o, '>=', $min, "output >= $min on cycle $duty going right ok";
+        cmp_ok $o, '<=', $max, "output <= $max on cycle $duty going right ok";
     }
 
     #sleep 1;
 
-    for (reverse LEFT .. RIGHT){
-        # sweep all the way right to left
-        $pin->pwm($_);
-        $o = $adc->percent(ANALOG);
-        my ($min, $max) = rpi_pwm_adc_window($_, RANGE);
-        cmp_ok $o, '>=', $min, "output >= $min on cycle $_ going left ok";
-        cmp_ok $o, '<=', $max, "output <= $max on cycle $_ going left ok";
-        select(undef, undef, undef, DELAY);
+    for (my $duty = RIGHT; $duty >= LEFT; $duty -= STEP){
+        # sweep right to left
+        $pin->pwm($duty);
+        select(undef, undef, undef, SETTLE);
+        $o = $adc->percent(ANALOG, SAMPLES);
+        my ($min, $max) = rpi_pwm_adc_window($duty, RANGE);
+        cmp_ok $o, '>=', $min, "output >= $min on cycle $duty going left ok";
+        cmp_ok $o, '<=', $max, "output <= $max on cycle $duty going left ok";
     }
 
     #sleep 1;

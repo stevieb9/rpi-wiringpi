@@ -1314,7 +1314,7 @@ C<sudo> automatically.
     112-metadata_multi_pi_multi_script.t         Multi-proc meta, clean exit          RPI_MULTI
     113-metadata_multi_pi_multi_script_die.t     Multi-proc meta, proc die()s         RPI_MULTI
     114-metadata_multi_pi_multi_script_sigint.t  Multi-proc meta, SIGINT              RPI_MULTI
-    140-pwm_spi_adc.t                            PWM/SPI/ADC integration              RPI_SUDO, RPI_ADC, RPI_I2C
+    140-pwm_i2c_adc.t                            PWM/I2C/ADC integration              RPI_SUDO, RPI_ADC, RPI_I2C
     150-cleanup.t                                cleanup() releases resources         (none)
     153-sig_handlers.t                           Signal handler install/restore       (none)
     200-interrupt_rising_and_pud.t               Rising-edge interrupt + pull         (none)
