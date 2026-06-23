@@ -728,7 +728,7 @@ but the pins will not. Should only be used for testing.
 There are two different ADCs that you can select from. The default is the
 ADS1x15 series:
  
-=head3 ADS1115
+=head3 ADS1015
  
 Returns a L<RPi::ADC::ADS> object, which allows you to read the four analog
 input channels on an Adafruit ADS1xxx analog to digital converter.

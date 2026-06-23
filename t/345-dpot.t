@@ -22,8 +22,8 @@ use constant {
     SPI_CH  => 0,    # MCP42010 SPI bus channel (CE0)
     POT0    => 1,    # set() pot-select: pot 0 -> PW0 wiper
     POT1    => 2,    # set() pot-select: pot 1 -> PW1 wiper
-    ADC_PW0 => 1,    # ADS1115 A1 reads the PW0 wiper
-    ADC_PW1 => 2,    # ADS1115 A2 reads the PW1 wiper
+    ADC_PW0 => 1,    # ADS1015 A1 reads the PW0 wiper
+    ADC_PW1 => 2,    # ADS1015 A2 reads the PW1 wiper
 };
 
 rpi_running_test(__FILE__);
@@ -35,7 +35,7 @@ my $pi = RPi::WiringPi->new(label => 't/345-dpot.t', shm_key => 'rpit');
 END { $pi->cleanup if $pi && ! $pi->{clean}; }
 
 
-my $adc = $pi->adc(addr => 0x48);   # ADS1115 #1
+my $adc = $pi->adc(addr => 0x48);   # ADS1015 #1
 my $pot = $pi->dpot(DPOT_CS, SPI_CH);
 
 # Expected ADC percentage window per tap. Both potentiometers are wired
@@ -84,7 +84,7 @@ rpi_check_pin_status();
 done_testing();
 
 # Sweep one potentiometer across its tap range and confirm the wiper voltage,
-# read back on the given ADS1115 channel, lands inside the expected window.
+# read back on the given ADS1015 channel, lands inside the expected window.
 sub sweep_pot {
     my ($pot_select, $adc_ch, $label) = @_;
 

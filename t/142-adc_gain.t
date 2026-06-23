@@ -8,7 +8,7 @@ use RPi::WiringPi;
 use RPi::Const qw(:all);
 use Test::More;
 
-# Verifies the ADS1115 gain handling through the $pi->adc integration path: the
+# Verifies the ADS1015 gain handling through the $pi->adc integration path: the
 # gain => constructor arg is applied (the V5 fix), and the PGA is actuated on
 # real silicon. Requires RPi::ADC::ADS 1.03 (samples()/gain-arg fix).
 

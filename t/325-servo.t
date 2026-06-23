@@ -75,7 +75,7 @@ if (! $ENV{NO_BOARD}) {
     local $SIG{INT}  = sub { $cleanup->(); exit 1; };
     local $SIG{TERM} = sub { $cleanup->(); exit 1; };
 
-    my $adc = $pi->adc(addr => 0x48);   # ADS1115 #1 (servo feedback on ch 0)
+    my $adc = $pi->adc(addr => 0x48);   # ADS1015 #1 (servo feedback on ch 0)
 
     my $servo = $pi->servo(18);
     my $o;

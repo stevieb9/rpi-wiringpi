@@ -33,16 +33,16 @@ unbuilt boards (4 + 5).**
 ## Built so far
 
 ### Board 2 — SPI analog cluster *(being finalized)*
-Devices: ADS1115 (0x48), MCP3008 ADC, MCP4922 DAC, MCP42010 dpot, 74HC595, servo.
+Devices: ADS1015 (0x48), MCP3008 ADC, MCP4922 DAC, MCP42010 dpot, 74HC595, servo.
 
 | Test file | Device(s) it drives |
 |-----------|---------------------|
-| `t/109-pwm_hw_mods.t` | GPIO18 PWM → ADS1115 A0 |
-| `t/140-pwm_spi_adc.t` | GPIO18 PWM → ADS1115 A0 |
+| `t/109-pwm_hw_mods.t` | GPIO18 PWM → ADS1015 A0 |
+| `t/140-pwm_spi_adc.t` | GPIO18 PWM → ADS1015 A0 |
 | `t/310-dac.t` | MCP4922 DAC → MCP3008 ADC (CH1/CH3) |
-| `t/325-servo.t` | servo on GPIO18 + ADS1115 A0 |
+| `t/325-servo.t` | servo on GPIO18 + ADS1015 A0 |
 | `t/335-shift_reg_adc.t` | 74HC595 → MCP3008 ADC (CH2) |
-| `t/345-dpot.t` | MCP42010 dpot wiper → ADS1115 A1 |
+| `t/345-dpot.t` | MCP42010 dpot wiper → ADS1015 A1 |
 
 ### Board 3 — I2C expanders + stepper *(finalized & ordered)*
 Devices: MCP23017 ×2 (0x20, 0x21), ULN2003 + 28BYJ-48 stepper, CW/CCW magnet

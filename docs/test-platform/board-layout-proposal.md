@@ -31,7 +31,7 @@
 | Board | Role | Rail(s) | Devices | Tests |
 |-------|------|---------|---------|-------|
 | **1** *(last, passive)* | Pi connection + power/signal fan-out | 3V3 + 5V | **none** | (host) |
-| **2** | Analog loop-back + servo | 3V3 + 5V | ADS1115, MCP3008, MCP4922 DAC, MCP4XXXX dpot, 74HC595, servo | 109, 140, 310, 325, 335, 345 |
+| **2** | Analog loop-back + servo | 3V3 + 5V | ADS1015, MCP3008, MCP4922 DAC, MCP4XXXX dpot, 74HC595, servo | 109, 140, 310, 325, 335, 345 |
 | **3** *(DONE)* | I2C expanders + stepper | 3V3 + 5V | MCP23017 ×2, ULN2003 + 28BYJ-48 + magnets (off-board) | 330, 450 |
 | **4** | I2C sensors | 3V3 | DS3231 RTC, AT24C32 EEPROM, BMP180, OLED | 320, 340, 420–422, 500–520 |
 | **5** | 5V logic | 5V + 3V3 | HD44780 LCD, Arduino + I2C level-shifter, UART loop-back | 305, 315, 525 |
@@ -58,7 +58,7 @@ from board 1**.
 
 | Device | CS / pins (BCM) | Loop-back |
 |--------|-----------------|-----------|
-| ADS1115 | I2C 0x48 | A1 ← dpot wiper *(on-board)*; **A0 ← GPIO18** *(from board 1)* |
+| ADS1015 | I2C 0x48 | A1 ← dpot wiper *(on-board)*; **A0 ← GPIO18** *(from board 1)* |
 | MCP3008 ADC | CS=26 (+ MISO9/MOSI10/SCLK11) | CH1←DAC outA, CH3←DAC outB, CH2←595 Q0 *(on-board)* |
 | MCP4922 DAC | CS=12 | outA→MCP3008 CH1, outB→MCP3008 CH3 *(on-board)* |
 | MCP4XXXX dpot | CS=13 | wiper → ADS A1 *(on-board)* |
@@ -87,7 +87,7 @@ and add **no pull / no low-impedance load** on it (§7 — see cross-board notes
 
 Board 2 has four bare ICs (U1–U4), so each needs its own decoupling — more than
 board 3's two. Add these by hand in KiCad (net-label style: place the symbol, label
-each pin, no wires). The ADS1115 (M1) is a module with onboard decoupling — no cap.
+each pin, no wires). The ADS1015 (M1) is a module with onboard decoupling — no cap.
 
 **The cap bill:**
 
@@ -225,7 +225,7 @@ switches)** — one shared net, two destinations (§10-10).
 ## Cross-board nets (watch these)
 
 ### GPIO18 — the workhorse net
-PWM + servo + edge-interrupt source + ADS1115 A0, all on one wire, now running
+PWM + servo + edge-interrupt source + ADS1015 A0, all on one wire, now running
 board 1 → board 2 over a jumper. **Fine to do**: the interrupt tests (t/200–213)
 swing it with the Pi's ~50 kΩ *internal* pull into a ~20 ms window, so even with
 cable capacitance the settle time is microseconds. The hard rules (§7): **no

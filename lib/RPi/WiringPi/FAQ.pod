@@ -754,7 +754,7 @@ usage instructions.
 
 We provide access to both the ADS1x15 and MCP3008 ADCs.
 
-The default is to return an ADS1115 object from L<RPi::ADC::ADS>. Please review
+The default is to return an ADS1015 object from L<RPi::ADC::ADS>. Please review
 that documentation for full usage instructions.
 
     # Fetch a new ADC object
@@ -1525,7 +1525,7 @@ Set the following environment variable:
 
     export RPI_DIGIPOT=1
 
-We also need the ADS1115 connected and enabled:
+We also need the ADS1015 connected and enabled:
 
     export RPI_ADC=1
 

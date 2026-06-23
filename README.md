@@ -10,9 +10,9 @@ various items
 - [BASE METHODS](#base-methods)
   - [new(\[%args\])](#newargs)
   - [adc](#adc)
-    - [ADS1115](#ads1115)
+    - [ADS1015](#ads1015)
     - [MCP3008](#mcp3008)
-  - [bmp](#bmp)
+  - [bmp($pin\_base)](#bmppin_base)
   - [dac](#dac)
   - [dpot($cs, $channel)](#dpotcs-channel)
   - [gps](#gps)
@@ -208,7 +208,7 @@ but the pins will not. Should only be used for testing.
 There are two different ADCs that you can select from. The default is the
 ADS1x15 series:
 
-### ADS1115
+### ADS1015
 
 Returns a [RPi::ADC::ADS](https://metacpan.org/pod/RPi%3A%3AADC%3A%3AADS) object, which allows you to read the four analog
 input channels on an Adafruit ADS1xxx analog to digital converter.
@@ -239,11 +239,19 @@ Mandatory, Integer. `0` or `1` for the Pi's onboard hardware CS/SS CE0 and CE1
 pins, or any GPIO number above `1` in order to use an arbitrary GPIO pin for
 the CS pin, and we'll do the bit-banging of the SPI bus automatically.
 
-## bmp
+## bmp($pin\_base)
 
 Returns a [RPi::BMP180](https://metacpan.org/pod/RPi%3A%3ABMP180) object, which allows you to return the
 current temperature in farenheit or celcius, along with the ability to retrieve
 the barometric pressure in kPa.
+
+Parameters:
+
+    $pin_base
+
+Mandatory, Integer. The number at which to start the 'pseudo' GPIO pins used to
+communicate with the sensor. Use any value above the highest-numbered physical
+GPIO pin (eg. `100` or `200`). See ["new" in RPi::BMP180](https://metacpan.org/pod/RPi%3A%3ABMP180#new) for details.
 
 ## dac
 
@@ -809,7 +817,7 @@ spans several pins it lives on the Pi object, not on a single pin. See
 `background_interrupts` in [WiringPi::API](https://metacpan.org/pod/WiringPi%3A%3AAPI) for details.
 
 **Dependency note:** the per-pin `$pin->background_interrupt` form referenced
-above requires [RPi::Pin](https://metacpan.org/pod/RPi%3A%3APin) `2.3609` or greater (the version this distribution
+above requires [RPi::Pin](https://metacpan.org/pod/RPi%3A%3APin) `3.1802` or greater (the version this distribution
 already requires). To drive multiple pins from a single background child rather
 than one child per pin, use this `$pi->background_interrupts` method.
 

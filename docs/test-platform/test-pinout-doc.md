@@ -64,8 +64,8 @@ in the tests, which write a value and then read it back to compare.
 ```
    Pi / device drives  ───────────────►  read back by            Proven in
    --------------------------------------------------------------------------
-   GPIO18 PWM / servo            ─►  ADS1115 #1 (0x48) A0         t/140, t/325
-   MCP4XXXX dpot wiper           ─►  ADS1115 #1 (0x48) A1         t/345
+   GPIO18 PWM / servo            ─►  ADS1015 #1 (0x48) A0         t/140, t/325
+   MCP4XXXX dpot wiper           ─►  ADS1015 #1 (0x48) A1         t/345
    MCP4922 DAC out A (set 0,..)  ─►  MCP3008 (CS=GPIO26) CH1      t/310
    MCP4922 DAC out B (set 1,..)  ─►  MCP3008 (CS=GPIO26) CH3      t/310
    74HC595 first Q (vpin 401)    ─►  MCP3008 (CS=GPIO26) CH2      t/335
@@ -292,12 +292,12 @@ devices share **SDA=GPIO2 / SCL=GPIO3**. See the cited sections for full decodin
 | `105-pin.t` | — (generic GPIO) | GPIO18 — plain read/write |
 | `107-alt_modes.t` | — (generic GPIO) | GPIO21 — ALT0–ALT7 round-trip |
 | `108-mode_state_all_pins.t` | — (generic GPIO) | all checked pins: GPIO 0,1,2,3,7,8,9,10,11,12,13,14,15,16,18,19,20,21,23,24,25,26 (default mode/state; 4,5,6,17,22,27 excluded for LCD) |
-| `109-pwm_hw_mods.t` | ADS1115 #1 | GPIO18 (hardware PWM out) → ADS1115 #1 @0x48 A0; I2C SDA2/SCL3 |
+| `109-pwm_hw_mods.t` | ADS1015 #1 | GPIO18 (hardware PWM out) → ADS1015 #1 @0x48 A0; I2C SDA2/SCL3 |
 | `110-register.t` | — (generic GPIO) | GPIO12, 18, 26 — registration/counting |
 | `112-metadata_multi_pi_multi_script.t` | — (generic GPIO) | GPIO12, 16, 18, 21, 26 (via `multi/full_master.pl` + `full_slave.pl`) |
 | `113-metadata_multi_pi_multi_script_die.t` | — (generic GPIO) | GPIO12, 18 (via `multi/die_master.pl` + `die_slave.pl`) |
 | `114-metadata_multi_pi_multi_script_sigint.t` | — (generic GPIO) | GPIO12, 18 (via `multi/int_master.pl` + `int_slave.pl`) |
-| `140-pwm_spi_adc.t` | ADS1115 #1 | GPIO18 (PWM out) → ADS1115 #1 @0x48 A0; I2C SDA2/SCL3 |
+| `140-pwm_spi_adc.t` | ADS1015 #1 | GPIO18 (PWM out) → ADS1015 #1 @0x48 A0; I2C SDA2/SCL3 |
 | `150-cleanup.t` | — (generic GPIO) | GPIO12, 18, 26 |
 | `200-interrupt_rising_and_pud.t` … `212-pin_background_interrupt.t` (13 interrupt tests, incl. `204-last_interrupt.t`), `213-worker.t` | — (generic GPIO) | GPIO18 — self-triggered via internal pull (PUD_UP→PUD_DOWN); **no external driver/load** (§7) |
 | `300-i2c_exceptions.t` | — (I2C error path) | I2C SDA2/SCL3; probes deliberately-absent addr 0x99 — no device responds |
@@ -305,11 +305,11 @@ devices share **SDA=GPIO2 / SCL=GPIO3**. See the cited sections for full decodin
 | `310-dac.t` | MCP4922 DAC, MCP3008 ADC | SPI MOSI10/SCLK11/MISO9; DAC CS=GPIO12 (bit-bang), ADC CS=GPIO26 (bit-bang); DAC out A→MCP3008 CH1, out B→CH3 |
 | `315-serial.t` | — (UART loopback) | UART TXD GPIO14 → RXD GPIO15 |
 | `320-rtc.t` | DS3231 RTC | I2C SDA2/SCL3 @0x68 |
-| `325-servo.t` | Servo, ADS1115 #1 | GPIO18 (servo PWM) → ADS1115 #1 @0x48 A0; I2C SDA2/SCL3 |
+| `325-servo.t` | Servo, ADS1015 #1 | GPIO18 (servo PWM) → ADS1015 #1 @0x48 A0; I2C SDA2/SCL3 |
 | `330-mcp23017.t` | MCP23017 expander | I2C SDA2/SCL3 @0x20; GPA4–7 ↔ GPB4–7 loopback |
 | `335-shift_reg_adc.t` | 74HC595, MCP3008 ADC | 74HC595 DATA=GPIO21, CLOCK=GPIO20, LATCH=GPIO16 (bit-bang); SPI MOSI10/SCLK11/MISO9, MCP3008 CS=GPIO26; 595 Q0→MCP3008 CH2 |
 | `340-bmp.t` | BMP180 | I2C SDA2/SCL3 @0x77 |
-| `345-dpot.t` | MCP4XXXX dpot, ADS1115 #1 | SPI MOSI10/SCLK11; dpot CS=GPIO13 (bit-bang); wiper → ADS1115 #1 @0x48 A1; I2C SDA2/SCL3 |
+| `345-dpot.t` | MCP4XXXX dpot, ADS1015 #1 | SPI MOSI10/SCLK11; dpot CS=GPIO13 (bit-bang); wiper → ADS1015 #1 @0x48 A1; I2C SDA2/SCL3 |
 | `420-eeprom_args.t` | AT24C32 EEPROM | I2C SDA2/SCL3 @0x57 |
 | `421-eeprom_read_write_byte_croak.t` | AT24C32 EEPROM | I2C SDA2/SCL3 @0x57 |
 | `422-eeprom_read_write_byte.t` | AT24C32 EEPROM | I2C SDA2/SCL3 @0x57 |
@@ -331,7 +331,7 @@ default.
 | 0x20 | MCP23017 #1 GPIO expander | t/330 | **[T]** `expander(0x20)` t/330:32 |
 | 0x21 | MCP23017 #2 GPIO expander (stepper drive) | t/450 | **[T]** `expander(0x21)` t/450:108 |
 | 0x3c | OLED SSD1306 128×64 | t/500-520 | **[T]** `oled('128x64',0x3C,0)` t/500:22 |
-| 0x48 | ADS1115 ADC #1 | t/140,325,345 | **[T]** `adc(addr=>0x48)` t/140:42, t/325:77, t/345:35 |
+| 0x48 | ADS1015 ADC #1 | t/140,325,345 | **[T]** `adc(addr=>0x48)` t/140:42, t/325:77, t/345:35 |
 | 0x57 | AT24C32 EEPROM | t/420-422 | **[T]** asserted default t/420:21-24 |
 | 0x68 | DS3231 RTC | t/320 | **[L]** `rtc()` passes no addr; default 0x68 (DS3231.pm:13) |
 | 0x77 | BMP180 pressure/temp | t/340 | **[L]** `bmp(100)` arg is a pin-base, not an addr; 0x77 from driver/datasheet |
@@ -355,7 +355,7 @@ default.
                                     MCP#1   MCP#2  ADS#1  RTC  BMP  EEPROM OLED Ardu
 ```
 
-**One ADS1115 ADC [T].** `0x48` carries the two analog read-backs the suite needs
+**One ADS1015 ADC [T].** `0x48` carries the two analog read-backs the suite needs
 — PWM/servo on A0 (`t/140,325`) and the dpot wiper on A1 (`t/345`). The stepper no
 longer uses an ADC: its limits are magnetic switches on Pi GPIO17/27 and centre is
 computed (§8).
@@ -406,7 +406,7 @@ The hardware CE0/CE1 (GPIO8/7) stay free. All three SPI devices are powered at
 |--------|---------------------:|------|------|------|-------|---------------------|
 | MCP3008 ADC | **26** | 10 | 11 | 9 | t/310,335 | (it is the reader) |
 | MCP4922 DAC | **12** | 10 | 11 | — | t/310 | out A→MCP3008 CH1, out B→MCP3008 CH3 |
-| MCP4XXXX pot| **13** | 10 | 11 | — | t/345 | wiper→ADS1115 #1 A1 |
+| MCP4XXXX pot| **13** | 10 | 11 | — | t/345 | wiper→ADS1015 #1 A1 |
 
 ```
  GPIO10 MOSI ─┬──────────┬───────────┐
@@ -456,7 +456,7 @@ generic pins.
 
 ## 7. GPIO18 — the multiplexed workhorse pin (physical pin 12)
 
-One physical net wired to **ADS1115 #1 channel A0**, reused across many tests:
+One physical net wired to **ADS1015 #1 channel A0**, reused across many tests:
 
 | Mode | Tests | Dir | How |
 |------|-------|-----|-----|
@@ -469,7 +469,7 @@ One physical net wired to **ADS1115 #1 channel A0**, reused across many tests:
 only the Pi's *internal* ~50 kΩ pull (`pull()` → `pullUpDnControl`, `RPi/Pin.pm:75-85`).
 The tests say so directly: "wire nothing to BCM18" (`t/213:120`), "self-triggered
 pin" (`t/210:114`). Therefore the GPIO18 net must carry **no external pull
-resistor and no low-impedance load** — only the high-Z ADS1115 A0 input may hang
+resistor and no low-impedance load** — only the high-Z ADS1015 A0 input may hang
 off it (a series resistor to A0 is fine; a pull resistor would break the interrupt
 tests). Debounce is 0 throughout (`t/210:37`), so the net must also be kept short
 / low-capacitance to settle inside the ~20 ms edge pacing. The pin's at-rest
@@ -551,7 +551,7 @@ trips — no peripheral attached; candidates for break-out test points:
    reads. To verify after assembly: measure SDA→3V3 / SCL→3V3 (≥0.6 kΩ is fine),
    run `i2cdetect -y 1` plus a soak loop, and if flaky drop to 100 kHz
    (`dtparam=i2c_arm_baudrate=100000`) for margin. A BSS138-type level-shifter for
-   the 5V Arduino adds its own ~10 kΩ pulls on the Pi side. Strap the ADS1115
+   the 5V Arduino adds its own ~10 kΩ pulls on the Pi side. Strap the ADS1015
    to 0x48 and the two MCP23017s to 0x20 (t/330) and 0x21 (stepper).
 2. **Shared SPI bus (GPIO9/10/11) [T]** — three devices, one active CS at a time
    (26/12/13). Write-only DAC/dpot must not drive MISO.
@@ -612,7 +612,7 @@ matches the Pi's 3V3 PWM/GPIO levels):
 
 | Device                | Ref / addr   | Power pin     | Notes                              |
 |-----------------------|--------------|---------------|------------------------------------|
-| ADS1115 ADC #1        | I2C 0x48     | VDD           | A0=PWM/servo, A1=dpot wiper        |
+| ADS1015 ADC #1        | I2C 0x48     | VDD           | A0=PWM/servo, A1=dpot wiper        |
 | MCP23017 #1 expander  | I2C 0x20     | VDD           | t/330 loopback; RESET tied 3V3     |
 | MCP23017 #2 expander  | I2C 0x21     | VDD           | t/450 stepper drive; RESET tied 3V3|
 | DS3231 RTC            | I2C 0x68     | VCC           | RTC/EEPROM breakout                |
@@ -665,7 +665,7 @@ Other 5V connections:
 
 | Device | Ref | Typ (mA) | Peak (mA) | Note |
 |--------|-----|---------:|----------:|------|
-| ADS1115 #1 | 0x48 | 0.15 | 0.20 | continuous-conversion |
+| ADS1015 #1 | 0x48 | 0.15 | 0.20 | continuous-conversion |
 | MCP23017 #1 | 0x20 | 1.0 | 1.0 | logic only; loopback drive is high-Z |
 | MCP23017 #2 | 0x21 | 1.0 | 1.0 | stepper drive (ULN2003 inputs, high-Z) |
 | DS3231 RTC | 0x68 | 0.2 | 0.2 | **+~3 mA if breakout power-LED fitted** |
@@ -782,7 +782,7 @@ objects/pins in the same shm segment.
 - [ ] 40-pin header pass-through; route the BCM pins in §2.
 - [ ] **No** external I2C pull-up pair — the Pi's built-in ~1.8 kΩ on SDA/SCL is
       enough; just check the breakouts' on-board pulls don't parallel too low
-      (§10 item 1). Address straps: ADS1115 0x48, MCP23017 0x20 (t/330) & 0x21 (t/450 stepper). **[T]** addresses.
+      (§10 item 1). Address straps: ADS1015 0x48, MCP23017 0x20 (t/330) & 0x21 (t/450 stepper). **[T]** addresses.
 - [ ] SPI fan-out (9/10/11) → MCP3008 + MCP4922 + MCP4XXXX with **bit-banged CS**
       26/12/13; hardware CE0/CE1 left free. **[T]**
 - [ ] DAC out A/out B → MCP3008 CH1/CH3; 74HC595 first Q → MCP3008 CH2. **[T]**

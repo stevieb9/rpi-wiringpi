@@ -884,7 +884,7 @@ usage instructions.
 
 We provide access to both the ADS1x15 and MCP3008 ADCs.
 
-The default is to return an ADS1115 object from [RPi::ADC::ADS](https://metacpan.org/pod/RPi%3A%3AADC%3A%3AADS). Please review
+The default is to return an ADS1015 object from [RPi::ADC::ADS](https://metacpan.org/pod/RPi%3A%3AADC%3A%3AADS). Please review
 that documentation for full usage instructions.
 
     # Fetch a new ADC object
@@ -1444,7 +1444,7 @@ variables a given test needs on top of `RPI_BOARD` - if it reads `(none)`,
     112-metadata_multi_pi_multi_script.t         Multi-proc meta, clean exit          RPI_MULTI
     113-metadata_multi_pi_multi_script_die.t     Multi-proc meta, proc die()s         RPI_MULTI
     114-metadata_multi_pi_multi_script_sigint.t  Multi-proc meta, SIGINT              RPI_MULTI
-    140-pwm_spi_adc.t                            PWM/SPI/ADC integration              RPI_SUDO, RPI_ADC, RPI_I2C
+    140-pwm_i2c_adc.t                            PWM/I2C/ADC integration              RPI_SUDO, RPI_ADC, RPI_I2C
     150-cleanup.t                                cleanup() releases resources         (none)
     153-sig_handlers.t                           Signal handler install/restore       (none)
     200-interrupt_rising_and_pud.t               Rising-edge interrupt + pull         (none)
@@ -1655,7 +1655,7 @@ Set the following environment variable:
 
     export RPI_DIGIPOT=1
 
-We also need the ADS1115 connected and enabled:
+We also need the ADS1015 connected and enabled:
 
     export RPI_ADC=1
 

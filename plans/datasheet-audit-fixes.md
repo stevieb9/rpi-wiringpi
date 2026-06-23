@@ -1,13 +1,13 @@
 # Plan: Address datasheet-validity audit findings (rpi-wiringpi + driver dists)
 
-> **NEXT ACTION:** V13 — ADS1115 `rate()` has no effect on the conversion in `~/repos/rpi-adc-ads` (8 SPS still reads in ~9 ms not ~125 ms; the data-rate config never reaches the chip). Needs root-cause.
-> **LAST SESSION:** 2026-06-23 — V11 done: corrected the inverted SHUTDOWN BITS POD table in `~/repos/rpi-dac-mcp4922` `MCP4922.pm` (bit 12: `1 = Active, 0 = Shutdown`, matching DS22250A Reg 5-1 + the XS). Doc-only; no test feasible (SHDN logic welded into hardware-coupled XS). podchecker clean; Changes 3.1802 UNREL entry added; uncommitted.
-> **ARCHIVE:** See datasheet-audit-fixes-archive.md for completed V1-V12
+> **NEXT ACTION:** None — Validation Table is empty (all V tasks closed). Open follow-up: reconcile the ADS1115→ADS1015 naming across docs/RPiTest/memory (the `0x48` part is a 12-bit ADS1015; user authorised the doc fix on 2026-06-23).
+> **LAST SESSION:** 2026-06-23 — V13 VALIDATED (no code change): the `0x48` ADC is an ADS1015 (12-bit), proven by low-nibble (20/20 zero) + a per-rate timing staircase matching the ADS1015 datasheet. Pristine `fetch()` already honours `rate()`; the report's "8 SPS→125 ms" premise assumed an ADS1115 (no 8 SPS rate exists on an ADS1015; top 3 rates read at the I²C overhead floor). dist left pristine.
+> **ARCHIVE:** See datasheet-audit-fixes-archive.md for completed V1-V13
 
 <!-- AI-STATE (terse resume state; authoritative over prose above on conflict)
-PTR=V13 | Q=V13 | RATE=1/turn (batch only if user auths)
-V13 ADS rate() not applied to conversion @rpi-adc-ads (8 SPS still read in ~9ms not ~125ms; data-rate change has no effect) -- DISCOVERED during averaging work; needs root-cause
+PTR=none (table empty) | Q=(doc-fix: ADS1115->ADS1015 naming, user-authd 2026-06-23) | RATE=1/turn (batch only if user auths)
 CLOSE-V: Actual=PASS -> archive bullet -> DEL row -> mark F# RESOLVED -> advance PTR
+DONE V13 ADS rate() NON-BUG @rpi-adc-ads -- 0x48 part is ADS1015 (12-bit), proven low-nibble 20/20 zero + per-rate timing staircase matching ADS1015 datasheet; pristine fetch() already honours rate(); "8 SPS/125ms" premise assumed an ADS1115 (no 8 SPS on ADS1015). VALIDATED no code change; dist pristine.
 DONE V11 MCP4922 SHUTDOWN BITS POD inverted @rpi-dac-mcp4922/MCP4922.pm (table now 1=Active/0=Shutdown per DS22250A + XS; doc-only, no test feasible; Changes 3.1802 UNREL; uncommitted).
 DONE V7 MCP42010 shutdown() CS toggle @rpi-digipot-mcp4xxxx/MCP4XXXX.pm (brackets spiDataRW with CS LOW/HIGH like set(); Changes 3.1802 UNREL; uncommitted).
 DONE V10 bmp() POD documents $pin_base @lib/RPi/WiringPi.pm (doc-only; podchecker clean; uncommitted).
@@ -52,7 +52,7 @@ DONE V1-3 DS3231 BCD+sign fix (DS3231.xs uncommitted, user commits). RTC tests r
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V13 | **[discovered]** ADS1115 `rate()` has no effect on the conversion (`~/repos/rpi-adc-ads`): setting the slowest rate (8 SPS, ~125 ms/conversion) still reads in ~9 ms (the 128 SPS default), so the data-rate config never reaches the chip. Found while characterising the averaging feature. Needs root-cause (config bits / single-shot OS-poll). | `cd ~/repos/rpi-adc-ads && grep -nE 'rate|DR' ADS.xs lib/RPi/ADC/ADS.pm` | a non-default `rate()` measurably changes the per-conversion time | ⏳ |
+| _(none — all V tasks closed)_ | | | | |
 
 ## Discovery Tracking
 

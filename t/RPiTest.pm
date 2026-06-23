@@ -79,7 +79,7 @@ sub rpi_multi_check {
     }
 }
 
-# PWM -> ADS1115 feedback calibration, single-sourced here for both PWM
+# PWM -> ADS1015 feedback calibration, single-sourced here for both PWM
 # feedback tests (t/109-pwm_hw_mods.t and t/140-pwm_i2c_adc.t) so a hardware
 # recalibration updates both in one place.
 #
@@ -157,14 +157,14 @@ sub rpi_pwm_adc_window {
     return ($min, $max);
 }
 sub rpi_i2c_check {
-    # Gate tests that require a live I2C bus (e.g. the ADS1115 ADC). Without
+    # Gate tests that require a live I2C bus (e.g. the ADS1015 ADC). Without
     # this, a test that unconditionally touches I2C dies mid-run when the bus
     # is disabled, leaving stale metadata in shared memory that cascades into
     # subsequent tests.
     if (! $ENV{RPI_I2C}) {
         plan skip_all => "RPI_I2C environment variable not set (these tests " .
-                         "verify PWM via the I2C ADS1115; set RPI_I2C=1 when " .
-                         "the I2C bus and ADS1115 are wired and powered)\n";
+                         "verify PWM via the I2C ADS1015; set RPI_I2C=1 when " .
+                         "the I2C bus and ADS1015 are wired and powered)\n";
     }
 }
 
