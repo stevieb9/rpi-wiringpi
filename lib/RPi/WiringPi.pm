@@ -757,12 +757,20 @@ Mandatory, Integer. C<0> or C<1> for the Pi's onboard hardware CS/SS CE0 and CE1
 pins, or any GPIO number above C<1> in order to use an arbitrary GPIO pin for
 the CS pin, and we'll do the bit-banging of the SPI bus automatically.
  
-=head2 bmp
- 
+=head2 bmp($pin_base)
+
 Returns a L<RPi::BMP180> object, which allows you to return the
 current temperature in farenheit or celcius, along with the ability to retrieve
 the barometric pressure in kPa.
- 
+
+Parameters:
+
+    $pin_base
+
+Mandatory, Integer. The number at which to start the 'pseudo' GPIO pins used to
+communicate with the sensor. Use any value above the highest-numbered physical
+GPIO pin (eg. C<100> or C<200>). See L<RPi::BMP180/new> for details.
+
 =head2 dac
  
 Returns a L<RPi::DAC::MCP4922> object (supports all 49x2 series DACs). These

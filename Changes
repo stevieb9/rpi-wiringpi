@@ -35,6 +35,11 @@ Revision history for Perl extension RPi::WiringPi.
       comment in t/211. Dropped the now-redundant RPi::Pin version guard in
       t/212 (the prereq floor already requires a version with the pin-level
       background_interrupt(); the 2.3609 check never fired on a 3.18xx install)
+    - Bumped the RPi::Const prerequisite floor to 1.06 for the :mcp23017_pins
+      constants the suite relies on (RPi::GPIOExpander::MCP23017 already
+      requires 1.06)
+    - Documented bmp()'s mandatory $pin_base parameter in the POD (it was
+      undocumented, though t/340 passes it)
 
 3.1802     2026-06-12
     - bump prereq of RPi::I2C to 2.3608
