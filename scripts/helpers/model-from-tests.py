@@ -81,7 +81,7 @@ COMPONENTS = {
    '1':'CS','2':'SCK','3':'SI','4':'VSS','5':'PB1','6':'PW1','7':'PA1',
    '8':'PA0','9':'PW0','10':'PB0','11':'RS','12':'SHDN','13':'SO','14':'VDD'}),
  # --- sensor / breakout modules ---
- 'M1': ('ADS1115_0x48', 'Module', {'VDD':'VDD','GND':'GND','SCL':'SCL','SDA':'SDA','ADDR':'ADDR','A0':'A0','A1':'A1','A2':'A2','A3':'A3'}),
+ 'M1': ('ADS1115_0x48', 'Module', {'VDD':'VDD','GND':'GND','SCL':'SCL','SDA':'SDA','ADDR':'ADDR','ALRT':'ALRT','A0':'A0','A1':'A1','A2':'A2','A3':'A3'}),  # ALRT = ALERT/RDY (TI SBAS444E pin 2), on the module header between ADDR and A0; unused
  'M3': ('DS3231_ZS042', 'Module', {'VCC':'VCC','GND':'GND','SCL':'SCL','SDA':'SDA','SQW':'SQW','32K':'32K'}),  # +AT24C32 0x57 onboard
  'M4': ('BMP180', 'Module', {'VIN':'VIN','GND':'GND','SCL':'SCL','SDA':'SDA'}),
  'M5': ('SSD1306_OLED', 'Module', {'VCC':'VCC','GND':'GND','SCL':'SCL','SDA':'SDA'}),

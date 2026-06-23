@@ -620,6 +620,9 @@
         (pin passive line (at 15.2400 -2.5400 180) (length 5.08)
           (name "A3" (effects (font (size 1.27 1.27))))
           (number "A3" (effects (font (size 1.27 1.27)))))
+        (pin passive line (at 15.2400 -5.0800 180) (length 5.08)
+          (name "ALRT" (effects (font (size 1.27 1.27))))
+          (number "ALRT" (effects (font (size 1.27 1.27)))))
       )
     )
     (symbol "test-platform:M3"
@@ -1343,6 +1346,7 @@
     (pin "A1" (uuid 6483328e-3076-523d-aad8-01aedca4357f))
     (pin "A2" (uuid 4ffc606b-4539-58f7-8779-21e25eef2b57))
     (pin "A3" (uuid a7fde190-6915-5b7a-86da-69ee41d9faee))
+    (pin "ALRT" (uuid fcbe3461-a6df-4e1d-a96b-124028de9956))
     (instances
       (project "test-platform"
         (path "/144371d1-d7ce-5f5f-abbd-1599176ebb96" (reference "M1") (unit 1))
