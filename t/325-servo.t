@@ -15,6 +15,7 @@ my $mod = 'RPi::WiringPi';
 if ($> == 0){
     $ENV{RPI_BOARD} = 1;
     $ENV{RPI_ADC}   = 1;
+    $ENV{RPI_I2C}   = 1;
     $ENV{RPI_SERVO} = 1;
 }
 
