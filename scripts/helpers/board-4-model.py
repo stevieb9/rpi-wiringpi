@@ -58,16 +58,14 @@ Shapes match board-model.py:
 # identifiers; values are the silk signal names.
 COMPONENTS = {
  # --- I2C breakout modules ---
- # TODO [OPEN, raised 2026-06-21 -- verify before finalizing board 4]:
- #   This models a ZS-042 breakout, which carries BOTH the DS3231 RTC (0x68) AND
- #   an on-board AT24C32 EEPROM (0x57) on one 6-pin header. CONFIRM the physical
- #   part you have. If it is a *bare* DS3231 (no on-board EEPROM), then t/420-422
- #   need a SEPARATE AT24C32 chip -- add it here as its own module (VCC/GND/SCL/SDA
- #   on the I2C bus, address 0x57) and re-scaffold. If it is the ZS-042, this is
- #   already correct as-is.
- # ZS-042: standard 6-pin header order. 32K + SQW are unused (left unconnected).
+ # RESOLVED 2026-06-23 (was OPEN since 2026-06-21): confirmed against the physical
+ # part. It is a DS3231 module with the AT24C32 EEPROM (0x57) built in -- ONE 6-pin
+ # header carries BOTH the RTC (0x68, t/320) and the EEPROM (0x57, t/420-422), so no
+ # separate AT24C32 part is needed.
+ # Pin order is now the CONFIRMED hardware silk (no longer a guess): the 6-pin header
+ # reads 1:GND 2:VCC(+3V3) 3:SDA 4:SCL 5:SQW 6:32K, with SQW + 32K left unconnected.
  'M1': ('DS3231_0x68+AT24C32_0x57', 'Module',
-        {'1':'32K','2':'SQW','3':'SCL','4':'SDA','5':'VCC','6':'GND'}),   # t/320, t/420-422
+        {'1':'GND','2':'VCC','3':'SDA','4':'SCL','5':'SQW','6':'32K'}),   # t/320, t/420-422
  # GY-68 BMP180: 4-pin header. VIN powered from 3V3 (part is not 5V tolerant).
  'M2': ('BMP180_0x77', 'Module',
         {'1':'VIN','2':'GND','3':'SCL','4':'SDA'}),                        # t/340
@@ -77,19 +75,28 @@ COMPONENTS = {
  # --- JST connectors (in <- board 1) ---
  'J1': ('JST_IN_PWR', 'JST-3', {'1':'+3V3','2':'GND','3':'+3V3'}),         # 3 = +3V3 return -> board 1
  'J2': ('JST_IN_I2C', 'JST-2', {'1':'SDA','2':'SCL'}),                     # I2C in
+ # --- on-board discrete test parts (LED + resistor pair, single-pole switch) ---
+ # Intentionally NET-LESS: these are scaffolded with project-local footprints so
+ # the board validates, but they carry no net so they land floating in the sheet
+ # for the user to wire and label by hand when finalizing board 4 in KiCad. A
+ # single-pole switch (SW_DIP_x01, 2 terminals), unlike board 5's 3-pole SW.
+ 'D1':  ('LED', 'LED', {'1':'K','2':'A'}),                                 # indicator LED
+ 'R1':  ('R', 'R', {'1':'~','2':'~'}),                                     # LED series resistor
+ 'SW1': ('SW_DIP_x01', 'DIP-SW-1', {'1':'~','2':'~'}),                     # single-pole switch
 }
 
 # ------------------------------------------------------------------ NETS
-# Each net: (name, [(ref, pin), ...]). M1 pins 1 (32K) and 2 (SQW) are NC.
+# Each net: (name, [(ref, pin), ...]). M1 pins 5 (SQW) and 6 (32K) are NC.
+# D1/R1/SW1 are intentionally absent here -- net-less, hand-wired by the user.
 NETS = [
  # power: both J1 +3V3 pins (1 in, 3 return) tie to the local +3V3 net
  ('+3V3', [('J1','1'),('J1','3'),
-           ('M1','5'),('M2','1'),('M3','2')]),        # module VCC/VIN pins
+           ('M1','2'),('M2','1'),('M3','2')]),        # module VCC/VIN pins
  ('GND',  [('J1','2'),
-           ('M1','6'),('M2','2'),('M3','1')]),        # module GND pins
+           ('M1','1'),('M2','2'),('M3','1')]),        # module GND pins
  # shared I2C bus (no local pull-ups; board 3 owns them)
- ('I2C_SDA', [('J2','1'),('M1','4'),('M2','4'),('M3','4')]),
- ('I2C_SCL', [('J2','2'),('M1','3'),('M2','3'),('M3','3')]),
+ ('I2C_SDA', [('J2','1'),('M1','3'),('M2','4'),('M3','4')]),
+ ('I2C_SCL', [('J2','2'),('M1','4'),('M2','3'),('M3','3')]),
 ]
 
 # No Pi header on this board.
@@ -103,7 +110,7 @@ DRIVER = {
 
 # per-device power flags (drawn at the device); board 4's rails enter on J1.
 POWER = {
- 'M1':[('5','+3V3'),('6','GND')],
+ 'M1':[('2','+3V3'),('1','GND')],
  'M2':[('1','+3V3'),('2','GND')],
  'M3':[('2','+3V3'),('1','GND')],
 }

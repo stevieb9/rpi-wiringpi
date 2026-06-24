@@ -1,8 +1,8 @@
 # Plan: Make rpi-wiringpi/t/ the canonical test suite for the whole RPi:: stack
 
-> **NEXT ACTION:** V7 — RPi::EEPROM::AT24C32: the validator croak tests are already mirrored here (t/420-422) but RPI_EEPROM-gated; un-gate the HW-free `_check_addr`/`_check_byte` croaks; surface F6 (eeprom_init -1 swallowed by new).
-> **LAST SESSION:** 2026-06-23 — V6 done: fixed F2 (GPIO__pinBit %d croak) + F3 (t/35/t/40 mis-targeted), added `rpi-gpioexpander-mcp23017/t/02-validation.t` (26) + mirror `rpi-wiringpi/t/331-mcp23017_unit.t` (25); installed rebuilt dist; bit.c → B14. dist Changes 1.04 UNREL; uncommitted. Also installed updated ADS 1.04 / digipot / dac. (V1-V5: const/pin/dpot/dac/ads.)
-> **ARCHIVE:** See test-coverage-gaps-archive.md for completed V1-V6
+> **NEXT ACTION:** V8 — RPi::RTC::DS3231: extend the HW-free `t/321-rtc-bcd` to full 0-99 dec2bcd/bcd2dec round-trip; extract & unit-test the temp decode incl. the negative-temp sign path; add HW-free setter range-validation croaks (mock-fd, B3).
+> **LAST SESSION:** 2026-06-23 — V7 done: added ungated `rpi-wiringpi/t/423-eeprom_validation.t` (14 tests) calling `_check_addr`/`_check_byte` directly (split from the RPI_EEPROM-gated t/420-422) + an F6 probe. No dist code change; F6 deferred to B15. (V1-V6: const/pin/dpot/dac/ads/mcp23017.)
+> **ARCHIVE:** See test-coverage-gaps-archive.md for completed V1-V7
 
 ## Goal & guiding principles
 
@@ -68,7 +68,6 @@ Every row: mirror absent sub-repo tests into rpi-wiringpi/t/ (non-conflicting) +
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V7 | **RPi::EEPROM::AT24C32** — the validator croak tests are ALREADY mirrored here (`t/420-422`) but **RPI_EEPROM-gated**, so the HW-free `_check_addr`/`_check_byte` croaks don't run off-board. Un-gate the pure-Perl croak assertions (split from the I/O round-trip); surface F6 (eeprom_init -1 swallowed by new). Own repo is boilerplate — nothing new to mirror. | `cd ~/repos/rpi-wiringpi && prove -Iblib/lib -Ilib t/420-eeprom_args.t t/421-eeprom_read_write_byte_croak.t` | Validator croaks run ungated (HW-free); round-trip stays gated. | ⏳ |
 | V8 | **RPi::RTC::DS3231** — integration-covered by t/320, and BCD is mirrored in `t/321-rtc-bcd` (HW-free). Gap: extend `321` to full 0-99 `dec2bcd`/`bcd2dec` round-trip + field maxes; extract & unit-test the temp decode incl. the negative-temp sign path (never executed); add HW-free range-validation croaks for every setter (mock-fd, B3). | `cd ~/repos/rpi-wiringpi && prove -Iblib/lib -Ilib t/321-rtc-bcd.t` | Full BCD range + negative temp + setter validation pass HW-free. | ⏳ |
 | V9 | **WiringPi::API** — own repo has 24 tests. Gap: `spi_data`/`spiDataRW` croak tests (channel/arrayref/len/byte-range); F5 (`phys_to_gpio`/`wpi_to_gpio`/`pin_to_gpio` lack the bounds guard `phys_to_wpi` has — add C guard + bounds tests); `shift_reg_setup`/`serial_gets`/`lcd_init` croaks; `bmp180_temp/pressure` conversion math (stub XS); `auto_dispatch` + singular `background_interrupt` runtime via faked self-pipe. | `cd ~/repos/wiringpi-api && prove -Ilib t/` | spi_data + pin-map bounds + setup/serial/lcd croaks + bmp180 math + dispatch covered; OOB guard added. | ⏳ |
 | V10 | **rpi-wiringpi (core)** — validation paths untested. Add (ideally un-gated): device-factory dies (`oled`/`lcd`/`expander`/`stepper_motor` bad-arg; `servo`/pwm_* non-root); `Meta` arg croaks; `pin()`+`_pin_registration` collision croak (110 tests only the happy path); `pin_to_gpio` uninit croak. Smoke/isa for untested factories (`gps`/`hcsr04`/`hygrometer`/`spi`/`pin_map`); cover `meta_remove`/`unregister_object`. | `cd ~/repos/rpi-wiringpi && prove -Iblib/lib -Ilib t/` | Factory/Meta/registration validation + smoke tests covered. | ⏳ |
@@ -98,7 +97,7 @@ Code defects surfaced by the coverage audit (separate from the test gaps). Each 
 - **F3** ✅ RESOLVED (V6): rpi-gpioexpander-mcp23017 `t/35-pullup.t` and `t/40-pullup_bank.t` test `mode_bank` (copy-paste), leaving `pullup`/`pullup_bank` validation untested. Fixed to call `pullup`/`pullup_bank` (HW-gated, so fixed by inspection); the validators are also now covered HW-free in `t/02-validation.t`.
 - **F4** ✅ RESOLVED (V3): rpi-digipot-mcp4xxxx `shutdown()` croak message reads `"set() $pot param…"` (copy-paste from `set()`). Fixed to `"shutdown() $pot param…"`; the dist test asserts the corrected wording.
 - **F5** (→V9): WiringPi::API `phys_to_gpio`/`wpi_to_gpio`/`pin_to_gpio` pass the index through with NO bounds guard — asymmetric with `phys_to_wpi`; likely OOB read.
-- **F6** (→V7): rpi-eeprom-at24c32 `eeprom_init` returns -1 on open failure but `new()` swallows it (no croak/warn) — a bad device path builds a broken object.
+- **F6** ⏸ DEFERRED → B15 (surfaced V7): rpi-eeprom-at24c32 `eeprom_init` returns -1 on open failure (after a `fprintf(stderr)`) but `new()` swallows it (no croak/warn) — a bad device path builds a broken `fd == -1` object. Documented by `rpi-wiringpi/t/423-eeprom_validation.t`; the fix (croak on -1) is a `new()` contract change, deferred to B15.
 - **F7** (→V12): rpi-i2c `read_bytes` returns only the LAST byte (`$retval = (0<<8) | …` overwrite), not the documented array.
 - **F8** (→V12): rpi-i2c `write_word($self,$reg,$value)` argument order is inverted vs `write_byte` and its own POD.
 - **F9** (→V13): rpi-adc-mcp3008 `spi_setup`/`wpi_setup` use `exit(errno)` (kills the interpreter) instead of `croak`.
@@ -140,6 +139,8 @@ B11: add a noboard/env-gate to dists that have none (mcp3008, spi, bmp180, lcd, 
 B12: systematic mirror sweep — after the per-distro tasks, diff each sub-repo's `t/` against rpi-wiringpi/t/ and port any non-conflicting functional test still absent here, so rpi-wiringpi is provably the superset (the duplication policy as a final pass).
 
 B13: rpi-pin — add an input-validation guard to `mode_alt($alt)` (currently passes any `$alt` straight to `pin_mode_alt`); resolves F18, after which a HW-free croak test can be added in t/10-validation.t + t/116.
+
+B15: rpi-eeprom-at24c32 — make `new()` croak (or at least warn + return undef) when `eeprom_init` returns -1, instead of building a broken `fd == -1` object (F6). It's a `new()` contract change, so it's deferred rather than slipped into a test task; `t/423` currently documents the swallow.
 
 B14: rpi-gpioexpander-mcp23017 — expose `bit.c` (`bitCount`/`bitMask`/`bitGet`/`bitSet`/`bitTog`) via thin XS wrappers (or a host-side C test) so the pure bit math is unit-testable HW-free; while there, check two suspects — `bitCount(0, 0)` calls `__builtin_clz(0)` (**undefined behaviour**), and `bitGet`'s `&`/`-`/`>>` precedence. (`getRegisterBits` is exposed but needs an fd, so it isn't HW-free without this.)
 

@@ -24,7 +24,7 @@ placement change.
 | **1** | Pi host + power/signal fan-out | not built (planned last) | — (host for all) |
 | **2** | SPI analog cluster | **finalized & ordered** | 6 |
 | **3** | I2C expanders + stepper | **finalized & ordered** | 2 |
-| **4** | I2C sensors | scaffolded only (pending EEPROM check) | 15 |
+| **4** | I2C sensors | scaffolded (EEPROM confirmed on-module) | 15 |
 | **5** | 5V logic (LCD / Arduino / UART) | **being finalized (KiCad)** | 3 |
 
 **8 hardware tests are covered by the finalized boards (2 + 3, both ordered);

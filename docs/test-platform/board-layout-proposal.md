@@ -155,13 +155,15 @@ Pure 3V3, bus only, no GPIO. The four sensor breakouts just drop on SDA/SCL.
 | BMP180 temp/pressure | 0x77 | 3V3 | t/340 |
 | OLED SSD1306 128×64 | 0x3c | 3V3 | t/500–520 |
 
-*RTC + EEPROM are typically the same physical ZS-042 breakout (two addresses).*
+*RTC + EEPROM are the same physical DS3231 module (two addresses on one 6-pin header).*
 
-> **⚠️ OPEN (raised 2026-06-21) — verify before finalizing board 4:** the model
-> (`board-4-model.py` M1) assumes a **ZS-042** (DS3231 + on-board AT24C32). Confirm
-> the part you actually have. If it's a **bare DS3231** (no EEPROM), `t/420-422`
-> need a **separate AT24C32** added to the model (0x57 on the bus) + a re-scaffold.
-> Board 4 is scaffold-only with no hand-work yet, so changing it is cheap.
+> **✅ RESOLVED 2026-06-23 (was OPEN since 2026-06-21):** confirmed against the
+> physical part — it's a DS3231 module with the AT24C32 EEPROM (0x57) built in, one
+> 6-pin header carrying both addresses, so no separate AT24C32 is needed. The M1 pin
+> order in `board-4-model.py` is now the confirmed hardware silk
+> (`1:GND 2:VCC 3:SDA 4:SCL 5:SQW 6:32K`; SQW + 32K left N/C), and board 4 has been
+> re-scaffolded with a hand-wired indicator LED + series resistor and a single-pole
+> switch added (net-less in the model; the user labels/wires them in KiCad).
 
 ### Connectors (two JSTs, mirroring board 3's J1/J2 convention)
 
