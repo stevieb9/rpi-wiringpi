@@ -5,9 +5,12 @@
 	(uuid "e004c7c1-bd45-5273-8695-af3f087c91dc")
 	(paper "User" 140 300.68)
 	(lib_symbols
-		(symbol "Switch:SW_DIP_x01"
+		(symbol "Device:LED"
+			(pin_numbers
+				(hide yes)
+			)
 			(pin_names
-				(offset 0)
+				(offset 1.016)
 				(hide yes)
 			)
 			(exclude_from_sim no)
@@ -15,8 +18,8 @@
 			(on_board yes)
 			(in_pos_files yes)
 			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "SW"
-				(at 0 3.81 0)
+			(property "Reference" "D"
+				(at 0 2.54 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -25,8 +28,8 @@
 					)
 				)
 			)
-			(property "Value" "SW_DIP_x01"
-				(at 0 -3.81 0)
+			(property "Value" "LED"
+				(at 0 -2.54 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -57,7 +60,345 @@
 					)
 				)
 			)
-			(property "Description" "1x DIP Switch, Single Pole Single Throw (SPST) switch, small symbol"
+			(property "Description" "Light emitting diode"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Sim.Pins" "1=K 2=A"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "LED diode"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "LED* LED_SMD:* LED_THT:*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "LED_0_1"
+				(polyline
+					(pts
+						(xy -3.048 -0.762) (xy -4.572 -2.286) (xy -3.81 -2.286) (xy -4.572 -2.286) (xy -4.572 -1.524)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.778 -0.762) (xy -3.302 -2.286) (xy -2.54 -2.286) (xy -3.302 -2.286) (xy -3.302 -1.524)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.27 0) (xy 1.27 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.27 -1.27) (xy -1.27 1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.27 -1.27) (xy 1.27 1.27) (xy -1.27 0) (xy 1.27 -1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "LED_1_1"
+				(pin passive line
+					(at -3.81 0 0)
+					(length 2.54)
+					(name "K"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 3.81 0 180)
+					(length 2.54)
+					(name "A"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "Device:R"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "R"
+				(at 2.032 0 90)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "R"
+				(at 0 0 90)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at -1.778 0 90)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Resistor"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "R res resistor"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "R_*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "R_0_1"
+				(rectangle
+					(start -1.016 -2.54)
+					(end 1.016 2.54)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "R_1_1"
+				(pin passive line
+					(at 0 3.81 270)
+					(length 1.27)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -3.81 90)
+					(length 1.27)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "Switch:SW_DIP_x03"
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "SW"
+				(at 0 6.35 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "SW_DIP_x03"
+				(at 0 -6.35 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 -2.54 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 -2.54 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "3x DIP Switch, Single Pole Single Throw (SPST) switch, small symbol"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -79,7 +420,7 @@
 					)
 				)
 			)
-			(property "ki_fp_filters" "SW?DIP?x1*"
+			(property "ki_fp_filters" "SW?DIP?x3*"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -90,10 +431,44 @@
 					)
 				)
 			)
-			(symbol "SW_DIP_x01_0_0"
+			(symbol "SW_DIP_x03_0_0"
+				(circle
+					(center -2.032 2.54)
+					(radius 0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
 				(circle
 					(center -2.032 0)
 					(radius 0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center -2.032 -2.54)
+					(radius 0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.524 2.667) (xy 2.3622 3.7084)
+					)
 					(stroke
 						(width 0)
 						(type default)
@@ -114,6 +489,29 @@
 						(type none)
 					)
 				)
+				(polyline
+					(pts
+						(xy -1.524 -2.413) (xy 2.3622 -1.3716)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 2.032 2.54)
+					(radius 0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
 				(circle
 					(center 2.032 0)
 					(radius 0.508)
@@ -125,11 +523,22 @@
 						(type none)
 					)
 				)
+				(circle
+					(center 2.032 -2.54)
+					(radius 0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
 			)
-			(symbol "SW_DIP_x01_0_1"
+			(symbol "SW_DIP_x03_0_1"
 				(rectangle
-					(start -3.81 2.54)
-					(end 3.81 -2.54)
+					(start -3.81 5.08)
+					(end 3.81 -5.08)
 					(stroke
 						(width 0.254)
 						(type default)
@@ -139,9 +548,9 @@
 					)
 				)
 			)
-			(symbol "SW_DIP_x01_1_1"
+			(symbol "SW_DIP_x03_1_1"
 				(pin passive line
-					(at -7.62 0 0)
+					(at -7.62 2.54 0)
 					(length 5.08)
 					(name ""
 						(effects
@@ -159,7 +568,7 @@
 					)
 				)
 				(pin passive line
-					(at 7.62 0 180)
+					(at -7.62 0 0)
 					(length 5.08)
 					(name ""
 						(effects
@@ -169,6 +578,78 @@
 						)
 					)
 					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -7.62 -2.54 0)
+					(length 5.08)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 7.62 -2.54 180)
+					(length 5.08)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 7.62 0 180)
+					(length 5.08)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 7.62 2.54 180)
+					(length 5.08)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1186,121 +1667,6 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "rpi-wiringpi-unit-test-platform-board-5:R1"
-			(pin_names
-				(offset 1.016)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "R1"
-				(at 0 5.08 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "220"
-				(at 0 -5.08 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:R1"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" ""
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "R1_0_1"
-				(rectangle
-					(start -10.16 2.54)
-					(end 10.16 -2.54)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-			)
-			(symbol "R1_1_1"
-				(pin passive line
-					(at -15.24 0 0)
-					(length 5.08)
-					(name "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 15.24 0 180)
-					(length 5.08)
-					(name "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "rpi-wiringpi-unit-test-platform-board-5:RV1"
 			(pin_names
 				(offset 1.016)
@@ -1764,23 +2130,153 @@
 	)
 	(wire
 		(pts
-			(xy 26.67 146.05) (xy 33.02 146.05)
+			(xy 22.86 170.18) (xy 22.86 185.42)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "3aac3c52-0f13-4b79-a830-e4b9d3ff66b8")
+		(uuid "064795f8-55de-4133-b16c-fa127888b2f8")
 	)
 	(wire
 		(pts
-			(xy 48.26 146.05) (xy 49.53 146.05)
+			(xy 27.94 144.78) (xy 31.75 144.78)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "82fbf504-3635-494b-9be5-4e062783d71c")
+		(uuid "314aa959-ddbe-4840-b74b-c4080db42ce6")
+	)
+	(wire
+		(pts
+			(xy 17.78 154.94) (xy 17.78 142.24)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "425c526b-841c-4432-9694-7e2320746a07")
+	)
+	(wire
+		(pts
+			(xy 22.86 165.1) (xy 20.32 165.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "42d3a5dd-0060-4b37-b905-628e1104193c")
+	)
+	(wire
+		(pts
+			(xy 33.02 165.1) (xy 33.02 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5227df25-d07a-468d-b0b7-13c238065f88")
+	)
+	(wire
+		(pts
+			(xy 24.13 147.32) (xy 31.75 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "65edd848-d48c-49d9-a35f-60ab53269461")
+	)
+	(wire
+		(pts
+			(xy 22.86 193.04) (xy 22.86 194.31)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6f074989-5f4e-47ad-bf14-2867958bb931")
+	)
+	(wire
+		(pts
+			(xy 17.78 142.24) (xy 31.75 142.24)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7c367240-f4f1-4de1-ada6-008483b237f5")
+	)
+	(wire
+		(pts
+			(xy 20.32 165.1) (xy 20.32 170.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "837edf37-2e77-43be-8fcf-df1b9534d399")
+	)
+	(wire
+		(pts
+			(xy 33.02 154.94) (xy 17.78 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ab14e06e-3b18-4ac7-97d2-05016ab997a4")
+	)
+	(wire
+		(pts
+			(xy 46.99 142.24) (xy 48.26 142.24)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "af259043-f8c8-44b9-b904-0d7581afb723")
+	)
+	(wire
+		(pts
+			(xy 20.32 170.18) (xy 22.86 170.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c663adf3-906c-4d81-9fd6-cfa42a6a1d9b")
+	)
+	(wire
+		(pts
+			(xy 46.99 147.32) (xy 48.26 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "df6926d4-2cc1-4c85-acfa-f1c40666f64a")
+	)
+	(wire
+		(pts
+			(xy 30.48 165.1) (xy 33.02 165.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f2c374b2-0de7-4d57-9cdf-176ec90b0fa7")
+	)
+	(wire
+		(pts
+			(xy 46.99 144.78) (xy 48.26 144.78)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f731f253-6ef6-40e0-87b5-2711cccec73b")
 	)
 	(label "GPIO17"
 		(at 83.82 119.38 0)
@@ -1812,6 +2308,16 @@
 		)
 		(uuid "08d3142b-e4cd-5660-ba6f-4160738cc4e2")
 	)
+	(label "GND"
+		(at 22.86 194.31 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "1048db54-1abe-47f3-ad6d-7e05a040d84a")
+	)
 	(label "UART_TX"
 		(at 58.42 97.79 0)
 		(effects
@@ -1831,16 +2337,6 @@
 			(justify right)
 		)
 		(uuid "1dc63d4c-10fe-5b41-872e-a12536d23d01")
-	)
-	(label "UART_RX"
-		(at 49.53 146.05 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "23351d89-5f55-410d-92cb-25cb35fdfbbc")
 	)
 	(label "LCD_BL_A"
 		(at 53.34 38.1 0)
@@ -1932,6 +2428,16 @@
 		)
 		(uuid "53e1c9da-48f9-5ebc-bae3-55cb98ee7b30")
 	)
+	(label "+3V3"
+		(at 48.26 142.24 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "55fb55cb-d9df-414f-9edf-f953c21a479e")
+	)
 	(label "LCD_V0"
 		(at 26.67 69.85 180)
 		(effects
@@ -1972,16 +2478,6 @@
 		)
 		(uuid "710d9b39-24e3-565b-8930-e4defb2c17a2")
 	)
-	(label "LCD_BL_A"
-		(at 100.33 68.58 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "712ec0ab-583d-568c-af61-9f4bafccd09b")
-	)
 	(label "GPIO6"
 		(at 22.86 35.56 180)
 		(effects
@@ -2001,6 +2497,16 @@
 			(justify left)
 		)
 		(uuid "73554605-7876-5790-8ff0-b8e8cfb91981")
+	)
+	(label "UART_TX"
+		(at 24.13 147.32 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "7519849b-d691-4262-9122-907a3fcf41e0")
 	)
 	(label "SCL_5V"
 		(at 77.47 144.78 180)
@@ -2052,6 +2558,16 @@
 		)
 		(uuid "7c31a5c6-5394-5d9b-9d00-5b51ff0fc503")
 	)
+	(label "+5V"
+		(at 27.94 144.78 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "8475dfcf-c2c4-4975-a8e7-678bc9836173")
+	)
 	(label "GND"
 		(at 22.86 22.86 180)
 		(effects
@@ -2061,16 +2577,6 @@
 			(justify right)
 		)
 		(uuid "859abe7d-344a-51ee-b584-c1c164fed9ff")
-	)
-	(label "UART_TX"
-		(at 26.67 146.05 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "884de7ad-adf3-40d1-8efb-4ad154532759")
 	)
 	(label "I2C_SDA"
 		(at 27.94 97.79 180)
@@ -2091,6 +2597,16 @@
 			(justify left)
 		)
 		(uuid "a13b9fbd-da8c-5210-a86d-d83eefc3d80a")
+	)
+	(label "UART_RX"
+		(at 48.26 147.32 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "bea57a24-6089-4c00-acbc-2539e47b3bc8")
 	)
 	(label "GPIO6"
 		(at 53.34 121.92 180)
@@ -2202,15 +2718,15 @@
 		)
 		(uuid "f3156e1b-b3db-5ac0-867f-8692f0b6ead7")
 	)
-	(label "+5V"
-		(at 69.85 68.58 180)
+	(label "LCD_BL_A"
+		(at 48.26 144.78 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right)
+			(justify left bottom)
 		)
-		(uuid "f350942a-3d4e-5e30-8b3c-e522ebfe265a")
+		(uuid "f475c7c6-89ff-4fba-8e19-6718889d0248")
 	)
 	(label "GND"
 		(at 77.47 40.64 180)
@@ -2233,86 +2749,6 @@
 		(uuid "fb9f6a3c-2acd-5c2a-b9a8-5de65ae3600a")
 	)
 	(symbol
-		(lib_id "Switch:SW_DIP_x01")
-		(at 40.64 146.05 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "065e4bc7-6f2f-41cc-b0c2-901424f567dd")
-		(property "Reference" "SW1"
-			(at 40.64 138.43 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "SW_DIP_x01"
-			(at 40.64 140.97 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Button_Switch_THT:SW_DIP_SPSTx01_Slide_9.78x4.72mm_W7.62mm_P2.54mm"
-			(at 40.64 146.05 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 40.64 146.05 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "1x DIP Switch, Single Pole Single Throw (SPST) switch, small symbol"
-			(at 40.64 146.05 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "2"
-			(uuid "37f5a147-3a80-47d0-a04c-a43122dce87d")
-		)
-		(pin "1"
-			(uuid "afb36d4d-b3b8-4e47-8b26-883cce21c6a3")
-		)
-		(instances
-			(project "rpi-wiringpi-unit-test-platform-board-5"
-				(path "/e004c7c1-bd45-5273-8695-af3f087c91dc"
-					(reference "SW1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "rpi-wiringpi-unit-test-platform-board-5:J4")
 		(at 92.71 144.78 0)
 		(unit 1)
@@ -2333,7 +2769,7 @@
 				)
 			)
 		)
-		(property "Value" "JST_OUT_I2C5V"
+		(property "Value" "JST_OUT_ARDUINO"
 			(at 92.71 152.4 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2397,8 +2833,8 @@
 		)
 	)
 	(symbol
-		(lib_id "rpi-wiringpi-unit-test-platform-board-5:R1")
-		(at 85.09 68.58 0)
+		(lib_id "Switch:SW_DIP_x03")
+		(at 39.37 144.78 180)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2406,9 +2842,10 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "24e14647-ba33-5cc4-a9f3-3a5540d030f9")
-		(property "Reference" "R1"
-			(at 85.09 63.5 0)
+		(fields_autoplaced yes)
+		(uuid "1e004655-980d-4ba5-8406-b0fcc3dc6071")
+		(property "Reference" "SW1"
+			(at 39.37 134.62 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2417,8 +2854,8 @@
 				)
 			)
 		)
-		(property "Value" "220"
-			(at 85.09 73.66 0)
+		(property "Value" "SW_DIP_x03"
+			(at 39.37 137.16 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2427,8 +2864,8 @@
 				)
 			)
 		)
-		(property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:R1"
-			(at 85.09 68.58 0)
+		(property "Footprint" "Button_Switch_THT:SW_DIP_SPSTx03_Slide_9.78x9.8mm_W7.62mm_P2.54mm"
+			(at 39.37 142.24 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2439,7 +2876,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 85.09 68.58 0)
+			(at 39.37 142.24 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2449,8 +2886,103 @@
 				)
 			)
 		)
-		(property "Description" ""
-			(at 85.09 68.58 0)
+		(property "Description" "3x DIP Switch, Single Pole Single Throw (SPST) switch, small symbol"
+			(at 39.37 144.78 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "5"
+			(uuid "fd3d039d-28a6-44d8-8c1b-8db336def8c6")
+		)
+		(pin "6"
+			(uuid "f712207d-1b08-4498-ab01-ec934b117db5")
+		)
+		(pin "1"
+			(uuid "1e384e1c-5492-4056-8bbc-15542acf6ccb")
+		)
+		(pin "4"
+			(uuid "ae1e4fef-aa02-4c9b-9875-39b9bfb3b952")
+		)
+		(pin "3"
+			(uuid "64e65f92-c11f-480c-b4ba-98f988c39da1")
+		)
+		(pin "2"
+			(uuid "a762b5ca-20a6-4c9c-8dad-9d90389d323d")
+		)
+		(instances
+			(project "rpi-wiringpi-unit-test-platform-board-5"
+				(path "/e004c7c1-bd45-5273-8695-af3f087c91dc"
+					(reference "SW1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 22.86 189.23 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "1e4a12f6-877b-4520-a096-526f788967f2")
+		(property "Reference" "R1"
+			(at 25.4 187.9599 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "330"
+			(at 25.4 190.4999 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+			(at 21.082 189.23 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 22.86 189.23 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 22.86 189.23 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2460,10 +2992,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "e4fae350-7d0a-5233-8dbd-6de11f4e786f")
+			(uuid "bfcf0eca-f732-4563-af1b-4bfbed7d0edb")
 		)
 		(pin "2"
-			(uuid "1829bdd4-5402-5d64-b159-fbfdede3140b")
+			(uuid "ed2cc4c4-55af-4cf3-a367-3ff97778d3f4")
 		)
 		(instances
 			(project "rpi-wiringpi-unit-test-platform-board-5"
@@ -2495,7 +3027,7 @@
 				)
 			)
 		)
-		(property "Value" "LVLSHIFT_BOB12009"
+		(property "Value" "LVLSHIFT"
 			(at 92.71 48.26 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2751,6 +3283,97 @@
 			(project "rpi-wiringpi-unit-test-platform-board-5"
 				(path "/e004c7c1-bd45-5273-8695-af3f087c91dc"
 					(reference "J3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 26.67 165.1 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "e437aeb1-8191-4651-bfab-7145c6e7e543")
+		(property "Reference" "D1"
+			(at 25.0825 158.75 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "LED_BOARD_CONN"
+			(at 25.0825 161.29 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D5.0mm"
+			(at 26.67 165.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 26.67 165.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Light emitting diode"
+			(at 26.67 165.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Sim.Pins" "1=K 2=A"
+			(at 26.67 165.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "2"
+			(uuid "de142970-3a69-4b81-82a8-d1a347626e4b")
+		)
+		(pin "1"
+			(uuid "a7759b5a-ef49-4e1a-bd04-4ace8e64f84d")
+		)
+		(instances
+			(project "rpi-wiringpi-unit-test-platform-board-5"
+				(path "/e004c7c1-bd45-5273-8695-af3f087c91dc"
+					(reference "D1")
 					(unit 1)
 				)
 			)
