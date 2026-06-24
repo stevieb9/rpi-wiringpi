@@ -7,9 +7,9 @@
 # BEGIN block at the top of each file), so you don't have to set RPI_ARDUINO /
 # RPI_SERIAL / RPI_LCD by hand.
 #
-# t/300-i2c_exceptions.t is board-5-gated (RPI_ARDUINO) but only tests the
+# t/600-i2c_exceptions.t is board-5-gated (RPI_ARDUINO) but only tests the
 # absent-device error path, not a real chip, so it is deliberately not part of
-# this rig runner -- run it directly any time with `prove t/300-i2c_exceptions.t`.
+# this rig runner -- run it directly any time with `prove t/600-i2c_exceptions.t`.
 #
 # Serial only: the suite shares physical pins and one shared-memory segment, so
 # it must never run under prove's -j parallelism.
@@ -23,9 +23,9 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 
 tests=(
-    t/305-i2c.t
-    t/315-serial.t
-    t/525-lcd.t
+    t/605-i2c.t
+    t/610-serial.t
+    t/620-lcd.t
 )
 
 RPI_BOARD_5=1 exec prove -Iblib/lib -Ilib "$@" "${tests[@]}"

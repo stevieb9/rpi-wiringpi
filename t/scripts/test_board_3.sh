@@ -23,7 +23,7 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 
 tests=(
-    t/330-mcp23017.t
+    t/455-mcp23017.t
     t/450-stepper.t
 )
 

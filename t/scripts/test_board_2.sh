@@ -20,8 +20,8 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 
 tests=(
-    t/109-pwm_hw_mods.t
-    t/140-pwm_i2c_adc.t
+    t/300-pwm_hw_mods.t
+    t/305-pwm_i2c_adc.t
     t/310-dac.t
     t/325-servo.t
     t/335-shift_reg_adc.t

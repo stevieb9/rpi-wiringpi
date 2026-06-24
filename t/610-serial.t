@@ -25,7 +25,7 @@ if (! $ENV{RPI_SERIAL}){
 
 rpi_running_test(__FILE__);
 
-my $pi = $mod->new(label => 't/315-serial.t', shm_key => 'rpit');
+my $pi = $mod->new(label => 't/610-serial.t', shm_key => 'rpit');
 
 my $dev = rpi_serial_device();
 my $s = $pi->serial($dev, 115200);

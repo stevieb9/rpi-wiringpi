@@ -54,7 +54,7 @@ my %gain = (
     7 => 0xE00,
 );
 
-my $pi = $mod->new(label => 't/142-adc_gain.t', shm_key => 'rpit');
+my $pi = $mod->new(label => 't/321-adc_gain.t', shm_key => 'rpit');
 
 { # the gain => arg reaches the driver through $pi->adc (the V5 fix). FAILS on
   # the old constructor, which passed mode in place of gain.

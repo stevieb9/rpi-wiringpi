@@ -50,6 +50,11 @@ Revision history for Perl extension RPi::WiringPi.
     - Added t/scripts/test_board_4.sh, the board-4 hardware-suite rig runner
     - Added a "Test hardware" column to the FAQ.pod test-file reference table,
       naming each test's RPI_BOARD_X board
+    - Renumbered the hardware test files to group by test board: board 2 -> 3xx,
+      board 3 -> 45x, board 4 -> 5xx, board 5 -> 6xx (e.g. 320-rtc -> 530-rtc,
+      330-mcp23017 -> 455-mcp23017, 525-lcd -> 620-lcd), with their hardware-free
+      companion unit tests following the same board. Updated the runner scripts,
+      FAQ test table, board docs, and model provenance comments to match
 
 3.1802     2026-06-12
     - bump prereq of RPi::I2C to 2.3608

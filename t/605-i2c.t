@@ -30,7 +30,7 @@ BEGIN {
     }
 }
 
-my $pi = $mod->new(label => 't/305-i2c.t', shm_key => 'rpit');
+my $pi = $mod->new(label => 't/605-i2c.t', shm_key => 'rpit');
 # Belt-and-braces: if an assertion or library call dies mid-run, release the
 # pins/registration this object holds (the library END reap is best-effort)
 

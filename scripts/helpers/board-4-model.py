@@ -9,9 +9,9 @@ peripherals the suite reads, each as a pre-made breakout MODULE on a header stri
 way they are physically used on jumpers:
 
   M1  ZS-042 RTC/EEPROM module -- ONE breakout, TWO addresses:
-        DS3231 RTC     @ 0x68   t/320
-        AT24C32 EEPROM @ 0x57   t/420-422
-  M2  GY-68 BMP180 pressure/temp @ 0x77   t/340     (3V3 only, NOT 5V tolerant)
+        DS3231 RTC     @ 0x68   t/530
+        AT24C32 EEPROM @ 0x57   t/540-542
+  M2  GY-68 BMP180 pressure/temp @ 0x77   t/531     (3V3 only, NOT 5V tolerant)
   M3  SSD1306 128x64 OLED        @ 0x3c   t/500-520
 
 Everything is 3V3 and bus-only -- no Pi GPIO reaches this board, unlike board 3.
@@ -60,15 +60,15 @@ COMPONENTS = {
  # --- I2C breakout modules ---
  # RESOLVED 2026-06-23 (was OPEN since 2026-06-21): confirmed against the physical
  # part. It is a DS3231 module with the AT24C32 EEPROM (0x57) built in -- ONE 6-pin
- # header carries BOTH the RTC (0x68, t/320) and the EEPROM (0x57, t/420-422), so no
+ # header carries BOTH the RTC (0x68, t/530) and the EEPROM (0x57, t/540-542), so no
  # separate AT24C32 part is needed.
  # Pin order is now the CONFIRMED hardware silk (no longer a guess): the 6-pin header
  # reads 1:GND 2:VCC(+3V3) 3:SDA 4:SCL 5:SQW 6:32K, with SQW + 32K left unconnected.
  'M1': ('DS3231_0x68+AT24C32_0x57', 'Module',
-        {'1':'GND','2':'VCC','3':'SDA','4':'SCL','5':'SQW','6':'32K'}),   # t/320, t/420-422
+        {'1':'GND','2':'VCC','3':'SDA','4':'SCL','5':'SQW','6':'32K'}),   # t/530, t/540-542
  # GY-68 BMP180: 4-pin header. VIN powered from 3V3 (part is not 5V tolerant).
  'M2': ('BMP180_0x77', 'Module',
-        {'1':'VIN','2':'GND','3':'SCL','4':'SDA'}),                        # t/340
+        {'1':'VIN','2':'GND','3':'SCL','4':'SDA'}),                        # t/531
  # SSD1306 128x64 I2C OLED: 4-pin header.
  'M3': ('SSD1306_0x3c', 'Module',
         {'1':'GND','2':'VCC','3':'SCL','4':'SDA'}),                        # t/500-520

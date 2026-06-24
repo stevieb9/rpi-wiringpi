@@ -36,20 +36,20 @@ _FACTS = _load_facts()
 # ref: (value, footprint-hint, {pin: name})   pin keys are strings.
 #
 # Device identities & buses, all [T] unless noted:
-#   U1 MCP23017  I2C 0x20      t/330:32  (Bank A<->B loopback)
+#   U1 MCP23017  I2C 0x20      t/455:32  (Bank A<->B loopback)
 #   U6 MCP23017  I2C 0x21      t/450:24  (stepper drive via Bank A)
 #   U2 74HC595   bit-banged    t/335:35  shift_register(400,8,21,20,16)
 #   U3 MCP3008   SPI CS=GPIO26 t/310:40-43, t/335:21,35
 #   U4 MCP4922   SPI CS=GPIO12 t/310:34-38
 #   U5 MCP4XXXX  SPI CS=GPIO13 t/345:36   (modelled as the MCP42010 part [F])
-#   M1 ADS1115   I2C 0x48      t/140:42, t/325:77, t/345:35
-#   M3 DS3231    I2C 0x68 [L]  t/320 ; carries AT24C32 EEPROM 0x57 [T] t/420-422 [F same board]
-#   M4 BMP180    I2C 0x77 [L]  t/340 (bmp(100) arg is a pin-base, not an address)
+#   M1 ADS1115   I2C 0x48      t/305:42, t/325:77, t/345:35
+#   M3 DS3231    I2C 0x68 [L]  t/530 ; carries AT24C32 EEPROM 0x57 [T] t/540-542 [F same board]
+#   M4 BMP180    I2C 0x77 [L]  t/531 (bmp(100) arg is a pin-base, not an address)
 #   M5 SSD1306   I2C 0x3c      t/500:22  oled('128x64',0x3C,0)
 #   M6 level-shifter           [F] not test-derivable (5V Arduino on a 3V3 bus)
 #   M7 ULN2003 + 28BYJ-48      t/450:27-32 (driven via U6 Bank A)
-#   M8 HD44780 LCD 20x4 4-bit  t/525:36-50  rs5/E6/D4=4/D5=17/D6=27/D7=22
-#   A1 Arduino   I2C 0x04      t/305:11,31 (board type "Metro Mini" is [F])
+#   M8 HD44780 LCD 20x4 4-bit  t/620:36-50  rs5/E6/D4=4/D5=17/D6=27/D7=22
+#   A1 Arduino   I2C 0x04      t/605:11,31 (board type "Metro Mini" is [F])
 #   SV1 servo    PWM GPIO18    t/325:79
 #   SW1/SW2      stepper mag limits  [T] t/450  GPIO17 / GPIO27
 #   D1/R8        stepper centre LED  [T] t/450  GPIO19 via R8
@@ -57,7 +57,7 @@ _FACTS = _load_facts()
 COMPONENTS = {
  'J1': ('Raspberry_Pi_40pin', 'PinHeader_2x20', {str(i): f'P{i}' for i in range(1,41)}),
  # --- bare logic ICs ---
- 'U1': ('MCP23017', 'DIP-28', {  # I2C GPIO expander #1, 0x20 (t/330 loopback)
+ 'U1': ('MCP23017', 'DIP-28', {  # I2C GPIO expander #1, 0x20 (t/455 loopback)
    '9':'VDD','10':'VSS','12':'SCL','13':'SDA','18':'RESET','15':'A0','16':'A1','17':'A2',
    '20':'INTA','19':'INTB',
    '21':'GPA0','22':'GPA1','23':'GPA2','24':'GPA3','25':'GPA4','26':'GPA5','27':'GPA6','28':'GPA7',
@@ -118,10 +118,10 @@ NETS = [
          ('M6','GND1'),('M6','GND2'),('M7','GND'),('M8','1'),('M8','5'),('M8','16'),
          ('U6','10'),('U6','16'),('U6','17'),('D1','K'),
          ('A1','GND'),('SV1','GND'),('RV1','3')]),  # [F]
- # I2C bus (3V3 side) -- [T] addresses t/305,320,330,340,420-422,450,500
+ # I2C bus (3V3 side) -- [T] addresses t/605,530,455,531,540-542,450,500
  ('I2C_SDA',[('J1','3'),('U1','13'),('U6','13'),('M1','SDA'),('M3','SDA'),('M4','SDA'),('M5','SDA'),('M6','LV1')]),
  ('I2C_SCL',[('J1','5'),('U1','12'),('U6','12'),('M1','SCL'),('M3','SCL'),('M4','SCL'),('M5','SCL'),('M6','LV2')]),
- # Arduino I2C (5V side of level-shifter) -- [F] shifter; [T] address 0x04 t/305
+ # Arduino I2C (5V side of level-shifter) -- [F] shifter; [T] address 0x04 t/605
  ('ARD_SDA',[('M6','HV1'),('A1','SDA')]),
  ('ARD_SCL',[('M6','HV2'),('A1','SCL')]),
  # SPI bus -- [L] MOSI/MISO/SCLK are hardware SPI0; [T] CS pins
@@ -135,7 +135,7 @@ NETS = [
  ('SR_DATA', [('J1','40'),('U2','14')]),  # GPIO21
  ('SR_CLK',  [('J1','38'),('U2','11')]),  # GPIO20
  ('SR_LATCH',[('J1','36'),('U2','12')]),  # GPIO16
- # LCD (HD44780, 4-bit, 20x4) -- [T] t/525:36-50; D4-D7 physical pins [F] convention
+ # LCD (HD44780, 4-bit, 20x4) -- [T] t/620:36-50; D4-D7 physical pins [F] convention
  ('LCD_RS',[('J1','29'),('M8','4')]),     # GPIO5
  ('LCD_E', [('J1','31'),('M8','6')]),     # GPIO6
  ('LCD_D4',[('J1','7'), ('M8','11')]),    # GPIO4
@@ -144,9 +144,9 @@ NETS = [
  ('LCD_D7',[('J1','15'),('M8','14')]),    # GPIO22
  ('LCD_V0',[('M8','3'),('RV1','2')]),     # contrast wiper [F]
  ('LCD_BL',[('M8','15'),('R7','2')]),     # backlight anode via R7 [F]
- # PWM18 -> ADS#1 A0 and servo -- [T] t/140:44, t/325:79,89
+ # PWM18 -> ADS#1 A0 and servo -- [T] t/305:44, t/325:79,89
  ('PWM18',[('J1','12'),('M1','A0'),('SV1','SIG')]),  # GPIO18
- # UART loopback -- [T] t/315
+ # UART loopback -- [T] t/610
  ('UART_LOOP',[('J1','8'),('J1','10')]),  # GPIO14 TXD <-> GPIO15 RXD
  # analog loop-backs -- [T]
  ('DPOT_WIPER',[('U5','9'),('M1','A1')]),        # PW0(9) -> ADS#1 A1   t/345:23,54
@@ -161,7 +161,7 @@ NETS = [
  ('EXP_IN2',[('U6','22'),('M7','IN2')]),  # #2 GPA1
  ('EXP_IN3',[('U6','23'),('M7','IN3')]),  # #2 GPA2
  ('EXP_IN4',[('U6','24'),('M7','IN4')]),  # #2 GPA3
- # expander #1 (0x20) full A<->B loopback, GPA(n)<->GPB(7-n) -- [T] t/330
+ # expander #1 (0x20) full A<->B loopback, GPA(n)<->GPB(7-n) -- [T] t/455
  ('EXP_LB0',[('U1','21'),('U1','8')]),    # GPA0 <-> GPB7
  ('EXP_LB1',[('U1','22'),('U1','7')]),    # GPA1 <-> GPB6
  ('EXP_LB2',[('U1','23'),('U1','6')]),    # GPA2 <-> GPB5

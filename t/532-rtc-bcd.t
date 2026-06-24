@@ -11,7 +11,7 @@ use Test::More;
 # form lands a nibble above 9: 10/11/12 become 0x0A/0x0B/0x0C (illegal BCD).
 # This file proves the codec end to end and needs no chip, so it adjudicates
 # the encoding logic on every test run. The on-silicon falsification (raw byte
-# read back through $pi->rtc) lives in t/320-rtc.t.
+# read back through $pi->rtc) lives in t/530-rtc.t.
 
 my $dec2bcd = \&RPi::RTC::DS3231::dec2bcd;
 my $bcd2dec = \&RPi::RTC::DS3231::bcd2dec;

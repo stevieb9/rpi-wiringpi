@@ -39,8 +39,8 @@ Devices: ADS1015 (0x48), MCP3008 ADC, MCP4922 DAC, MCP42010 dpot, 74HC595, servo
 
 | Test file | Device(s) it drives |
 |-----------|---------------------|
-| `t/109-pwm_hw_mods.t` | GPIO18 PWM → ADS1015 A0 |
-| `t/140-pwm_spi_adc.t` | GPIO18 PWM → ADS1015 A0 |
+| `t/300-pwm_hw_mods.t` | GPIO18 PWM → ADS1015 A0 |
+| `t/305-pwm_i2c_adc.t` | GPIO18 PWM → ADS1015 A0 |
 | `t/310-dac.t` | MCP4922 DAC → MCP3008 ADC (CH1/CH3) |
 | `t/325-servo.t` | servo on GPIO18 + ADS1015 A0 |
 | `t/335-shift_reg_adc.t` | 74HC595 → MCP3008 ADC (CH2) |
@@ -52,7 +52,7 @@ limit switches, indicator LEDs.
 
 | Test file | Device(s) it drives |
 |-----------|---------------------|
-| `t/330-mcp23017.t` | MCP23017 @0x20 — Port A↔B loopback |
+| `t/455-mcp23017.t` | MCP23017 @0x20 — Port A↔B loopback |
 | `t/450-stepper.t` | MCP23017 @0x21 → ULN2003 → 28BYJ-48 stepper + magnet limit switches (GPIO17/27) |
 
 ---
@@ -64,11 +64,11 @@ Devices: DS3231 RTC, AT24C32 EEPROM, BMP180, SSD1306 OLED.
 
 | Test file | Device |
 |-----------|--------|
-| `t/320-rtc.t` | DS3231 RTC (0x68) |
-| `t/340-bmp.t` | BMP180 (0x77) |
-| `t/420-eeprom_args.t` | AT24C32 EEPROM (0x57) |
-| `t/421-eeprom_read_write_byte_croak.t` | AT24C32 EEPROM |
-| `t/422-eeprom_read_write_byte.t` | AT24C32 EEPROM |
+| `t/530-rtc.t` | DS3231 RTC (0x68) |
+| `t/531-bmp.t` | BMP180 (0x77) |
+| `t/540-eeprom_args.t` | AT24C32 EEPROM (0x57) |
+| `t/541-eeprom_read_write_byte_croak.t` | AT24C32 EEPROM |
+| `t/542-eeprom_read_write_byte.t` | AT24C32 EEPROM |
 | `t/500-oled_new.t` | SSD1306 OLED (0x3c) |
 | `t/501-oled_string.t` | SSD1306 OLED |
 | `t/502-oled_rect.t` | SSD1306 OLED |
@@ -85,9 +85,9 @@ Devices: HD44780 LCD, Arduino (I2C slave) + 3V3↔5V level-shifter, UART loopbac
 
 | Test file | Device |
 |-----------|--------|
-| `t/305-i2c.t` | Arduino I2C slave (0x04) |
-| `t/315-serial.t` | UART loopback GPIO14 → GPIO15 (a jumper, not a chip) |
-| `t/525-lcd.t` | HD44780 LCD (RS5, E6, D4=4, D5=17, D6=27, D7=22) |
+| `t/605-i2c.t` | Arduino I2C slave (0x04) |
+| `t/610-serial.t` | UART loopback GPIO14 → GPIO15 (a jumper, not a chip) |
+| `t/620-lcd.t` | HD44780 LCD (RS5, E6, D4=4, D5=17, D6=27, D7=22) |
 
 ---
 
@@ -98,7 +98,7 @@ they're not counted in the per-board totals above:
 
 | Test file | Note |
 |-----------|------|
-| `t/300-i2c_exceptions.t` | Gated on the Arduino (board 5) env, but only tests the **absent-device** error path (probes 0x99). No real chip used. |
+| `t/600-i2c_exceptions.t` | Gated on the Arduino (board 5) env, but only tests the **absent-device** error path (probes 0x99). No real chip used. |
 | `t/520-oled_cleanup.t` | Gated on the OLED (board 4) env, but only tests the **lock-file cleanup**, not the display. |
 | `t/451-stepper-seek.t` | **Pure software** unit test of `StepperSeek::seek_limit` (mock callbacks). No hardware / no board. |
 

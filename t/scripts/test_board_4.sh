@@ -22,11 +22,11 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 
 tests=(
-    t/320-rtc.t
-    t/340-bmp.t
-    t/420-eeprom_args.t
-    t/421-eeprom_read_write_byte_croak.t
-    t/422-eeprom_read_write_byte.t
+    t/530-rtc.t
+    t/531-bmp.t
+    t/540-eeprom_args.t
+    t/541-eeprom_read_write_byte_croak.t
+    t/542-eeprom_read_write_byte.t
     t/500-oled_new.t
     t/501-oled_string.t
     t/502-oled_rect.t

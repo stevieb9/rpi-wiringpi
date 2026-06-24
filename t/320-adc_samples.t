@@ -26,7 +26,7 @@ $SIG{__DIE__} = sub {};
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new(label => 't/141-adc_samples.t', shm_key => 'rpit');
+my $pi = RPi::WiringPi->new(label => 't/320-adc_samples.t', shm_key => 'rpit');
 
 { # default
     my $adc = $pi->adc(addr => 0x48);

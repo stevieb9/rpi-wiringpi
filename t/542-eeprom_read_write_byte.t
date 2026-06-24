@@ -25,7 +25,7 @@ BEGIN {
 rpi_running_test(__FILE__);
 
 my $pi = RPi::WiringPi->new(
-    label => 't/422-eeprom_read_write_byte.t',
+    label => 't/542-eeprom_read_write_byte.t',
     shm_key => 'rpit'
 );
 my $e = $pi->eeprom(delay => 2);
