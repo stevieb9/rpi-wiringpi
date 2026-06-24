@@ -51,9 +51,11 @@ is $? >> 8, 0, 'test-platform model: re-derivation matches canonical board-model
 # are listed here and skipped entirely.
 #   board-3: finalized + ordered.
 #   board-2: hand-finalization in progress (decoupling caps + custom parts).
+#   board-5: hand-finalization in progress (SW1 + custom Piher/BOB-12009 footprints).
 my %FROZEN = (
     'rpi-wiringpi-unit-test-platform-board-2' => 1,
     'rpi-wiringpi-unit-test-platform-board-3' => 1,
+    'rpi-wiringpi-unit-test-platform-board-5' => 1,
 );
 
 my $kroot = File::Spec->catdir($root, 'docs', 'test-platform', 'kicad');

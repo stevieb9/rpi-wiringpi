@@ -3,6 +3,15 @@ use warnings;
 
 use lib 't/';
 
+# Board-5 convenience: set RPI_BOARD_5=1 and every env gate the board-5 suite
+# needs is enabled automatically, instead of exporting each one by hand. Runs in
+# BEGIN so it lands before RPiTest's compile-time RPI_BOARD skip_all gate.
+BEGIN {
+    if ($ENV{RPI_BOARD_5}) {
+        $ENV{$_} = 1 for qw(RPI_BOARD RPI_ARDUINO RPI_SERIAL RPI_LCD);
+    }
+}
+
 use RPiTest;
 use RPi::WiringPi;
 use RPi::Const qw(:all);
