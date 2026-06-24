@@ -87,9 +87,9 @@ Revision history for Perl extension RPi::WiringPi.
       t/308, the *_unit.t mirrors, t/420-422, t/532, t/543). New generator
       scripts/gen-faq-test-table.pl rebuilds it from the suite: each test
       carries a "# TESTDOC: <desc>" marker (the description), the board is read
-      from its RPI_BOARD_X convenience block, and the env column is derived
-      (board test -> the gates that block enables; otherwise the RPI_* gates the
-      test skips on). gen-pod-md.pl runs it first, so FAQ.pod/FAQ.md regenerate
+      from its RPI_BOARD_X convenience block, and the env column lists the RPI_*
+      variables that specific test actually reads or overrides. gen-pod-md.pl
+      runs it first, so FAQ.pod/FAQ.md regenerate
       in lock-step with t/. The generator dies if any test lacks a TESTDOC
       marker, so the table can't silently go stale again
     - Added a "# TESTDOC:" description marker to every t/*.t (92 files) and the
