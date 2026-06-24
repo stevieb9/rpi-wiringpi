@@ -14,8 +14,9 @@
 
 ## Ground rules
 
-- **Board 1 = the Raspberry Pi connection only.** No test devices on it. It is the
-  40-pin header + the power/signal fan-out hub to the satellites. **Built last.**
+- **Board 1 = the Raspberry Pi connection + the I2C LCD.** It is the 40-pin header
+  + the power/signal fan-out hub to the satellites, and it carries the one I2C LCD
+  (HD44780 on a PCF8574 backpack, 0x27, behind a level-shifter). **Built last.**
 - **Board 3 = DONE** — the two MCP23017 expanders (0x20 loopback, 0x21 stepper
   drive) plus the off-board stepper/ULN2003/magnet modules. Frozen.
 - **Three new satellites** use board numbers **2, 4, 5** (3 is taken).
@@ -30,7 +31,7 @@
 
 | Board | Role | Rail(s) | Devices | Tests |
 |-------|------|---------|---------|-------|
-| **1** *(last, passive)* | Pi connection + power/signal fan-out | 3V3 + 5V | **none** | (host) |
+| **1** *(last)* | Pi connection + power/signal fan-out + I2C LCD | 3V3 + 5V | HD44780 LCD on PCF8574 backpack (0x27) | 335 |
 | **2** | Analog loop-back + servo | 3V3 + 5V | ADS1015, MCP3008, MCP4922 DAC, MCP4XXXX dpot, 74HC595, servo | 400, 405, 410, 425, 435, 445 |
 | **3** *(DONE)* | I2C expanders + stepper | 3V3 + 5V | MCP23017 ×2, ULN2003 + 28BYJ-48 + magnets (off-board) | 350, 355 |
 | **4** | I2C sensors | 3V3 | DS3231 RTC, AT24C32 EEPROM, BMP180, OLED | 530, 531, 540–542, 500–520 |
@@ -38,13 +39,20 @@
 
 ---
 
-## Board 1 — Pi host (passive; build last)
+## Board 1 — Pi host + I2C LCD (build last)
 
-Just the Pi 40-pin connection, the power rails, and the outgoing connectors to the
-satellites. No devices, no I2C pull-ups (see cross-board notes). The spare GPIO
-that the suite toggles but wires to nothing live here as **test points** (see
-glossary): **GPIO23, 24, 25**, plus **GPIO0/1** brought to a pad but otherwise
-unrouted (reserved ID-EEPROM pins, §9).
+The Pi 40-pin connection, the power rails, the outgoing connectors to the
+satellites, and the one I2C LCD. No I2C pull-ups beyond the LCD's own backpack
+(see cross-board notes). The spare GPIO that the suite toggles but wires to
+nothing live here as **test points** (see glossary): **GPIO23, 24, 25**, plus
+**GPIO0/1** brought to a pad but otherwise unrouted (reserved ID-EEPROM pins, §9).
+
+**I2C LCD:** an HD44780 20×4 panel on a PCF8574 I2C backpack at **0x27**, sharing
+the SDA/SCL bus. The panel and backpack run at **5V** and pull the I2C lines to
+5V, so it sits behind a 3V3↔5V level-shifter (BOB-12009) - the Pi's I2C pins are
+not 5V tolerant. The backpack drives RS/RW/E/backlight + the four data lines
+internally; wiringPi registers it as eight virtual GPIOs at pin base 64
+(`pcf8574Setup`). Exercised by `t/335-lcd_i2c.t`.
 
 **Fans out:** +5V, +3V3, GND, and the per-board signal sets listed under each
 satellite below.
@@ -133,7 +141,7 @@ board 2 is added to `%FROZEN` in `t/04`, exactly like board 3.
 
 | Device | Addr / pins | Loop-back |
 |--------|-------------|-----------|
-| MCP23017 #1 | I2C 0x20 | GPA4–7 ↔ GPB4–7 (t/355) |
+| MCP23017 #1 | I2C 0x20 | GPA(n) ↔ GPB(7-n) straight-across (t/355) |
 | MCP23017 #2 | I2C 0x21 | GPA0–3 → ULN2003 → 28BYJ-48 coils (t/350) |
 | Stepper limits | (off-board magnets) | CW→GPIO17, CCW→GPIO27 |
 | Centre LED | (on board 3) | GPIO19 |
@@ -258,8 +266,10 @@ a pull there.
 - **GPIO19**: stepper centre LED on **board 3** only.
 
 ### I2C bus + pull-ups
-One shared SDA2/SCL3 bus now multi-drops to boards **2, 3, 4, 5**. Pull-ups
-already exist in two places:
+One shared SDA2/SCL3 bus now multi-drops to boards **2, 3, 4, 5** plus the I2C
+LCD on board 1 (the LCD sits on the 5V/HV side of its own level-shifter, so it
+loads the 3V3 bus only through the shifter). Pull-ups already exist in two
+places:
 
 - Pi built-in: **~1.8 kΩ** on SDA/SCL (every 40-pin model).
 - Board 3: **4.7 kΩ** (R4/R5).
@@ -269,6 +279,8 @@ Combined = 1.8k ∥ 4.7k ≈ **1.3 kΩ**, which is in spec (3V3 I2C wants ≳ 1 
 - **Add no more pull-ups** on boards 1/2/4/5.
 - **Remove/disable the on-board pull-ups** on the breakouts you mount (RTC, BMP,
   OLED, ADS module, level-shifter) — every extra 4.7k–10k parallels the bus down.
+  The LCD's PCF8574 backpack carries its own pull-ups on the 5V side of the
+  shifter; those don't touch the 3V3 bus, so leave them be.
 - After assembly, run `i2cdetect -y 1` + a soak loop. If SDA/SCL can't reach
   ≤ 0.4 V or addresses flicker, the combined pull is too low — pull resistors off
   breakouts (board 3's are permanent) or drop to 100 kHz
@@ -276,7 +288,8 @@ Combined = 1.8k ∥ 4.7k ≈ **1.3 kΩ**, which is in spec (3V3 I2C wants ≳ 1 
 
 ### Power rails
 Board 1 distributes **+5V, +3V3, GND** to every satellite. 3V3 = all I2C/SPI ICs +
-74HC595 + ADS. 5V = LCD, servo, Arduino, stepper(+ULN2003 on board 3). The ~1.1 A
+74HC595 + ADS. 5V = LCD (board 5), I2C LCD backpack (board 1), servo, Arduino,
+stepper(+ULN2003 on board 3). The ~1.1 A
 5V peak is dominated by the stepper/servo (§11) — keep big inductive loads off the
 Pi's 5V if practical (bulk cap or separate feed).
 

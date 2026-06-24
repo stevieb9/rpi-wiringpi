@@ -5,7 +5,7 @@ check-model-drift.py - the test-platform model drift gate.
 The board model is hand-curated in board-model.py (the single source of truth).
 model-from-tests.py is an INDEPENDENT re-derivation from the test suite. If the
 two disagree, one of them is stale: the schematic/KiCad/docs no longer match
-what the tests actually exercise. This is exactly the failure that let the t/330
+what the tests actually exercise. This is exactly the failure that let the t/355
 loopback rot unnoticed.
 
 Compares COMPONENTS / NETS / J1FUNC / DRIVER / POWER / SHEETS (nets order-

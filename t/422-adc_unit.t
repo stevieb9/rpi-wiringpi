@@ -5,8 +5,8 @@ use RPi::ADC::ADS;
 use Test::More;
 
 # Mirror of RPi::ADC::ADS's HW-free register/validation tests (its t/26, t/56,
-# t/925 bad-param block), run here in the canonical suite. t/140-142 drive the
-# ADS on hardware; this adds the config-register bit machinery + arg-validation
+# t/925 bad-param block), run here in the canonical suite. t/405 and t/420-421
+# drive the ADS on hardware; this adds the config-register bit machinery + arg-validation
 # checks against the INSTALLED module, ungated (no RPiTest, no shm, no Pi).
 # (The volts/percent FSR scaling is welded to the HW read -> B2.)
 #

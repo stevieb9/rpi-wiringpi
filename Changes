@@ -59,6 +59,26 @@ Revision history for Perl extension RPi::WiringPi.
       3xx (300-309) and the board-2 analog/SPI tests occupy 4xx (400-446); board
       3's expander/stepper tests moved to 35x. Runners, FAQ table, board docs, and
       provenance comments updated to match
+    - Added I2C LCD support to lcd(): pass i2c => $addr (PCF8574 backpack, 0x27
+      by default) instead of GPIO pins to drive the same HD44780 panel over I2C.
+      The backpack's 8 pins are registered as virtual GPIOs via wiringPi's
+      pcf8574Setup (pin base 64, overridable with pin_base), and the existing
+      RPi::LCD code drives the display transparently. Rigorous parameter
+      validation rejects mixing i2c with GPIO pin params, bad addresses, and
+      missing rows/cols
+    - Added t/335-lcd_i2c.t (gated on RPI_LCD_I2C; auto-enabled by RPI_BOARD_1),
+      mirroring t/620-lcd.t's display ops plus the new parameter-handling checks.
+      This is the first board-1 hardware test (the I2C LCD lives on board 1)
+    - Documented the I2C LCD in the lcd() POD, the FAQ LCD section, and the
+      board matrix / layout docs (board 1 now carries the I2C LCD at 0x27 behind
+      a 3V3<->5V level-shifter)
+    - Caught up the stragglers the test-file renumbering missed: regenerated
+      MANIFEST (it still listed pre-rename names and omitted t/116-119, t/250,
+      and the renamed 3xx/4xx/5xx/6xx tests), remapped every old test number in
+      docs/test-platform/test-pinout-doc.tmpl.md (and its rendered .md) and the
+      FAQ I2C address table, fixed the t/330 reference in check-model-drift.py,
+      and corrected stale cross-references in t/350, t/351, t/356, t/422, and
+      t/StepperSeek.pm
 
 3.1802     2026-06-12
     - bump prereq of RPi::I2C to 2.3608

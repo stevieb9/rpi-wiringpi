@@ -6,7 +6,7 @@ use Test::More;
 use RPi::GPIOExpander::MCP23017;
 
 # Mirror of RPi::GPIOExpander::MCP23017's HW-free unit tests (its t/02), run
-# here in the canonical suite. t/330 (and t/450 via the stepper) drive the
+# here in the canonical suite. t/355 (and t/350 via the stepper) drive the
 # expander on real hardware; this adds the pure pin-bit map + arg-validators
 # against the INSTALLED module, ungated (no RPiTest, no shm, no Pi).
 #

@@ -341,11 +341,34 @@ Arduino can. If this is the case, try lowering the I2C bus speed on the Pi:
 
 ## lcd(...)
 
-Returns a [RPi::LCD](https://metacpan.org/pod/RPi%3A%3ALCD) object, which allows you to fully manipulate
-LCD displays connected to your Raspberry Pi.
+Returns a [RPi::LCD](https://metacpan.org/pod/RPi%3A%3ALCD) object for an HD44780-compatible character LCD. Two
+wiring schemes are supported; see [RPi::LCD](https://metacpan.org/pod/RPi%3A%3ALCD) for the display methods.
 
-Please see the linked documentation for information regarding the parameters
-required.
+**Parallel (direct GPIO)** - drive the LCD's control and data lines straight
+from the Pi's GPIO. Send the pin configuration (BCM numbers) plus geometry:
+
+    my $lcd = $pi->lcd(
+        rows => 4, cols => 20, bits => 4,
+        rs => 5, strb => 6,
+        d0 => 4, d1 => 17, d2 => 27, d3 => 22,
+        d4 => 0, d5 => 0, d6 => 0, d7 => 0,
+    );
+
+**I2C backpack (PCF8574)** - for an LCD behind a PCF8574 I2C backpack, pass
+`i2c` with the backpack's address instead of any pin configuration:
+
+    my $lcd = $pi->lcd(i2c => 0x27, rows => 4, cols => 20);
+
+We register the backpack's eight expander pins as virtual GPIOs (standard
+wiring: P0=RS, P1=RW, P2=E, P3=backlight, P4-P7=D4-D7) and drive the panel
+through the same path as a parallel LCD. The backlight comes on automatically
+and can be switched with `$lcd->backlight(0|1)` (see ["backlight" in RPi::LCD](https://metacpan.org/pod/RPi%3A%3ALCD#backlight)).
+
+I2C-mode parameters: `i2c` (mandatory, the backpack address, an integer
+0x03-0x77, e.g. `0x27` or `0x3F`); `rows` and `cols` (mandatory, the panel
+geometry); and `pin_base` (optional, integer >= 64, default 64 - the wiringPi
+virtual-pin base for the expander; change it only if it collides with another
+pin extension). I2C mode is 4-bit and takes no GPIO pin params.
 
 ## oled(\[$model\], \[$i2c\_addr\], \[$display\_splash\_page\])
 

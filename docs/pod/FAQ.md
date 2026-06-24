@@ -67,6 +67,8 @@ RPi::WiringPi::FAQ - FAQ and Tutorial for RPi::WiringPi
   - [Cursor operations](#cursor-operations)
   - [Output operations](#output-operations)
   - [Putting it all together](#putting-it-all-together)
+  - [I2C LCDs (PCF8574 backpack)](#i2c-lcds-pcf8574-backpack)
+    - [Backlight](#backlight)
 - [BAROMETRIC PRESSURE SENSORS](#barometric-pressure-sensors)
   - [Usage](#usage-3)
 - [HYGROMETER SENSORS](#hygrometer-sensors)
@@ -1112,6 +1114,55 @@ Here's a trivial script that outputs information to specific LCD positions
     $lcd->position(0, 1);
     $lcd->print("Perl $perl_ver...");
 
+## I2C LCDs (PCF8574 backpack)
+
+The same HD44780-based LCD panels are commonly sold with a small PCF8574 I2C
+"backpack" soldered to the back. Instead of wiring up ten-plus GPIO pins, the
+panel talks over the two I2C lines (SDA/SCL) at a single address (`0x27` by
+default; some modules use `0x3f`).
+
+You drive it through the very same `lcd()` method - just pass `i2c` (the
+backpack's I2C address) instead of the individual GPIO pins. Everything after
+initialization (`print`, `position`, `clear`, `home`, etc.) is identical to
+a parallel-wired LCD.
+
+    my $lcd = $pi->lcd(
+        i2c  => 0x27,   # PCF8574 backpack address
+        rows => 4,      # number of display rows, 2 or 4
+        cols => 20,     # number of display columns, 16 or 20
+    );
+
+    $lcd->position(0, 0);
+    $lcd->print("Hello over I2C!");
+
+In I2C mode you must **not** pass any of the GPIO pin params (`rs`, `strb`,
+`d0`-`d7`) - the backpack supplies those internally, and doing so is a fatal
+error. The PCF8574's eight pins are registered as virtual GPIOs (via
+wiringPi's `pcf8574Setup`) starting at pin base `64`; pass `pin_base` to
+override that if pin base 64 is already in use.
+
+Standard backpack wiring is fixed: `P0`=RS, `P1`=RW, `P2`=E (strobe),
+`P3`=backlight, `P4`-`P7`=the LCD's `DB4`-`DB7` data lines. The RW line is
+held low (write-only) for you.
+
+### Backlight
+
+The PCF8574 backpack drives the panel backlight from `P3`, so on an I2C LCD you
+can turn it on and off:
+
+    $lcd->backlight(0);     # off
+    $lcd->backlight(1);     # on (the default)
+    my $state = $lcd->backlight;  # getter: current state (1 on / 0 off)
+
+The backlight starts on. On a parallel (direct-GPIO) LCD the backlight is
+hard-wired on, so `backlight()` is a no-op there and the getter always returns
+`1`. See ["backlight(\[$state\])" in RPi::LCD](https://metacpan.org/pod/RPi%3A%3ALCD#backlight-state).
+
+**3.3V vs 5V**: the panel and its backpack run at 5V, and the backpack pulls
+SDA/SCL up to 5V. The Pi's I2C pins are **not** 5V tolerant, so put a level
+shifter (e.g. a SparkFun BOB-12009) between the Pi and the backpack rather than
+wiring it directly.
+
 # BAROMETRIC PRESSURE SENSORS
 
 There's support for the BMP085 and BMP180 barometric pressure and altimiter
@@ -1854,8 +1905,8 @@ hardware test platform:
 
     0x04  Arduino Metro Mini
     0x05  ATMega-328P IC (not always in I2C mode, so not always available)
-    0x20  GPIO Expander #1 (MCP23017; expander loopback test, t/330)
-    0x21  GPIO Expander #2 (MCP23017; stepper drive, t/450)
+    0x20  GPIO Expander #1 (MCP23017; expander loopback test, t/355)
+    0x21  GPIO Expander #2 (MCP23017; stepper drive, t/350)
     0x3c  OLED (main case)
     0x48  ADC ADS 1 (main case)
     0x57  AT24C32 EEPROM (on same breakout board as RTC)

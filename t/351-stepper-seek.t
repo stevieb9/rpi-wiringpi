@@ -6,7 +6,7 @@ use lib 't/';
 use StepperSeek qw(seek_limit home_target stepper_calibrate stepper_skew SKEW_LIMIT_PCT);
 use Test::More;
 
-# Pure unit tests for the homing bound used by t/450 (StepperSeek::seek_limit).
+# Pure unit tests for the homing bound used by t/350 (StepperSeek::seek_limit).
 # They verify the bound is hit / not hit correctly using mock switch + step
 # callbacks, so no hardware (and no RPI_* gate) is needed - the destructive
 # "switch never trips" case can be exercised safely here, never on a real motor.

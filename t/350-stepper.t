@@ -283,7 +283,7 @@ sub home {
         : undef;
 
     # Decide outcome + centre (pure; StepperSeek::home_target, unit-tested in
-    # t/451): out-of-bounds on either seek, or a stuck-high switch (tiny span),
+    # t/351): out-of-bounds on either seek, or a stuck-high switch (tiny span),
     # fails; otherwise centre = half the measured span. min_span is in seek ticks.
     my ($ok, $centre, $reason) =
         home_target($to_ccw, $span, int((CCW_TICKS + CW_TICKS) / 2 / SEEK_STEP));

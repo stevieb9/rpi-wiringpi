@@ -77,7 +77,7 @@ sub home_target {
 # sweep on the real rig and returns ($ccw_us, $cw_us, $cw_out_us) - the two edge
 # latencies (microseconds from the rest point to each magnet) and the cw
 # out-sweep time. The callback is injected so this is unit-testable without a
-# motor (t/451) and reusable by anything that can drive a sweep.
+# motor (t/351) and reusable by anything that can drive a sweep.
 #
 # Returns the stepper_skew() metrics hashref augmented with:
 #
@@ -117,7 +117,7 @@ sub stepper_calibrate {
         # State the direction (factual); the corrective lever is reducing gear
         # backlash, NOT a fixed tooth count - homing re-centres between the
         # magnets every run, so the rest point cannot be dialled in by nudging
-        # the gear to a particular tooth (see t/450 header).
+        # the gear to a particular tooth (see t/350 header).
         $m->{action} = sprintf
             'rest point ~%.1f deg (%.1f%%) toward %s - reduce gear backlash / '
           . 'recentre until skew <= %.1f%%',

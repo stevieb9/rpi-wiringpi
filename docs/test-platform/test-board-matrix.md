@@ -13,7 +13,8 @@ placement change.
 
 > **Every hardware test below also needs board 1 (the Raspberry Pi itself).**
 > Board 1 is the host all the satellites hang off; it's noted once here, not on
-> every row.
+> every row. Board 1 also carries one test device of its own - the I2C LCD
+> (`t/335-lcd_i2c.t`).
 
 ---
 
@@ -21,14 +22,15 @@ placement change.
 
 | Board | Role | Status | Hardware tests |
 |-------|------|--------|---------------:|
-| **1** | Pi host + power/signal fan-out | not built (planned last) | — (host for all) |
+| **1** | Pi host + power/signal fan-out + I2C LCD | not built (planned last) | 1 (host for all) |
 | **2** | SPI analog cluster | **finalized & ordered** | 6 |
 | **3** | I2C expanders + stepper | **finalized & ordered** | 2 |
 | **4** | I2C sensors | scaffolded (EEPROM confirmed on-module) | 15 |
 | **5** | 5V logic (LCD / Arduino / UART) | **being finalized (KiCad)** | 3 |
 
 **8 hardware tests are covered by the finalized boards (2 + 3, both ordered);
-18 remain on board 4 (15, scaffolded) and board 5 (3, being finalized in KiCad).**
+19 remain on board 4 (15, scaffolded), board 5 (3, being finalized in KiCad), and
+board 1 (1, the I2C LCD, planned last).**
 
 ---
 
@@ -58,6 +60,15 @@ limit switches, indicator LEDs.
 ---
 
 ## Remaining hardware tests — no board built yet
+
+### Waiting on Board 1 — Pi host + I2C LCD *(planned last)*
+Board 1 is the passive host (power/signal fan-out) for every other board, and
+also carries the one I2C LCD. The panel is an HD44780 on a PCF8574 I2C backpack
+(0x27) - 5V, behind a 3V3↔5V level-shifter.
+
+| Test file | Device |
+|-----------|--------|
+| `t/335-lcd_i2c.t` | HD44780 LCD on PCF8574 I2C backpack (0x27) |
 
 ### Waiting on Board 4 — I2C sensors *(scaffolded only)*
 Devices: DS3231 RTC, AT24C32 EEPROM, BMP180, SSD1306 OLED.
