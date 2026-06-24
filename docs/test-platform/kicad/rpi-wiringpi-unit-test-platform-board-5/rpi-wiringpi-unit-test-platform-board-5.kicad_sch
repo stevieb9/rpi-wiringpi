@@ -1,673 +1,3050 @@
 (kicad_sch
-  (version 20230121)
-  (generator "rpi-wiringpi")
-  (uuid e004c7c1-bd45-5273-8695-af3f087c91dc)
-  (paper "User" 140.0000 300.6800)
-  (lib_symbols
-    (symbol "rpi-wiringpi-unit-test-platform-board-5:LCD1"
-      (pin_names (offset 1.016))
-      (in_bom yes) (on_board yes)
-      (property "Reference" "LCD1" (at 0 15.2400 0)
-        (effects (font (size 1.27 1.27))))
-      (property "Value" "HD44780_20x4" (at 0 -15.2400 0)
-        (effects (font (size 1.27 1.27))))
-      (property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:LCD1" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide))
-      (property "Datasheet" "" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide))
-      (symbol "LCD1_0_1"
-        (rectangle (start -10.1600 12.7000) (end 10.1600 -12.7000)
-          (stroke (width 0.254) (type default)) (fill (type background)))
-      )
-      (symbol "LCD1_1_1"
-        (pin passive line (at -15.2400 10.1600 0) (length 5.08)
-          (name "VSS" (effects (font (size 1.27 1.27))))
-          (number "1" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at -15.2400 7.6200 0) (length 5.08)
-          (name "VDD" (effects (font (size 1.27 1.27))))
-          (number "2" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at -15.2400 5.0800 0) (length 5.08)
-          (name "V0" (effects (font (size 1.27 1.27))))
-          (number "3" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at -15.2400 2.5400 0) (length 5.08)
-          (name "RS" (effects (font (size 1.27 1.27))))
-          (number "4" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at -15.2400 0.0000 0) (length 5.08)
-          (name "RW" (effects (font (size 1.27 1.27))))
-          (number "5" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at -15.2400 -2.5400 0) (length 5.08)
-          (name "E" (effects (font (size 1.27 1.27))))
-          (number "6" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at -15.2400 -5.0800 0) (length 5.08)
-          (name "D0" (effects (font (size 1.27 1.27))))
-          (number "7" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at -15.2400 -7.6200 0) (length 5.08)
-          (name "D1" (effects (font (size 1.27 1.27))))
-          (number "8" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 10.1600 180) (length 5.08)
-          (name "D2" (effects (font (size 1.27 1.27))))
-          (number "9" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 7.6200 180) (length 5.08)
-          (name "D3" (effects (font (size 1.27 1.27))))
-          (number "10" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 5.0800 180) (length 5.08)
-          (name "D4" (effects (font (size 1.27 1.27))))
-          (number "11" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 2.5400 180) (length 5.08)
-          (name "D5" (effects (font (size 1.27 1.27))))
-          (number "12" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 0.0000 180) (length 5.08)
-          (name "D6" (effects (font (size 1.27 1.27))))
-          (number "13" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 -2.5400 180) (length 5.08)
-          (name "D7" (effects (font (size 1.27 1.27))))
-          (number "14" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 -5.0800 180) (length 5.08)
-          (name "A" (effects (font (size 1.27 1.27))))
-          (number "15" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 -7.6200 180) (length 5.08)
-          (name "K" (effects (font (size 1.27 1.27))))
-          (number "16" (effects (font (size 1.27 1.27)))))
-      )
-    )
-    (symbol "rpi-wiringpi-unit-test-platform-board-5:U1"
-      (pin_names (offset 1.016))
-      (in_bom yes) (on_board yes)
-      (property "Reference" "U1" (at 0 12.7000 0)
-        (effects (font (size 1.27 1.27))))
-      (property "Value" "LVLSHIFT_BOB12009" (at 0 -12.7000 0)
-        (effects (font (size 1.27 1.27))))
-      (property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:U1" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide))
-      (property "Datasheet" "" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide))
-      (symbol "U1_0_1"
-        (rectangle (start -10.1600 10.1600) (end 10.1600 -10.1600)
-          (stroke (width 0.254) (type default)) (fill (type background)))
-      )
-      (symbol "U1_1_1"
-        (pin passive line (at -15.2400 7.6200 0) (length 5.08)
-          (name "LV" (effects (font (size 1.27 1.27))))
-          (number "LV" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at -15.2400 5.0800 0) (length 5.08)
-          (name "LV1" (effects (font (size 1.27 1.27))))
-          (number "LV1" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at -15.2400 2.5400 0) (length 5.08)
-          (name "LV2" (effects (font (size 1.27 1.27))))
-          (number "LV2" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at -15.2400 0.0000 0) (length 5.08)
-          (name "LV3" (effects (font (size 1.27 1.27))))
-          (number "LV3" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at -15.2400 -2.5400 0) (length 5.08)
-          (name "LV4" (effects (font (size 1.27 1.27))))
-          (number "LV4" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at -15.2400 -5.0800 0) (length 5.08)
-          (name "GND" (effects (font (size 1.27 1.27))))
-          (number "LGND" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 7.6200 180) (length 5.08)
-          (name "HV" (effects (font (size 1.27 1.27))))
-          (number "HV" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 5.0800 180) (length 5.08)
-          (name "HV1" (effects (font (size 1.27 1.27))))
-          (number "HV1" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 2.5400 180) (length 5.08)
-          (name "HV2" (effects (font (size 1.27 1.27))))
-          (number "HV2" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 0.0000 180) (length 5.08)
-          (name "HV3" (effects (font (size 1.27 1.27))))
-          (number "HV3" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 -2.5400 180) (length 5.08)
-          (name "HV4" (effects (font (size 1.27 1.27))))
-          (number "HV4" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 -5.0800 180) (length 5.08)
-          (name "GND" (effects (font (size 1.27 1.27))))
-          (number "HGND" (effects (font (size 1.27 1.27)))))
-      )
-    )
-    (symbol "rpi-wiringpi-unit-test-platform-board-5:RV1"
-      (pin_names (offset 1.016))
-      (in_bom yes) (on_board yes)
-      (property "Reference" "RV1" (at 0 7.6200 0)
-        (effects (font (size 1.27 1.27))))
-      (property "Value" "10k" (at 0 -7.6200 0)
-        (effects (font (size 1.27 1.27))))
-      (property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:RV1" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide))
-      (property "Datasheet" "" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide))
-      (symbol "RV1_0_1"
-        (rectangle (start -10.1600 5.0800) (end 10.1600 -5.0800)
-          (stroke (width 0.254) (type default)) (fill (type background)))
-      )
-      (symbol "RV1_1_1"
-        (pin passive line (at -15.2400 2.5400 0) (length 5.08)
-          (name "A" (effects (font (size 1.27 1.27))))
-          (number "1" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at -15.2400 0.0000 0) (length 5.08)
-          (name "W" (effects (font (size 1.27 1.27))))
-          (number "2" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 2.5400 180) (length 5.08)
-          (name "B" (effects (font (size 1.27 1.27))))
-          (number "3" (effects (font (size 1.27 1.27)))))
-      )
-    )
-    (symbol "rpi-wiringpi-unit-test-platform-board-5:R1"
-      (pin_names (offset 1.016))
-      (in_bom yes) (on_board yes)
-      (property "Reference" "R1" (at 0 5.0800 0)
-        (effects (font (size 1.27 1.27))))
-      (property "Value" "220" (at 0 -5.0800 0)
-        (effects (font (size 1.27 1.27))))
-      (property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:R1" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide))
-      (property "Datasheet" "" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide))
-      (symbol "R1_0_1"
-        (rectangle (start -10.1600 2.5400) (end 10.1600 -2.5400)
-          (stroke (width 0.254) (type default)) (fill (type background)))
-      )
-      (symbol "R1_1_1"
-        (pin passive line (at -15.2400 0.0000 0) (length 5.08)
-          (name "1" (effects (font (size 1.27 1.27))))
-          (number "1" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 0.0000 180) (length 5.08)
-          (name "2" (effects (font (size 1.27 1.27))))
-          (number "2" (effects (font (size 1.27 1.27)))))
-      )
-    )
-    (symbol "rpi-wiringpi-unit-test-platform-board-5:J1"
-      (pin_names (offset 1.016))
-      (in_bom yes) (on_board yes)
-      (property "Reference" "J1" (at 0 7.6200 0)
-        (effects (font (size 1.27 1.27))))
-      (property "Value" "JST_IN_PWR" (at 0 -7.6200 0)
-        (effects (font (size 1.27 1.27))))
-      (property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:J1" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide))
-      (property "Datasheet" "" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide))
-      (symbol "J1_0_1"
-        (rectangle (start -10.1600 5.0800) (end 10.1600 -5.0800)
-          (stroke (width 0.254) (type default)) (fill (type background)))
-      )
-      (symbol "J1_1_1"
-        (pin passive line (at -15.2400 2.5400 0) (length 5.08)
-          (name "+5V" (effects (font (size 1.27 1.27))))
-          (number "1" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at -15.2400 0.0000 0) (length 5.08)
-          (name "+3V3" (effects (font (size 1.27 1.27))))
-          (number "2" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 2.5400 180) (length 5.08)
-          (name "GND" (effects (font (size 1.27 1.27))))
-          (number "3" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 0.0000 180) (length 5.08)
-          (name "+3V3" (effects (font (size 1.27 1.27))))
-          (number "4" (effects (font (size 1.27 1.27)))))
-      )
-    )
-    (symbol "rpi-wiringpi-unit-test-platform-board-5:J2"
-      (pin_names (offset 1.016))
-      (in_bom yes) (on_board yes)
-      (property "Reference" "J2" (at 0 7.6200 0)
-        (effects (font (size 1.27 1.27))))
-      (property "Value" "JST_IN_SIG" (at 0 -7.6200 0)
-        (effects (font (size 1.27 1.27))))
-      (property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:J2" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide))
-      (property "Datasheet" "" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide))
-      (symbol "J2_0_1"
-        (rectangle (start -10.1600 5.0800) (end 10.1600 -5.0800)
-          (stroke (width 0.254) (type default)) (fill (type background)))
-      )
-      (symbol "J2_1_1"
-        (pin passive line (at -15.2400 2.5400 0) (length 5.08)
-          (name "SDA" (effects (font (size 1.27 1.27))))
-          (number "1" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at -15.2400 0.0000 0) (length 5.08)
-          (name "SCL" (effects (font (size 1.27 1.27))))
-          (number "2" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 2.5400 180) (length 5.08)
-          (name "TX14" (effects (font (size 1.27 1.27))))
-          (number "3" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 0.0000 180) (length 5.08)
-          (name "RX15" (effects (font (size 1.27 1.27))))
-          (number "4" (effects (font (size 1.27 1.27)))))
-      )
-    )
-    (symbol "rpi-wiringpi-unit-test-platform-board-5:J3"
-      (pin_names (offset 1.016))
-      (in_bom yes) (on_board yes)
-      (property "Reference" "J3" (at 0 7.6200 0)
-        (effects (font (size 1.27 1.27))))
-      (property "Value" "JST_IN_LCD" (at 0 -7.6200 0)
-        (effects (font (size 1.27 1.27))))
-      (property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:J3" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide))
-      (property "Datasheet" "" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide))
-      (symbol "J3_0_1"
-        (rectangle (start -10.1600 5.0800) (end 10.1600 -5.0800)
-          (stroke (width 0.254) (type default)) (fill (type background)))
-      )
-      (symbol "J3_1_1"
-        (pin passive line (at -15.2400 2.5400 0) (length 5.08)
-          (name "RS" (effects (font (size 1.27 1.27))))
-          (number "1" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at -15.2400 0.0000 0) (length 5.08)
-          (name "E" (effects (font (size 1.27 1.27))))
-          (number "2" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at -15.2400 -2.5400 0) (length 5.08)
-          (name "D4" (effects (font (size 1.27 1.27))))
-          (number "3" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 2.5400 180) (length 5.08)
-          (name "D5" (effects (font (size 1.27 1.27))))
-          (number "4" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 0.0000 180) (length 5.08)
-          (name "D6" (effects (font (size 1.27 1.27))))
-          (number "5" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 -2.5400 180) (length 5.08)
-          (name "D7" (effects (font (size 1.27 1.27))))
-          (number "6" (effects (font (size 1.27 1.27)))))
-      )
-    )
-    (symbol "rpi-wiringpi-unit-test-platform-board-5:J4"
-      (pin_names (offset 1.016))
-      (in_bom yes) (on_board yes)
-      (property "Reference" "J4" (at 0 7.6200 0)
-        (effects (font (size 1.27 1.27))))
-      (property "Value" "JST_OUT_I2C5V" (at 0 -7.6200 0)
-        (effects (font (size 1.27 1.27))))
-      (property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:J4" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide))
-      (property "Datasheet" "" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide))
-      (symbol "J4_0_1"
-        (rectangle (start -10.1600 5.0800) (end 10.1600 -5.0800)
-          (stroke (width 0.254) (type default)) (fill (type background)))
-      )
-      (symbol "J4_1_1"
-        (pin passive line (at -15.2400 2.5400 0) (length 5.08)
-          (name "SDA" (effects (font (size 1.27 1.27))))
-          (number "1" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at -15.2400 0.0000 0) (length 5.08)
-          (name "SCL" (effects (font (size 1.27 1.27))))
-          (number "2" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 2.5400 180) (length 5.08)
-          (name "+5V" (effects (font (size 1.27 1.27))))
-          (number "3" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 0.0000 180) (length 5.08)
-          (name "GND" (effects (font (size 1.27 1.27))))
-          (number "4" (effects (font (size 1.27 1.27)))))
-      )
-    )
-    (symbol "rpi-wiringpi-unit-test-platform-board-5:JP1"
-      (pin_names (offset 1.016))
-      (in_bom yes) (on_board yes)
-      (property "Reference" "JP1" (at 0 5.0800 0)
-        (effects (font (size 1.27 1.27))))
-      (property "Value" "UART_LOOP" (at 0 -5.0800 0)
-        (effects (font (size 1.27 1.27))))
-      (property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:JP1" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide))
-      (property "Datasheet" "" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide))
-      (symbol "JP1_0_1"
-        (rectangle (start -10.1600 2.5400) (end 10.1600 -2.5400)
-          (stroke (width 0.254) (type default)) (fill (type background)))
-      )
-      (symbol "JP1_1_1"
-        (pin passive line (at -15.2400 0.0000 0) (length 5.08)
-          (name "TX" (effects (font (size 1.27 1.27))))
-          (number "1" (effects (font (size 1.27 1.27)))))
-        (pin passive line (at 15.2400 0.0000 180) (length 5.08)
-          (name "RX" (effects (font (size 1.27 1.27))))
-          (number "2" (effects (font (size 1.27 1.27)))))
-      )
-    )
-  )
-  (symbol (lib_id "rpi-wiringpi-unit-test-platform-board-5:LCD1") (at 71.1200 38.1000 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
-    (uuid ff9ac6fa-bec0-564a-a45b-883f0ee25a27)
-    (property "Reference" "LCD1" (at 71.1200 22.8600 0)
-      (effects (font (size 1.27 1.27))))
-    (property "Value" "HD44780_20x4" (at 71.1200 53.3400 0)
-      (effects (font (size 1.27 1.27))))
-    (property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:LCD1" (at 71.1200 38.1000 0)
-      (effects (font (size 1.27 1.27)) hide))
-    (property "Datasheet" "" (at 71.1200 38.1000 0)
-      (effects (font (size 1.27 1.27)) hide))
-    (pin "1" (uuid 0876d62f-b17e-5c07-826f-9c673a06d4c4))
-    (pin "2" (uuid caaa1eda-33e7-5704-bf7a-a20414e533a6))
-    (pin "3" (uuid ef4f8dfa-aa0e-50e7-9dd7-b4dc79336f40))
-    (pin "4" (uuid 421e4928-8c49-5f5f-bac4-ccd3a4a1df3c))
-    (pin "5" (uuid a3dccb69-0ec7-5aa1-99ee-84a90348643a))
-    (pin "6" (uuid 33508b06-deef-5331-aca8-02e15595c6ba))
-    (pin "7" (uuid c63c57cd-9cef-5f90-8201-4319ea7b6bff))
-    (pin "8" (uuid b8dc1a05-cb52-57e7-a163-d8eeb4fe176a))
-    (pin "9" (uuid 123bff19-7f7a-5f18-a2e7-d9fb10b8cecb))
-    (pin "10" (uuid 386de172-e02d-5975-83d6-e3f967b69923))
-    (pin "11" (uuid e311b053-62f8-5d4a-874a-c5364cf47873))
-    (pin "12" (uuid 931a8bcd-aeef-576e-8567-20ec5e68f13a))
-    (pin "13" (uuid 28cd1fb5-0819-5e15-aa7f-7bc35a554380))
-    (pin "14" (uuid a0e04021-53f0-59df-a662-e7e8e32280ef))
-    (pin "15" (uuid 51148c13-0776-5224-ac22-4723a1a259b6))
-    (pin "16" (uuid 267adac4-2333-58c4-9ba9-353525c00e98))
-    (instances
-      (project "rpi-wiringpi-unit-test-platform-board-5"
-        (path "/e004c7c1-bd45-5273-8695-af3f087c91dc" (reference "LCD1") (unit 1))
-      )
-    )
-  )
-  (symbol (lib_id "rpi-wiringpi-unit-test-platform-board-5:U1") (at 71.1200 78.7400 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
-    (uuid ad04e9a5-be06-5672-96bc-5cd807be865b)
-    (property "Reference" "U1" (at 71.1200 66.0400 0)
-      (effects (font (size 1.27 1.27))))
-    (property "Value" "LVLSHIFT_BOB12009" (at 71.1200 91.4400 0)
-      (effects (font (size 1.27 1.27))))
-    (property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:U1" (at 71.1200 78.7400 0)
-      (effects (font (size 1.27 1.27)) hide))
-    (property "Datasheet" "" (at 71.1200 78.7400 0)
-      (effects (font (size 1.27 1.27)) hide))
-    (pin "LV" (uuid dc49b9e3-45ef-52df-9ff1-601cc9942fc1))
-    (pin "LV1" (uuid 3818af15-d63f-5ad6-8379-7802b992b164))
-    (pin "LV2" (uuid 25e5b074-9bb1-55d1-b2a9-f2160104afde))
-    (pin "LV3" (uuid c1bedc71-9ecc-5e95-ab52-2c892eacc7c7))
-    (pin "LV4" (uuid 834a5dfd-6616-5b86-a0f9-7a0b15d050bb))
-    (pin "LGND" (uuid 624bc087-0a9e-52f1-ae51-8a8f2c1a72fd))
-    (pin "HV" (uuid ca90d014-b129-56b7-a187-fa2cf1862fc9))
-    (pin "HV1" (uuid d13382b7-47ce-516d-9d96-0a3571236c20))
-    (pin "HV2" (uuid f5bf4f42-dea1-5c36-864a-10b612b6fcbb))
-    (pin "HV3" (uuid 5d391722-89dd-59db-8b1a-98e124336931))
-    (pin "HV4" (uuid d1ab8575-101c-59a4-900b-eef758ff346f))
-    (pin "HGND" (uuid 5668713d-e2cb-5fe0-99d0-a382ab10a3a2))
-    (instances
-      (project "rpi-wiringpi-unit-test-platform-board-5"
-        (path "/e004c7c1-bd45-5273-8695-af3f087c91dc" (reference "U1") (unit 1))
-      )
-    )
-  )
-  (symbol (lib_id "rpi-wiringpi-unit-test-platform-board-5:RV1") (at 71.1200 111.7600 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
-    (uuid e6fd711a-64c1-556d-a1af-51c1891b5797)
-    (property "Reference" "RV1" (at 71.1200 104.1400 0)
-      (effects (font (size 1.27 1.27))))
-    (property "Value" "10k" (at 71.1200 119.3800 0)
-      (effects (font (size 1.27 1.27))))
-    (property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:RV1" (at 71.1200 111.7600 0)
-      (effects (font (size 1.27 1.27)) hide))
-    (property "Datasheet" "" (at 71.1200 111.7600 0)
-      (effects (font (size 1.27 1.27)) hide))
-    (pin "1" (uuid badd9b01-723e-522a-8cd7-acd110436973))
-    (pin "2" (uuid fb378193-9613-539c-ae50-fbe4d972d198))
-    (pin "3" (uuid 7ad8f09b-5d73-5fab-a3d5-2186057c2c20))
-    (instances
-      (project "rpi-wiringpi-unit-test-platform-board-5"
-        (path "/e004c7c1-bd45-5273-8695-af3f087c91dc" (reference "RV1") (unit 1))
-      )
-    )
-  )
-  (symbol (lib_id "rpi-wiringpi-unit-test-platform-board-5:R1") (at 71.1200 137.1600 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
-    (uuid 24e14647-ba33-5cc4-a9f3-3a5540d030f9)
-    (property "Reference" "R1" (at 71.1200 132.0800 0)
-      (effects (font (size 1.27 1.27))))
-    (property "Value" "220" (at 71.1200 142.2400 0)
-      (effects (font (size 1.27 1.27))))
-    (property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:R1" (at 71.1200 137.1600 0)
-      (effects (font (size 1.27 1.27)) hide))
-    (property "Datasheet" "" (at 71.1200 137.1600 0)
-      (effects (font (size 1.27 1.27)) hide))
-    (pin "1" (uuid e4fae350-7d0a-5233-8dbd-6de11f4e786f))
-    (pin "2" (uuid 1829bdd4-5402-5d64-b159-fbfdede3140b))
-    (instances
-      (project "rpi-wiringpi-unit-test-platform-board-5"
-        (path "/e004c7c1-bd45-5273-8695-af3f087c91dc" (reference "R1") (unit 1))
-      )
-    )
-  )
-  (symbol (lib_id "rpi-wiringpi-unit-test-platform-board-5:J1") (at 71.1200 162.5600 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
-    (uuid b9e071dd-5bd0-58bd-a30b-4b604241d31a)
-    (property "Reference" "J1" (at 71.1200 154.9400 0)
-      (effects (font (size 1.27 1.27))))
-    (property "Value" "JST_IN_PWR" (at 71.1200 170.1800 0)
-      (effects (font (size 1.27 1.27))))
-    (property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:J1" (at 71.1200 162.5600 0)
-      (effects (font (size 1.27 1.27)) hide))
-    (property "Datasheet" "" (at 71.1200 162.5600 0)
-      (effects (font (size 1.27 1.27)) hide))
-    (pin "1" (uuid 62ebb2e3-38e0-52fe-9f50-6aee71d0c64f))
-    (pin "2" (uuid 26eb9fce-bebc-5aa3-96c5-a7ea9f11e240))
-    (pin "3" (uuid 09bb96e7-8ab1-5332-aa8a-77808fa5181d))
-    (pin "4" (uuid 6c183307-460b-5825-a0b3-ff4aff46b02e))
-    (instances
-      (project "rpi-wiringpi-unit-test-platform-board-5"
-        (path "/e004c7c1-bd45-5273-8695-af3f087c91dc" (reference "J1") (unit 1))
-      )
-    )
-  )
-  (symbol (lib_id "rpi-wiringpi-unit-test-platform-board-5:J2") (at 71.1200 190.5000 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
-    (uuid fcc9e90d-a3ce-524d-82fa-851331e39685)
-    (property "Reference" "J2" (at 71.1200 182.8800 0)
-      (effects (font (size 1.27 1.27))))
-    (property "Value" "JST_IN_SIG" (at 71.1200 198.1200 0)
-      (effects (font (size 1.27 1.27))))
-    (property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:J2" (at 71.1200 190.5000 0)
-      (effects (font (size 1.27 1.27)) hide))
-    (property "Datasheet" "" (at 71.1200 190.5000 0)
-      (effects (font (size 1.27 1.27)) hide))
-    (pin "1" (uuid 44e9b14a-ac8c-5e23-b402-f61f8fdc3bdb))
-    (pin "2" (uuid 3022c4ad-c45e-5ef3-82aa-5bc6e84fe70d))
-    (pin "3" (uuid 72d2beab-3766-5be1-acf9-ea8179201f75))
-    (pin "4" (uuid 8b8b2dbb-6dee-51f0-8078-0b9a13a5afcc))
-    (instances
-      (project "rpi-wiringpi-unit-test-platform-board-5"
-        (path "/e004c7c1-bd45-5273-8695-af3f087c91dc" (reference "J2") (unit 1))
-      )
-    )
-  )
-  (symbol (lib_id "rpi-wiringpi-unit-test-platform-board-5:J3") (at 71.1200 218.4400 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
-    (uuid e3d59b4b-3284-5311-b46e-f257fda1b474)
-    (property "Reference" "J3" (at 71.1200 210.8200 0)
-      (effects (font (size 1.27 1.27))))
-    (property "Value" "JST_IN_LCD" (at 71.1200 226.0600 0)
-      (effects (font (size 1.27 1.27))))
-    (property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:J3" (at 71.1200 218.4400 0)
-      (effects (font (size 1.27 1.27)) hide))
-    (property "Datasheet" "" (at 71.1200 218.4400 0)
-      (effects (font (size 1.27 1.27)) hide))
-    (pin "1" (uuid e397f09d-48c0-5935-858c-9a48e5c26173))
-    (pin "2" (uuid 19b80750-ca10-519e-bc09-9351f41c2bb3))
-    (pin "3" (uuid cb02a415-2651-5b7d-81e3-6d96284a9637))
-    (pin "4" (uuid 1c45b631-7bc8-5af7-a5fc-48a3918d3878))
-    (pin "5" (uuid bff372f8-d9ca-5f82-9a04-306b5899e7ac))
-    (pin "6" (uuid 058ffd60-41e9-523f-8c07-0ffe11eca173))
-    (instances
-      (project "rpi-wiringpi-unit-test-platform-board-5"
-        (path "/e004c7c1-bd45-5273-8695-af3f087c91dc" (reference "J3") (unit 1))
-      )
-    )
-  )
-  (symbol (lib_id "rpi-wiringpi-unit-test-platform-board-5:J4") (at 71.1200 246.3800 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
-    (uuid 0cbafbee-8cfd-5044-8116-b57e7c3ebd62)
-    (property "Reference" "J4" (at 71.1200 238.7600 0)
-      (effects (font (size 1.27 1.27))))
-    (property "Value" "JST_OUT_I2C5V" (at 71.1200 254.0000 0)
-      (effects (font (size 1.27 1.27))))
-    (property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:J4" (at 71.1200 246.3800 0)
-      (effects (font (size 1.27 1.27)) hide))
-    (property "Datasheet" "" (at 71.1200 246.3800 0)
-      (effects (font (size 1.27 1.27)) hide))
-    (pin "1" (uuid d5541aa3-14ec-53b5-9895-9f9dec9644e9))
-    (pin "2" (uuid cdad9b7e-7b6c-5266-9037-1dfe64577d8c))
-    (pin "3" (uuid 1ae7f271-8b6f-56f7-b6bf-08b4517f5b53))
-    (pin "4" (uuid 975e7020-6b34-55ea-b53f-f728d6b699e5))
-    (instances
-      (project "rpi-wiringpi-unit-test-platform-board-5"
-        (path "/e004c7c1-bd45-5273-8695-af3f087c91dc" (reference "J4") (unit 1))
-      )
-    )
-  )
-  (symbol (lib_id "rpi-wiringpi-unit-test-platform-board-5:JP1") (at 71.1200 274.3200 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
-    (uuid 487443aa-6c76-5a1b-a799-38718492a5cc)
-    (property "Reference" "JP1" (at 71.1200 269.2400 0)
-      (effects (font (size 1.27 1.27))))
-    (property "Value" "UART_LOOP" (at 71.1200 279.4000 0)
-      (effects (font (size 1.27 1.27))))
-    (property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:JP1" (at 71.1200 274.3200 0)
-      (effects (font (size 1.27 1.27)) hide))
-    (property "Datasheet" "" (at 71.1200 274.3200 0)
-      (effects (font (size 1.27 1.27)) hide))
-    (pin "1" (uuid 2fa061ed-1dae-5f2a-9367-636da63fd5bf))
-    (pin "2" (uuid 12c2dd6f-72dc-5837-85e3-214abb1d67ea))
-    (instances
-      (project "rpi-wiringpi-unit-test-platform-board-5"
-        (path "/e004c7c1-bd45-5273-8695-af3f087c91dc" (reference "JP1") (unit 1))
-      )
-    )
-  )
-  (label "GND" (at 55.8800 27.9400 0)
-    (effects (font (size 1.27 1.27)) (justify right))
-    (uuid 859abe7d-344a-51ee-b584-c1c164fed9ff))
-  (label "+5V" (at 55.8800 30.4800 0)
-    (effects (font (size 1.27 1.27)) (justify right))
-    (uuid eb2cda35-74aa-5843-b52a-b661b006236e))
-  (label "LCD_V0" (at 55.8800 33.0200 0)
-    (effects (font (size 1.27 1.27)) (justify right))
-    (uuid 08d3142b-e4cd-5660-ba6f-4160738cc4e2))
-  (label "GPIO5" (at 55.8800 35.5600 0)
-    (effects (font (size 1.27 1.27)) (justify right))
-    (uuid 1dc63d4c-10fe-5b41-872e-a12536d23d01))
-  (label "GND" (at 55.8800 38.1000 0)
-    (effects (font (size 1.27 1.27)) (justify right))
-    (uuid c9455264-1b77-5815-bfb8-fc460397decf))
-  (label "GPIO6" (at 55.8800 40.6400 0)
-    (effects (font (size 1.27 1.27)) (justify right))
-    (uuid 71b86c57-52cf-564f-89b3-de1a4c80cb72))
-  (label "GPIO4" (at 86.3600 33.0200 0)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid 78555ddb-137e-52d2-bfda-6e9304f22e5d))
-  (label "GPIO17" (at 86.3600 35.5600 0)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid fb9f6a3c-2acd-5c2a-b9a8-5de65ae3600a))
-  (label "GPIO27" (at 86.3600 38.1000 0)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid 3d3e6f1f-0d81-5313-85d2-b73b35c50219))
-  (label "GPIO22" (at 86.3600 40.6400 0)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid 710d9b39-24e3-565b-8930-e4defb2c17a2))
-  (label "LCD_BL_A" (at 86.3600 43.1800 0)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid 26ae1a40-b7a1-5e8f-bfde-44d8d81a16ef))
-  (label "GND" (at 86.3600 45.7200 0)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid e797a8c2-0a3e-59a8-9145-d5dbe5d6756c))
-  (label "+3V3" (at 55.8800 71.1200 0)
-    (effects (font (size 1.27 1.27)) (justify right))
-    (uuid 7c31a5c6-5394-5d9b-9d00-5b51ff0fc503))
-  (label "I2C_SDA" (at 55.8800 73.6600 0)
-    (effects (font (size 1.27 1.27)) (justify right))
-    (uuid 53e1c9da-48f9-5ebc-bae3-55cb98ee7b30))
-  (label "I2C_SCL" (at 55.8800 76.2000 0)
-    (effects (font (size 1.27 1.27)) (justify right))
-    (uuid 4bf7562a-5d35-5b97-b497-0fc84aa3df68))
-  (label "GND" (at 55.8800 83.8200 0)
-    (effects (font (size 1.27 1.27)) (justify right))
-    (uuid fb008114-347e-5cfd-8596-af9006110d67))
-  (label "+5V" (at 86.3600 71.1200 0)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid f3156e1b-b3db-5ac0-867f-8692f0b6ead7))
-  (label "SDA_5V" (at 86.3600 73.6600 0)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid 31a172a6-fee2-556f-ab2a-64a01caa7f16))
-  (label "SCL_5V" (at 86.3600 76.2000 0)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid 6aa349c6-71e8-5af0-9e9c-0712b1b7ad06))
-  (label "GND" (at 86.3600 83.8200 0)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid 73554605-7876-5790-8ff0-b8e8cfb91981))
-  (label "+5V" (at 55.8800 109.2200 0)
-    (effects (font (size 1.27 1.27)) (justify right))
-    (uuid 2e6cc0e3-cc93-548a-b085-2b2e56810376))
-  (label "LCD_V0" (at 55.8800 111.7600 0)
-    (effects (font (size 1.27 1.27)) (justify right))
-    (uuid 60a9c877-7ea3-5f93-bc73-12cc3c0704f7))
-  (label "GND" (at 86.3600 109.2200 0)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid e9706042-4350-5ac4-b189-35f09591503e))
-  (label "+5V" (at 55.8800 137.1600 0)
-    (effects (font (size 1.27 1.27)) (justify right))
-    (uuid f350942a-3d4e-5e30-8b3c-e522ebfe265a))
-  (label "LCD_BL_A" (at 86.3600 137.1600 0)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid 712ec0ab-583d-568c-af61-9f4bafccd09b))
-  (label "+5V" (at 55.8800 160.0200 0)
-    (effects (font (size 1.27 1.27)) (justify right))
-    (uuid 7a0e2f44-71a1-54a2-95e7-ab8c62e5ddf3))
-  (label "+3V3" (at 55.8800 162.5600 0)
-    (effects (font (size 1.27 1.27)) (justify right))
-    (uuid 4c7c4e94-0c47-5ce2-8b7b-7fad13c5a310))
-  (label "GND" (at 86.3600 160.0200 0)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid e0a87968-e385-5673-a11f-2f50a64ef8c8))
-  (label "+3V3" (at 86.3600 162.5600 0)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid cfae3acc-b315-51c4-92cc-d855bbce104f))
-  (label "I2C_SDA" (at 55.8800 187.9600 0)
-    (effects (font (size 1.27 1.27)) (justify right))
-    (uuid 96254d02-2ff7-5a50-b919-d554bccc45d1))
-  (label "I2C_SCL" (at 55.8800 190.5000 0)
-    (effects (font (size 1.27 1.27)) (justify right))
-    (uuid 026ff0cd-6d67-5295-b255-7b253307034e))
-  (label "UART_TX" (at 86.3600 187.9600 0)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid 155d4541-0e25-5091-afab-57efbbfcb5e1))
-  (label "UART_RX" (at 86.3600 190.5000 0)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid 783717ca-3e81-552c-b18d-adaa1f74aa7c))
-  (label "GPIO5" (at 55.8800 215.9000 0)
-    (effects (font (size 1.27 1.27)) (justify right))
-    (uuid eaaadbe4-ee38-5afc-96ee-8f6fcf835475))
-  (label "GPIO6" (at 55.8800 218.4400 0)
-    (effects (font (size 1.27 1.27)) (justify right))
-    (uuid c7eb8eca-9eae-5071-9094-c14155130336))
-  (label "GPIO4" (at 55.8800 220.9800 0)
-    (effects (font (size 1.27 1.27)) (justify right))
-    (uuid 630468c9-1739-5db3-9edc-dff440451325))
-  (label "GPIO17" (at 86.3600 215.9000 0)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid 00de2b53-dd7a-5245-8739-e0ced7e67ec0))
-  (label "GPIO27" (at 86.3600 218.4400 0)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid 3dddc406-16f5-53c6-afa5-311199dbf426))
-  (label "GPIO22" (at 86.3600 220.9800 0)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid dd3587b4-b1ba-5010-8067-b68431fa70d0))
-  (label "SDA_5V" (at 55.8800 243.8400 0)
-    (effects (font (size 1.27 1.27)) (justify right))
-    (uuid 3f16287d-c031-5fb9-aea2-2ae77b7976e3))
-  (label "SCL_5V" (at 55.8800 246.3800 0)
-    (effects (font (size 1.27 1.27)) (justify right))
-    (uuid 75b1026e-e93d-5da2-87bd-2487e1b527e5))
-  (label "+5V" (at 86.3600 243.8400 0)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid d7606358-c10a-59aa-b6aa-964a725e8bca))
-  (label "GND" (at 86.3600 246.3800 0)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid a13b9fbd-da8c-5210-a86d-d83eefc3d80a))
-  (label "UART_TX" (at 55.8800 274.3200 0)
-    (effects (font (size 1.27 1.27)) (justify right))
-    (uuid ae6a0e96-e7c1-500f-bc8a-5e5fe51330d1))
-  (label "UART_RX" (at 86.3600 274.3200 0)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid 83e057da-a11e-5886-8d42-794f63db4900))
-  (sheet_instances
-    (path "/" (page "1"))
-  )
+	(version 20260306)
+	(generator "eeschema")
+	(generator_version "10.0")
+	(uuid "e004c7c1-bd45-5273-8695-af3f087c91dc")
+	(paper "User" 140 300.68)
+	(lib_symbols
+		(symbol "Switch:SW_DIP_x01"
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "SW"
+				(at 0 3.81 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "SW_DIP_x01"
+				(at 0 -3.81 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "1x DIP Switch, Single Pole Single Throw (SPST) switch, small symbol"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "dip switch"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "SW?DIP?x1*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "SW_DIP_x01_0_0"
+				(circle
+					(center -2.032 0)
+					(radius 0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.524 0.127) (xy 2.3622 1.1684)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 2.032 0)
+					(radius 0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "SW_DIP_x01_0_1"
+				(rectangle
+					(start -3.81 2.54)
+					(end 3.81 -2.54)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "SW_DIP_x01_1_1"
+				(pin passive line
+					(at -7.62 0 0)
+					(length 5.08)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 7.62 0 180)
+					(length 5.08)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "rpi-wiringpi-unit-test-platform-board-5:J1"
+			(pin_names
+				(offset 1.016)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "J1"
+				(at 0 7.62 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "JST_IN_PWR"
+				(at 0 -7.62 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:J1"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "J1_0_1"
+				(rectangle
+					(start -10.16 5.08)
+					(end 10.16 -5.08)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "J1_1_1"
+				(pin passive line
+					(at -15.24 2.54 0)
+					(length 5.08)
+					(name "+5V"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -15.24 0 0)
+					(length 5.08)
+					(name "+3V3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 2.54 180)
+					(length 5.08)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 0 180)
+					(length 5.08)
+					(name "+3V3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "rpi-wiringpi-unit-test-platform-board-5:J2"
+			(pin_names
+				(offset 1.016)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "J2"
+				(at 0 7.62 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "JST_IN_SIG"
+				(at 0 -7.62 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:J2"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "J2_0_1"
+				(rectangle
+					(start -10.16 5.08)
+					(end 10.16 -5.08)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "J2_1_1"
+				(pin passive line
+					(at -15.24 2.54 0)
+					(length 5.08)
+					(name "SDA"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -15.24 0 0)
+					(length 5.08)
+					(name "SCL"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 2.54 180)
+					(length 5.08)
+					(name "TX14"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 0 180)
+					(length 5.08)
+					(name "RX15"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "rpi-wiringpi-unit-test-platform-board-5:J3"
+			(pin_names
+				(offset 1.016)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "J3"
+				(at 0 7.62 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "JST_IN_LCD"
+				(at 0 -7.62 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:J3"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "J3_0_1"
+				(rectangle
+					(start -10.16 5.08)
+					(end 10.16 -5.08)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "J3_1_1"
+				(pin passive line
+					(at -15.24 2.54 0)
+					(length 5.08)
+					(name "RS"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -15.24 0 0)
+					(length 5.08)
+					(name "E"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -15.24 -2.54 0)
+					(length 5.08)
+					(name "D4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 2.54 180)
+					(length 5.08)
+					(name "D5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 0 180)
+					(length 5.08)
+					(name "D6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 -2.54 180)
+					(length 5.08)
+					(name "D7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "rpi-wiringpi-unit-test-platform-board-5:J4"
+			(pin_names
+				(offset 1.016)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "J4"
+				(at 0 7.62 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "JST_OUT_I2C5V"
+				(at 0 -7.62 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:J4"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "J4_0_1"
+				(rectangle
+					(start -10.16 5.08)
+					(end 10.16 -5.08)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "J4_1_1"
+				(pin passive line
+					(at -15.24 2.54 0)
+					(length 5.08)
+					(name "SDA"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -15.24 0 0)
+					(length 5.08)
+					(name "SCL"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 2.54 180)
+					(length 5.08)
+					(name "+5V"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 0 180)
+					(length 5.08)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "rpi-wiringpi-unit-test-platform-board-5:LCD1"
+			(pin_names
+				(offset 1.016)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "LCD1"
+				(at 0 15.24 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "HD44780_20x4"
+				(at 0 -15.24 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:LCD1"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "LCD1_0_1"
+				(rectangle
+					(start -10.16 12.7)
+					(end 10.16 -12.7)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "LCD1_1_1"
+				(pin passive line
+					(at -15.24 10.16 0)
+					(length 5.08)
+					(name "VSS"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -15.24 7.62 0)
+					(length 5.08)
+					(name "VDD"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -15.24 5.08 0)
+					(length 5.08)
+					(name "V0"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -15.24 2.54 0)
+					(length 5.08)
+					(name "RS"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -15.24 0 0)
+					(length 5.08)
+					(name "RW"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -15.24 -2.54 0)
+					(length 5.08)
+					(name "E"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -15.24 -5.08 0)
+					(length 5.08)
+					(name "D0"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -15.24 -7.62 0)
+					(length 5.08)
+					(name "D1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 10.16 180)
+					(length 5.08)
+					(name "D2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "9"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 7.62 180)
+					(length 5.08)
+					(name "D3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "10"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 5.08 180)
+					(length 5.08)
+					(name "D4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "11"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 2.54 180)
+					(length 5.08)
+					(name "D5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "12"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 0 180)
+					(length 5.08)
+					(name "D6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "13"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 -2.54 180)
+					(length 5.08)
+					(name "D7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "14"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 -5.08 180)
+					(length 5.08)
+					(name "A"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "15"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 -7.62 180)
+					(length 5.08)
+					(name "K"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "16"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "rpi-wiringpi-unit-test-platform-board-5:R1"
+			(pin_names
+				(offset 1.016)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "R1"
+				(at 0 5.08 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "220"
+				(at 0 -5.08 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:R1"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "R1_0_1"
+				(rectangle
+					(start -10.16 2.54)
+					(end 10.16 -2.54)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "R1_1_1"
+				(pin passive line
+					(at -15.24 0 0)
+					(length 5.08)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 0 180)
+					(length 5.08)
+					(name "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "rpi-wiringpi-unit-test-platform-board-5:RV1"
+			(pin_names
+				(offset 1.016)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "RV1"
+				(at 0 7.62 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "10k"
+				(at 0 -7.62 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:RV1"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "RV1_0_1"
+				(rectangle
+					(start -10.16 5.08)
+					(end 10.16 -5.08)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "RV1_1_1"
+				(pin passive line
+					(at -15.24 2.54 0)
+					(length 5.08)
+					(name "A"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -15.24 0 0)
+					(length 5.08)
+					(name "W"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 2.54 180)
+					(length 5.08)
+					(name "B"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "rpi-wiringpi-unit-test-platform-board-5:U1"
+			(pin_names
+				(offset 1.016)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "U1"
+				(at 0 12.7 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "LVLSHIFT_BOB12009"
+				(at 0 -12.7 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:U1"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "U1_0_1"
+				(rectangle
+					(start -10.16 10.16)
+					(end 10.16 -10.16)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "U1_1_1"
+				(pin passive line
+					(at 15.24 -5.08 180)
+					(length 5.08)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "HGND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 7.62 180)
+					(length 5.08)
+					(name "HV"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "HV"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 5.08 180)
+					(length 5.08)
+					(name "HV1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "HV1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 2.54 180)
+					(length 5.08)
+					(name "HV2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "HV2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 0 180)
+					(length 5.08)
+					(name "HV3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "HV3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 -2.54 180)
+					(length 5.08)
+					(name "HV4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "HV4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -15.24 -5.08 0)
+					(length 5.08)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "LGND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -15.24 7.62 0)
+					(length 5.08)
+					(name "LV"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "LV"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -15.24 5.08 0)
+					(length 5.08)
+					(name "LV1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "LV1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -15.24 2.54 0)
+					(length 5.08)
+					(name "LV2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "LV2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -15.24 0 0)
+					(length 5.08)
+					(name "LV3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "LV3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -15.24 -2.54 0)
+					(length 5.08)
+					(name "LV4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "LV4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+	)
+	(no_connect
+		(at 53.34 25.4)
+		(uuid "14ce1ee4-89fb-4797-9fd1-31567f1deea8")
+	)
+	(no_connect
+		(at 77.47 38.1)
+		(uuid "16a42fc2-06df-4a4d-b6fd-de588cb6b222")
+	)
+	(no_connect
+		(at 22.86 40.64)
+		(uuid "4cc0e294-45d5-482f-9ee9-e507fdff2926")
+	)
+	(no_connect
+		(at 22.86 38.1)
+		(uuid "77708c18-493e-4984-a0cb-5811e0f5ae6d")
+	)
+	(no_connect
+		(at 77.47 35.56)
+		(uuid "9b12aa19-6372-456f-8de8-5a6015b0894d")
+	)
+	(no_connect
+		(at 53.34 22.86)
+		(uuid "9b83c29f-8658-4b16-b35f-df9a1861e7f3")
+	)
+	(no_connect
+		(at 107.95 38.1)
+		(uuid "ae10e67f-a8c2-4f10-80cd-f13f1a61555f")
+	)
+	(no_connect
+		(at 107.95 35.56)
+		(uuid "d2070799-3ef2-492d-85ab-4413bdcb4aa2")
+	)
+	(wire
+		(pts
+			(xy 26.67 146.05) (xy 33.02 146.05)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3aac3c52-0f13-4b79-a830-e4b9d3ff66b8")
+	)
+	(wire
+		(pts
+			(xy 48.26 146.05) (xy 49.53 146.05)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "82fbf504-3635-494b-9be5-4e062783d71c")
+	)
+	(label "GPIO17"
+		(at 83.82 119.38 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "00de2b53-dd7a-5245-8739-e0ced7e67ec0")
+	)
+	(label "I2C_SCL"
+		(at 27.94 100.33 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "026ff0cd-6d67-5295-b255-7b253307034e")
+	)
+	(label "LCD_V0"
+		(at 22.86 27.94 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "08d3142b-e4cd-5660-ba6f-4160738cc4e2")
+	)
+	(label "UART_TX"
+		(at 58.42 97.79 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "155d4541-0e25-5091-afab-57efbbfcb5e1")
+	)
+	(label "GPIO5"
+		(at 22.86 30.48 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "1dc63d4c-10fe-5b41-872e-a12536d23d01")
+	)
+	(label "UART_RX"
+		(at 49.53 146.05 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "23351d89-5f55-410d-92cb-25cb35fdfbbc")
+	)
+	(label "LCD_BL_A"
+		(at 53.34 38.1 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "26ae1a40-b7a1-5e8f-bfde-44d8d81a16ef")
+	)
+	(label "+5V"
+		(at 26.67 67.31 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "2e6cc0e3-cc93-548a-b085-2b2e56810376")
+	)
+	(label "SDA_5V"
+		(at 107.95 30.48 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "31a172a6-fee2-556f-ab2a-64a01caa7f16")
+	)
+	(label "GPIO27"
+		(at 53.34 33.02 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "3d3e6f1f-0d81-5313-85d2-b73b35c50219")
+	)
+	(label "GPIO27"
+		(at 83.82 121.92 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "3dddc406-16f5-53c6-afa5-311199dbf426")
+	)
+	(label "SDA_5V"
+		(at 77.47 142.24 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "3f16287d-c031-5fb9-aea2-2ae77b7976e3")
+	)
+	(label "I2C_SCL"
+		(at 77.47 33.02 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "4bf7562a-5d35-5b97-b497-0fc84aa3df68")
+	)
+	(label "+3V3"
+		(at 83.82 97.79 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "4c7c4e94-0c47-5ce2-8b7b-7fad13c5a310")
+	)
+	(label "I2C_SDA"
+		(at 77.47 30.48 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "53e1c9da-48f9-5ebc-bae3-55cb98ee7b30")
+	)
+	(label "LCD_V0"
+		(at 26.67 69.85 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "60a9c877-7ea3-5f93-bc73-12cc3c0704f7")
+	)
+	(label "GPIO4"
+		(at 53.34 124.46 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "630468c9-1739-5db3-9edc-dff440451325")
+	)
+	(label "SCL_5V"
+		(at 107.95 33.02 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "6aa349c6-71e8-5af0-9e9c-0712b1b7ad06")
+	)
+	(label "GPIO22"
+		(at 53.34 35.56 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "710d9b39-24e3-565b-8930-e4defb2c17a2")
+	)
+	(label "LCD_BL_A"
+		(at 100.33 68.58 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "712ec0ab-583d-568c-af61-9f4bafccd09b")
+	)
+	(label "GPIO6"
+		(at 22.86 35.56 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "71b86c57-52cf-564f-89b3-de1a4c80cb72")
+	)
+	(label "GND"
+		(at 107.95 40.64 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "73554605-7876-5790-8ff0-b8e8cfb91981")
+	)
+	(label "SCL_5V"
+		(at 77.47 144.78 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "75b1026e-e93d-5da2-87bd-2487e1b527e5")
+	)
+	(label "UART_RX"
+		(at 58.42 100.33 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "783717ca-3e81-552c-b18d-adaa1f74aa7c")
+	)
+	(label "GPIO4"
+		(at 53.34 27.94 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "78555ddb-137e-52d2-bfda-6e9304f22e5d")
+	)
+	(label "+5V"
+		(at 83.82 95.25 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "7a0e2f44-71a1-54a2-95e7-ab8c62e5ddf3")
+	)
+	(label "+3V3"
+		(at 77.47 27.94 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "7c31a5c6-5394-5d9b-9d00-5b51ff0fc503")
+	)
+	(label "GND"
+		(at 22.86 22.86 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "859abe7d-344a-51ee-b584-c1c164fed9ff")
+	)
+	(label "UART_TX"
+		(at 26.67 146.05 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "884de7ad-adf3-40d1-8efb-4ad154532759")
+	)
+	(label "I2C_SDA"
+		(at 27.94 97.79 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "96254d02-2ff7-5a50-b919-d554bccc45d1")
+	)
+	(label "GND"
+		(at 107.95 144.78 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "a13b9fbd-da8c-5210-a86d-d83eefc3d80a")
+	)
+	(label "GPIO6"
+		(at 53.34 121.92 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "c7eb8eca-9eae-5071-9094-c14155130336")
+	)
+	(label "GND"
+		(at 22.86 33.02 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "c9455264-1b77-5815-bfb8-fc460397decf")
+	)
+	(label "+3V3"
+		(at 114.3 97.79 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "cfae3acc-b315-51c4-92cc-d855bbce104f")
+	)
+	(label "+5V"
+		(at 107.95 142.24 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "d7606358-c10a-59aa-b6aa-964a725e8bca")
+	)
+	(label "GPIO22"
+		(at 83.82 124.46 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "dd3587b4-b1ba-5010-8067-b68431fa70d0")
+	)
+	(label "GND"
+		(at 114.3 95.25 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "e0a87968-e385-5673-a11f-2f50a64ef8c8")
+	)
+	(label "GND"
+		(at 53.34 40.64 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "e797a8c2-0a3e-59a8-9145-d5dbe5d6756c")
+	)
+	(label "GND"
+		(at 57.15 67.31 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "e9706042-4350-5ac4-b189-35f09591503e")
+	)
+	(label "GPIO5"
+		(at 53.34 119.38 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "eaaadbe4-ee38-5afc-96ee-8f6fcf835475")
+	)
+	(label "+5V"
+		(at 22.86 25.4 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "eb2cda35-74aa-5843-b52a-b661b006236e")
+	)
+	(label "+5V"
+		(at 107.95 27.94 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "f3156e1b-b3db-5ac0-867f-8692f0b6ead7")
+	)
+	(label "+5V"
+		(at 69.85 68.58 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "f350942a-3d4e-5e30-8b3c-e522ebfe265a")
+	)
+	(label "GND"
+		(at 77.47 40.64 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "fb008114-347e-5cfd-8596-af9006110d67")
+	)
+	(label "GPIO17"
+		(at 53.34 30.48 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "fb9f6a3c-2acd-5c2a-b9a8-5de65ae3600a")
+	)
+	(symbol
+		(lib_id "Switch:SW_DIP_x01")
+		(at 40.64 146.05 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "065e4bc7-6f2f-41cc-b0c2-901424f567dd")
+		(property "Reference" "SW1"
+			(at 40.64 138.43 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "SW_DIP_x01"
+			(at 40.64 140.97 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Button_Switch_THT:SW_DIP_SPSTx01_Slide_9.78x4.72mm_W7.62mm_P2.54mm"
+			(at 40.64 146.05 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 40.64 146.05 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "1x DIP Switch, Single Pole Single Throw (SPST) switch, small symbol"
+			(at 40.64 146.05 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "2"
+			(uuid "37f5a147-3a80-47d0-a04c-a43122dce87d")
+		)
+		(pin "1"
+			(uuid "afb36d4d-b3b8-4e47-8b26-883cce21c6a3")
+		)
+		(instances
+			(project "rpi-wiringpi-unit-test-platform-board-5"
+				(path "/e004c7c1-bd45-5273-8695-af3f087c91dc"
+					(reference "SW1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "rpi-wiringpi-unit-test-platform-board-5:J4")
+		(at 92.71 144.78 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "0cbafbee-8cfd-5044-8116-b57e7c3ebd62")
+		(property "Reference" "J4"
+			(at 92.71 137.16 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "JST_OUT_I2C5V"
+			(at 92.71 152.4 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:J4"
+			(at 92.71 144.78 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 92.71 144.78 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 92.71 144.78 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "d5541aa3-14ec-53b5-9895-9f9dec9644e9")
+		)
+		(pin "2"
+			(uuid "cdad9b7e-7b6c-5266-9037-1dfe64577d8c")
+		)
+		(pin "3"
+			(uuid "1ae7f271-8b6f-56f7-b6bf-08b4517f5b53")
+		)
+		(pin "4"
+			(uuid "975e7020-6b34-55ea-b53f-f728d6b699e5")
+		)
+		(instances
+			(project "rpi-wiringpi-unit-test-platform-board-5"
+				(path "/e004c7c1-bd45-5273-8695-af3f087c91dc"
+					(reference "J4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "rpi-wiringpi-unit-test-platform-board-5:R1")
+		(at 85.09 68.58 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "24e14647-ba33-5cc4-a9f3-3a5540d030f9")
+		(property "Reference" "R1"
+			(at 85.09 63.5 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "220"
+			(at 85.09 73.66 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:R1"
+			(at 85.09 68.58 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 85.09 68.58 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 85.09 68.58 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "e4fae350-7d0a-5233-8dbd-6de11f4e786f")
+		)
+		(pin "2"
+			(uuid "1829bdd4-5402-5d64-b159-fbfdede3140b")
+		)
+		(instances
+			(project "rpi-wiringpi-unit-test-platform-board-5"
+				(path "/e004c7c1-bd45-5273-8695-af3f087c91dc"
+					(reference "R1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "rpi-wiringpi-unit-test-platform-board-5:U1")
+		(at 92.71 35.56 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "ad04e9a5-be06-5672-96bc-5cd807be865b")
+		(property "Reference" "U1"
+			(at 92.71 22.86 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "LVLSHIFT_BOB12009"
+			(at 92.71 48.26 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:U1"
+			(at 92.71 35.56 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 92.71 35.56 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 92.71 35.56 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "LV"
+			(uuid "dc49b9e3-45ef-52df-9ff1-601cc9942fc1")
+		)
+		(pin "LV1"
+			(uuid "3818af15-d63f-5ad6-8379-7802b992b164")
+		)
+		(pin "LV2"
+			(uuid "25e5b074-9bb1-55d1-b2a9-f2160104afde")
+		)
+		(pin "LV3"
+			(uuid "c1bedc71-9ecc-5e95-ab52-2c892eacc7c7")
+		)
+		(pin "LV4"
+			(uuid "834a5dfd-6616-5b86-a0f9-7a0b15d050bb")
+		)
+		(pin "LGND"
+			(uuid "624bc087-0a9e-52f1-ae51-8a8f2c1a72fd")
+		)
+		(pin "HV"
+			(uuid "ca90d014-b129-56b7-a187-fa2cf1862fc9")
+		)
+		(pin "HV1"
+			(uuid "d13382b7-47ce-516d-9d96-0a3571236c20")
+		)
+		(pin "HV2"
+			(uuid "f5bf4f42-dea1-5c36-864a-10b612b6fcbb")
+		)
+		(pin "HV3"
+			(uuid "5d391722-89dd-59db-8b1a-98e124336931")
+		)
+		(pin "HV4"
+			(uuid "d1ab8575-101c-59a4-900b-eef758ff346f")
+		)
+		(pin "HGND"
+			(uuid "5668713d-e2cb-5fe0-99d0-a382ab10a3a2")
+		)
+		(instances
+			(project "rpi-wiringpi-unit-test-platform-board-5"
+				(path "/e004c7c1-bd45-5273-8695-af3f087c91dc"
+					(reference "U1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "rpi-wiringpi-unit-test-platform-board-5:J1")
+		(at 99.06 97.79 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "b9e071dd-5bd0-58bd-a30b-4b604241d31a")
+		(property "Reference" "J1"
+			(at 99.06 90.17 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "JST_IN_PWR"
+			(at 99.06 105.41 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:J1"
+			(at 99.06 97.79 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 99.06 97.79 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 99.06 97.79 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "62ebb2e3-38e0-52fe-9f50-6aee71d0c64f")
+		)
+		(pin "2"
+			(uuid "26eb9fce-bebc-5aa3-96c5-a7ea9f11e240")
+		)
+		(pin "3"
+			(uuid "09bb96e7-8ab1-5332-aa8a-77808fa5181d")
+		)
+		(pin "4"
+			(uuid "6c183307-460b-5825-a0b3-ff4aff46b02e")
+		)
+		(instances
+			(project "rpi-wiringpi-unit-test-platform-board-5"
+				(path "/e004c7c1-bd45-5273-8695-af3f087c91dc"
+					(reference "J1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "rpi-wiringpi-unit-test-platform-board-5:J3")
+		(at 68.58 121.92 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "e3d59b4b-3284-5311-b46e-f257fda1b474")
+		(property "Reference" "J3"
+			(at 68.58 114.3 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "JST_IN_LCD"
+			(at 68.58 129.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:J3"
+			(at 68.58 121.92 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 68.58 121.92 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 68.58 121.92 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "e397f09d-48c0-5935-858c-9a48e5c26173")
+		)
+		(pin "2"
+			(uuid "19b80750-ca10-519e-bc09-9351f41c2bb3")
+		)
+		(pin "3"
+			(uuid "cb02a415-2651-5b7d-81e3-6d96284a9637")
+		)
+		(pin "4"
+			(uuid "1c45b631-7bc8-5af7-a5fc-48a3918d3878")
+		)
+		(pin "5"
+			(uuid "bff372f8-d9ca-5f82-9a04-306b5899e7ac")
+		)
+		(pin "6"
+			(uuid "058ffd60-41e9-523f-8c07-0ffe11eca173")
+		)
+		(instances
+			(project "rpi-wiringpi-unit-test-platform-board-5"
+				(path "/e004c7c1-bd45-5273-8695-af3f087c91dc"
+					(reference "J3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "rpi-wiringpi-unit-test-platform-board-5:RV1")
+		(at 41.91 69.85 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "e6fd711a-64c1-556d-a1af-51c1891b5797")
+		(property "Reference" "RV1"
+			(at 41.91 62.23 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "10k"
+			(at 41.91 77.47 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:RV1"
+			(at 41.91 69.85 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 41.91 69.85 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 41.91 69.85 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "badd9b01-723e-522a-8cd7-acd110436973")
+		)
+		(pin "2"
+			(uuid "fb378193-9613-539c-ae50-fbe4d972d198")
+		)
+		(pin "3"
+			(uuid "7ad8f09b-5d73-5fab-a3d5-2186057c2c20")
+		)
+		(instances
+			(project "rpi-wiringpi-unit-test-platform-board-5"
+				(path "/e004c7c1-bd45-5273-8695-af3f087c91dc"
+					(reference "RV1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "rpi-wiringpi-unit-test-platform-board-5:J2")
+		(at 43.18 100.33 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "fcc9e90d-a3ce-524d-82fa-851331e39685")
+		(property "Reference" "J2"
+			(at 43.18 92.71 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "JST_IN_SIG"
+			(at 43.18 107.95 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:J2"
+			(at 43.18 100.33 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 43.18 100.33 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 43.18 100.33 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "44e9b14a-ac8c-5e23-b402-f61f8fdc3bdb")
+		)
+		(pin "2"
+			(uuid "3022c4ad-c45e-5ef3-82aa-5bc6e84fe70d")
+		)
+		(pin "3"
+			(uuid "72d2beab-3766-5be1-acf9-ea8179201f75")
+		)
+		(pin "4"
+			(uuid "8b8b2dbb-6dee-51f0-8078-0b9a13a5afcc")
+		)
+		(instances
+			(project "rpi-wiringpi-unit-test-platform-board-5"
+				(path "/e004c7c1-bd45-5273-8695-af3f087c91dc"
+					(reference "J2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "rpi-wiringpi-unit-test-platform-board-5:LCD1")
+		(at 38.1 33.02 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "ff9ac6fa-bec0-564a-a45b-883f0ee25a27")
+		(property "Reference" "LCD1"
+			(at 38.1 17.78 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "HD44780_20x4"
+			(at 38.1 48.26 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:LCD1"
+			(at 38.1 33.02 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 38.1 33.02 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 38.1 33.02 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "0876d62f-b17e-5c07-826f-9c673a06d4c4")
+		)
+		(pin "2"
+			(uuid "caaa1eda-33e7-5704-bf7a-a20414e533a6")
+		)
+		(pin "3"
+			(uuid "ef4f8dfa-aa0e-50e7-9dd7-b4dc79336f40")
+		)
+		(pin "4"
+			(uuid "421e4928-8c49-5f5f-bac4-ccd3a4a1df3c")
+		)
+		(pin "5"
+			(uuid "a3dccb69-0ec7-5aa1-99ee-84a90348643a")
+		)
+		(pin "6"
+			(uuid "33508b06-deef-5331-aca8-02e15595c6ba")
+		)
+		(pin "7"
+			(uuid "c63c57cd-9cef-5f90-8201-4319ea7b6bff")
+		)
+		(pin "8"
+			(uuid "b8dc1a05-cb52-57e7-a163-d8eeb4fe176a")
+		)
+		(pin "9"
+			(uuid "123bff19-7f7a-5f18-a2e7-d9fb10b8cecb")
+		)
+		(pin "10"
+			(uuid "386de172-e02d-5975-83d6-e3f967b69923")
+		)
+		(pin "11"
+			(uuid "e311b053-62f8-5d4a-874a-c5364cf47873")
+		)
+		(pin "12"
+			(uuid "931a8bcd-aeef-576e-8567-20ec5e68f13a")
+		)
+		(pin "13"
+			(uuid "28cd1fb5-0819-5e15-aa7f-7bc35a554380")
+		)
+		(pin "14"
+			(uuid "a0e04021-53f0-59df-a662-e7e8e32280ef")
+		)
+		(pin "15"
+			(uuid "51148c13-0776-5224-ac22-4723a1a259b6")
+		)
+		(pin "16"
+			(uuid "267adac4-2333-58c4-9ba9-353525c00e98")
+		)
+		(instances
+			(project "rpi-wiringpi-unit-test-platform-board-5"
+				(path "/e004c7c1-bd45-5273-8695-af3f087c91dc"
+					(reference "LCD1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+	(embedded_fonts no)
 )
