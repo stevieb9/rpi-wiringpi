@@ -1,3 +1,4 @@
+# TESTDOC: OLED object creation
 use strict;
 use warnings;
 

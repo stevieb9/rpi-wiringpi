@@ -1,3 +1,4 @@
+# TESTDOC: MCP23017 GPIO expander
 use strict;
 use warnings;
 use Test::More;

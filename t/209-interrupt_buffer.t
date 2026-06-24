@@ -1,3 +1,4 @@
+# TESTDOC: Interrupt buffering
 use strict;
 use warnings;
 

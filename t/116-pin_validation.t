@@ -1,3 +1,4 @@
+# TESTDOC: RPi::Pin arg validation (HW-free)
 use strict;
 use warnings;
 

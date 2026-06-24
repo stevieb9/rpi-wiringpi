@@ -1,3 +1,4 @@
+# TESTDOC: OO worker() method
 use strict;
 use warnings;
 

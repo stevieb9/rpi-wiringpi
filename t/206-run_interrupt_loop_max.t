@@ -1,3 +1,4 @@
+# TESTDOC: Interrupt loop max count
 use strict;
 use warnings;
 

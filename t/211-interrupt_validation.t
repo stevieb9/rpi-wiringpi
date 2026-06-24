@@ -1,3 +1,4 @@
+# TESTDOC: Interrupt arg validation
 use strict;
 use warnings;
 

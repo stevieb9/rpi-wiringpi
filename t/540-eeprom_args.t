@@ -1,3 +1,4 @@
+# TESTDOC: EEPROM argument validation
 use strict;
 use warnings;
 

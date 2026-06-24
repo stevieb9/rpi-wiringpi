@@ -1,3 +1,4 @@
+# TESTDOC: _restore_pin_alt() alt-31 recovery
 use strict;
 use warnings;
 

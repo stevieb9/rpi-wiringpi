@@ -1,3 +1,4 @@
+# TESTDOC: SysInfo: GPIO information
 use warnings;
 use strict;
 use feature 'say';

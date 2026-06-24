@@ -1,3 +1,4 @@
+# TESTDOC: SysInfo: network information
 use warnings;
 use strict;
 use feature 'say';

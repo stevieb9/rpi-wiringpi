@@ -1,3 +1,4 @@
+# TESTDOC: Multi-proc meta, SIGINT
 use warnings;
 use strict;
 

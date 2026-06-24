@@ -1,3 +1,4 @@
+# TESTDOC: Serial loopback
 use strict;
 use warnings;
 

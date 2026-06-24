@@ -1,3 +1,4 @@
+# TESTDOC: OLED rectangle
 use strict;
 use warnings;
 

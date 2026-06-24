@@ -1,3 +1,4 @@
+# TESTDOC: POD coverage (author)
 use 5.006;
 use strict;
 use warnings;

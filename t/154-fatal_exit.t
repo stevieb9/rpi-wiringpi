@@ -1,3 +1,4 @@
+# TESTDOC: fatal_exit on object crash
 use strict;
 use warnings;
 

@@ -1,3 +1,4 @@
+# TESTDOC: SysInfo: Pi model
 use warnings;
 use strict;
 use feature 'say';

@@ -1,3 +1,4 @@
+# TESTDOC: BMP180 temp/pressure
 use warnings;
 use strict;
 

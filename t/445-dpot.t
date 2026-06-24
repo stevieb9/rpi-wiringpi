@@ -1,3 +1,4 @@
+# TESTDOC: MCP4XXXX digital pot (read via ADC)
 use warnings;
 use strict;
 

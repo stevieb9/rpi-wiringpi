@@ -1,3 +1,4 @@
+# TESTDOC: MCP23017 unit (HW-free)
 use strict;
 use warnings;
 

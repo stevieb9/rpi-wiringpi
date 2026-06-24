@@ -1,3 +1,4 @@
+# TESTDOC: WiringPi::API unit (HW-free)
 use strict;
 use warnings;
 

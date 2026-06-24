@@ -1,3 +1,4 @@
+# TESTDOC: Metadata store CRUD
 use strict;
 use warnings;
 

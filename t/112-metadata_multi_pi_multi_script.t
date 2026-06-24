@@ -1,3 +1,4 @@
+# TESTDOC: Multi-proc meta, clean exit
 use warnings;
 use strict;
 

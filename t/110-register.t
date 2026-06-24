@@ -1,3 +1,4 @@
+# TESTDOC: Pin/object registration
 use strict;
 use warnings;
 

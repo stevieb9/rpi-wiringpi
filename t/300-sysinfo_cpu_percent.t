@@ -1,3 +1,4 @@
+# TESTDOC: SysInfo: CPU usage %
 use warnings;
 use strict;
 

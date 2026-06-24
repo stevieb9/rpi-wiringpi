@@ -1,3 +1,4 @@
+# TESTDOC: Multi-obj meta, single script
 use strict;
 use warnings;
 

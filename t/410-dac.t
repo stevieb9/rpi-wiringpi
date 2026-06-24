@@ -1,3 +1,4 @@
+# TESTDOC: MCP4922 DAC (read via MCP3008)
 use warnings;
 use strict;
 

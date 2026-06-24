@@ -1,3 +1,4 @@
+# TESTDOC: MANIFEST check (author)
 use 5.006;
 use strict;
 use warnings;

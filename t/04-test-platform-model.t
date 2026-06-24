@@ -1,3 +1,4 @@
+# TESTDOC: Test-platform model validation
 use warnings;
 use strict;
 

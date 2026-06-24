@@ -1,3 +1,4 @@
+# TESTDOC: Mode + state on every pin
 use warnings;
 use strict;
 

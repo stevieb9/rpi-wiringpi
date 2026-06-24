@@ -1,3 +1,4 @@
+# TESTDOC: CRC32 shared-mem key
 use strict;
 use warnings;
 

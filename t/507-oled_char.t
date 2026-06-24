@@ -1,3 +1,4 @@
+# TESTDOC: OLED character
 use strict;
 use warnings;
 

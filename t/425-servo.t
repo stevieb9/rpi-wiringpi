@@ -1,3 +1,4 @@
+# TESTDOC: Servo HW PWM (read via ADC)
 use strict;
 use warnings;
 

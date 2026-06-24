@@ -1,3 +1,4 @@
+# TESTDOC: Pin map / pin_scheme()
 use strict;
 use warnings;
 

@@ -1,3 +1,4 @@
+# TESTDOC: SysInfo: board/OS details
 use warnings;
 use strict;
 use feature 'say';

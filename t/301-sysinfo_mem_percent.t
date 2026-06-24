@@ -1,3 +1,4 @@
+# TESTDOC: SysInfo: memory usage %
 use warnings;
 use strict;
 

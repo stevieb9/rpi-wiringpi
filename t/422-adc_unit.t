@@ -1,3 +1,4 @@
+# TESTDOC: RPi::ADC::ADS unit (HW-free)
 use strict;
 use warnings;
 

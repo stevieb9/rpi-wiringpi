@@ -35,6 +35,15 @@ die "docs/pod/ not found at $out_dir\n"   unless -d $out_dir;
 
 my $pod2md = find_pod2markdown();
 
+# Regenerate the FAQ "Test file reference" table from the test suite first, so
+# the POD we render below already carries the current table (it lives in
+# FAQ.pod). Keeps the generated docs in lock-step with t/.
+{
+    my $table_gen = File::Spec->catfile($script_dir, 'gen-faq-test-table.pl');
+    system($^X, $table_gen) == 0
+        or die "gen-pod-md: $table_gen failed (exit " . ($? >> 8) . ")\n";
+}
+
 # Collect candidate POD sources under lib/.
 my @sources;
 find(

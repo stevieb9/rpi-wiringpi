@@ -1,3 +1,4 @@
+# TESTDOC: Interrupt dispatch
 use strict;
 use warnings;
 

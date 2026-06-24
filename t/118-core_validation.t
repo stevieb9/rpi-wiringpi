@@ -1,3 +1,4 @@
+# TESTDOC: Core arg validation (HW-free)
 use strict;
 use warnings;
 

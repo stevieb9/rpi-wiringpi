@@ -1,3 +1,4 @@
+# TESTDOC: Stepper motor (timed limit switches)
 use warnings;
 use strict;
 

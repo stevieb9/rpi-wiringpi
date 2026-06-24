@@ -1,3 +1,4 @@
+# TESTDOC: OLED dim
 use strict;
 use warnings;
 

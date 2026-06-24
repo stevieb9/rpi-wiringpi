@@ -1,3 +1,4 @@
+# TESTDOC: Rising-edge interrupt + pull
 use strict;
 use warnings;
 

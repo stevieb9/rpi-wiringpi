@@ -1,3 +1,4 @@
+# TESTDOC: I2C exception handling
 use strict;
 use warnings;
 

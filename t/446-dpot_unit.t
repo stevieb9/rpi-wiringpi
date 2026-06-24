@@ -1,3 +1,4 @@
+# TESTDOC: MCP4XXXX digipot unit (HW-free)
 use warnings;
 use strict;
 

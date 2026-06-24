@@ -1,3 +1,4 @@
+# TESTDOC: SysInfo: filesystem information
 use warnings;
 use strict;
 use feature 'say';

@@ -1,3 +1,4 @@
+# TESTDOC: POD link check (author)
 use warnings;
 use strict;
 

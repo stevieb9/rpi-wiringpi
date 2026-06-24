@@ -1,3 +1,4 @@
+# TESTDOC: OLED splash screen
 use strict;
 use warnings;
 

@@ -1,3 +1,4 @@
+# TESTDOC: Core regression guards
 use strict;
 use warnings;
 

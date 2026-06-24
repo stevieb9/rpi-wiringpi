@@ -1,3 +1,4 @@
+# TESTDOC: EEPROM byte read/write
 use strict;
 use warnings;
 

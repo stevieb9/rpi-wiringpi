@@ -1,3 +1,4 @@
+# TESTDOC: EEPROM byte r/w error handling
 use strict;
 use warnings;
 

@@ -1,3 +1,4 @@
+# TESTDOC: last_interrupt() state
 use strict;
 use warnings;
 

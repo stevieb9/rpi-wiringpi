@@ -1,3 +1,4 @@
+# TESTDOC: Background interrupts
 use strict;
 use warnings;
 

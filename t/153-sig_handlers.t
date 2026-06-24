@@ -1,3 +1,4 @@
+# TESTDOC: Signal handler install/restore
 use strict;
 use warnings;
 

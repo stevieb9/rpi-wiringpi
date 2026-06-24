@@ -1,3 +1,4 @@
+# TESTDOC: Falling-edge interrupt + pull
 use strict;
 use warnings;
 

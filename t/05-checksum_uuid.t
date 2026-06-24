@@ -1,3 +1,4 @@
+# TESTDOC: checksum()/UUID entropy
 use strict;
 use warnings;
 use feature 'say';

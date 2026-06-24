@@ -1,3 +1,4 @@
+# TESTDOC: POD syntax (author)
 use strict;
 use warnings;
 

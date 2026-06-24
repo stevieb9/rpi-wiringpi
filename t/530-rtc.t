@@ -1,3 +1,4 @@
+# TESTDOC: DS3231 real-time clock
 use warnings;
 use strict;
 

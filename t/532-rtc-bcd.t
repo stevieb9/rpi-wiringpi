@@ -1,3 +1,4 @@
+# TESTDOC: DS3231 BCD encode/decode (HW-free)
 use strict;
 use warnings;
 

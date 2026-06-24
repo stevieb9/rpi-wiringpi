@@ -1,3 +1,4 @@
+# TESTDOC: EEPROM validation (HW-free)
 use strict;
 use warnings;
 

@@ -1,3 +1,4 @@
+# TESTDOC: Both-edge interrupt + pull
 use strict;
 use warnings;
 

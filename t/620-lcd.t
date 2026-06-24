@@ -1,3 +1,4 @@
+# TESTDOC: HD44780 LCD
 use warnings;
 use strict;
 

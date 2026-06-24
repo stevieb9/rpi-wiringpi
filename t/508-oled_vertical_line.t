@@ -1,3 +1,4 @@
+# TESTDOC: OLED vertical line
 use strict;
 use warnings;
 

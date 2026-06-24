@@ -1,3 +1,4 @@
+# TESTDOC: Stop interrupts
 use strict;
 use warnings;
 

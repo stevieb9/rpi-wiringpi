@@ -1,3 +1,4 @@
+# TESTDOC: PWM/I2C/ADC integration
 use strict;
 use warnings;
 

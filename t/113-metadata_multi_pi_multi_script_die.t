@@ -1,3 +1,4 @@
+# TESTDOC: Multi-proc meta, proc die()s
 use warnings;
 use strict;
 

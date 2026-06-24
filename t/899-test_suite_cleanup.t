@@ -1,3 +1,4 @@
+# TESTDOC: Final meta/pin reset
 use warnings;
 use strict;
 

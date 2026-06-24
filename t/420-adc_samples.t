@@ -1,3 +1,4 @@
+# TESTDOC: ADS samples() averaging
 use strict;
 use warnings;
 

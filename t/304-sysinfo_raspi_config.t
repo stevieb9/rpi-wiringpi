@@ -1,3 +1,4 @@
+# TESTDOC: SysInfo: raspi-config settings
 use warnings;
 use strict;
 use feature 'say';

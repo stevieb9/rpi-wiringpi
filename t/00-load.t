@@ -1,3 +1,4 @@
+# TESTDOC: Module loads (use_ok)
 use strict;
 use warnings;
 

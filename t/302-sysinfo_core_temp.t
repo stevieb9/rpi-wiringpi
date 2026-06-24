@@ -1,3 +1,4 @@
+# TESTDOC: SysInfo: CPU core temperature
 use warnings;
 use strict;
 

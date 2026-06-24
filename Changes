@@ -82,6 +82,18 @@ Revision history for Perl extension RPi::WiringPi.
     - Added decoupling/bulk capacitors C1 (0.1 µF), C2 (0.1 µF) and C3 (10 µF
       polarized) on the board-5 schematic, all wired +3V3 -> GND, mirroring
       board 3's C1-C3
+    - Automated the FAQ "Test file reference" table. It had drifted badly
+      (missing ~18 tests, including the new t/335-lcd_i2c.t, t/116-119, t/250,
+      t/308, the *_unit.t mirrors, t/420-422, t/532, t/543). New generator
+      scripts/gen-faq-test-table.pl rebuilds it from the suite: each test
+      carries a "# TESTDOC: <desc>" marker (the description), the board is read
+      from its RPI_BOARD_X convenience block, and the env column is derived
+      (board test -> the gates that block enables; otherwise the RPI_* gates the
+      test skips on). gen-pod-md.pl runs it first, so FAQ.pod/FAQ.md regenerate
+      in lock-step with t/. The generator dies if any test lacks a TESTDOC
+      marker, so the table can't silently go stale again
+    - Added a "# TESTDOC:" description marker to every t/*.t (92 files) and the
+      18 previously-undocumented tests now appear in the FAQ table
 
 3.1802     2026-06-12
     - bump prereq of RPi::I2C to 2.3608

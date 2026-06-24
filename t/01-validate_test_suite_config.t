@@ -1,3 +1,4 @@
+# TESTDOC: Reset meta/pins; validate config
 use warnings;
 use strict;
 

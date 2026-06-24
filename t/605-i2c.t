@@ -1,3 +1,4 @@
+# TESTDOC: I2C read/write (Arduino)
 use strict;
 use warnings;
 

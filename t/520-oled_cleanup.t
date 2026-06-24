@@ -1,3 +1,4 @@
+# TESTDOC: OLED cleanup
 use strict;
 use warnings;
 

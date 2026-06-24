@@ -1,3 +1,4 @@
+# TESTDOC: HW PWM sweep (read via ADC)
 use strict;
 use warnings;
 

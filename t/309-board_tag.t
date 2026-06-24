@@ -1,3 +1,4 @@
+# TESTDOC: Board-family detection (rpi_board_tag)
 use warnings;
 use strict;
 

@@ -1,3 +1,4 @@
+# TESTDOC: OLED pixel
 use strict;
 use warnings;
 

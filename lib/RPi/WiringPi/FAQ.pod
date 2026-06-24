@@ -1337,13 +1337,20 @@ default, L<RPi::WiringPi> uses C<rpiw>.
 
 =head2 Test file reference
 
+B<This table is generated> from the test suite by
+C<scripts/gen-faq-test-table.pl> (run automatically by
+C<scripts/gen-pod-md.pl>) - do not edit it by hand. Each row is derived from the
+test file itself: its C<# TESTDOC:> description marker, the board its
+C<RPI_BOARD_X> convenience block names, and the env gates that block enables.
+
 Every test in the suite requires C<RPI_BOARD> to run at all; see L</Base
 information> below. C<RPI_OBJECT_COUNT> and C<RPI_PIN_COUNT> are optional and
 default to C<0> when unset (only needed if an auto-startup object pre-exists in
-shared memory). The C<Additional env vars> column lists only the I<extra>
-variables a given test needs on top of C<RPI_BOARD> - if it reads C<(none)>,
-C<RPI_BOARD> alone is sufficient. Tests marked C<RPI_SUDO> re-run themselves under
-C<sudo> automatically.
+shared memory). For a board test the C<Additional env vars> column lists every
+gate that board's C<RPI_BOARD_X> switch turns on (setting C<RPI_BOARD_X> enables
+all of them at once); for a test not tied to a board it lists only the C<RPI_*>
+variables that test skips on, or C<(none)> when C<RPI_BOARD> alone suffices.
+Tests marked C<RPI_SUDO> re-run themselves under C<sudo> automatically.
 
 The hardware tests run against a small set of purpose-built I<satellite test
 boards> that hang off the Pi (board 1, the host), each carrying the real devices
@@ -1355,81 +1362,100 @@ C<RPI_EEPROM>, C<RPI_OLED>) by hand. A C<-> means the test isn't tied to a
 satellite board. See L</RUNNING TESTS> rig runners under C<t/scripts/> for the
 per-board suites.
 
-    Test file                                    What it tests                        Test hardware Additional env vars
-    -------------------------------------------- ------------------------------------ ------------- --------------------
-    00-load.t                                    Module loads (use_ok)                -             (none)
-    01-validate_test_suite_config.t              Reset meta/pins; validate config     -             (none)
-    02-shm_key.t                                 CRC32 shared-mem key                 -             (none)
-    03-meta.t                                    Metadata store CRUD                  -             (none)
-    05-checksum_uuid.t                           checksum()/UUID entropy              -             (none)
-    100-identification_and_label.t               Board identification + label()       -             (none)
-    105-pin.t                                    Pin create/mode/read/write           -             (none)
-    106-pin_map.t                                Pin map / pin_scheme()               -             (none)
-    107-alt_modes.t                              Pin alt-mode get/set                 -             (none)
-    108-mode_state_all_pins.t                    Mode + state on every pin            -             (none)
-    110-register.t                               Pin/object registration              -             (none)
-    111-metadata_multi_pi_single_script.t        Multi-obj meta, single script        -             RPI_MULTI
-    112-metadata_multi_pi_multi_script.t         Multi-proc meta, clean exit          -             RPI_MULTI
-    113-metadata_multi_pi_multi_script_die.t     Multi-proc meta, proc die()s         -             RPI_MULTI
-    114-metadata_multi_pi_multi_script_sigint.t  Multi-proc meta, SIGINT              -             RPI_MULTI
-    150-cleanup.t                                cleanup() releases resources         -             (none)
-    153-sig_handlers.t                           Signal handler install/restore       -             (none)
-    200-interrupt_rising_and_pud.t               Rising-edge interrupt + pull         -             (none)
-    201-interrupt_falling_and_pud.t              Falling-edge interrupt + pull        -             (none)
-    202-interrupt_both_and_pud.t                 Both-edge interrupt + pull           -             (none)
-    203-dispatch_interrupts.t                    Interrupt dispatch                   -             (none)
-    204-last_interrupt.t                         last_interrupt() state               -             (none)
-    205-stop_interrupts.t                        Stop interrupts                      -             (none)
-    206-run_interrupt_loop_max.t                 Interrupt loop max count             -             (none)
-    207-stop_interrupt_loop.t                    Stop interrupt loop                  -             (none)
-    208-auto_dispatch_interrupts.t               Auto interrupt dispatch              -             (none)
-    209-interrupt_buffer.t                       Interrupt buffering                  -             (none)
-    210-background_interrupts.t                  Background interrupts                -             (none)
-    211-interrupt_validation.t                   Interrupt arg validation             -             (none)
-    212-pin_background_interrupt.t               Per-pin background interrupt         -             (none)
-    213-worker.t                                 OO worker() method                   -             (none)
-    300-sysinfo_cpu_percent.t                    SysInfo: CPU usage %                 -             (none)
-    301-sysinfo_mem_percent.t                    SysInfo: memory usage %              -             (none)
-    302-sysinfo_core_temp.t                      SysInfo: CPU core temperature        -             (none)
-    303-sysinfo_gpio_info.t                      SysInfo: GPIO information            -             (none)
-    304-sysinfo_raspi_config.t                   SysInfo: raspi-config settings       -             (none)
-    305-sysinfo_network_info.t                   SysInfo: network information         -             (none)
-    306-sysinfo_file_system.t                    SysInfo: filesystem information      -             (none)
-    307-sysinfo_pi_details.t                     SysInfo: board/OS details            -             (none)
-    309-board_tag.t                              Board-family detection (rpi_board_tag) -             (none)
-    350-stepper.t                                Stepper motor (timed limit switches) RPI_BOARD_3   RPI_MCP23017, RPI_STEPPER
-    355-mcp23017.t                               MCP23017 GPIO expander               RPI_BOARD_3   RPI_MCP23017
-    400-pwm_hw_mods.t                            HW PWM sweep (read via ADC)          RPI_BOARD_2   RPI_SUDO, RPI_I2C
-    405-pwm_i2c_adc.t                            PWM/I2C/ADC integration              RPI_BOARD_2   RPI_SUDO, RPI_ADC, RPI_I2C
-    410-dac.t                                    MCP4922 DAC (read via MCP3008)       RPI_BOARD_2   RPI_MCP4922, RPI_MCP3008
-    425-servo.t                                  Servo HW PWM (read via ADC)          RPI_BOARD_2   RPI_SUDO, RPI_SERVO, RPI_ADC, RPI_I2C
-    435-shift_reg_adc.t                          74HC595 shift reg (read via ADC)     RPI_BOARD_2   RPI_MCP3008, RPI_SHIFTREG
-    445-dpot.t                                   MCP4XXXX digital pot (read via ADC)  RPI_BOARD_2   RPI_DIGIPOT, RPI_ADC
-    500-oled_new.t                               OLED object creation                 RPI_BOARD_4   RPI_OLED
-    501-oled_string.t                            OLED draw string                     RPI_BOARD_4   RPI_OLED
-    502-oled_rect.t                              OLED rectangle                       RPI_BOARD_4   RPI_OLED
-    503-oled_dim.t                               OLED dim                             RPI_BOARD_4   RPI_OLED
-    504-oled_splash_screen.t                     OLED splash screen                   RPI_BOARD_4   RPI_OLED
-    505-oled_invert_display.t                    OLED invert display                  RPI_BOARD_4   RPI_OLED
-    506-oled_pixel.t                             OLED pixel                           RPI_BOARD_4   RPI_OLED
-    507-oled_char.t                              OLED character                       RPI_BOARD_4   RPI_OLED
-    508-oled_vertical_line.t                     OLED vertical line                   RPI_BOARD_4   RPI_OLED
-    509-oled_horizontal_line.t                   OLED horizontal line                 RPI_BOARD_4   RPI_OLED
-    520-oled_cleanup.t                           OLED cleanup                         RPI_BOARD_4   RPI_OLED
-    530-rtc.t                                    DS3231 real-time clock               RPI_BOARD_4   RPI_RTC
-    531-bmp.t                                    BMP180 temp/pressure                 RPI_BOARD_4   RPI_BMP
-    540-eeprom_args.t                            EEPROM argument validation           RPI_BOARD_4   RPI_EEPROM
-    541-eeprom_read_write_byte_croak.t           EEPROM byte r/w error handling       RPI_BOARD_4   RPI_EEPROM
-    542-eeprom_read_write_byte.t                 EEPROM byte read/write               RPI_BOARD_4   RPI_EEPROM
-    600-i2c_exceptions.t                         I2C exception handling               RPI_BOARD_5   RPI_ARDUINO
-    605-i2c.t                                    I2C read/write (Arduino)             RPI_BOARD_5   RPI_ARDUINO
-    610-serial.t                                 Serial loopback                      RPI_BOARD_5   RPI_SERIAL
-    620-lcd.t                                    HD44780 LCD                          RPI_BOARD_5   RPI_LCD
-    899-test_suite_cleanup.t                     Final meta/pin reset                 -             (none)
-    900-pod_coverage.t                           POD coverage (author)                -             RPI_RELEASE_TESTING
-    905-pod_linkcheck.t                          POD link check (author)              -             RPI_RELEASE_TESTING
-    910-pod.t                                    POD syntax (author)                  -             RPI_RELEASE_TESTING
-    915-manifest.t                               MANIFEST check (author)              -             RPI_RELEASE_TESTING
+    Test file                                   What it tests                          Test hardware Additional env vars
+    ------------------------------------------- -------------------------------------- ------------- ------------------------------------------------------------------------------------------
+    00-load.t                                   Module loads (use_ok)                  -             (none)
+    01-validate_test_suite_config.t             Reset meta/pins; validate config       -             (none)
+    02-shm_key.t                                CRC32 shared-mem key                   -             (none)
+    03-meta.t                                   Metadata store CRUD                    -             (none)
+    04-test-platform-model.t                    Test-platform model validation         -             (none)
+    05-checksum_uuid.t                          checksum()/UUID entropy                -             (none)
+    100-identification_and_label.t              Board identification + label()         -             (none)
+    104-core_regressions.t                      Core regression guards                 -             (none)
+    105-pin.t                                   Pin create/mode/read/write             -             (none)
+    106-pin_map.t                               Pin map / pin_scheme()                 -             (none)
+    107-alt_modes.t                             Pin alt-mode get/set                   -             (none)
+    108-mode_state_all_pins.t                   Mode + state on every pin              -             (none)
+    110-register.t                              Pin/object registration                -             (none)
+    111-metadata_multi_pi_single_script.t       Multi-obj meta, single script          -             (none)
+    112-metadata_multi_pi_multi_script.t        Multi-proc meta, clean exit            -             (none)
+    113-metadata_multi_pi_multi_script_die.t    Multi-proc meta, proc die()s           -             (none)
+    114-metadata_multi_pi_multi_script_sigint.t Multi-proc meta, SIGINT                -             (none)
+    116-pin_validation.t                        RPi::Pin arg validation (HW-free)      -             (none)
+    117-wiringpi_api_unit.t                     WiringPi::API unit (HW-free)           -             (none)
+    118-core_validation.t                       Core arg validation (HW-free)          -             (none)
+    119-restore_pin_alt.t                       _restore_pin_alt() alt-31 recovery     -             (none)
+    150-cleanup.t                               cleanup() releases resources           -             (none)
+    153-sig_handlers.t                          Signal handler install/restore         -             (none)
+    154-fatal_exit.t                            fatal_exit on object crash             -             (none)
+    200-interrupt_rising_and_pud.t              Rising-edge interrupt + pull           -             (none)
+    201-interrupt_falling_and_pud.t             Falling-edge interrupt + pull          -             (none)
+    202-interrupt_both_and_pud.t                Both-edge interrupt + pull             -             (none)
+    203-dispatch_interrupts.t                   Interrupt dispatch                     -             (none)
+    204-last_interrupt.t                        last_interrupt() state                 -             (none)
+    205-stop_interrupts.t                       Stop interrupts                        -             (none)
+    206-run_interrupt_loop_max.t                Interrupt loop max count               -             (none)
+    207-stop_interrupt_loop.t                   Stop interrupt loop                    -             (none)
+    208-auto_dispatch_interrupts.t              Auto interrupt dispatch                -             (none)
+    209-interrupt_buffer.t                      Interrupt buffering                    -             (none)
+    210-background_interrupts.t                 Background interrupts                  -             (none)
+    211-interrupt_validation.t                  Interrupt arg validation               -             (none)
+    212-pin_background_interrupt.t              Per-pin background interrupt           -             (none)
+    213-worker.t                                OO worker() method                     -             (none)
+    250-i2c_unit.t                              RPi::I2C unit (HW-free)                -             (none)
+    300-sysinfo_cpu_percent.t                   SysInfo: CPU usage %                   -             (none)
+    301-sysinfo_mem_percent.t                   SysInfo: memory usage %                -             (none)
+    302-sysinfo_core_temp.t                     SysInfo: CPU core temperature          -             (none)
+    303-sysinfo_gpio_info.t                     SysInfo: GPIO information              -             (none)
+    304-sysinfo_raspi_config.t                  SysInfo: raspi-config settings         -             (none)
+    305-sysinfo_network_info.t                  SysInfo: network information           -             (none)
+    306-sysinfo_file_system.t                   SysInfo: filesystem information        -             (none)
+    307-sysinfo_pi_details.t                    SysInfo: board/OS details              -             (none)
+    308-sysinfo_pi_model.t                      SysInfo: Pi model                      -             (none)
+    309-board_tag.t                             Board-family detection (rpi_board_tag) -             (none)
+    335-lcd_i2c.t                               I2C LCD via PCF8574 backpack           RPI_BOARD_1   RPI_LCD_I2C
+    350-stepper.t                               Stepper motor (timed limit switches)   RPI_BOARD_3   RPI_MCP23017, RPI_STEPPER
+    351-stepper-seek.t                          StepperSeek homing unit (HW-free)      -             (none)
+    355-mcp23017.t                              MCP23017 GPIO expander                 RPI_BOARD_3   RPI_MCP23017, RPI_STEPPER
+    356-mcp23017_unit.t                         MCP23017 unit (HW-free)                -             (none)
+    400-pwm_hw_mods.t                           HW PWM sweep (read via ADC)            RPI_BOARD_2   RPI_SUDO, RPI_I2C, RPI_ADC, RPI_MCP3008, RPI_MCP4922, RPI_SERVO, RPI_SHIFTREG, RPI_DIGIPOT
+    405-pwm_i2c_adc.t                           PWM/I2C/ADC integration                RPI_BOARD_2   RPI_SUDO, RPI_I2C, RPI_ADC, RPI_MCP3008, RPI_MCP4922, RPI_SERVO, RPI_SHIFTREG, RPI_DIGIPOT
+    410-dac.t                                   MCP4922 DAC (read via MCP3008)         RPI_BOARD_2   RPI_SUDO, RPI_I2C, RPI_ADC, RPI_MCP3008, RPI_MCP4922, RPI_SERVO, RPI_SHIFTREG, RPI_DIGIPOT
+    411-dac_unit.t                              MCP4922 DAC unit (HW-free)             -             (none)
+    420-adc_samples.t                           ADS samples() averaging                -             RPI_ADC
+    421-adc_gain.t                              ADS1115 gain/PGA arg                   -             RPI_ADC
+    422-adc_unit.t                              RPi::ADC::ADS unit (HW-free)           -             (none)
+    425-servo.t                                 Servo HW PWM (read via ADC)            RPI_BOARD_2   RPI_SUDO, RPI_I2C, RPI_ADC, RPI_MCP3008, RPI_MCP4922, RPI_SERVO, RPI_SHIFTREG, RPI_DIGIPOT
+    435-shift_reg_adc.t                         74HC595 shift reg (read via ADC)       RPI_BOARD_2   RPI_SUDO, RPI_I2C, RPI_ADC, RPI_MCP3008, RPI_MCP4922, RPI_SERVO, RPI_SHIFTREG, RPI_DIGIPOT
+    445-dpot.t                                  MCP4XXXX digital pot (read via ADC)    RPI_BOARD_2   RPI_SUDO, RPI_I2C, RPI_ADC, RPI_MCP3008, RPI_MCP4922, RPI_SERVO, RPI_SHIFTREG, RPI_DIGIPOT
+    446-dpot_unit.t                             MCP4XXXX digipot unit (HW-free)        -             (none)
+    500-oled_new.t                              OLED object creation                   RPI_BOARD_4   RPI_RTC, RPI_BMP, RPI_EEPROM, RPI_OLED
+    501-oled_string.t                           OLED draw string                       RPI_BOARD_4   RPI_RTC, RPI_BMP, RPI_EEPROM, RPI_OLED
+    502-oled_rect.t                             OLED rectangle                         RPI_BOARD_4   RPI_RTC, RPI_BMP, RPI_EEPROM, RPI_OLED
+    503-oled_dim.t                              OLED dim                               RPI_BOARD_4   RPI_RTC, RPI_BMP, RPI_EEPROM, RPI_OLED
+    504-oled_splash_screen.t                    OLED splash screen                     RPI_BOARD_4   RPI_RTC, RPI_BMP, RPI_EEPROM, RPI_OLED
+    505-oled_invert_display.t                   OLED invert display                    RPI_BOARD_4   RPI_RTC, RPI_BMP, RPI_EEPROM, RPI_OLED
+    506-oled_pixel.t                            OLED pixel                             RPI_BOARD_4   RPI_RTC, RPI_BMP, RPI_EEPROM, RPI_OLED
+    507-oled_char.t                             OLED character                         RPI_BOARD_4   RPI_RTC, RPI_BMP, RPI_EEPROM, RPI_OLED
+    508-oled_vertical_line.t                    OLED vertical line                     RPI_BOARD_4   RPI_RTC, RPI_BMP, RPI_EEPROM, RPI_OLED
+    509-oled_horizontal_line.t                  OLED horizontal line                   RPI_BOARD_4   RPI_RTC, RPI_BMP, RPI_EEPROM, RPI_OLED
+    520-oled_cleanup.t                          OLED cleanup                           RPI_BOARD_4   RPI_RTC, RPI_BMP, RPI_EEPROM, RPI_OLED
+    530-rtc.t                                   DS3231 real-time clock                 RPI_BOARD_4   RPI_RTC, RPI_BMP, RPI_EEPROM, RPI_OLED
+    531-bmp.t                                   BMP180 temp/pressure                   RPI_BOARD_4   RPI_RTC, RPI_BMP, RPI_EEPROM, RPI_OLED
+    532-rtc-bcd.t                               DS3231 BCD encode/decode (HW-free)     -             (none)
+    540-eeprom_args.t                           EEPROM argument validation             RPI_BOARD_4   RPI_RTC, RPI_BMP, RPI_EEPROM, RPI_OLED
+    541-eeprom_read_write_byte_croak.t          EEPROM byte r/w error handling         RPI_BOARD_4   RPI_RTC, RPI_BMP, RPI_EEPROM, RPI_OLED
+    542-eeprom_read_write_byte.t                EEPROM byte read/write                 RPI_BOARD_4   RPI_RTC, RPI_BMP, RPI_EEPROM, RPI_OLED
+    543-eeprom_validation.t                     EEPROM validation (HW-free)            -             (none)
+    600-i2c_exceptions.t                        I2C exception handling                 RPI_BOARD_5   RPI_ARDUINO, RPI_SERIAL, RPI_LCD
+    605-i2c.t                                   I2C read/write (Arduino)               RPI_BOARD_5   RPI_ARDUINO, RPI_SERIAL, RPI_LCD
+    610-serial.t                                Serial loopback                        RPI_BOARD_5   RPI_ARDUINO, RPI_SERIAL, RPI_LCD
+    620-lcd.t                                   HD44780 LCD                            RPI_BOARD_5   RPI_ARDUINO, RPI_SERIAL, RPI_LCD
+    899-test_suite_cleanup.t                    Final meta/pin reset                   -             (none)
+    900-pod_coverage.t                          POD coverage (author)                  -             RPI_RELEASE_TESTING
+    905-pod_linkcheck.t                         POD link check (author)                -             RPI_RELEASE_TESTING
+    910-pod.t                                   POD syntax (author)                    -             RPI_RELEASE_TESTING
+    915-manifest.t                              MANIFEST check (author)                -             RPI_RELEASE_TESTING
 
 =head2 Setup and configuration
 

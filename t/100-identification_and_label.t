@@ -1,3 +1,4 @@
+# TESTDOC: Board identification + label()
 use strict;
 use warnings;
 use Test::More;

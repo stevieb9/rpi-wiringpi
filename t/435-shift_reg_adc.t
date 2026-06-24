@@ -1,3 +1,4 @@
+# TESTDOC: 74HC595 shift reg (read via ADC)
 use warnings;
 use strict;
 

@@ -1,3 +1,4 @@
+# TESTDOC: StepperSeek homing unit (HW-free)
 use warnings;
 use strict;
 

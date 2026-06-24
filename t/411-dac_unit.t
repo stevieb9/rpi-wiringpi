@@ -1,3 +1,4 @@
+# TESTDOC: MCP4922 DAC unit (HW-free)
 use warnings;
 use strict;
 

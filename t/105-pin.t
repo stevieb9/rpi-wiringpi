@@ -1,3 +1,4 @@
+# TESTDOC: Pin create/mode/read/write
 use strict;
 use warnings;
 

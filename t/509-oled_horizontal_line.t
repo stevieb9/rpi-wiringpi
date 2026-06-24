@@ -1,3 +1,4 @@
+# TESTDOC: OLED horizontal line
 use strict;
 use warnings;
 

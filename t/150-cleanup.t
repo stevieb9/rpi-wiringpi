@@ -1,3 +1,4 @@
+# TESTDOC: cleanup() releases resources
 use strict;
 use warnings;
 

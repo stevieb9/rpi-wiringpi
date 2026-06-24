@@ -1,3 +1,4 @@
+# TESTDOC: RPi::I2C unit (HW-free)
 use strict;
 use warnings;
 

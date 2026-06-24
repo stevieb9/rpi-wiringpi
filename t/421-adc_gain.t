@@ -1,3 +1,4 @@
+# TESTDOC: ADS1115 gain/PGA arg
 use strict;
 use warnings;
 

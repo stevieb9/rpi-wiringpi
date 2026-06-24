@@ -1,3 +1,4 @@
+# TESTDOC: Auto interrupt dispatch
 use strict;
 use warnings;
 

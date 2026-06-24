@@ -1,3 +1,4 @@
+# TESTDOC: Pin alt-mode get/set
 use strict;
 use warnings;
 

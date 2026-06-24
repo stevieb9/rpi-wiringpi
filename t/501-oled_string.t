@@ -1,3 +1,4 @@
+# TESTDOC: OLED draw string
 use strict;
 use warnings;
 
