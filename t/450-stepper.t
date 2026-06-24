@@ -3,6 +3,15 @@ use strict;
 
 use lib 't/';
 
+# Board-3 convenience: set RPI_BOARD_3=1 and every env gate the board-3 suite
+# needs is enabled automatically, instead of exporting each one by hand. Runs in
+# BEGIN so it lands before RPiTest's compile-time RPI_BOARD skip_all gate.
+BEGIN {
+    if ($ENV{RPI_BOARD_3}) {
+        $ENV{$_} = 1 for qw(RPI_BOARD RPI_MCP23017 RPI_STEPPER);
+    }
+}
+
 use RPiTest;
 use RPi::Const qw(:all);
 use RPi::WiringPi;
