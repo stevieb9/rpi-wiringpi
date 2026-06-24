@@ -5,7 +5,7 @@ check-board-nets.py - verify a finalized board's NETS match its board model.
 check-kicad.py proves footprints resolve and cover their pins. check-model-drift.py
 proves the whole-board model still matches the tests. NEITHER proves that a
 hand-finalized board's actual pin-to-pin connectivity still implements its
-per-board electrical model (board-2-model.py, board-3-model.py, ...). That is the
+per-board electrical model (board-4-model.py, ...). That is the
 gap this script closes - the failure mode where someone edits the schematic/PCB in
 KiCad and silently moves a net off the pin the tests expect.
 
