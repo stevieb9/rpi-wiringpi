@@ -2,6 +2,15 @@ use strict;
 use warnings;
 use Test::More;
 
+# Board-3 convenience: set RPI_BOARD_3=1 and every env gate the board-3 suite
+# needs is enabled automatically, instead of exporting each one by hand. Runs in
+# BEGIN so it lands before the compile-time skip_all gates below.
+BEGIN {
+    if ($ENV{RPI_BOARD_3}) {
+        $ENV{$_} = 1 for qw(RPI_BOARD RPI_MCP23017 RPI_STEPPER);
+    }
+}
+
 # Note: A0, A1 and A2 MUST be died to Gnd
 
 BEGIN {
