@@ -79,6 +79,9 @@ Revision history for Perl extension RPi::WiringPi.
       FAQ I2C address table, fixed the t/330 reference in check-model-drift.py,
       and corrected stale cross-references in t/350, t/351, t/356, t/422, and
       t/StepperSeek.pm
+    - Added decoupling/bulk capacitors C1 (0.1 µF), C2 (0.1 µF) and C3 (10 µF
+      polarized) on the board-5 schematic, all wired +3V3 -> GND, mirroring
+      board 3's C1-C3
 
 3.1802     2026-06-12
     - bump prereq of RPi::I2C to 2.3608
