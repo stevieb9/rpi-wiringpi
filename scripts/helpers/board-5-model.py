@@ -44,10 +44,13 @@ its own 5V-side pull-ups behind the shifter.
 
 [F] The LCD's 16-pin header order is the HD44780 datasheet order (checked by
 check-datasheets.py against the Vishay LCD-016N002M / Hitachi HD44780U pinout).
-The level-shifter header silk order (LV/HV reference + four channels + GND each
-side) is the common SparkFun BOB-12009 layout, filled from the vendor silk -- it
-is not test-derivable, so verify it against your actual part when finalizing in
-KiCad; the NET each pin lands on is what matters for correctness.
+The level shifter (U1) is the SparkFun BOB-12009 -- "two parallel rows of six
+headers", LV reference + LV1-4 + GND on one row, HV reference + HV1-4 + GND on the
+row across, channel pairs (LVn <-> HVn) column-aligned. Its scaffolded footprint
+was hand-corrected from the generic single-row 'Module' strip to that real 2x6
+arrangement (.pretty/U1.kicad_mod); pad names are unchanged so the schematic->PCB
+transfer stays 0-error. Pinout per the SparkFun hookup guide:
+https://learn.sparkfun.com/tutorials/bi-directional-logic-level-converter-hookup-guide
 
 This model is hand-curated (board partitioning is a packaging decision, not
 test-derivable), and is consumed once by gen-kicad.py to scaffold
