@@ -1,8 +1,8 @@
 # Plan: Make rpi-wiringpi/t/ the canonical test suite for the whole RPi:: stack
 
-> **NEXT ACTION:** V5 — RPi::ADC::ADS: remove the stray `exit;` dead-coding the gain croak in `t/925` (F1); add `register()` set-path + croak tests, `_samples()` validation, and `bits`/`_bit_set` isolation (all HW-free).
-> **LAST SESSION:** 2026-06-23 — V4 done: built the DAC XS dist and added `rpi-dac-mcp4922/t/register.t` (42 tests: pure word-builders _reg_init/__set_dac, model→lsb chain, accessor/new validation) + mirror `rpi-wiringpi/t/311-dac_unit.t` (42); no bug found; core _set deferred to B1. dist Changes 3.1802 UNREL; uncommitted. (V1: const manifest; V2: pin validation; V3: dpot set/shutdown + F4.)
-> **ARCHIVE:** See test-coverage-gaps-archive.md for completed V1-V4
+> **NEXT ACTION:** V6 — RPi::GPIOExpander::MCP23017: fix the mis-targeted `t/35`/`t/40` (they test `mode_bank` not pullup) (F3); add HW-free validation (pin/bank/register/bit bounds), `bit.c` coverage (bitSet/Tog/Count/Mask, getRegisterBits); fix the `GPIO__pinBit` `%d`-no-arg croak (F2).
+> **LAST SESSION:** 2026-06-23 — V5 done: built ADS, fixed F1 (t/925 stray exit) + F19 (register "msg"→"msb" typo), added `rpi-adc-ads/t/26-register.t` + `t/56-samples_validation.t` and mirror `rpi-wiringpi/t/143-adc_unit.t` (13). FSR scaling left for B2. dist Changes 1.04 UNREL; uncommitted. (V1-V4: const/pin/dpot/dac.)
+> **ARCHIVE:** See test-coverage-gaps-archive.md for completed V1-V5
 
 ## Goal & guiding principles
 
@@ -68,7 +68,6 @@ Every row: mirror absent sub-repo tests into rpi-wiringpi/t/ (non-conflicting) +
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V5 | **RPi::ADC::ADS** — heavily integration-covered (t/140-142 etc.). Gap: F1 (stray `exit;` dead-codes the gain croak in `t/925`); `register()` set-path + croaks (missing lsb, 0-255, set→`bits` round-trip); `_samples()` validation; `bits`/`_bit_set` isolation. All HW-free. | `cd ~/repos/rpi-adc-ads && prove -Ilib t/` | Gain croak runs; register/_samples/bit-merge covered HW-free. | ⏳ |
 | V6 | **RPi::GPIOExpander::MCP23017** — integration-covered by t/330,450 (HW). Gap: F3 (`t/35-pullup.t`+`t/40-pullup_bank.t` test `mode_bank` not pullup); HW-free validation (pin/bank/register/bit bounds; `register($data>255)` truncation); `getRegisterBits` + all of `bit.c` (`bitSet/Tog/Count/Mask`) untested; F2 (`GPIO__pinBit` `%d`-no-arg croak). Mirror the corrected unit tests here. | `cd ~/repos/rpi-gpioexpander-mcp23017 && prove -Ilib t/` | Mis-targeted tests fixed; bit math + validation + pinBit bounds covered. | ⏳ |
 | V7 | **RPi::EEPROM::AT24C32** — the validator croak tests are ALREADY mirrored here (`t/420-422`) but **RPI_EEPROM-gated**, so the HW-free `_check_addr`/`_check_byte` croaks don't run off-board. Un-gate the pure-Perl croak assertions (split from the I/O round-trip); surface F6 (eeprom_init -1 swallowed by new). Own repo is boilerplate — nothing new to mirror. | `cd ~/repos/rpi-wiringpi && prove -Iblib/lib -Ilib t/420-eeprom_args.t t/421-eeprom_read_write_byte_croak.t` | Validator croaks run ungated (HW-free); round-trip stays gated. | ⏳ |
 | V8 | **RPi::RTC::DS3231** — integration-covered by t/320, and BCD is mirrored in `t/321-rtc-bcd` (HW-free). Gap: extend `321` to full 0-99 `dec2bcd`/`bcd2dec` round-trip + field maxes; extract & unit-test the temp decode incl. the negative-temp sign path (never executed); add HW-free range-validation croaks for every setter (mock-fd, B3). | `cd ~/repos/rpi-wiringpi && prove -Iblib/lib -Ilib t/321-rtc-bcd.t` | Full BCD range + negative temp + setter validation pass HW-free. | ⏳ |
@@ -95,7 +94,7 @@ _None yet._
 
 Code defects surfaced by the coverage audit (separate from the test gaps). Each points to the V task whose test exposes/fixes it; mark in place as that task closes.
 
-- **F1** (→V5): rpi-adc-ads `t/925-bitwise_gain.t` has a stray `exit;` that dead-codes the gain bad-param block — `gain()`'s croak never runs.
+- **F1** ✅ RESOLVED (V5): rpi-adc-ads `t/925-bitwise_gain.t` has a stray `exit;` that dead-codes the gain bad-param block — `gain()`'s croak never runs. Removed the mid-file `done_testing(); exit;`; the `gain(8)` croak now runs.
 - **F2** (→V6): rpi-gpioexpander-mcp23017 `GPIO__pinBit` OOB croak format string uses `%d` with no argument (`MCP23017.xs:134`).
 - **F3** (→V6): rpi-gpioexpander-mcp23017 `t/35-pullup.t` and `t/40-pullup_bank.t` test `mode_bank` (copy-paste), leaving `pullup`/`pullup_bank` validation untested.
 - **F4** ✅ RESOLVED (V3): rpi-digipot-mcp4xxxx `shutdown()` croak message reads `"set() $pot param…"` (copy-paste from `set()`). Fixed to `"shutdown() $pot param…"`; the dist test asserts the corrected wording.
@@ -112,6 +111,7 @@ Code defects surfaced by the coverage audit (separate from the test gaps). Each 
 - **F15** (→V22): rpi-sysinfo `_format` doesn't clamp the XS `-1.0` error sentinel, so `cpu_percent` can return `"-1.00"` as if valid; the `raspi_config` blank-line regex `^\s*(#|^$)` is malformed.
 - **F16** (→V21): rpi-oled-ssd1306 `new()` is a silent singleton — a second call with a different I2C address/splash returns the cached object, discarding the new args.
 - **F17** (→V18): rpi-dht11 has three inconsistent board-detection signals — `RPI_BOARD` (gates `00-load.t`), `RPI_DHT11` (gates `05`/`10`), and the POD-documented-but-unused `RDE_HAS_BOARD` (plus the C-level `RDE_NOBOARD_TEST`) — fragile/confusing for the harness.
+- **F19** ✅ RESOLVED (V5): rpi-adc-ads `register()`'s MSB out-of-range error read `"msg param requires an int 0..255"` (typo for `"msb"`). Fixed; the dist `t/26-register.t` asserts the corrected wording (the mirror uses a version-agnostic regex for the installed 1.03).
 - **F18** ⏸ DEFERRED → B13: rpi-pin `mode_alt($alt)` has no input validation — it passes `$alt` straight to `pin_mode_alt` (hardware), so a garbage alt isn't caught. Surfaced during V2 (which only flags it, HW-free validation can't be asserted for validation that doesn't exist); the fix is a code change tracked in B13.
 
 ## Backlog
