@@ -11,8 +11,8 @@ suite needs at, or behind, 5V logic:
         and 3V3 clears that at VDD=5V on these panels; no shifter on the LCD bus).
           RS=GPIO5  E=GPIO6  D4=GPIO4  D5=GPIO17  D6=GPIO27  D7=GPIO22
         D0-D3 (pins 7-10) are unused in 4-bit mode; RW (pin 5) is tied low
-        (write-only). Contrast (V0) from an on-board trimpot; backlight A via a
-        series resistor to +5V, K to GND.
+        (write-only). Contrast (V0) from an on-board trimpot; backlight A straight
+        to +5V (the LCD module carries its own series resistor, R8), K to GND.
   U1    SparkFun BOB-12009 bi-directional logic level converter -- bridges the
         3V3 Pi I2C up to a 5V Arduino. LV ref = +3V3, HV ref = +5V; SDA on
         channel 1, SCL on channel 2 (channels 3/4 spare). t/305.
@@ -86,8 +86,11 @@ COMPONENTS = {
         {'LV':'LV','LV1':'LV1','LV2':'LV2','LV3':'LV3','LV4':'LV4','LGND':'GND',
          'HV':'HV','HV1':'HV1','HV2':'HV2','HV3':'HV3','HV4':'HV4','HGND':'GND'}),  # t/305
  # --- LCD contrast trimpot (V0) and backlight series resistor ---
- 'RV1': ('10k', 'Pot', {'1':'A','2':'W','3':'B'}),   # A=+5V, W(iper)=V0, B=GND
- 'R1':  ('220', 'R',   {'1':'1','2':'2'}),           # backlight: +5V -> A
+ # A=+5V, W(iper)=V0, B=GND. Footprint hand-set to the real Piher PT-10-H05
+ # horizontal trimmer (.pretty/RV1.kicad_mod): 3-pin triangular land, wiper = pad 2.
+ 'RV1': ('10k', 'Pot', {'1':'A','2':'W','3':'B'}),
+ # No backlight series resistor on-board: the LCD module carries its own (R8),
+ # so the backlight anode (LCD1 pin 15) ties straight to +5V.
  # --- JST connectors (in <- board 1; J4 out -> external Arduino) ---
  'J1': ('JST_IN_PWR', 'JST-4', {'1':'+5V','2':'+3V3','3':'GND','4':'+3V3'}),   # 4 = +3V3 return -> board 1
  'J2': ('JST_IN_SIG', 'JST-4', {'1':'SDA','2':'SCL','3':'TX14','4':'RX15'}),   # I2C + UART in
@@ -103,8 +106,8 @@ NETS = [
  # power rails (enter on J1; pins 2 and 4 are both +3V3, pin 4 = sense return)
  ('+5V', [('J1','1'),
           ('LCD1','2'),                 # LCD VDD (panel logic supply)
+          ('LCD1','15'),                # LCD backlight A (module's own R8 limits it)
           ('RV1','1'),                  # contrast pot top
-          ('R1','1'),                   # backlight series resistor -> A
           ('U1','HV'),                  # shifter HV reference
           ('J4','3')]),                 # +5V feed out to the Arduino
  ('+3V3',[('J1','2'),('J1','4'),
@@ -133,7 +136,6 @@ NETS = [
  ('GPIO22',[('J3','6'),('LCD1','14')]),   # D7
  # LCD local analog: contrast wiper -> V0, backlight resistor -> A
  ('LCD_V0',[('RV1','2'),('LCD1','3')]),
- ('LCD_BL_A',[('R1','2'),('LCD1','15')]),
 ]
 
 # No Pi header on this board.
@@ -147,7 +149,7 @@ DRIVER = {
  'UART_TX':'J2', 'UART_RX':'JP1',       # RX is fed by the loop-back jumper
  'GPIO5':'J3', 'GPIO6':'J3', 'GPIO4':'J3',
  'GPIO17':'J3', 'GPIO27':'J3', 'GPIO22':'J3',
- 'LCD_V0':'RV1', 'LCD_BL_A':'R1',
+ 'LCD_V0':'RV1',
 }
 
 # per-device power flags (drawn at the device); board 5's rails enter on J1.
@@ -159,6 +161,6 @@ POWER = {
 # per-subsystem sheets (cleaner reads)
 SHEETS = {
  'i2c':  {'I2C_SDA','I2C_SCL','SDA_5V','SCL_5V'},
- 'lcd':  {'GPIO5','GPIO6','GPIO4','GPIO17','GPIO27','GPIO22','LCD_V0','LCD_BL_A'},
+ 'lcd':  {'GPIO5','GPIO6','GPIO4','GPIO17','GPIO27','GPIO22','LCD_V0'},
  'uart': {'UART_TX','UART_RX'},
 }
