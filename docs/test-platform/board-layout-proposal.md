@@ -202,7 +202,7 @@ bus down.
 
 ---
 
-## Board 5 — 5V logic
+## Board 5 — 5V logic *(scaffolded — authoritative net list in `scripts/helpers/board-5-model.py`)*
 
 HD44780 LCD (20×4, 4-bit) + Arduino (I2C 0x04) behind a 3V3↔5V level-shifter.
 The UART loop-back (a 2-pin jumper, GPIO14→GPIO15) rides along here — relocatable
@@ -210,12 +210,28 @@ to whichever satellite is convenient.
 
 | Device | Pins (BCM) | Note |
 |--------|------------|------|
-| HD44780 LCD | RS=5, E=6, D4=4, D5=17, D6=27, D7=22 | 5V power, 3V3 logic in |
-| Arduino | I2C 0x04 via level-shifter | 5V board; LV ref = 3V3, HV ref = 5V |
-| UART loop-back | TXD14 → RXD15 | jumper only |
+| HD44780 LCD (`LCD1`) | RS=5, E=6, D4=4, D5=17, D6=27, D7=22 | 5V power, 3V3 logic **direct** (no shifter on the LCD bus); RW→GND, D0–D3 NC |
+| Level shifter (`U1`) | SparkFun BOB-12009 | LV ref = 3V3, HV ref = 5V; SDA on ch1, SCL on ch2 (ch3/4 spare) |
+| Arduino | I2C 0x04, **off-board** via J4 | 5V board on the HV side of the shifter |
+| Contrast / backlight | `RV1` trimpot → V0; `R1` 220Ω → A | on-board; K→GND |
+| UART loop-back (`JP1`) | TXD14 ↔ RXD15 | 2-pin jumper |
 
-**JST in (~13):** `+5V, +3V3, GND, SDA2, SCL3, RS5, E6, D4(4), D5(17), D6(27),
-D7(22), GPIO14, GPIO15`.
+**Connectors (final layout — four JSTs, mirroring board 3's "power in / signal in"):**
+
+| Ref | Group | Pins | Pinout |
+|-----|-------|-----:|--------|
+| **J1** | power in | 4 | `+5V, +3V3, GND, +3V3` (pin 4 = +3V3 sense return → board 1) |
+| **J2** | signal in | 4 | `SDA, SCL, TX14, RX15` (I2C bus + the UART pair) |
+| **J3** | LCD GPIO in | 6 | `RS, E, D4, D5, D6, D7` (silk = LCD role; net = the BCM GPIO it carries) |
+| **J4** | 5V I2C out → Arduino | 4 | `SDA, SCL, +5V, GND` (5V side of the shifter; common GND mandatory, +5V an optional feed) |
+
+The old single ~13-pin JST is replaced by this power/signal split. The LCD's six
+control/data lines enter on **J3**; the physical 20×4 panel plugs onto `LCD1`'s
+16-pin header. The I2C bus enters on J2 (3V3), crosses `U1`, and leaves on J4 (5V)
+to the external Arduino.
+
+No I2C pull-ups on the 3V3 side (board 3 owns them; the Pi adds ~1.8k). The Arduino
+carries its own 5V-side pull-ups behind the shifter.
 
 ⚠️ **GPIO17/27 fan out to *both* board 5 (LCD D5/D6) and board 3 (stepper limit
 switches)** — one shared net, two destinations (§10-10).
@@ -270,11 +286,10 @@ only**. The 74HC595 lines (21/20/16) likewise board 1 → board 2 only.
 
 ## Open decisions (mark up as you go)
 
-- [ ] **Connector style/size** — board 2 (~15) and board 5 (~13) are fat because
-      many distinct GPIO fan out to one satellite. Pick connectors, or rethink the
-      split if you'd rather shrink them.
-- [ ] **UART loop-back home** — defaulted to board 5; could move to board 4 or be a
-      standalone jumper.
+- [ ] **Connector style/size** — board 2 (~15) is still fat. Board 5 is now split
+      into four JSTs (J1 power 4 / J2 signal 4 / J3 LCD 6 / J4 I2C-out 4) — see its
+      section. Pick connectors, or rethink board 2's split if you'd rather shrink it.
+- [x] **UART loop-back home** — kept on board 5 (`JP1`, TX14↔RX15 on J2).
 - [ ] **Servo on board 2 vs board 5** — kept on board 2 so GPIO18 has a single
       destination. Moving it to board 5 would tap GPIO18 on two boards.
 - [ ] **Which breakouts have removable pull-ups** — confirm per part; note any that
