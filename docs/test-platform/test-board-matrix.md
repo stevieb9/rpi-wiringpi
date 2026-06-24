@@ -4,10 +4,12 @@ Which unit tests need which physical test board. A companion to
 [`test-pinout-doc.md`](test-pinout-doc.md) (the device-per-test wiring reference)
 and [`board-layout-proposal.md`](board-layout-proposal.md) (the board plan).
 
-**Source of truth:** the test↔device mapping is `test-pinout-doc.md` §3; the
-device↔board mapping is the per-board models (`scripts/helpers/board-2-model.py`,
-`board-3-model.py`, `board-4-model.py`). Keep this table in sync when tests or
-device placement change.
+**Source of truth:** the test↔device mapping is `test-pinout-doc.md` §3. For the
+device↔board mapping, the finalized boards (2, 3, 5) are now authoritative as their
+own KiCad projects under `docs/test-platform/kicad/` — they are hand-managed and
+have no generated model; board 4 (still scaffolded) is driven by
+`scripts/helpers/board-4-model.py`. Keep this table in sync when tests or device
+placement change.
 
 > **Every hardware test below also needs board 1 (the Raspberry Pi itself).**
 > Board 1 is the host all the satellites hang off; it's noted once here, not on
@@ -20,19 +22,19 @@ device placement change.
 | Board | Role | Status | Hardware tests |
 |-------|------|--------|---------------:|
 | **1** | Pi host + power/signal fan-out | not built (planned last) | — (host for all) |
-| **2** | SPI analog cluster | **being finalized** | 6 |
+| **2** | SPI analog cluster | **finalized & ordered** | 6 |
 | **3** | I2C expanders + stepper | **finalized & ordered** | 2 |
-| **4** | I2C sensors | scaffolded only (pending EEPROM check) | 16 |
-| **5** | 5V logic (LCD / Arduino / UART) | not started | 3 |
+| **4** | I2C sensors | scaffolded only (pending EEPROM check) | 15 |
+| **5** | 5V logic (LCD / Arduino / UART) | **being finalized (KiCad)** | 3 |
 
-**8 hardware tests are covered by the built boards (2 + 3); ~19 remain on the
-unbuilt boards (4 + 5).**
+**8 hardware tests are covered by the finalized boards (2 + 3, both ordered);
+18 remain on board 4 (15, scaffolded) and board 5 (3, being finalized in KiCad).**
 
 ---
 
 ## Built so far
 
-### Board 2 — SPI analog cluster *(being finalized)*
+### Board 2 — SPI analog cluster *(finalized & ordered)*
 Devices: ADS1015 (0x48), MCP3008 ADC, MCP4922 DAC, MCP42010 dpot, 74HC595, servo.
 
 | Test file | Device(s) it drives |
@@ -78,7 +80,7 @@ Devices: DS3231 RTC, AT24C32 EEPROM, BMP180, SSD1306 OLED.
 | `t/508-oled_vertical_line.t` | SSD1306 OLED |
 | `t/509-oled_horizontal_line.t` | SSD1306 OLED |
 
-### Waiting on Board 5 — 5V logic *(not started)*
+### Waiting on Board 5 — 5V logic *(being finalized in KiCad)*
 Devices: HD44780 LCD, Arduino (I2C slave) + 3V3↔5V level-shifter, UART loopback.
 
 | Test file | Device |
