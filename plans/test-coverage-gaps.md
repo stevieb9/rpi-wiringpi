@@ -1,8 +1,8 @@
 # Plan: Make rpi-wiringpi/t/ the canonical test suite for the whole RPi:: stack
 
-> **NEXT ACTION:** V3 — RPi::DigiPot::MCP4XXXX: add `set()`/`shutdown()` unit tests via the existing Mock::Sub harness (data 0-255 / pot 1-3 croaks, control-byte framing 0x01/0x02, CS ordering); pins F4.
-> **LAST SESSION:** 2026-06-23 — V2 done: added `rpi-pin/t/10-validation.t` (23 HW-free validation tests, NO_BOARD, eval/like) and mirrored it to `rpi-wiringpi/t/116-pin_validation.t`; both pass ungated. Surfaced F18 (mode_alt no validation → B13). rpi-pin Changes 3.1802 UNREL noted; uncommitted. (V1 earlier: rpi-const self-policing manifest guard.)
-> **ARCHIVE:** See test-coverage-gaps-archive.md for completed V1-V2
+> **NEXT ACTION:** V4 — RPi::DAC::MCP4922: HW-free assertions for the pure word-builders `_reg_init`/`__set_dac` (exact register words), the model→bits→lsb chain, and constructor arg-validation croaks (mock WiringPi). Core `_set` math blocked on B1.
+> **LAST SESSION:** 2026-06-23 — V3 done: added `rpi-digipot-mcp4xxxx/t/set_shutdown.t` (13 tests, Mock::Sub, asserts exact SPI bytes + CS order + validation) and mirror `rpi-wiringpi/t/346-dpot_unit.t` (12); fixed F4 (shutdown bad-pot message). dist Changes 3.1802 UNREL; uncommitted. (V1: rpi-const manifest guard; V2: rpi-pin validation + mirror.)
+> **ARCHIVE:** See test-coverage-gaps-archive.md for completed V1-V3
 
 ## Goal & guiding principles
 
@@ -68,7 +68,6 @@ Every row: mirror absent sub-repo tests into rpi-wiringpi/t/ (non-conflicting) +
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V3 | **RPi::DigiPot::MCP4XXXX** — integration-covered by t/345 (HW). Gap: `set()`/`shutdown()` have no direct unit test though `init.t` has a Mock::Sub harness. Add data(0-255)/pot(1-3) croaks + control-byte framing (set=0x01, shutdown=0x02, chan=3) + CS ordering; mirror `bytes.t`/`init.t` here. F4. | `cd ~/repos/rpi-digipot-mcp4xxxx && prove -Ilib t/` | set/shutdown validation + framing asserted HW-free via mocks. | ⏳ |
 | V4 | **RPi::DAC::MCP4922** — integration-covered by t/310 (HW); own repo has ZERO functional tests. Add HW-free assertions for the pure word-builders `_reg_init`/`__set_dac` (exact register words), the model→bits→lsb chain, constructor arg-validation croaks (mock WiringPi). Core `_set` math blocked on B1. | `cd ~/repos/rpi-dac-mcp4922 && prove -Ilib t/` | Word-builder + model/lsb + validation pass HW-free. | ⏳ |
 | V5 | **RPi::ADC::ADS** — heavily integration-covered (t/140-142 etc.). Gap: F1 (stray `exit;` dead-codes the gain croak in `t/925`); `register()` set-path + croaks (missing lsb, 0-255, set→`bits` round-trip); `_samples()` validation; `bits`/`_bit_set` isolation. All HW-free. | `cd ~/repos/rpi-adc-ads && prove -Ilib t/` | Gain croak runs; register/_samples/bit-merge covered HW-free. | ⏳ |
 | V6 | **RPi::GPIOExpander::MCP23017** — integration-covered by t/330,450 (HW). Gap: F3 (`t/35-pullup.t`+`t/40-pullup_bank.t` test `mode_bank` not pullup); HW-free validation (pin/bank/register/bit bounds; `register($data>255)` truncation); `getRegisterBits` + all of `bit.c` (`bitSet/Tog/Count/Mask`) untested; F2 (`GPIO__pinBit` `%d`-no-arg croak). Mirror the corrected unit tests here. | `cd ~/repos/rpi-gpioexpander-mcp23017 && prove -Ilib t/` | Mis-targeted tests fixed; bit math + validation + pinBit bounds covered. | ⏳ |
@@ -100,7 +99,7 @@ Code defects surfaced by the coverage audit (separate from the test gaps). Each 
 - **F1** (→V5): rpi-adc-ads `t/925-bitwise_gain.t` has a stray `exit;` that dead-codes the gain bad-param block — `gain()`'s croak never runs.
 - **F2** (→V6): rpi-gpioexpander-mcp23017 `GPIO__pinBit` OOB croak format string uses `%d` with no argument (`MCP23017.xs:134`).
 - **F3** (→V6): rpi-gpioexpander-mcp23017 `t/35-pullup.t` and `t/40-pullup_bank.t` test `mode_bank` (copy-paste), leaving `pullup`/`pullup_bank` validation untested.
-- **F4** (→V3): rpi-digipot-mcp4xxxx `shutdown()` croak message reads `"set() $pot param…"` (copy-paste from `set()`).
+- **F4** ✅ RESOLVED (V3): rpi-digipot-mcp4xxxx `shutdown()` croak message reads `"set() $pot param…"` (copy-paste from `set()`). Fixed to `"shutdown() $pot param…"`; the dist test asserts the corrected wording.
 - **F5** (→V9): WiringPi::API `phys_to_gpio`/`wpi_to_gpio`/`pin_to_gpio` pass the index through with NO bounds guard — asymmetric with `phys_to_wpi`; likely OOB read.
 - **F6** (→V7): rpi-eeprom-at24c32 `eeprom_init` returns -1 on open failure but `new()` swallows it (no croak/warn) — a bad device path builds a broken object.
 - **F7** (→V12): rpi-i2c `read_bytes` returns only the LAST byte (`$retval = (0<<8) | …` overwrite), not the documented array.
