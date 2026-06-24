@@ -37,7 +37,7 @@ rpi_running_test(__FILE__);
 
 my $pi = RPi::WiringPi->new(
     fatal_exit => 0,
-    label => 't/455-mcp23017.t',
+    label => 't/355-mcp23017.t',
     shm_key => 'rpit'
 );
 

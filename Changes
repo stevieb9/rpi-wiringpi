@@ -55,6 +55,10 @@ Revision history for Perl extension RPi::WiringPi.
       330-mcp23017 -> 455-mcp23017, 525-lcd -> 620-lcd), with their hardware-free
       companion unit tests following the same board. Updated the runner scripts,
       FAQ test table, board docs, and model provenance comments to match
+    - Swapped the 300-block and 400-block test files: the sysinfo tests now occupy
+      3xx (300-309) and the board-2 analog/SPI tests occupy 4xx (400-446); board
+      3's expander/stepper tests moved to 35x. Runners, FAQ table, board docs, and
+      provenance comments updated to match
 
 3.1802     2026-06-12
     - bump prereq of RPi::I2C to 2.3608

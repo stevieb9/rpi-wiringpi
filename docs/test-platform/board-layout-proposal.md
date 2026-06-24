@@ -31,10 +31,10 @@
 | Board | Role | Rail(s) | Devices | Tests |
 |-------|------|---------|---------|-------|
 | **1** *(last, passive)* | Pi connection + power/signal fan-out | 3V3 + 5V | **none** | (host) |
-| **2** | Analog loop-back + servo | 3V3 + 5V | ADS1015, MCP3008, MCP4922 DAC, MCP4XXXX dpot, 74HC595, servo | 109, 140, 310, 325, 335, 345 |
-| **3** *(DONE)* | I2C expanders + stepper | 3V3 + 5V | MCP23017 ×2, ULN2003 + 28BYJ-48 + magnets (off-board) | 330, 450 |
-| **4** | I2C sensors | 3V3 | DS3231 RTC, AT24C32 EEPROM, BMP180, OLED | 320, 340, 420–422, 500–520 |
-| **5** | 5V logic | 5V + 3V3 | HD44780 LCD, Arduino + I2C level-shifter, UART loop-back | 305, 315, 525 |
+| **2** | Analog loop-back + servo | 3V3 + 5V | ADS1015, MCP3008, MCP4922 DAC, MCP4XXXX dpot, 74HC595, servo | 400, 405, 410, 425, 435, 445 |
+| **3** *(DONE)* | I2C expanders + stepper | 3V3 + 5V | MCP23017 ×2, ULN2003 + 28BYJ-48 + magnets (off-board) | 350, 355 |
+| **4** | I2C sensors | 3V3 | DS3231 RTC, AT24C32 EEPROM, BMP180, OLED | 530, 531, 540–542, 500–520 |
+| **5** | 5V logic | 5V + 3V3 | HD44780 LCD, Arduino + I2C level-shifter, UART loop-back | 605, 610, 620 |
 
 ---
 
@@ -133,8 +133,8 @@ board 2 is added to `%FROZEN` in `t/04`, exactly like board 3.
 
 | Device | Addr / pins | Loop-back |
 |--------|-------------|-----------|
-| MCP23017 #1 | I2C 0x20 | GPA4–7 ↔ GPB4–7 (t/455) |
-| MCP23017 #2 | I2C 0x21 | GPA0–3 → ULN2003 → 28BYJ-48 coils (t/450) |
+| MCP23017 #1 | I2C 0x20 | GPA4–7 ↔ GPB4–7 (t/355) |
+| MCP23017 #2 | I2C 0x21 | GPA0–3 → ULN2003 → 28BYJ-48 coils (t/350) |
 | Stepper limits | (off-board magnets) | CW→GPIO17, CCW→GPIO27 |
 | Centre LED | (on board 3) | GPIO19 |
 

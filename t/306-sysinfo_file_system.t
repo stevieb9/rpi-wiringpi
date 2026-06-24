@@ -10,7 +10,7 @@ use Test::More;
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new(label => 't/406-sysinfo_file_system.t', shm_key => 'rpit');
+my $pi = RPi::WiringPi->new(label => 't/306-sysinfo_file_system.t', shm_key => 'rpit');
 
 # file_system() returns `df` output followed by /proc/swaps. Assert on the
 # stable structure rather than specific device names (root may be on SD, USB or

@@ -10,7 +10,7 @@ use Test::More;
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new(label => 't/407-sysinfo_pi_details.t', shm_key => 'rpit');
+my $pi = RPi::WiringPi->new(label => 't/307-sysinfo_pi_details.t', shm_key => 'rpit');
 
 # pi_details() concatenates the devicetree model, os-release, uname and the tail
 # of /proc/cpuinfo. Assert on board-agnostic invariants present on every Pi

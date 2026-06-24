@@ -7,7 +7,7 @@ use Test::More;
 use RPi::DigiPot::MCP4XXXX;
 
 # Mirror of RPi::DigiPot::MCP4XXXX's own t/set_shutdown.t, run here in the
-# canonical suite. t/345-dpot.t drives the dpot on real hardware; this adds
+# canonical suite. t/445-dpot.t drives the dpot on real hardware; this adds
 # HW-free verification of the exact SPI control/data bytes and the CS framing
 # order, so a framing regression is caught in CI with no Pi. We mock every
 # wiringPi call the module imports, so it runs ungated (no RPiTest, no shm).

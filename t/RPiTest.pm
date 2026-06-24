@@ -80,19 +80,19 @@ sub rpi_multi_check {
 }
 
 # PWM -> ADS1015 feedback calibration, single-sourced here for both PWM
-# feedback tests (t/300-pwm_hw_mods.t and t/305-pwm_i2c_adc.t) so a hardware
+# feedback tests (t/400-pwm_hw_mods.t and t/405-pwm_i2c_adc.t) so a hardware
 # recalibration updates both in one place.
 #
 # %pwm_adc_windows holds the empirically calibrated ADC percent windows per
 # PWM level at the default PWM range (1023), keyed by board family. The
 # PWM->ADC feedback reads cleanly on the legacy BCM Pi 3 (tight ~+/-2 windows,
-# the values historically carried by t/305) but is markedly noisier on the
+# the values historically carried by t/405) but is markedly noisier on the
 # Pi 5 / RP1: the single-read spread reaches ~9 points at mid-scale (the mean
 # still tracks ideal duty), so the Pi 5 windows are wider, set to the
 # min/max envelope observed over 75 samples/level plus a ~1-point margin.
 # rpi_pwm_adc_window() returns the empirical window when one exists for the
 # detected board + requested level/range; for any other combination (e.g.
-# t/300's range-2000 sweep, or a board with no table such as the Pi 4) it
+# t/400's range-2000 sweep, or a board with no table such as the Pi 4) it
 # falls back to the model: expected duty (pwm / range * 100) +/-
 # RPI_PWM_TOLERANCE percentage points, clamped to 0..100.
 
@@ -366,7 +366,7 @@ sub rpi_default_pin_config {
       # 12/26 are the DAC/ADC chip-select pins; their level depends on the
       # attached device's pull state, so only the alt mode is verified
       '12' => { 'alt' => 0, 'state' => undef },
-      '13' => { 'alt' => 0, 'state' => 0 }, # OUTPUT/HIGH due to the dpot test (t/345)
+      '13' => { 'alt' => 0, 'state' => 0 }, # OUTPUT/HIGH due to the dpot test (t/445)
       # 14/15: alt 4 (ALT0) when Serial bluetooth disabled
       '14' => { 'alt' => 4, 'state' => 1 },
       '15' => { 'alt' => 4, 'state' => 1 },
@@ -401,7 +401,7 @@ sub rpi_default_pin_config {
       # 12/26 are the DAC/ADC chip-select pins; their level depends on the
       # attached device's pull state, so only the alt mode is verified
       '12' => { 'alt' => 0, 'state' => undef },
-      '13' => { 'alt' => 0, 'state' => 0 }, # OUTPUT/HIGH due to the dpot test (t/345)
+      '13' => { 'alt' => 0, 'state' => 0 }, # OUTPUT/HIGH due to the dpot test (t/445)
       # 14/15: alt 4 (ALT0) when Serial bluetooth disabled
       '14' => { 'alt' => 4, 'state' => 1 },
       '15' => { 'alt' => 4, 'state' => 1 },
@@ -438,7 +438,7 @@ sub rpi_default_pin_config {
       # 12/26 are the DAC/ADC chip-select pins; their level depends on the
       # attached device's pull state, so only the alt mode is verified
       '12' => { 'alt' => 31, 'state' => undef },
-      '13' => { 'alt' => 31, 'state' => 0 }, # OUTPUT/HIGH due to the dpot test (t/345)
+      '13' => { 'alt' => 31, 'state' => 0 }, # OUTPUT/HIGH due to the dpot test (t/445)
       # 14/15: UART funcsel (3) when the header UART is enabled; line idles high
       '14' => { 'alt' => 3,  'state' => 1 },
       '15' => { 'alt' => 3,  'state' => 1 },

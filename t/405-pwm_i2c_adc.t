@@ -51,7 +51,7 @@ rpi_i2c_check();
 
 rpi_running_test(__FILE__);
 
-my $pi = $mod->new(label => 't/305-pwm_i2c_adc.t', shm_key => 'rpit');
+my $pi = $mod->new(label => 't/405-pwm_i2c_adc.t', shm_key => 'rpit');
 my $adc = $pi->adc(addr => 0x48);   # ADS1015 #1 (PWM feedback on ch 0)
 
 my $adc_in = 0;
@@ -68,7 +68,7 @@ if (! $ENV{NO_BOARD}) {
     is $pin->mode, $pwm_alt, "pin mode set to PWM ok, and we can read it";
 
     # Acceptance windows are single-sourced in t/RPiTest.pm
-    # (rpi_pwm_adc_window(); shared with t/300-pwm_hw_mods.t) - recalibrate
+    # (rpi_pwm_adc_window(); shared with t/400-pwm_hw_mods.t) - recalibrate
     # there, not here. The calibration table covers levels up to 1000, but
     # only 100-400 are swept here (the historical sweep range of this test)
 

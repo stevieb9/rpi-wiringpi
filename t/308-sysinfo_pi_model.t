@@ -10,7 +10,7 @@ use Test::More;
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new(label => 't/408-sysinfo_pi_model.t', shm_key => 'rpit');
+my $pi = RPi::WiringPi->new(label => 't/308-sysinfo_pi_model.t', shm_key => 'rpit');
 
 # pi_model() is inherited from RPi::SysInfo. It returns the normalized board
 # name from the devicetree model (present on the Pi 0-5), falling back to a

@@ -8,7 +8,7 @@ use WiringPi::API;
 use Test::More;
 
 # ===========================================================================
-# t/409-board_tag.t - board-family detection (rpi_board_tag)
+# t/309-board_tag.t - board-family detection (rpi_board_tag)
 # ===========================================================================
 #
 # Verifies the harness identifies the running board AND does so regardless of

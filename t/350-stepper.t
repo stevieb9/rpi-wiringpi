@@ -21,7 +21,7 @@ use Test::More;
 use StepperSeek qw(seek_limit home_target stepper_calibrate stepper_skew SKEW_LIMIT_PCT);
 
 # ===========================================================================
-# t/450-stepper.t - stepper / I2C expander timing integration test
+# t/350-stepper.t - stepper / I2C expander timing integration test
 # ===========================================================================
 #
 # WHAT THIS PROVES
@@ -133,7 +133,7 @@ my @PASSES = (
     { speed => 'half', delay => 0.00 },
 );
 
-my $pi  = RPi::WiringPi->new(label => 't/450-stepper.t', shm_key => 'rpit');
+my $pi  = RPi::WiringPi->new(label => 't/350-stepper.t', shm_key => 'rpit');
 my $exp = $pi->expander(0x21);
 
 $pi->auto_dispatch_interrupts(1);

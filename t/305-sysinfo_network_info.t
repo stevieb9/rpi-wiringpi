@@ -1,5 +1,6 @@
 use warnings;
 use strict;
+use feature 'say';
 
 use lib 't/';
 
@@ -9,8 +10,8 @@ use Test::More;
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new(label => 't/401-sysinfo_mem_percent.t', shm_key => 'rpit');
-like $pi->mem_percent, qr/^\d+\.\d+$/, "mem_percent() method return ok";
+my $pi = RPi::WiringPi->new(label => 't/305-sysinfo_network_info.t', shm_key => 'rpit');
+like $pi->network_info, qr/inet/, "method includes data ok";
 
 $pi->cleanup;
 

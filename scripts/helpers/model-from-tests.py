@@ -36,33 +36,33 @@ _FACTS = _load_facts()
 # ref: (value, footprint-hint, {pin: name})   pin keys are strings.
 #
 # Device identities & buses, all [T] unless noted:
-#   U1 MCP23017  I2C 0x20      t/455:32  (Bank A<->B loopback)
-#   U6 MCP23017  I2C 0x21      t/450:24  (stepper drive via Bank A)
-#   U2 74HC595   bit-banged    t/335:35  shift_register(400,8,21,20,16)
-#   U3 MCP3008   SPI CS=GPIO26 t/310:40-43, t/335:21,35
-#   U4 MCP4922   SPI CS=GPIO12 t/310:34-38
-#   U5 MCP4XXXX  SPI CS=GPIO13 t/345:36   (modelled as the MCP42010 part [F])
-#   M1 ADS1115   I2C 0x48      t/305:42, t/325:77, t/345:35
+#   U1 MCP23017  I2C 0x20      t/355:32  (Bank A<->B loopback)
+#   U6 MCP23017  I2C 0x21      t/350:24  (stepper drive via Bank A)
+#   U2 74HC595   bit-banged    t/435:35  shift_register(400,8,21,20,16)
+#   U3 MCP3008   SPI CS=GPIO26 t/410:40-43, t/435:21,35
+#   U4 MCP4922   SPI CS=GPIO12 t/410:34-38
+#   U5 MCP4XXXX  SPI CS=GPIO13 t/445:36   (modelled as the MCP42010 part [F])
+#   M1 ADS1115   I2C 0x48      t/405:42, t/425:77, t/445:35
 #   M3 DS3231    I2C 0x68 [L]  t/530 ; carries AT24C32 EEPROM 0x57 [T] t/540-542 [F same board]
 #   M4 BMP180    I2C 0x77 [L]  t/531 (bmp(100) arg is a pin-base, not an address)
 #   M5 SSD1306   I2C 0x3c      t/500:22  oled('128x64',0x3C,0)
 #   M6 level-shifter           [F] not test-derivable (5V Arduino on a 3V3 bus)
-#   M7 ULN2003 + 28BYJ-48      t/450:27-32 (driven via U6 Bank A)
+#   M7 ULN2003 + 28BYJ-48      t/350:27-32 (driven via U6 Bank A)
 #   M8 HD44780 LCD 20x4 4-bit  t/620:36-50  rs5/E6/D4=4/D5=17/D6=27/D7=22
 #   A1 Arduino   I2C 0x04      t/605:11,31 (board type "Metro Mini" is [F])
-#   SV1 servo    PWM GPIO18    t/325:79
-#   SW1/SW2      stepper mag limits  [T] t/450  GPIO17 / GPIO27
-#   D1/R8        stepper centre LED  [T] t/450  GPIO19 via R8
+#   SV1 servo    PWM GPIO18    t/425:79
+#   SW1/SW2      stepper mag limits  [T] t/350  GPIO17 / GPIO27
+#   D1/R8        stepper centre LED  [T] t/350  GPIO19 via R8
 #   RV1/R7       passives      [F] LCD contrast / backlight
 COMPONENTS = {
  'J1': ('Raspberry_Pi_40pin', 'PinHeader_2x20', {str(i): f'P{i}' for i in range(1,41)}),
  # --- bare logic ICs ---
- 'U1': ('MCP23017', 'DIP-28', {  # I2C GPIO expander #1, 0x20 (t/455 loopback)
+ 'U1': ('MCP23017', 'DIP-28', {  # I2C GPIO expander #1, 0x20 (t/355 loopback)
    '9':'VDD','10':'VSS','12':'SCL','13':'SDA','18':'RESET','15':'A0','16':'A1','17':'A2',
    '20':'INTA','19':'INTB',
    '21':'GPA0','22':'GPA1','23':'GPA2','24':'GPA3','25':'GPA4','26':'GPA5','27':'GPA6','28':'GPA7',
    '1':'GPB0','2':'GPB1','3':'GPB2','4':'GPB3','5':'GPB4','6':'GPB5','7':'GPB6','8':'GPB7'}),
- 'U6': ('MCP23017', 'DIP-28', {  # I2C GPIO expander #2, 0x21 (t/450 stepper drive)
+ 'U6': ('MCP23017', 'DIP-28', {  # I2C GPIO expander #2, 0x21 (t/350 stepper drive)
    '9':'VDD','10':'VSS','12':'SCL','13':'SDA','18':'RESET','15':'A0','16':'A1','17':'A2',
    '20':'INTA','19':'INTB',
    '21':'GPA0','22':'GPA1','23':'GPA2','24':'GPA3','25':'GPA4','26':'GPA5','27':'GPA6','28':'GPA7',
@@ -93,9 +93,9 @@ COMPONENTS = {
  'SV1': ('Servo', 'Conn-3', {'SIG':'SIG','V+':'V+','GND':'GND'}),
  # --- passives ([F] gap-filled; tests prove the analog channels, not the parts) ---
  'RV1': ('10k_pot', 'Pot', {'1':'A','2':'W','3':'B'}),     # LCD contrast
- 'SW1': ('CW_limit_switch', 'SW', {'1':'1','2':'2'}),   # magnetic, GPIO17 <-> +3V3  [T] t/450
- 'SW2': ('CCW_limit_switch', 'SW', {'1':'1','2':'2'}),  # magnetic, GPIO27 <-> +3V3  [T] t/450
- 'D1': ('centre_LED', 'LED', {'A':'A','K':'K'}),        # GPIO19 via R8  [T] t/450
+ 'SW1': ('CW_limit_switch', 'SW', {'1':'1','2':'2'}),   # magnetic, GPIO17 <-> +3V3  [T] t/350
+ 'SW2': ('CCW_limit_switch', 'SW', {'1':'1','2':'2'}),  # magnetic, GPIO27 <-> +3V3  [T] t/350
+ 'D1': ('centre_LED', 'LED', {'A':'A','K':'K'}),        # GPIO19 via R8  [T] t/350
  'R8': ('330', 'R', {'1':'1','2':'2'}),                 # centre-LED series  [F]
  'R7': ('220', 'R', {'1':'1','2':'2'}),  # LCD backlight series
 }
@@ -118,7 +118,7 @@ NETS = [
          ('M6','GND1'),('M6','GND2'),('M7','GND'),('M8','1'),('M8','5'),('M8','16'),
          ('U6','10'),('U6','16'),('U6','17'),('D1','K'),
          ('A1','GND'),('SV1','GND'),('RV1','3')]),  # [F]
- # I2C bus (3V3 side) -- [T] addresses t/605,530,455,531,540-542,450,500
+ # I2C bus (3V3 side) -- [T] addresses t/605,530,355,531,540-542,350,500
  ('I2C_SDA',[('J1','3'),('U1','13'),('U6','13'),('M1','SDA'),('M3','SDA'),('M4','SDA'),('M5','SDA'),('M6','LV1')]),
  ('I2C_SCL',[('J1','5'),('U1','12'),('U6','12'),('M1','SCL'),('M3','SCL'),('M4','SCL'),('M5','SCL'),('M6','LV2')]),
  # Arduino I2C (5V side of level-shifter) -- [F] shifter; [T] address 0x04 t/605
@@ -128,10 +128,10 @@ NETS = [
  ('SPI_MOSI',[('J1','19'),('U3','11'),('U4','5'),('U5','3')]),
  ('SPI_MISO',[('J1','21'),('U3','12')]),                       # only MCP3008 reads [T]
  ('SPI_SCLK',[('J1','23'),('U3','13'),('U4','4'),('U5','2')]),
- ('CS_ADC', [('J1','37'),('U3','10')]),   # GPIO26  [T] t/310,335
- ('CS_DAC', [('J1','32'),('U4','3')]),    # GPIO12  [T] t/310
- ('CS_DPOT',[('J1','33'),('U5','1')]),    # GPIO13  [T] t/345
- # shift register -- [T] t/335:35 shift_register(400,8,21,20,16)
+ ('CS_ADC', [('J1','37'),('U3','10')]),   # GPIO26  [T] t/410,335
+ ('CS_DAC', [('J1','32'),('U4','3')]),    # GPIO12  [T] t/410
+ ('CS_DPOT',[('J1','33'),('U5','1')]),    # GPIO13  [T] t/445
+ # shift register -- [T] t/435:35 shift_register(400,8,21,20,16)
  ('SR_DATA', [('J1','40'),('U2','14')]),  # GPIO21
  ('SR_CLK',  [('J1','38'),('U2','11')]),  # GPIO20
  ('SR_LATCH',[('J1','36'),('U2','12')]),  # GPIO16
@@ -144,24 +144,24 @@ NETS = [
  ('LCD_D7',[('J1','15'),('M8','14')]),    # GPIO22
  ('LCD_V0',[('M8','3'),('RV1','2')]),     # contrast wiper [F]
  ('LCD_BL',[('M8','15'),('R7','2')]),     # backlight anode via R7 [F]
- # PWM18 -> ADS#1 A0 and servo -- [T] t/305:44, t/325:79,89
+ # PWM18 -> ADS#1 A0 and servo -- [T] t/405:44, t/425:79,89
  ('PWM18',[('J1','12'),('M1','A0'),('SV1','SIG')]),  # GPIO18
  # UART loopback -- [T] t/610
  ('UART_LOOP',[('J1','8'),('J1','10')]),  # GPIO14 TXD <-> GPIO15 RXD
  # analog loop-backs -- [T]
- ('DPOT_WIPER',[('U5','9'),('M1','A1')]),        # PW0(9) -> ADS#1 A1   t/345:23,54
- ('DAC_A_CH1', [('U4','14'),('U3','2')]),        # VOUTA -> MCP3008 CH1  t/310:24,58
- ('DAC_B_CH3', [('U4','10'),('U3','4')]),        # VOUTB -> MCP3008 CH3  t/310:25,76
- ('SR_Q_CH2',  [('U2','1'),('U3','3')]),         # 74HC595 Q1 -> MCP3008 CH2  t/335:39,43
- # stepper centre LED (GPIO19 -> R8 -> LED -> GND) -- [T] t/450
+ ('DPOT_WIPER',[('U5','9'),('M1','A1')]),        # PW0(9) -> ADS#1 A1   t/445:23,54
+ ('DAC_A_CH1', [('U4','14'),('U3','2')]),        # VOUTA -> MCP3008 CH1  t/410:24,58
+ ('DAC_B_CH3', [('U4','10'),('U3','4')]),        # VOUTB -> MCP3008 CH3  t/410:25,76
+ ('SR_Q_CH2',  [('U2','1'),('U3','3')]),         # 74HC595 Q1 -> MCP3008 CH2  t/435:39,43
+ # stepper centre LED (GPIO19 -> R8 -> LED -> GND) -- [T] t/350
  ('LED_CTRL',[('J1','35'),('R8','1')]),   # GPIO19
  ('LED_ANODE',[('R8','2'),('D1','A')]),
- # expander #2 (0x21) -> stepper driver -- [T] t/450 GPA0-3 -> ULN2003
+ # expander #2 (0x21) -> stepper driver -- [T] t/350 GPA0-3 -> ULN2003
  ('EXP_IN1',[('U6','21'),('M7','IN1')]),  # #2 GPA0
  ('EXP_IN2',[('U6','22'),('M7','IN2')]),  # #2 GPA1
  ('EXP_IN3',[('U6','23'),('M7','IN3')]),  # #2 GPA2
  ('EXP_IN4',[('U6','24'),('M7','IN4')]),  # #2 GPA3
- # expander #1 (0x20) full A<->B loopback, GPA(n)<->GPB(7-n) -- [T] t/455
+ # expander #1 (0x20) full A<->B loopback, GPA(n)<->GPB(7-n) -- [T] t/355
  ('EXP_LB0',[('U1','21'),('U1','8')]),    # GPA0 <-> GPB7
  ('EXP_LB1',[('U1','22'),('U1','7')]),    # GPA1 <-> GPB6
  ('EXP_LB2',[('U1','23'),('U1','6')]),    # GPA2 <-> GPB5

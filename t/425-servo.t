@@ -70,7 +70,7 @@ use constant {
 
 
 if (! $ENV{NO_BOARD}) {
-    my $pi = $mod->new(label => 't/325-servo.t', shm_key => 'rpit');
+    my $pi = $mod->new(label => 't/425-servo.t', shm_key => 'rpit');
 
     # Always release pin 18 even if the sweep croaks or we're interrupted
     # mid-run. A leaked registration in the shared meta poisons every later

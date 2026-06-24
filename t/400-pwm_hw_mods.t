@@ -26,7 +26,7 @@ my $mod = 'RPi::WiringPi';
 
 if ($> == 0){
     # The sudo re-exec below scrubs the environment, so (re)assert the gates
-    # the root run needs - matching t/305-pwm_i2c_adc.t. Without RPI_I2C here,
+    # the root run needs - matching t/405-pwm_i2c_adc.t. Without RPI_I2C here,
     # rpi_i2c_check() below skips the whole file under sudo.
     $ENV{RPI_BOARD} = 1;
     $ENV{RPI_ADC}   = 1;
@@ -63,13 +63,13 @@ use constant {
     SETTLE  => 0.05,
 };
 
-my $pi = $mod->new(label => 't/300-pwm_hw_mods.t', shm_key => 'rpit');
+my $pi = $mod->new(label => 't/400-pwm_hw_mods.t', shm_key => 'rpit');
 
 my $adc = $pi->adc(addr => 0x48);   # ADS1015 #1 (PWM feedback on ch 0)
 
 if (! $ENV{NO_BOARD}) {
 
-    my $pin = $pi->pin(PIN, 't/300-pwm_hw_mods.t');
+    my $pin = $pi->pin(PIN, 't/400-pwm_hw_mods.t');
     $pin->mode(INPUT);
     $pin->pull(PUD_DOWN);
 
@@ -96,7 +96,7 @@ if (! $ENV{NO_BOARD}) {
     #sleep 1;
 
     # Acceptance windows are single-sourced in t/RPiTest.pm
-    # (rpi_pwm_adc_window(); shared with t/305-pwm_i2c_adc.t) - recalibrate
+    # (rpi_pwm_adc_window(); shared with t/405-pwm_i2c_adc.t) - recalibrate
     # there, not here. With this file's custom RANGE the helper returns the
     # duty-cycle model window, giving each cycle a real lower bound (the old
     # `>= -1` was unfailable) and a duty-tracking upper bound (the old flat

@@ -10,7 +10,7 @@ use Test::More;
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new(label => 't/403-sysinfo_gpio_info.t', shm_key => 'rpit');
+my $pi = RPi::WiringPi->new(label => 't/303-sysinfo_gpio_info.t', shm_key => 'rpit');
 
 # gpio_info() is proxied to RPi::SysInfo, which drives pinctrl on current Pi OS
 # (raspi-gpio was removed). Each line looks like "20: no pd | -- // GPIO20 = none".

@@ -6,7 +6,7 @@ use Test::More;
 use RPi::DAC::MCP4922;
 
 # Mirror of RPi::DAC::MCP4922's own t/register.t, run here in the canonical
-# suite. t/310-dac.t drives the DAC on real hardware; this adds HW-free
+# suite. t/410-dac.t drives the DAC on real hardware; this adds HW-free
 # verification of the pure register word-builders and the accessor/constructor
 # validation, against the INSTALLED module, ungated (no RPiTest, no shm, no Pi).
 # (The core _set word assembly writes-and-returns-void -> B1 before it's

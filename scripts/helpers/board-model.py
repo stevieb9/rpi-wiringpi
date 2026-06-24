@@ -40,12 +40,12 @@ _FACTS = _load_facts()
 COMPONENTS = {
  'J1': ('Raspberry_Pi_40pin', 'PinHeader_2x20', {str(i): f'P{i}' for i in range(1,41)}),
  # --- bare logic ICs ---
- 'U1': ('MCP23017', 'DIP-28', {  # I2C GPIO expander #1, 0x20 (t/455 loopback)
+ 'U1': ('MCP23017', 'DIP-28', {  # I2C GPIO expander #1, 0x20 (t/355 loopback)
    '9':'VDD','10':'VSS','12':'SCL','13':'SDA','18':'RESET','15':'A0','16':'A1','17':'A2',
    '20':'INTA','19':'INTB',
    '21':'GPA0','22':'GPA1','23':'GPA2','24':'GPA3','25':'GPA4','26':'GPA5','27':'GPA6','28':'GPA7',
    '1':'GPB0','2':'GPB1','3':'GPB2','4':'GPB3','5':'GPB4','6':'GPB5','7':'GPB6','8':'GPB7'}),
- 'U6': ('MCP23017', 'DIP-28', {  # I2C GPIO expander #2, 0x21 (t/450 stepper drive)
+ 'U6': ('MCP23017', 'DIP-28', {  # I2C GPIO expander #2, 0x21 (t/350 stepper drive)
    '9':'VDD','10':'VSS','12':'SCL','13':'SDA','18':'RESET','15':'A0','16':'A1','17':'A2',
    '20':'INTA','19':'INTB',
    '21':'GPA0','22':'GPA1','23':'GPA2','24':'GPA3','25':'GPA4','26':'GPA5','27':'GPA6','28':'GPA7',
@@ -143,7 +143,7 @@ NETS = [
  ('EXP_IN3',[('U6','23'),('M7','IN3')]),  # #2 GPA2
  ('EXP_IN4',[('U6','24'),('M7','IN4')]),  # #2 GPA3
  # expander #1 (0x20) full A<->B loopback, per datasheet 1-28..8-21:
- # GPA(n) <-> GPB(7-n), all 16 pins (t/455)
+ # GPA(n) <-> GPB(7-n), all 16 pins (t/355)
  ('EXP_LB0',[('U1','21'),('U1','8')]),    # GPA0 <-> GPB7
  ('EXP_LB1',[('U1','22'),('U1','7')]),    # GPA1 <-> GPB6
  ('EXP_LB2',[('U1','23'),('U1','6')]),    # GPA2 <-> GPB5

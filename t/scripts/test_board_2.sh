@@ -20,12 +20,12 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 
 tests=(
-    t/300-pwm_hw_mods.t
-    t/305-pwm_i2c_adc.t
-    t/310-dac.t
-    t/325-servo.t
-    t/335-shift_reg_adc.t
-    t/345-dpot.t
+    t/400-pwm_hw_mods.t
+    t/405-pwm_i2c_adc.t
+    t/410-dac.t
+    t/425-servo.t
+    t/435-shift_reg_adc.t
+    t/445-dpot.t
 )
 
 RPI_BOARD_2=1 exec prove -Iblib/lib -Ilib "$@" "${tests[@]}"

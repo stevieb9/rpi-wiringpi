@@ -40,7 +40,7 @@ use constant {
 
 rpi_running_test(__FILE__);
 
-my $pi = RPi::WiringPi->new(label => 't/345-dpot.t', shm_key => 'rpit');
+my $pi = RPi::WiringPi->new(label => 't/445-dpot.t', shm_key => 'rpit');
 # Belt-and-braces: if an assertion or library call dies mid-run, release the
 # pins/registration this object holds (the library END reap is best-effort)
 

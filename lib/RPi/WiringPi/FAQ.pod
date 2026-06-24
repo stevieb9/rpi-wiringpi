@@ -1339,23 +1339,23 @@ per-board suites.
     211-interrupt_validation.t                   Interrupt arg validation             -             (none)
     212-pin_background_interrupt.t               Per-pin background interrupt         -             (none)
     213-worker.t                                 OO worker() method                   -             (none)
-    300-pwm_hw_mods.t                            HW PWM sweep (read via ADC)          RPI_BOARD_2   RPI_SUDO, RPI_I2C
-    305-pwm_i2c_adc.t                            PWM/I2C/ADC integration              RPI_BOARD_2   RPI_SUDO, RPI_ADC, RPI_I2C
-    310-dac.t                                    MCP4922 DAC (read via MCP3008)       RPI_BOARD_2   RPI_MCP4922, RPI_MCP3008
-    325-servo.t                                  Servo HW PWM (read via ADC)          RPI_BOARD_2   RPI_SUDO, RPI_SERVO, RPI_ADC, RPI_I2C
-    335-shift_reg_adc.t                          74HC595 shift reg (read via ADC)     RPI_BOARD_2   RPI_MCP3008, RPI_SHIFTREG
-    345-dpot.t                                   MCP4XXXX digital pot (read via ADC)  RPI_BOARD_2   RPI_DIGIPOT, RPI_ADC
-    400-sysinfo_cpu_percent.t                    SysInfo: CPU usage %                 -             (none)
-    401-sysinfo_mem_percent.t                    SysInfo: memory usage %              -             (none)
-    402-sysinfo_core_temp.t                      SysInfo: CPU core temperature        -             (none)
-    403-sysinfo_gpio_info.t                      SysInfo: GPIO information            -             (none)
-    404-sysinfo_raspi_config.t                   SysInfo: raspi-config settings       -             (none)
-    405-sysinfo_network_info.t                   SysInfo: network information         -             (none)
-    406-sysinfo_file_system.t                    SysInfo: filesystem information      -             (none)
-    407-sysinfo_pi_details.t                     SysInfo: board/OS details            -             (none)
-    409-board_tag.t                              Board-family detection (rpi_board_tag) -             (none)
-    450-stepper.t                                Stepper motor (timed limit switches) RPI_BOARD_3   RPI_MCP23017, RPI_STEPPER
-    455-mcp23017.t                               MCP23017 GPIO expander               RPI_BOARD_3   RPI_MCP23017
+    300-sysinfo_cpu_percent.t                    SysInfo: CPU usage %                 -             (none)
+    301-sysinfo_mem_percent.t                    SysInfo: memory usage %              -             (none)
+    302-sysinfo_core_temp.t                      SysInfo: CPU core temperature        -             (none)
+    303-sysinfo_gpio_info.t                      SysInfo: GPIO information            -             (none)
+    304-sysinfo_raspi_config.t                   SysInfo: raspi-config settings       -             (none)
+    305-sysinfo_network_info.t                   SysInfo: network information         -             (none)
+    306-sysinfo_file_system.t                    SysInfo: filesystem information      -             (none)
+    307-sysinfo_pi_details.t                     SysInfo: board/OS details            -             (none)
+    309-board_tag.t                              Board-family detection (rpi_board_tag) -             (none)
+    350-stepper.t                                Stepper motor (timed limit switches) RPI_BOARD_3   RPI_MCP23017, RPI_STEPPER
+    355-mcp23017.t                               MCP23017 GPIO expander               RPI_BOARD_3   RPI_MCP23017
+    400-pwm_hw_mods.t                            HW PWM sweep (read via ADC)          RPI_BOARD_2   RPI_SUDO, RPI_I2C
+    405-pwm_i2c_adc.t                            PWM/I2C/ADC integration              RPI_BOARD_2   RPI_SUDO, RPI_ADC, RPI_I2C
+    410-dac.t                                    MCP4922 DAC (read via MCP3008)       RPI_BOARD_2   RPI_MCP4922, RPI_MCP3008
+    425-servo.t                                  Servo HW PWM (read via ADC)          RPI_BOARD_2   RPI_SUDO, RPI_SERVO, RPI_ADC, RPI_I2C
+    435-shift_reg_adc.t                          74HC595 shift reg (read via ADC)     RPI_BOARD_2   RPI_MCP3008, RPI_SHIFTREG
+    445-dpot.t                                   MCP4XXXX digital pot (read via ADC)  RPI_BOARD_2   RPI_DIGIPOT, RPI_ADC
     500-oled_new.t                               OLED object creation                 RPI_BOARD_4   RPI_OLED
     501-oled_string.t                            OLED draw string                     RPI_BOARD_4   RPI_OLED
     502-oled_rect.t                              OLED rectangle                       RPI_BOARD_4   RPI_OLED
@@ -1548,7 +1548,7 @@ environment variable:
 
 =head3 Servo Testing
 
-The servo test (C<t/325-servo.t>) drives a servo on GPIO 18 via hardware PWM
+The servo test (C<t/425-servo.t>) drives a servo on GPIO 18 via hardware PWM
 and reads its position back through an ADC, sweeping the horn fully left to
 right and back again. Because it uses PWM, it requires C<sudo> (see
 C<RPI_SUDO>), and because it reads the ADC, it requires C<RPI_ADC>. Wire the

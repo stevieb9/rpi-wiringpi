@@ -39,12 +39,12 @@ Devices: ADS1015 (0x48), MCP3008 ADC, MCP4922 DAC, MCP42010 dpot, 74HC595, servo
 
 | Test file | Device(s) it drives |
 |-----------|---------------------|
-| `t/300-pwm_hw_mods.t` | GPIO18 PWM → ADS1015 A0 |
-| `t/305-pwm_i2c_adc.t` | GPIO18 PWM → ADS1015 A0 |
-| `t/310-dac.t` | MCP4922 DAC → MCP3008 ADC (CH1/CH3) |
-| `t/325-servo.t` | servo on GPIO18 + ADS1015 A0 |
-| `t/335-shift_reg_adc.t` | 74HC595 → MCP3008 ADC (CH2) |
-| `t/345-dpot.t` | MCP42010 dpot wiper → ADS1015 A1 |
+| `t/400-pwm_hw_mods.t` | GPIO18 PWM → ADS1015 A0 |
+| `t/405-pwm_i2c_adc.t` | GPIO18 PWM → ADS1015 A0 |
+| `t/410-dac.t` | MCP4922 DAC → MCP3008 ADC (CH1/CH3) |
+| `t/425-servo.t` | servo on GPIO18 + ADS1015 A0 |
+| `t/435-shift_reg_adc.t` | 74HC595 → MCP3008 ADC (CH2) |
+| `t/445-dpot.t` | MCP42010 dpot wiper → ADS1015 A1 |
 
 ### Board 3 — I2C expanders + stepper *(finalized & ordered)*
 Devices: MCP23017 ×2 (0x20, 0x21), ULN2003 + 28BYJ-48 stepper, CW/CCW magnet
@@ -52,8 +52,8 @@ limit switches, indicator LEDs.
 
 | Test file | Device(s) it drives |
 |-----------|---------------------|
-| `t/455-mcp23017.t` | MCP23017 @0x20 — Port A↔B loopback |
-| `t/450-stepper.t` | MCP23017 @0x21 → ULN2003 → 28BYJ-48 stepper + magnet limit switches (GPIO17/27) |
+| `t/355-mcp23017.t` | MCP23017 @0x20 — Port A↔B loopback |
+| `t/350-stepper.t` | MCP23017 @0x21 → ULN2003 → 28BYJ-48 stepper + magnet limit switches (GPIO17/27) |
 
 ---
 
@@ -100,7 +100,7 @@ they're not counted in the per-board totals above:
 |-----------|------|
 | `t/600-i2c_exceptions.t` | Gated on the Arduino (board 5) env, but only tests the **absent-device** error path (probes 0x99). No real chip used. |
 | `t/520-oled_cleanup.t` | Gated on the OLED (board 4) env, but only tests the **lock-file cleanup**, not the display. |
-| `t/451-stepper-seek.t` | **Pure software** unit test of `StepperSeek::seek_limit` (mock callbacks). No hardware / no board. |
+| `t/351-stepper-seek.t` | **Pure software** unit test of `StepperSeek::seek_limit` (mock callbacks). No hardware / no board. |
 
 ---
 
@@ -109,5 +109,5 @@ they're not counted in the per-board totals above:
 For completeness — these `t/*.t` exercise no external device and need no board
 beyond the Pi: module-load / config (`00`–`05`, `100`, `104`–`108`, `110`,
 `111`–`114`), self-triggered GPIO18 interrupt + worker tests (`200`–`213`),
-signal/exit (`150`, `153`, `154`), sysinfo (`400`–`409`), and POD/manifest
+signal/exit (`150`, `153`, `154`), sysinfo (`300`–`309`), and POD/manifest
 (`899`, `900`, `905`, `910`, `915`).
