@@ -1,8 +1,8 @@
 # Plan: Make rpi-wiringpi/t/ the canonical test suite for the whole RPi:: stack
 
-> **NEXT ACTION:** V4 — RPi::DAC::MCP4922: HW-free assertions for the pure word-builders `_reg_init`/`__set_dac` (exact register words), the model→bits→lsb chain, and constructor arg-validation croaks (mock WiringPi). Core `_set` math blocked on B1.
-> **LAST SESSION:** 2026-06-23 — V3 done: added `rpi-digipot-mcp4xxxx/t/set_shutdown.t` (13 tests, Mock::Sub, asserts exact SPI bytes + CS order + validation) and mirror `rpi-wiringpi/t/346-dpot_unit.t` (12); fixed F4 (shutdown bad-pot message). dist Changes 3.1802 UNREL; uncommitted. (V1: rpi-const manifest guard; V2: rpi-pin validation + mirror.)
-> **ARCHIVE:** See test-coverage-gaps-archive.md for completed V1-V3
+> **NEXT ACTION:** V5 — RPi::ADC::ADS: remove the stray `exit;` dead-coding the gain croak in `t/925` (F1); add `register()` set-path + croak tests, `_samples()` validation, and `bits`/`_bit_set` isolation (all HW-free).
+> **LAST SESSION:** 2026-06-23 — V4 done: built the DAC XS dist and added `rpi-dac-mcp4922/t/register.t` (42 tests: pure word-builders _reg_init/__set_dac, model→lsb chain, accessor/new validation) + mirror `rpi-wiringpi/t/311-dac_unit.t` (42); no bug found; core _set deferred to B1. dist Changes 3.1802 UNREL; uncommitted. (V1: const manifest; V2: pin validation; V3: dpot set/shutdown + F4.)
+> **ARCHIVE:** See test-coverage-gaps-archive.md for completed V1-V4
 
 ## Goal & guiding principles
 
@@ -68,7 +68,6 @@ Every row: mirror absent sub-repo tests into rpi-wiringpi/t/ (non-conflicting) +
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V4 | **RPi::DAC::MCP4922** — integration-covered by t/310 (HW); own repo has ZERO functional tests. Add HW-free assertions for the pure word-builders `_reg_init`/`__set_dac` (exact register words), the model→bits→lsb chain, constructor arg-validation croaks (mock WiringPi). Core `_set` math blocked on B1. | `cd ~/repos/rpi-dac-mcp4922 && prove -Ilib t/` | Word-builder + model/lsb + validation pass HW-free. | ⏳ |
 | V5 | **RPi::ADC::ADS** — heavily integration-covered (t/140-142 etc.). Gap: F1 (stray `exit;` dead-codes the gain croak in `t/925`); `register()` set-path + croaks (missing lsb, 0-255, set→`bits` round-trip); `_samples()` validation; `bits`/`_bit_set` isolation. All HW-free. | `cd ~/repos/rpi-adc-ads && prove -Ilib t/` | Gain croak runs; register/_samples/bit-merge covered HW-free. | ⏳ |
 | V6 | **RPi::GPIOExpander::MCP23017** — integration-covered by t/330,450 (HW). Gap: F3 (`t/35-pullup.t`+`t/40-pullup_bank.t` test `mode_bank` not pullup); HW-free validation (pin/bank/register/bit bounds; `register($data>255)` truncation); `getRegisterBits` + all of `bit.c` (`bitSet/Tog/Count/Mask`) untested; F2 (`GPIO__pinBit` `%d`-no-arg croak). Mirror the corrected unit tests here. | `cd ~/repos/rpi-gpioexpander-mcp23017 && prove -Ilib t/` | Mis-targeted tests fixed; bit math + validation + pinBit bounds covered. | ⏳ |
 | V7 | **RPi::EEPROM::AT24C32** — the validator croak tests are ALREADY mirrored here (`t/420-422`) but **RPI_EEPROM-gated**, so the HW-free `_check_addr`/`_check_byte` croaks don't run off-board. Un-gate the pure-Perl croak assertions (split from the I/O round-trip); surface F6 (eeprom_init -1 swallowed by new). Own repo is boilerplate — nothing new to mirror. | `cd ~/repos/rpi-wiringpi && prove -Iblib/lib -Ilib t/420-eeprom_args.t t/421-eeprom_read_write_byte_croak.t` | Validator croaks run ungated (HW-free); round-trip stays gated. | ⏳ |
