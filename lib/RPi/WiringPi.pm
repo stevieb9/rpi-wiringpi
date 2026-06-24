@@ -225,7 +225,16 @@ sub i2c {
 sub lcd {
     my ($self, %args) = @_;
 
-    # Pre-register all pins so we can clean them up= accordingly upon cleanup
+    # I2C-backpack LCD: an HD44780 behind a PCF8574 I2C I/O expander. Passing an
+    # 'i2c' address switches to that mode; we register the expander's 8 pins as
+    # virtual GPIOs and drive the panel through the very same lcd_init/lcd_*
+    # path as a parallel LCD - the virtual pins route digitalWrite() to the
+    # expander over I2C.
+
+    return $self->_lcd_i2c(%args) if exists $args{i2c};
+
+    # Parallel (direct-GPIO) LCD: pre-register all pins so we can clean them up
+    # accordingly upon cleanup.
 
     for (qw(rs strb d0 d1 d2 d3 d4 d5 d6 d7)){
         if (! exists $args{$_} || $args{$_} !~ /^\d+$/){
@@ -239,6 +248,71 @@ sub lcd {
     RPi::LCD->import;
     my $lcd = RPi::LCD->new;
     $lcd->init(%args);
+    return $lcd;
+}
+sub _lcd_i2c {
+    my ($self, %args) = @_;
+
+    # Standard PCF8574 LCD-backpack wiring: P0=RS, P1=RW, P2=E, P3=backlight,
+    # P4-P7=D4-D7. We register the 8 pins at $pin_base, then map them onto a
+    # 4-bit lcd_init() - in which the four data lines occupy d0-d3 (d4-d7 = 0).
+
+    my $addr = $args{i2c};
+    if (! defined $addr || $addr !~ /^\d+$/ || $addr < 0x03 || $addr > 0x77){
+        die "lcd() 'i2c' must be an I2C address (integer 0x03-0x77)\n";
+    }
+
+    for my $gpio_param (qw(rs strb d0 d1 d2 d3 d4 d5 d6 d7)){
+        if (exists $args{$gpio_param}){
+            die "lcd() i2c mode takes no GPIO pin params (got '$gpio_param'); " .
+                "the PCF8574 backpack supplies them\n";
+        }
+    }
+
+    for my $req (qw(rows cols)){
+        if (! exists $args{$req} || $args{$req} !~ /^\d+$/ || $args{$req} < 1){
+            die "lcd() i2c mode requires '$req' as a positive integer\n";
+        }
+    }
+
+    my $base = exists $args{pin_base} ? $args{pin_base} : 64;
+    if ($base !~ /^\d+$/ || $base < 64){
+        die "lcd() i2c 'pin_base' must be an integer >= 64 (wiringPi pin " .
+            "extensions live above the native GPIO range)\n";
+    }
+
+    # Register the expander's pins as virtual GPIOs, then hold RW low
+    # (write-only) and the backlight on; the PCF8574 latch keeps both across
+    # subsequent LCD writes.
+
+    WiringPi::API::pcf8574Setup($base, $addr);
+    WiringPi::API::digitalWrite($base + 1, 0);   # P1 RW -> write-only
+
+    require RPi::LCD;
+    RPi::LCD->import;
+
+    my $lcd = RPi::LCD->new;
+    $lcd->init(
+        rows => $args{rows},
+        cols => $args{cols},
+        bits => 4,
+        rs   => $base + 0,   # P0
+        strb => $base + 2,   # P2 (E)
+        d0   => $base + 4,   # P4 -> HD44780 D4
+        d1   => $base + 5,   # P5 -> D5
+        d2   => $base + 6,   # P6 -> D6
+        d3   => $base + 7,   # P7 -> D7
+        d4   => 0,
+        d5   => 0,
+        d6   => 0,
+        d7   => 0,
+    );
+
+    # Record the backlight pin (PCF8574 P3) on the handle so $lcd->backlight()
+    # can toggle it later, and switch it on now.
+    $lcd->_backlight_pin($base + 3);
+    $lcd->backlight(1);
+
     return $lcd;
 }
 sub oled {
@@ -852,11 +926,34 @@ Arduino can. If this is the case, try lowering the I2C bus speed on the Pi:
  
 =head2 lcd(...)
  
-Returns a L<RPi::LCD> object, which allows you to fully manipulate
-LCD displays connected to your Raspberry Pi.
- 
-Please see the linked documentation for information regarding the parameters
-required.
+Returns a L<RPi::LCD> object for an HD44780-compatible character LCD. Two
+wiring schemes are supported; see L<RPi::LCD> for the display methods.
+
+B<Parallel (direct GPIO)> - drive the LCD's control and data lines straight
+from the Pi's GPIO. Send the pin configuration (BCM numbers) plus geometry:
+
+    my $lcd = $pi->lcd(
+        rows => 4, cols => 20, bits => 4,
+        rs => 5, strb => 6,
+        d0 => 4, d1 => 17, d2 => 27, d3 => 22,
+        d4 => 0, d5 => 0, d6 => 0, d7 => 0,
+    );
+
+B<I2C backpack (PCF8574)> - for an LCD behind a PCF8574 I2C backpack, pass
+C<i2c> with the backpack's address instead of any pin configuration:
+
+    my $lcd = $pi->lcd(i2c => 0x27, rows => 4, cols => 20);
+
+We register the backpack's eight expander pins as virtual GPIOs (standard
+wiring: P0=RS, P1=RW, P2=E, P3=backlight, P4-P7=D4-D7) and drive the panel
+through the same path as a parallel LCD. The backlight comes on automatically
+and can be switched with C<< $lcd->backlight(0|1) >> (see L<RPi::LCD/backlight>).
+
+I2C-mode parameters: C<i2c> (mandatory, the backpack address, an integer
+0x03-0x77, e.g. C<0x27> or C<0x3F>); C<rows> and C<cols> (mandatory, the panel
+geometry); and C<pin_base> (optional, integer >= 64, default 64 - the wiringPi
+virtual-pin base for the expander; change it only if it collides with another
+pin extension). I2C mode is 4-bit and takes no GPIO pin params.
  
 =head2 oled([$model], [$i2c_addr], [$display_splash_page])
 
