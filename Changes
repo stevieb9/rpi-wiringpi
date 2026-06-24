@@ -40,6 +40,16 @@ Revision history for Perl extension RPi::WiringPi.
       requires 1.06)
     - Documented bmp()'s mandatory $pin_base parameter in the POD (it was
       undocumented, though t/340 passes it)
+    - Corrected the board 4 DS3231 module (M1) pin map in board-4-model.py to the
+      confirmed hardware silk (1:GND 2:VCC 3:SDA 4:SCL 5:SQW 6:32K; SQW/32K N/C)
+      and re-scaffolded the board-4 KiCad project from it
+    - Added a hand-wired indicator LED + series resistor and a single-pole switch
+      to the board-4 scaffold (net-less; labelled/wired by hand in KiCad)
+    - Added the RPI_BOARD_4 convenience env gate to the board-4 test files, so it
+      auto-enables RPI_RTC / RPI_BMP / RPI_EEPROM / RPI_OLED
+    - Added t/scripts/test_board_4.sh, the board-4 hardware-suite rig runner
+    - Added a "Test hardware" column to the FAQ.pod test-file reference table,
+      naming each test's RPI_BOARD_X board
 
 3.1802     2026-06-12
     - bump prereq of RPi::I2C to 2.3608

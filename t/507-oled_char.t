@@ -1,6 +1,15 @@
 use strict;
 use warnings;
 
+# Board-4 convenience: set RPI_BOARD_4=1 and every env gate the board-4 suite
+# needs is enabled automatically, instead of exporting each one by hand. Runs in
+# BEGIN so it lands before RPiTest's compile-time RPI_BOARD skip_all gate.
+BEGIN {
+    if ($ENV{RPI_BOARD_4}) {
+        $ENV{$_} = 1 for qw(RPI_BOARD RPI_RTC RPI_BMP RPI_EEPROM RPI_OLED);
+    }
+}
+
 use lib 't/';
 
 use RPiTest;
