@@ -1,8 +1,8 @@
 # Plan: Make rpi-wiringpi/t/ the canonical test suite for the whole RPi:: stack
 
-> **NEXT ACTION:** V1 — rpi-const: add HW-free value assertions for the two zero-coverage tags `:altmode` and `:mcp23017_pins`, make `:all` exhaustive, add a tag-importability loop.
-> **LAST SESSION:** 2026-06-23 — Reframed after user guidance: rpi-wiringpi/t/ is the canonical aggregate suite (it already mirrors eeprom/rtc-bcd/oled/sysinfo and hardware-drives most devices), so the goal is *mirror absent sub-repo tests here + fill HW-free unit gaps + fix surfaced bugs* — NOT re-test what integration already validates. Audited all 20 RPi:: dists (11 newly cloned via `git@github.com:stevieb9/…`) + WiringPi::API → V1–V22, findings F1–F16. Excluded deprecated RPi::WiringPi::Constant.
-> **ARCHIVE:** See test-coverage-gaps-archive.md for completed V tasks
+> **NEXT ACTION:** V3 — RPi::DigiPot::MCP4XXXX: add `set()`/`shutdown()` unit tests via the existing Mock::Sub harness (data 0-255 / pot 1-3 croaks, control-byte framing 0x01/0x02, CS ordering); pins F4.
+> **LAST SESSION:** 2026-06-23 — V2 done: added `rpi-pin/t/10-validation.t` (23 HW-free validation tests, NO_BOARD, eval/like) and mirrored it to `rpi-wiringpi/t/116-pin_validation.t`; both pass ungated. Surfaced F18 (mode_alt no validation → B13). rpi-pin Changes 3.1802 UNREL noted; uncommitted. (V1 earlier: rpi-const self-policing manifest guard.)
+> **ARCHIVE:** See test-coverage-gaps-archive.md for completed V1-V2
 
 ## Goal & guiding principles
 
@@ -68,8 +68,6 @@ Every row: mirror absent sub-repo tests into rpi-wiringpi/t/ (non-conflicting) +
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V1 | **RPi::Const** — two export tags have ZERO assertions anywhere: `:altmode` (scrambled: ALT0=4, ALT4=3, ALT5=2) and `:mcp23017_pins` (A0-7=0-7, B0-15=8-23). Add HW-free value assertions for both. Make it **self-policing**: a declared `%expected` manifest (tag → {name → value}) checked against the live `%RPi::Const::EXPORT_TAGS` / `@EXPORT_OK` via `is_deeply` — so a NEW tag or a NEW constant added to any group fails the test until it's added to the manifest (forcing a value assertion); `:all` asserted == the union of all groups (no orphan/dup). Cross-assert `:edge` ≡ `:int_edge`. **Lives in rpi-const only — not mirrored into rpi-wiringpi** (user decision; see NOT doing). | `cd ~/repos/rpi-const && prove -Ilib t/` | Every constant value + every tag asserted; pass with no hardware. | ⏳ |
-| V2 | **RPi::Pin** — ~13 HW-free validation croaks untested (fire before any hardware call). Add an un-gated file (`NO_BOARD=1` + Test::Fatal): `new`/`write`/`mode`/`pull` bad-arg dies, `set_interrupt`/`background_interrupt` croaks, exercise deprecated `interrupt_set`. Flag `mode_alt` (zero coverage + no input validation). Mirror into rpi-wiringpi if not conflicting with t/105-108. | `cd ~/repos/rpi-pin && NO_BOARD=1 prove -Ilib t/10-validation.t` | ~13 croaks asserted off-board. | ⏳ |
 | V3 | **RPi::DigiPot::MCP4XXXX** — integration-covered by t/345 (HW). Gap: `set()`/`shutdown()` have no direct unit test though `init.t` has a Mock::Sub harness. Add data(0-255)/pot(1-3) croaks + control-byte framing (set=0x01, shutdown=0x02, chan=3) + CS ordering; mirror `bytes.t`/`init.t` here. F4. | `cd ~/repos/rpi-digipot-mcp4xxxx && prove -Ilib t/` | set/shutdown validation + framing asserted HW-free via mocks. | ⏳ |
 | V4 | **RPi::DAC::MCP4922** — integration-covered by t/310 (HW); own repo has ZERO functional tests. Add HW-free assertions for the pure word-builders `_reg_init`/`__set_dac` (exact register words), the model→bits→lsb chain, constructor arg-validation croaks (mock WiringPi). Core `_set` math blocked on B1. | `cd ~/repos/rpi-dac-mcp4922 && prove -Ilib t/` | Word-builder + model/lsb + validation pass HW-free. | ⏳ |
 | V5 | **RPi::ADC::ADS** — heavily integration-covered (t/140-142 etc.). Gap: F1 (stray `exit;` dead-codes the gain croak in `t/925`); `register()` set-path + croaks (missing lsb, 0-255, set→`bits` round-trip); `_samples()` validation; `bits`/`_bit_set` isolation. All HW-free. | `cd ~/repos/rpi-adc-ads && prove -Ilib t/` | Gain croak runs; register/_samples/bit-merge covered HW-free. | ⏳ |
@@ -115,6 +113,8 @@ Code defects surfaced by the coverage audit (separate from the test gaps). Each 
 - **F14** (→V15): rpi-serial `new()` doesn't croak on a failed open — it builds an object with `fd = -1`; `baud` is unvalidated (silent `switch` fallthrough).
 - **F15** (→V22): rpi-sysinfo `_format` doesn't clamp the XS `-1.0` error sentinel, so `cpu_percent` can return `"-1.00"` as if valid; the `raspi_config` blank-line regex `^\s*(#|^$)` is malformed.
 - **F16** (→V21): rpi-oled-ssd1306 `new()` is a silent singleton — a second call with a different I2C address/splash returns the cached object, discarding the new args.
+- **F17** (→V18): rpi-dht11 has three inconsistent board-detection signals — `RPI_BOARD` (gates `00-load.t`), `RPI_DHT11` (gates `05`/`10`), and the POD-documented-but-unused `RDE_HAS_BOARD` (plus the C-level `RDE_NOBOARD_TEST`) — fragile/confusing for the harness.
+- **F18** ⏸ DEFERRED → B13: rpi-pin `mode_alt($alt)` has no input validation — it passes `$alt` straight to `pin_mode_alt` (hardware), so a garbage alt isn't caught. Surfaced during V2 (which only flags it, HW-free validation can't be asserted for validation that doesn't exist); the fix is a code change tracked in B13.
 
 ## Backlog
 
@@ -141,6 +141,8 @@ B10: rpi-bmp180 — the temp/pressure compensation + hard-coded OSS math lives i
 B11: add a noboard/env-gate to dists that have none (mcp3008, spi, bmp180, lcd, oled, hcsr04) so their constructors + validation can run off-board (extends B4).
 
 B12: systematic mirror sweep — after the per-distro tasks, diff each sub-repo's `t/` against rpi-wiringpi/t/ and port any non-conflicting functional test still absent here, so rpi-wiringpi is provably the superset (the duplication policy as a final pass).
+
+B13: rpi-pin — add an input-validation guard to `mode_alt($alt)` (currently passes any `$alt` straight to `pin_mode_alt`); resolves F18, after which a HW-free croak test can be added in t/10-validation.t + t/116.
 
 ## Explicitly NOT doing
 
