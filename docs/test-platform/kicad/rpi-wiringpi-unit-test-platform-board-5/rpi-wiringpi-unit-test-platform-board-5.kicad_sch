@@ -3400,7 +3400,7 @@
 				)
 			)
 		)
-		(property "Value" "10k"
+		(property "Value" "LCD_DIMMER"
 			(at 41.91 77.47 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3565,7 +3565,7 @@
 				)
 			)
 		)
-		(property "Value" "HD44780_20x4"
+		(property "Value" "HD44780_20x2"
 			(at 38.1 48.26 0)
 			(show_name no)
 			(do_not_autoplace no)
