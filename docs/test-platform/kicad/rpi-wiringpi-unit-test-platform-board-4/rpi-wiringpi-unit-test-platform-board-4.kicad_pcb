@@ -7,6 +7,10 @@
 		(legacy_teardrops no)
 	)
 	(paper "A4")
+	(title_block
+		(date "2026-07-03")
+		(rev "1")
+	)
 	(layers
 		(0 "F.Cu" signal)
 		(2 "B.Cu" signal)
@@ -136,7 +140,6 @@
 				)
 			)
 		)
-		(path "/e1f8b34f-0497-5e62-b147-147a9cee42d6")
 		(sheetname "/")
 		(sheetfile "rpi-wiringpi-unit-test-platform-board-4.kicad_sch")
 		(units
@@ -242,7 +245,6 @@
 				)
 			)
 		)
-		(path "/a8123557-0b37-58c3-bf46-304c5715e469")
 		(sheetname "/")
 		(sheetfile "rpi-wiringpi-unit-test-platform-board-4.kicad_sch")
 		(units
@@ -1068,7 +1070,6 @@
 				)
 			)
 		)
-		(path "/5972634a-3dba-5477-896a-1ea67320937c")
 		(sheetname "/")
 		(sheetfile "rpi-wiringpi-unit-test-platform-board-4.kicad_sch")
 		(units
@@ -2568,7 +2569,6 @@
 				)
 			)
 		)
-		(path "/2dc5c048-8eb7-5169-9574-f8d1ddaeb7d6")
 		(sheetname "/")
 		(sheetfile "rpi-wiringpi-unit-test-platform-board-4.kicad_sch")
 		(units
@@ -2644,6 +2644,19 @@
 			(font
 				(size 1 1)
 				(thickness 0.125)
+			)
+			(justify left bottom)
+		)
+	)
+	(gr_text "Perl RPi::WiringPi test platform Board 4\nRevision: ${REVISION}\nSteve Bertrand\n20260703"
+		(at 142.24 115 0)
+		(layer "F.SilkS")
+		(uuid "e1f64cde-9888-46b3-94da-63b4cfd3b0c6")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.2)
+				(bold yes)
 			)
 			(justify left bottom)
 		)
