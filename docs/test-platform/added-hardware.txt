@@ -1,0 +1,27 @@
+-DONE: ADS1015 ADC (I2C 0x48)
+-DONE: MCP23017 GPIO expander #1 (I2C 0x20)
+-DONE: MCP23017 GPIO expander #2 (I2C 0x21)
+-DONE: MCP3008 ADC (SPI, CS GPIO26)
+-DONE: MCP4922 DAC (SPI, CS GPIO12)
+-DONE: MCP4XXXX digital potentiometer (SPI, CS GPIO13)
+-DONE: 74HC595 shift register
+-DONE: Stepper CW magnetic limit switch (GPIO17)
+-DONE: Stepper CCW magnetic limit switch (GPIO27)
+-DONE: HD44780 LCD (20x4, 4-bit)
+-DONE: ULN2003 stepper driver
+-DONE:  28BYJ-48 stepper motor
+-DONE: Stepper CW LED + 330 R
+-DONE: Stepper CCW LED + 330 R
+-DONE: Stepper centre LED (GPIO19)
+-DONE: UART loopback (GPIO14 TXD -> GPIO15 RXD)
+
+ DS3231 RTC (I2C 0x68)
+ AT24C32 EEPROM (I2C 0x57)
+BMP180 pressure/temperature sensor (I2C 0x77)
+SSD1306 OLED 128x64 (I2C 0x3c)
+# ATMega-328P standalone (I2C 0x05, optional)
+I2C SDA/SCL pull-ups (Pi built-in ~1.8 kohm; no external pair)
+
+3V3<->5V I2C level-shifter (BSS138-type, for 5V Arduino)
+Arduino I2C slave (I2C 0x04)
+Tower Pro SG90 servo
