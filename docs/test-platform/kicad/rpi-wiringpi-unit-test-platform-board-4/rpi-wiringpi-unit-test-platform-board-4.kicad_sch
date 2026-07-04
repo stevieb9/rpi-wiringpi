@@ -3371,7 +3371,7 @@
 				)
 			)
 		)
-		(property "Footprint" "rpi-wiringpi-unit-test-platform-board-4:M1"
+		(property "Footprint" "RPi:DS3231"
 			(at 72.39 115.57 0)
 			(hide yes)
 			(show_name no)
@@ -3461,7 +3461,7 @@
 				)
 			)
 		)
-		(property "Footprint" "rpi-wiringpi-unit-test-platform-board-4:SW1"
+		(property "Footprint" "Button_Switch_SMD:SW_DIP_SPSTx01_Slide_6.7x4.1mm_W6.73mm_P2.54mm_LowProfile_JPin"
 			(at 95.25 140.97 0)
 			(hide yes)
 			(show_name no)
