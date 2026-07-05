@@ -88,6 +88,8 @@ also carries its own test devices: the I2C LCD - an HD44780 on a PCF8574 I2C
 backpack (0x27), 5V, behind a 3V3↔5V level-shifter - and the planned PCA9685
 16-channel PWM controller (0x40).
 
+Devices: HD44780 LCD on PCF8574 I2C backpack (0x27), PCA9685 (0x40, 16-ch PWM, planned).
+
 | Test file | Device |
 |-----------|--------|
 | `t/335-lcd_i2c.t` | HD44780 LCD on PCF8574 I2C backpack (0x27) |

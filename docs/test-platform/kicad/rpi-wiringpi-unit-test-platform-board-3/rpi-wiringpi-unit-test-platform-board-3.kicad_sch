@@ -5,7 +5,7 @@
 	(uuid "d32517a0-ba1d-5be2-8d0f-f7fb5839afe5")
 	(paper "User" 240.0000026 372.2399972)
 	(title_block
-		(rev "2")
+		(rev "3")
 	)
 	(lib_symbols
 		(symbol "Connector:Conn_01x02_Pin"

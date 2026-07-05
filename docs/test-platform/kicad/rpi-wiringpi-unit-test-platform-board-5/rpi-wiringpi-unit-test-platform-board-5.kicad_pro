@@ -72,7 +72,7 @@
       "diff_pair_dimensions": [],
       "drc_exclusions": [
         [
-          "lib_footprint_mismatch|123190000|85085000|0bb1f453-0e94-40e8-8a97-3968c462146f|00000000-0000-0000-0000-000000000000",
+          "silk_edge_clearance|80010000|95544000|62a2a408-a3f3-4eb6-827b-24a2eed9cdb2|9c287a0d-49cd-4d5b-ac06-93bb54a762d1",
           ""
         ]
       ],
@@ -650,7 +650,7 @@
         "uuid": "e004c7c1-bd45-5273-8695-af3f087c91dc"
       }
     ],
-    "used_designators": "",
+    "used_designators": "RV2,#PWR2,#PWR15-16,U1,#FLG3,C4",
     "variants": []
   },
   "sheets": [

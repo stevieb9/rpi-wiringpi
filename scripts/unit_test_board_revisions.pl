@@ -17,13 +17,27 @@
 #   - A backup copy (_restore_backup_*/ or .history/) carries a HIGHER rev
 #     than the main file - the working file may have regressed
 #
-# Usage:  perl scripts/unit_test_board_revisions.pl
+# With --sync, each schematic's rev is copied into its sibling PCB's
+# title block. KiCad never propagates schematic page settings into the
+# PCB file, and the front-silkscreen "Revision: ${REVISION}" text renders
+# the PCB's OWN title-block rev - so the workflow is: bump the rev in the
+# schematic's page settings, run --sync, and the silkscreen follows.
+# NOTE: a synced board that is blessed must be re-blessed afterwards
+# (check-board-locks.py --bless).
+#
+# Usage:  perl scripts/unit_test_board_revisions.pl [--sync]
 
 use strict;
 use warnings;
 
 use File::Basename;
 use File::Spec;
+use Getopt::Long;
+
+my $sync = 0;
+
+GetOptions('sync' => \$sync)
+    or die "usage: $0 [--sync]\n";
 
 my $repo_root = File::Spec->rel2abs(
     File::Spec->catdir(dirname($0), File::Spec->updir)
@@ -54,20 +68,30 @@ for my $board (@boards) {
     my @notes;
     my ($rev, $date) = parse_title_block($pcb);
 
+    # The schematic's page settings are the source of truth for the rev
+
+    my $sch = File::Spec->catfile($board, "$name.kicad_sch");
+    my $sch_rev;
+
+    if (-f $sch) {
+        ($sch_rev) = parse_title_block($sch);
+    }
+
+    if ($sync && defined $sch_rev && (! defined $rev || $sch_rev ne $rev)) {
+        sync_rev($pcb, $sch_rev);
+
+        my $old = defined $rev ? $rev : 'not set';
+        ($rev, $date) = parse_title_block($pcb);
+
+        push @notes, "SYNCED from schematic ($old -> $sch_rev)";
+    }
+
     if (! defined $rev) {
         push @notes, 'rev not set (PCB has no title_block rev)';
     }
 
-    # Cross-check the schematic's rev against the PCB's
-
-    my $sch = File::Spec->catfile($board, "$name.kicad_sch");
-
-    if (-f $sch) {
-        my ($sch_rev) = parse_title_block($sch);
-
-        if (defined $sch_rev && (! defined $rev || $sch_rev ne $rev)) {
-            push @notes, "schematic rev is $sch_rev";
-        }
+    if (defined $sch_rev && (! defined $rev || $sch_rev ne $rev)) {
+        push @notes, "schematic rev is $sch_rev";
     }
 
     # Flag backup/history copies carrying a higher rev than the main PCB
@@ -209,4 +233,48 @@ sub rev_gt {
     }
 
     return ($rev_a cmp $rev_b) > 0;
+}
+
+sub sync_rev {
+    my ($file, $rev) = @_;
+
+    if (! defined $file) {
+        die "sync_rev() requires the \$file param\n";
+    }
+
+    if (! defined $rev) {
+        die "sync_rev() requires the \$rev param\n";
+    }
+
+    open my $fh, '<', $file or die "can't open $file: $!\n";
+    my $content = do { local $/; <$fh> };
+    close $fh;
+
+    # Operate only inside the top-level title_block section, replacing an
+    # existing (rev "...") or inserting one after the opening line
+
+    my $updated = $content;
+
+    if ($updated =~ /^([ \t]*)\(title_block\s*\n(.*?)(^\1\))/ms) {
+        my ($indent, $block, $close) = ($1, $2, $3);
+        my $new_block = $block;
+
+        if ($new_block =~ /\(rev\s+"[^"]*"\)/) {
+            $new_block =~ s/\(rev\s+"[^"]*"\)/(rev "$rev")/;
+        }
+        else {
+            $new_block .= "$indent\t(rev \"$rev\")\n";
+        }
+
+        $updated =~ s/^([ \t]*)\(title_block\s*\n.*?^\1\)/$indent(title_block\n$new_block$close/ms;
+    }
+    else {
+        die "no title_block found in $file - set one in KiCad first\n";
+    }
+
+    open my $out, '>', $file or die "can't write $file: $!\n";
+    print $out $updated;
+    close $out;
+
+    return;
 }
