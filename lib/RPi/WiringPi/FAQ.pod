@@ -1428,6 +1428,7 @@ per-board suites.
     422-adc_unit.t                              RPi::ADC::ADS unit (HW-free)           -             (none)
     425-servo.t                                 Servo HW PWM (read via ADC)            RPI_BOARD_2   RPI_ADC, RPI_I2C, RPI_SERVO
     435-shift_reg_adc.t                         74HC595 shift reg (read via ADC)       RPI_BOARD_2   RPI_MCP3008, RPI_SHIFTREG
+    440-pca9685.t                               PCA9685 16ch PWM (I2C reg readback)    -             RPI_PCA9685
     445-dpot.t                                  MCP4XXXX digital pot (read via ADC)    RPI_BOARD_2   RPI_ADC, RPI_DIGIPOT
     446-dpot_unit.t                             MCP4XXXX digipot unit (HW-free)        -             (none)
     500-oled_new.t                              OLED object creation                   RPI_BOARD_4   RPI_OLED
