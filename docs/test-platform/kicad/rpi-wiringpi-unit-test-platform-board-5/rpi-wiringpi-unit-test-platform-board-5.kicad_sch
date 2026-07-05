@@ -4641,7 +4641,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical"
 			(at 67.31 130.81 0)
 			(hide yes)
 			(show_name no)
@@ -4697,7 +4697,7 @@
 	)
 	(symbol
 		(lib_id "Switch:SW_DIP_x03")
-		(at 100.33 162.56 180)
+		(at 100.33 162.56 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4728,7 +4728,7 @@
 			)
 		)
 		(property "Footprint" "Button_Switch_THT:SW_DIP_SPSTx03_Slide_9.78x9.8mm_W7.62mm_P2.54mm"
-			(at 100.33 160.02 0)
+			(at 100.33 165.1 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4739,7 +4739,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 100.33 160.02 0)
+			(at 100.33 165.1 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5715,7 +5715,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical"
 			(at 137.16 130.81 0)
 			(hide yes)
 			(show_name no)
@@ -5957,7 +5957,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Connector_JST:JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical"
 			(at 59.69 49.53 0)
 			(hide yes)
 			(show_name no)
@@ -6538,7 +6538,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical"
 			(at 25.4 29.21 0)
 			(hide yes)
 			(show_name no)
@@ -6701,7 +6701,7 @@
 				)
 			)
 		)
-		(property "Footprint" "rpi-wiringpi-unit-test-platform-board-5:LCD1"
+		(property "Footprint" "RPi:HD44780_LCD_Module"
 			(at 67.31 88.9 0)
 			(hide yes)
 			(show_name no)

@@ -1,7 +1,7 @@
 # Plan: Single source of truth for the wiringPi version requirement
 
 > **NEXT ACTION:** V1 — write and run `perl scripts/audit-family-buildcheck.pl`
-> **LAST SESSION:** 2026-07-03 — plan created; researched local repos, cataloged guard variants and defects (F1-F6)
+> **LAST SESSION:** 2026-07-05 — outside this plan's V-flow, per direct user instruction: `WIRINGPI_MIN_VERSION` ('3.18', :wiringpi tag) added to RPi::Const 1.07; wiringpi-api + rpi-oled-ssd1306 Makefile.PLs now consume it (eval-require, 3.18 literal fallback — oled's stale 2.36 corrected); both dists' POD points at the constant; site catalog in `rpi-const/REQ.md`. See Discovery Tracking. V1-V8 (BuildCheck, tuple compare, audit gate) remain open.
 > **ARCHIVE:** See wiringpi-version-single-source-archive.md for completed V tasks
 
 ## Goal
@@ -114,7 +114,16 @@ note the `gh` CLI token is currently invalid, so use
 
 ## Discovery Tracking
 
-_None yet._
+**Fix 1:** User-directed partial delivery ahead of V3/V4 (2026-07-05)
+- The user asked for the constant immediately, without waiting for the
+  BuildCheck module: `RPi::Const::WIRINGPI_MIN_VERSION` ('3.18') now exists
+  (1.07 UNREL) and both versioned guard sites (wiringpi-api, rpi-oled-ssd1306
+  — the F1 drift pair) consume it via eval-require with a 3.18 literal
+  fallback. `rpi-const/REQ.md` catalogs every consuming/candidate file.
+- Still open here: F2 (tuple compare — the guards still use version->parse),
+  F3 (silent pass on unparseable gpio -v), V3's BuildCheck consolidation, and
+  the V5 audit gate. V3/V4 should absorb the constant rather than a scalar
+  (`$MIN_WIRINGPI_VERSION`) when they land.
 
 ## Review Findings
 

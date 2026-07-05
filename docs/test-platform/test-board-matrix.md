@@ -5,16 +5,16 @@ Which unit tests need which physical test board. A companion to
 and [`board-layout-proposal.md`](board-layout-proposal.md) (the board plan).
 
 **Source of truth:** the test↔device mapping is `test-pinout-doc.md` §3. For the
-device↔board mapping, the finalized boards (2, 3, 5) are now authoritative as their
+device↔board mapping, the finalized boards (2, 3, 4) are authoritative as their
 own KiCad projects under `docs/test-platform/kicad/` — they are hand-managed and
-have no generated model; board 4 (still scaffolded) is driven by
-`scripts/helpers/board-4-model.py`. Keep this table in sync when tests or device
-placement change.
+have no generated model; board 5 (being hand-finalized) is likewise hand-managed.
+Keep this table in sync when tests or device placement change.
 
 > **Every hardware test below also needs board 1 (the Raspberry Pi itself).**
 > Board 1 is the host all the satellites hang off; it's noted once here, not on
-> every row. Board 1 also carries one test device of its own - the I2C LCD
-> (`t/335-lcd_i2c.t`).
+> every row. Board 1 also carries two test devices of its own - the I2C LCD
+> (`t/335-lcd_i2c.t`) and the planned PCA9685 PWM controller
+> (`t/440-pca9685.t`).
 
 ---
 
@@ -22,15 +22,15 @@ placement change.
 
 | Board | Role | Status | Hardware tests |
 |-------|------|--------|---------------:|
-| **1** | Pi host + power/signal fan-out + I2C LCD | not built (planned last) | 1 (host for all) |
+| **1** | Pi host + power/signal fan-out + I2C LCD + PCA9685 | not built (planned last) | 2 (host for all) |
 | **2** | SPI analog cluster | **finalized & ordered** | 6 |
 | **3** | I2C expanders + stepper | **finalized & ordered** | 2 |
-| **4** | I2C sensors | scaffolded (EEPROM confirmed on-module) | 15 |
+| **4** | I2C sensors | **finalized & ordered** | 15 |
 | **5** | 5V logic (LCD / Arduino / UART) | **being finalized (KiCad)** | 3 |
 
-**8 hardware tests are covered by the finalized boards (2 + 3, both ordered);
-19 remain on board 4 (15, scaffolded), board 5 (3, being finalized in KiCad), and
-board 1 (1, the I2C LCD, planned last).**
+**23 hardware tests are covered by the finalized boards (2 + 3 + 4, all
+ordered); 5 remain on board 5 (3, being finalized in KiCad) and board 1 (2,
+the I2C LCD + PCA9685, planned last).**
 
 ---
 
@@ -57,20 +57,7 @@ limit switches, indicator LEDs.
 | `t/355-mcp23017.t` | MCP23017 @0x20 — Port A↔B loopback |
 | `t/350-stepper.t` | MCP23017 @0x21 → ULN2003 → 28BYJ-48 stepper + magnet limit switches (GPIO17/27) |
 
----
-
-## Remaining hardware tests — no board built yet
-
-### Waiting on Board 1 — Pi host + I2C LCD *(planned last)*
-Board 1 is the passive host (power/signal fan-out) for every other board, and
-also carries the one I2C LCD. The panel is an HD44780 on a PCF8574 I2C backpack
-(0x27) - 5V, behind a 3V3↔5V level-shifter.
-
-| Test file | Device |
-|-----------|--------|
-| `t/335-lcd_i2c.t` | HD44780 LCD on PCF8574 I2C backpack (0x27) |
-
-### Waiting on Board 4 — I2C sensors *(scaffolded only)*
+### Board 4 — I2C sensors *(finalized & ordered)*
 Devices: DS3231 RTC, AT24C32 EEPROM, BMP180, SSD1306 OLED.
 
 | Test file | Device |
@@ -90,6 +77,21 @@ Devices: DS3231 RTC, AT24C32 EEPROM, BMP180, SSD1306 OLED.
 | `t/507-oled_char.t` | SSD1306 OLED |
 | `t/508-oled_vertical_line.t` | SSD1306 OLED |
 | `t/509-oled_horizontal_line.t` | SSD1306 OLED |
+
+---
+
+## Remaining hardware tests — no board built yet
+
+### Waiting on Board 1 — Pi host + I2C LCD + PCA9685 *(planned last)*
+Board 1 is the passive host (power/signal fan-out) for every other board, and
+also carries its own test devices: the I2C LCD - an HD44780 on a PCF8574 I2C
+backpack (0x27), 5V, behind a 3V3↔5V level-shifter - and the planned PCA9685
+16-channel PWM controller (0x40).
+
+| Test file | Device |
+|-----------|--------|
+| `t/335-lcd_i2c.t` | HD44780 LCD on PCF8574 I2C backpack (0x27) |
+| `t/440-pca9685.t` | PCA9685 16-ch PWM (0x40) — register readback; needs only the chip on the bus |
 
 ### Waiting on Board 5 — 5V logic *(being finalized in KiCad)*
 Devices: HD44780 LCD, Arduino (I2C slave) + 3V3↔5V level-shifter, UART loopback.

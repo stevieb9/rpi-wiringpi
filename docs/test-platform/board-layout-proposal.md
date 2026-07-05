@@ -7,8 +7,8 @@
 > pin/device fact below is pulled from there (and ultimately from the test suite).
 > Section references like "§7" point into that document.
 >
-> **Board 3 is FINALIZED + ordered — do not change it.** It appears here only as a
-> fixed reference so the cross-board nets line up.
+> **Boards 2, 3 and 4 are FINALIZED + ordered — do not change them.** They appear
+> here only as fixed references so the cross-board nets line up.
 
 ---
 
@@ -31,10 +31,10 @@
 
 | Board | Role | Rail(s) | Devices | Tests |
 |-------|------|---------|---------|-------|
-| **1** *(last)* | Pi connection + power/signal fan-out + I2C LCD | 3V3 + 5V | HD44780 LCD on PCF8574 backpack (0x27) | 335 |
-| **2** | Analog loop-back + servo | 3V3 + 5V | ADS1015, MCP3008, MCP4922 DAC, MCP4XXXX dpot, 74HC595, servo | 400, 405, 410, 425, 435, 445 |
+| **1** *(last)* | Pi connection + power/signal fan-out + I2C LCD | 3V3 + 5V | HD44780 LCD on PCF8574 backpack (0x27), PCA9685 (0x40, planned) | 335, 440 |
+| **2** *(DONE)* | Analog loop-back + servo | 3V3 + 5V | ADS1015, MCP3008, MCP4922 DAC, MCP4XXXX dpot, 74HC595, servo | 400, 405, 410, 425, 435, 445 |
 | **3** *(DONE)* | I2C expanders + stepper | 3V3 + 5V | MCP23017 ×2, ULN2003 + 28BYJ-48 + magnets (off-board) | 350, 355 |
-| **4** | I2C sensors | 3V3 | DS3231 RTC, AT24C32 EEPROM, BMP180, OLED | 530, 531, 540–542, 500–520 |
+| **4** *(DONE)* | I2C sensors | 3V3 | DS3231 RTC, AT24C32 EEPROM, BMP180, OLED | 530, 531, 540–542, 500–520 |
 | **5** | 5V logic | 5V + 3V3 | HD44780 LCD, Arduino + I2C level-shifter, UART loop-back | 605, 610, 620 |
 
 ---

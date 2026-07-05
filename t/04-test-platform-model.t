@@ -50,12 +50,14 @@ is $? >> 8, 0, 'test-platform model: re-derivation matches canonical board-model
 # generated scaffold) it is deliberately left untouched. Validating such a board
 # here would be both wrong and a way for it to break the build, so frozen boards
 # are listed here and skipped entirely.
+#   board-2: finalized + ordered.
 #   board-3: finalized + ordered.
-#   board-2: hand-finalization in progress (decoupling caps + custom parts).
+#   board-4: finalized + ordered.
 #   board-5: hand-finalization in progress (SW1 + custom Piher/BOB-12009 footprints).
 my %FROZEN = (
     'rpi-wiringpi-unit-test-platform-board-2' => 1,
     'rpi-wiringpi-unit-test-platform-board-3' => 1,
+    'rpi-wiringpi-unit-test-platform-board-4' => 1,
     'rpi-wiringpi-unit-test-platform-board-5' => 1,
 );
 
