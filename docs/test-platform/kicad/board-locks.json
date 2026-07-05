@@ -59,6 +59,23 @@
         "rpi-wiringpi-unit-test-platform-board-4.pretty/R1.kicad_mod": "f26e5e6d084108a70af70557aff3d9ec2de8e66d8bf182d3c8c9822678ad7e52",
         "rpi-wiringpi-unit-test-platform-board-4.pretty/SW1.kicad_mod": "4d76914a6e6315b667632ebb9882a415010bba53a6a1a30f352dbfaba3f22208"
       }
+    },
+    "rpi-wiringpi-unit-test-platform-board-5": {
+      "files": {
+        "fp-lib-table": "b4d9a6618bb9e120fc194bfef44b56ca581b133195410e77afd65eae0e6be6a5",
+        "rpi-wiringpi-unit-test-platform-board-5.kicad_pcb": "a7f572023ff0e4cdd341ace122c915bb74c7142f1cb12756485aef0da013f3c4",
+        "rpi-wiringpi-unit-test-platform-board-5.kicad_pro": "7973812207eca4e473ef2dccdb2733d960a8a14f0a695c0afaf19c130e3a65f7",
+        "rpi-wiringpi-unit-test-platform-board-5.kicad_sch": "9abf608e7a4ddcc8c3cb337567f669220e54535bbd9afdc1490cdc8aa67ca46e",
+        "rpi-wiringpi-unit-test-platform-board-5.pretty/J1.kicad_mod": "e256606814926a60accf3666558a30927d088102ad7cbed5c1841118582d5464",
+        "rpi-wiringpi-unit-test-platform-board-5.pretty/J2.kicad_mod": "82f579eaa3aa23439e4ff66c8b9a60b8b3dcbc8107dc3750f890843d6f3b2e2c",
+        "rpi-wiringpi-unit-test-platform-board-5.pretty/J3.kicad_mod": "19ff8500efa0179ab6aaf1afe7d4ed5ed2fdaec16231654a77e0ac600cf66b8e",
+        "rpi-wiringpi-unit-test-platform-board-5.pretty/J4.kicad_mod": "f176cd73e91053f7a410007adf61d7c0a1d769ab540c331c4a019e2cf9434688",
+        "rpi-wiringpi-unit-test-platform-board-5.pretty/JP1.kicad_mod": "b6031cc8bb5dd142eb564657d7e94f83791654be68e29be70d5627b081bc3428",
+        "rpi-wiringpi-unit-test-platform-board-5.pretty/LCD1.kicad_mod": "228a6178a5d37a4b449c2188dfbff4ed97c4c328328992a14d45203fd306eff0",
+        "rpi-wiringpi-unit-test-platform-board-5.pretty/R1.kicad_mod": "10b8e13fa6a4deec54ad3e43373611de6cccb5f931f25a355431911ab58b11a4",
+        "rpi-wiringpi-unit-test-platform-board-5.pretty/RV1.kicad_mod": "5a903a29ec17a50ea582653e2c2eea3b7fff636efba7e4c24cda645f09777224",
+        "rpi-wiringpi-unit-test-platform-board-5.pretty/U1.kicad_mod": "81e2f8f9f9451172ecbcf0d5d70e34692648b81764ce09a910a7f9ab7ac3f4e2"
+      }
     }
   }
 }

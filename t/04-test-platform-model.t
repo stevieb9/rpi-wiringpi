@@ -53,7 +53,7 @@ is $? >> 8, 0, 'test-platform model: re-derivation matches canonical board-model
 #   board-2: finalized + ordered.
 #   board-3: finalized + ordered.
 #   board-4: finalized + ordered.
-#   board-5: hand-finalization in progress (SW1 + custom Piher/BOB-12009 footprints).
+#   board-5: finalized + ordered.
 my %FROZEN = (
     'rpi-wiringpi-unit-test-platform-board-2' => 1,
     'rpi-wiringpi-unit-test-platform-board-3' => 1,

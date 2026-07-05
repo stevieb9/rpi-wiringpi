@@ -5,9 +5,9 @@ Which unit tests need which physical test board. A companion to
 and [`board-layout-proposal.md`](board-layout-proposal.md) (the board plan).
 
 **Source of truth:** the test↔device mapping is `test-pinout-doc.md` §3. For the
-device↔board mapping, the finalized boards (2, 3, 4) are authoritative as their
+device↔board mapping, the finalized boards (2, 3, 4, 5) are authoritative as their
 own KiCad projects under `docs/test-platform/kicad/` — they are hand-managed and
-have no generated model; board 5 (being hand-finalized) is likewise hand-managed.
+have no generated model.
 Keep this table in sync when tests or device placement change.
 
 > **Every hardware test below also needs board 1 (the Raspberry Pi itself).**
@@ -26,11 +26,10 @@ Keep this table in sync when tests or device placement change.
 | **2** | SPI analog cluster | **finalized & ordered** | 6 |
 | **3** | I2C expanders + stepper | **finalized & ordered** | 2 |
 | **4** | I2C sensors | **finalized & ordered** | 15 |
-| **5** | 5V logic (LCD / Arduino / UART) | **being finalized (KiCad)** | 3 |
+| **5** | 5V logic (LCD / Arduino / UART) | **finalized & ordered** | 3 |
 
-**23 hardware tests are covered by the finalized boards (2 + 3 + 4, all
-ordered); 5 remain on board 5 (3, being finalized in KiCad) and board 1 (2,
-the I2C LCD + PCA9685, planned last).**
+**26 hardware tests are covered by the finalized boards (2 + 3 + 4 + 5, all
+ordered); 2 remain on board 1 (the I2C LCD + PCA9685, planned last).**
 
 ---
 
@@ -78,6 +77,15 @@ Devices: DS3231 RTC, AT24C32 EEPROM, BMP180, SSD1306 OLED.
 | `t/508-oled_vertical_line.t` | SSD1306 OLED |
 | `t/509-oled_horizontal_line.t` | SSD1306 OLED |
 
+### Board 5 — 5V logic *(finalized & ordered)*
+Devices: HD44780 LCD, Arduino (I2C slave) + 3V3↔5V level-shifter, UART loopback.
+
+| Test file | Device |
+|-----------|--------|
+| `t/605-i2c.t` | Arduino I2C slave (0x04) |
+| `t/610-serial.t` | UART loopback GPIO14 → GPIO15 (a jumper, not a chip) |
+| `t/620-lcd.t` | HD44780 LCD (RS5, E6, D4=4, D5=17, D6=27, D7=22) |
+
 ---
 
 ## Remaining hardware tests — no board built yet
@@ -94,15 +102,6 @@ Devices: HD44780 LCD on PCF8574 I2C backpack (0x27), PCA9685 (0x40, 16-ch PWM, p
 |-----------|--------|
 | `t/335-lcd_i2c.t` | HD44780 LCD on PCF8574 I2C backpack (0x27) |
 | `t/440-pca9685.t` | PCA9685 16-ch PWM (0x40) — register readback; needs only the chip on the bus |
-
-### Waiting on Board 5 — 5V logic *(being finalized in KiCad)*
-Devices: HD44780 LCD, Arduino (I2C slave) + 3V3↔5V level-shifter, UART loopback.
-
-| Test file | Device |
-|-----------|--------|
-| `t/605-i2c.t` | Arduino I2C slave (0x04) |
-| `t/610-serial.t` | UART loopback GPIO14 → GPIO15 (a jumper, not a chip) |
-| `t/620-lcd.t` | HD44780 LCD (RS5, E6, D4=4, D5=17, D6=27, D7=22) |
 
 ---
 

@@ -212,7 +212,7 @@ bus down.
 
 ---
 
-## Board 5 — 5V logic *(scaffolded — authoritative net list in `scripts/helpers/board-5-model.py`)*
+## Board 5 — 5V logic *(DONE — reference only)*
 
 HD44780 LCD (20×4, 4-bit) + Arduino (I2C 0x04) behind a 3V3↔5V level-shifter.
 The UART loop-back (a 2-pin jumper, GPIO14→GPIO15) rides along here — relocatable
