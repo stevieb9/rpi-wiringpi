@@ -240,7 +240,7 @@
       "internal_id": "",
       "mfg": "",
       "mpn": "",
-      "sch_revision": ""
+      "sch_revision": "2"
     },
     "layer_pairs": [],
     "layer_presets": [],
@@ -694,7 +694,7 @@
         "uuid": "dc869679-2405-5a19-9d54-909a37e7887e"
       }
     ],
-    "used_designators": "DS1,U1,OLED1-2,M2,M4,J3",
+    "used_designators": "DS1,U1,OLED1-2,M2-4,J3",
     "variants": []
   },
   "sheets": [

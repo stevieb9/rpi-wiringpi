@@ -94,6 +94,8 @@ Revision history for Perl extension RPi::WiringPi.
       marker, so the table can't silently go stale again
     - Added a "# TESTDOC:" description marker to every t/*.t (92 files) and the
       18 previously-undocumented tests now appear in the FAQ table
+    - Followed the RPi::PCA9685 to RPi::PWM::PCA9685 module rename in
+      t/440-pca9685.t (the dist was renamed rpi-pca9685 to rpi-pwm-pca9685)
 
 3.1802     2026-06-12
     - bump prereq of RPi::I2C to 2.3608

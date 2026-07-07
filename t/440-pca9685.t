@@ -19,7 +19,7 @@ use RPiTest;
 use RPi::WiringPi;
 use Test::More;
 
-# RPi::PCA9685 tests - every assertion here reads the chip's registers back
+# RPi::PWM::PCA9685 tests - every assertion here reads the chip's registers back
 # over I2C to confirm what it's set to output, independent of measuring any
 # physical pin. This verifies the I2C writes landed correctly, and needs no
 # wiring at all beyond the bus.
@@ -38,8 +38,8 @@ if (! $ENV{RPI_PCA9685}){
     plan skip_all => "RPI_PCA9685 environment variable not set\n";
 }
 
-if (! eval { require RPi::PCA9685; 1 }){
-    plan skip_all => "RPi::PCA9685 is not installed\n";
+if (! eval { require RPi::PWM::PCA9685; 1 }){
+    plan skip_all => "RPi::PWM::PCA9685 is not installed\n";
 }
 
 rpi_running_test(__FILE__);
@@ -52,9 +52,9 @@ use constant {
     FULL      => 0x1000, # Bit 12 of an on/off value: the full-on/full-off flag
 };
 
-my $pca = RPi::PCA9685->new;
+my $pca = RPi::PWM::PCA9685->new;
 
-isa_ok $pca, 'RPi::PCA9685';
+isa_ok $pca, 'RPi::PWM::PCA9685';
 
 { # new() leaves the chip awake, with register auto-increment enabled
 

@@ -4,6 +4,10 @@
 	(generator_version "10.0")
 	(uuid "dc869679-2405-5a19-9d54-909a37e7887e")
 	(paper "USLetter" portrait)
+	(title_block
+		(date "2026-07-06")
+		(rev "2")
+	)
 	(lib_symbols
 		(symbol "Connector:Conn_01x05_Pin"
 			(pin_names
@@ -687,153 +691,6 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "OLED_SSD1306_128_64_1"
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "OLED"
-				(at -6.096 3.048 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "SSD1306_128_64"
-				(at -0.254 4.826 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" "RPi:OLED_SSD_1306_128_64"
-				(at 2.794 7.62 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" ""
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "OLED_SSD1306_128_64_1_1_1"
-				(rectangle
-					(start -10.16 6.35)
-					(end 10.16 -2.54)
-					(stroke
-						(width 0)
-						(type solid)
-					)
-					(fill
-						(type color)
-						(color 255 255 194 1)
-					)
-				)
-				(pin power_in line
-					(at -3.81 -5.08 90)
-					(length 2.54)
-					(name "GND"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_in line
-					(at -1.27 -5.08 90)
-					(length 2.54)
-					(name "VCC"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at 1.27 -5.08 90)
-					(length 2.54)
-					(name "SCL"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at 3.81 -5.08 90)
-					(length 2.54)
-					(name "SDA"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "RPi:BMP180"
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -988,6 +845,336 @@
 						)
 					)
 					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "RPi:DS3231"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "M"
+				(at 0.254 6.858 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "DS3231_0x68+AT24C32_0x57"
+				(at 1.778 -9.144 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "DS3231_1_1"
+				(rectangle
+					(start -7.62 5.715)
+					(end 8.89 -7.62)
+					(stroke
+						(width 0)
+						(type solid)
+					)
+					(fill
+						(type color)
+						(color 255 255 194 1)
+					)
+				)
+				(pin power_in line
+					(at -10.16 2.54 0)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -10.16 0 0)
+					(length 2.54)
+					(name "VCC"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin bidirectional line
+					(at -10.16 -2.54 0)
+					(length 2.54)
+					(name "SDA"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin bidirectional line
+					(at 11.43 2.54 180)
+					(length 2.54)
+					(name "SCL"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at 11.43 0 180)
+					(length 2.54)
+					(name "SQW"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 11.43 -2.54 180)
+					(length 2.54)
+					(name "32K"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "RPi:OLED_SSD1306_128_64"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "OLED"
+				(at -6.096 3.048 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "SSD1306_128_64"
+				(at -0.254 4.826 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" "RPi:OLED_SSD_1306_128_64"
+				(at 2.794 7.62 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "OLED_SSD1306_128_64_1_1"
+				(rectangle
+					(start -10.16 6.35)
+					(end 10.16 -2.54)
+					(stroke
+						(width 0)
+						(type solid)
+					)
+					(fill
+						(type color)
+						(color 255 255 194 1)
+					)
+				)
+				(pin power_in line
+					(at -3.81 -5.08 90)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -1.27 -5.08 90)
+					(length 2.54)
+					(name "VCC"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin bidirectional line
+					(at 1.27 -5.08 90)
+					(length 2.54)
+					(name "SCL"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin bidirectional line
+					(at 3.81 -5.08 90)
+					(length 2.54)
+					(name "SDA"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1403,193 +1590,6 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "rpi-wiringpi-unit-test-platform-board-4:M1"
-			(pin_names
-				(offset 1.016)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "M1"
-				(at 0 7.62 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "DS3231_0x68+AT24C32_0x57"
-				(at 0 -7.62 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" "rpi-wiringpi-unit-test-platform-board-4:M1"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" ""
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "M1_0_1"
-				(rectangle
-					(start -10.16 5.08)
-					(end 10.16 -5.08)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-			)
-			(symbol "M1_1_1"
-				(pin passive line
-					(at -15.24 2.54 0)
-					(length 5.08)
-					(name "GND"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -15.24 0 0)
-					(length 5.08)
-					(name "VCC"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -15.24 -2.54 0)
-					(length 5.08)
-					(name "SDA"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 15.24 2.54 180)
-					(length 5.08)
-					(name "SCL"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 15.24 0 180)
-					(length 5.08)
-					(name "SQW"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 15.24 -2.54 180)
-					(length 5.08)
-					(name "32K"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "6"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "rpi-wiringpi-unit-test-platform-board-4:R1"
 			(pin_names
 				(offset 1.016)
@@ -1858,6 +1858,12 @@
 		(uuid "7c7bee44-71d5-4607-887e-ed118abaf8e4")
 	)
 	(junction
+		(at 91.44 102.87)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "7d057038-7219-427d-8a58-2de22361d441")
+	)
+	(junction
 		(at 50.8 118.11)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1882,12 +1888,6 @@
 		(uuid "a6529a19-baaf-445c-a0a8-be862d61730a")
 	)
 	(junction
-		(at 50.8 102.87)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "aa52830a-c472-431a-81f2-5b82d4470173")
-	)
-	(junction
 		(at 43.18 30.48)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1906,16 +1906,16 @@
 		(uuid "fe4d57e5-dd26-4131-b600-81b484848ed8")
 	)
 	(no_connect
-		(at 87.63 118.11)
-		(uuid "6c02d6c4-8da0-4f49-8807-93cbc8906422")
+		(at 82.55 118.11)
+		(uuid "6c2cac38-fb34-4ec1-b914-4c4a18bec393")
 	)
 	(no_connect
 		(at 67.31 64.77)
 		(uuid "7e662de4-60ee-4148-9757-5c2eb47c2ec2")
 	)
 	(no_connect
-		(at 87.63 115.57)
-		(uuid "b287f4d2-62a4-4a09-8c18-1be422f41d52")
+		(at 82.55 115.57)
+		(uuid "9f6e5b87-6ab9-438e-a9be-432730567510")
 	)
 	(wire
 		(pts
@@ -2069,7 +2069,7 @@
 	)
 	(wire
 		(pts
-			(xy 50.8 48.26) (xy 50.8 102.87)
+			(xy 50.8 48.26) (xy 50.8 118.11)
 		)
 		(stroke
 			(width 0)
@@ -2149,6 +2149,16 @@
 	)
 	(wire
 		(pts
+			(xy 74.93 102.87) (xy 91.44 102.87)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6380d1c2-3a32-4ebd-820c-02ce56d8dc2a")
+	)
+	(wire
+		(pts
 			(xy 62.23 48.26) (xy 74.93 48.26)
 		)
 		(stroke
@@ -2209,7 +2219,7 @@
 	)
 	(wire
 		(pts
-			(xy 45.72 115.57) (xy 57.15 115.57)
+			(xy 45.72 115.57) (xy 60.96 115.57)
 		)
 		(stroke
 			(width 0)
@@ -2279,16 +2289,6 @@
 	)
 	(wire
 		(pts
-			(xy 50.8 102.87) (xy 50.8 118.11)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8fd2879b-c125-4774-aef5-792667fae588")
-	)
-	(wire
-		(pts
 			(xy 74.93 48.26) (xy 74.93 64.77)
 		)
 		(stroke
@@ -2339,6 +2339,16 @@
 	)
 	(wire
 		(pts
+			(xy 82.55 113.03) (xy 99.06 113.03)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b0b41767-0eea-4ae2-944d-e249cb6a0769")
+	)
+	(wire
+		(pts
 			(xy 38.1 34.29) (xy 43.18 34.29)
 		)
 		(stroke
@@ -2369,7 +2379,17 @@
 	)
 	(wire
 		(pts
-			(xy 91.44 62.23) (xy 91.44 129.54)
+			(xy 57.15 113.03) (xy 60.96 113.03)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b6c76be1-cb12-49a3-ac60-c7a3179cbba4")
+	)
+	(wire
+		(pts
+			(xy 91.44 62.23) (xy 91.44 102.87)
 		)
 		(stroke
 			(width 0)
@@ -2469,13 +2489,13 @@
 	)
 	(wire
 		(pts
-			(xy 87.63 113.03) (xy 99.06 113.03)
+			(xy 91.44 102.87) (xy 91.44 129.54)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "cb97a1d7-4c4b-4005-a7af-4363e5bfeb72")
+		(uuid "c917815f-5729-496b-8176-d5e752b9525c")
 	)
 	(wire
 		(pts
@@ -2599,7 +2619,7 @@
 	)
 	(wire
 		(pts
-			(xy 57.15 118.11) (xy 50.8 118.11)
+			(xy 50.8 118.11) (xy 60.96 118.11)
 		)
 		(stroke
 			(width 0)
@@ -2616,16 +2636,6 @@
 			(type default)
 		)
 		(uuid "fbf5dd61-ba53-4143-96e3-0746b88b7d2a")
-	)
-	(wire
-		(pts
-			(xy 74.93 102.87) (xy 50.8 102.87)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fcfeb012-2cb7-4745-a4b8-b0c8637e330f")
 	)
 	(label "I2C_SDA"
 		(at 73.66 34.29 0)
@@ -2647,6 +2657,16 @@
 		)
 		(uuid "1f99f440-a6b4-449f-8808-53577af33c4b")
 	)
+	(label "I2C_SCL"
+		(at 85.09 113.03 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "2371cacd-8457-469c-b053-3ed4e5ca612e")
+	)
 	(label "I2C_SDA"
 		(at 50.8 69.85 0)
 		(effects
@@ -2656,6 +2676,16 @@
 			(justify left bottom)
 		)
 		(uuid "332fcfa8-d6be-463b-9a4a-13b015e1b573")
+	)
+	(label "I2C_SDA"
+		(at 52.07 118.11 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "495120e5-6ca9-4889-828b-1556e1450289")
 	)
 	(label "GND"
 		(at 73.66 29.21 0)
@@ -3020,7 +3050,6 @@
 		)
 	)
 	(symbol
-		(lib_name "OLED_SSD1306_128_64_1")
 		(lib_id "RPi:OLED_SSD1306_128_64")
 		(at 71.12 91.44 0)
 		(unit 1)
@@ -3102,6 +3131,97 @@
 			(project "rpi-wiringpi-unit-test-platform-board-4"
 				(path "/dc869679-2405-5a19-9d54-909a37e7887e"
 					(reference "OLED1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "RPi:DS3231")
+		(at 71.12 115.57 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "5aa065cd-afd7-4086-ab9a-02f3e9073522")
+		(property "Reference" "M1"
+			(at 71.755 105.41 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "DS3231_0x68+AT24C32_0x57"
+			(at 71.628 125.476 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "RPi:DS3231"
+			(at 71.12 115.57 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 71.12 115.57 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 71.12 115.57 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "2"
+			(uuid "085c7b20-dd91-4914-931d-7b981f85dcfb")
+		)
+		(pin "6"
+			(uuid "207ac413-c63c-458f-9357-33bf5b0fa187")
+		)
+		(pin "1"
+			(uuid "2f5e962a-b50c-41d1-a667-df99c408cec7")
+		)
+		(pin "3"
+			(uuid "4ba4774a-8e08-498b-8bea-917cc8268d90")
+		)
+		(pin "4"
+			(uuid "1eac273d-5931-4a23-a8aa-d95a74c94a3f")
+		)
+		(pin "5"
+			(uuid "d84984a2-4134-43da-b467-1fe2047d9605")
+		)
+		(instances
+			(project "rpi-wiringpi-unit-test-platform-board-4"
+				(path "/dc869679-2405-5a19-9d54-909a37e7887e"
+					(reference "M1")
 					(unit 1)
 				)
 			)
@@ -3335,96 +3455,6 @@
 			(project "rpi-wiringpi-unit-test-platform-board-4"
 				(path "/dc869679-2405-5a19-9d54-909a37e7887e"
 					(reference "#PWR05")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "rpi-wiringpi-unit-test-platform-board-4:M1")
-		(at 72.39 115.57 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "8b5e1153-4848-51fa-b524-d64f30511821")
-		(property "Reference" "M1"
-			(at 72.39 107.95 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "DS3231_0x68+AT24C32_0x57"
-			(at 72.39 123.19 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "RPi:DS3231"
-			(at 72.39 115.57 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 72.39 115.57 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" ""
-			(at 72.39 115.57 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "4a7ff2be-944f-5a2b-af42-2315550559f4")
-		)
-		(pin "2"
-			(uuid "12ceaf28-250e-5f5e-a141-061ec5065061")
-		)
-		(pin "3"
-			(uuid "c7fa5fba-4d06-5bb8-8c43-3268ecbf6727")
-		)
-		(pin "4"
-			(uuid "ebf26012-d285-5351-a7b7-34854213fd22")
-		)
-		(pin "5"
-			(uuid "f60ffd43-06e4-5ade-940d-dfece977797b")
-		)
-		(pin "6"
-			(uuid "1de26d2c-7b48-5bbc-b5de-2f73ae21b055")
-		)
-		(instances
-			(project "rpi-wiringpi-unit-test-platform-board-4"
-				(path "/dc869679-2405-5a19-9d54-909a37e7887e"
-					(reference "M1")
 					(unit 1)
 				)
 			)
