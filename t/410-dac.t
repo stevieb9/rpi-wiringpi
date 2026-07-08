@@ -43,6 +43,18 @@ my $pi = RPi::WiringPi->new(label => 't/410-dac.t', shm_key => 'rpit');
 
 END { $pi->cleanup if $pi && ! $pi->{clean}; }
 
+# Reset the bit-banged CS pins to their configured default before the DAC and
+# ADC claim them. register_pin() captures each pin's mode at registration and
+# cleanup restores exactly that, so a pin left OUTPUT by a prior run (or a stray
+# script) would be captured as this run's "default" and restored to OUTPUT,
+# failing the end-of-test pin-status check. A full suite run resets globally in
+# t/01; this keeps a standalone run clean too. Reset to the same default the
+# status check expects (rpi_default_pin_config).
+{
+    my $defaults = rpi_default_pin_config();
+    $pi->_restore_pin_alt($_, $defaults->{$_}{alt}) for $dac_cs_pin, $adc_cs_pin;
+}
+
 
 my $dac = $pi->dac(
     model => 'MCP4922',
