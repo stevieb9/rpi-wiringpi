@@ -31,6 +31,30 @@ Still NOT validated here (blocked):
   WiringPi::API (XS) would need building/installing.
 - **B9 / B10 / B11 runtime behaviour** still needs the real chips (see §4).
 
+## Pi validation results (2026-07-08)
+
+Ran the full HW-free path on the **primary Pi** (aarch64, perl 5.42.0) — note
+this host carries the work **already committed** (not uncommitted as on the Mac):
+B5's `[345]` regex, B9's 12-bit mask, B10's `i2c_smbus_write_quick` polling, and
+B8's `spiNoCS`/`spiBitBang` are all in the committed trees here. Prereqs were
+installed except RPi::SPI (was 3.1801) — rebuilt+installed to 3.1802 for mcp3008.
+
+- **RPi::SPI 3.1802** built + `make test` PASS + installed.
+- **rpi-adc-mcp3008 (B8)** — `make test` PASS (`t/05-input-validation.t` incl.).
+- **wiringpi-api (B8)** — `make test` PASS (already installed at 3.1804).
+- **rpi-dac-mcp4922, rpi-eeprom-at24c32, rpi-digipot-mcp4xxxx, rpi-rtc-ds3231,
+  rpi-bmp180, rpi-gpioexpander-mcp23017, rpi-oled-ssd1306** — all `make test`
+  PASS (chip-gated tests skip via their env guards, as designed).
+- **rpi-adc-ads (B5)** — PASS after a fix: `t/30-resolution.t` iterated model
+  suffixes `qw(13 14 15 18)`, constructing ADS1018/ADS1118, which B5's tightened
+  `model()` now rejects — the suite died mid-run. B5 had updated `t/25-model.t`
+  but missed this test. Dropped `18` from both loops; Changes entry added. Now
+  `t/25-model.t` + `t/30-resolution.t` + full suite PASS.
+
+Then (2026-07-08) **B10's real-chip bench PASSED** (§4) — the acknowledge-polling
+fix is validated on hardware. Still pending (§4): B9 DAC Vout, B8 mcp3008 CE0
+scope. `make test` does NOT exercise the B9 XS fix (see §5 / B19).
+
 ## 1. Change inventory (what to validate)
 
 | Repo | Task(s) this session | Uncommitted files |
@@ -89,13 +113,15 @@ Then each remaining chip dist independently:
 
 ## 4. Hardware / bench checks (NOT covered by `make test`)
 
-- **B10 — rpi-eeprom-at24c32 (real AT24C32):**
-  1. Tight `write`→`read` loop across a page — **no I/O errors** (the old fixed
-     1ms sleep failed exactly here).
-  2. Time one `write` — it should return in **≪ 15 ms** (proves acknowledge
-     polling returns on completion, not the floored cap). If every write takes
-     ~15 ms, the adapter isn't honouring `i2c_smbus_write_quick` ACK/NACK — still
-     *safe* (waits ≥ t_WR), just not optimal (see the V19 archive note).
+- **B10 — rpi-eeprom-at24c32 (real AT24C32): ✅ VALIDATED 2026-07-08** on the
+  primary Pi (chip at 0x57 on /dev/i2c-1, ZS-042 combo board; installed the
+  1.00 tree over the stale 0.01). Non-destructive bench (page saved + restored):
+  1. Tight `write`→`read` loop, 256 cycles over a 32-byte page (8 passes,
+     varying patterns) — **0 I/O errors, 0 mismatches** (the old fixed 1ms sleep
+     failed exactly here — actual t_WR is ~2ms, so 1ms returned too early).
+  2. Write timing over 32 writes — **min 1.94 / avg 1.98 / max 1.99 ms**, far
+     under the 15ms floor: the poll loop exits on the chip's ACK (real
+     completion), and the adapter honours `i2c_smbus_write_quick` ACK/NACK.
 - **B9 — rpi-dac-mcp4922 (an 8- or 10-bit MCP4902/4912):** write a mid-scale
   value and a high-data-bit value; measure that Vout tracks the written value.
   The mask fix only bites when a cached register carried stale data bits, so
