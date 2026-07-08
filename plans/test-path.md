@@ -175,8 +175,11 @@ Then each remaining chip dist independently:
 
 ## 5. Automated-coverage gaps (backlog)
 
-- **B19** — split `_set()`'s word-building out of its SPI write so the B9 mask is
-  HW-free unit-testable.
+- **B19 ✅ DONE 2026-07-08** — split `_set()`'s word-building into a pure
+  `__build_word()` XS helper; `t/register.t` now covers the 12-bit field-clear
+  across the 8/10/12-bit lsb values (incl. stale-cache), so the B9 mask fix is
+  verified HW-free. Negative control (revert to `0xFFF >> lsb`) fails the 8/10-bit
+  guards, confirming the tests bite. Uncommitted in rpi-dac-mcp4922.
 - Optional — a mocked-`i2c_smbus_write_quick` test asserting `eeprom_write()`
   polls rather than sleeps (B10).
 - **t/410 pin-cleanup checks (NOT a B8 regression — root-caused 2026-07-08).**
