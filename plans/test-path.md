@@ -55,6 +55,44 @@ Then (2026-07-08) **B10's real-chip bench PASSED** (§4) — the acknowledge-pol
 fix is validated on hardware. Still pending (§4): B9 DAC Vout, B8 mcp3008 CE0
 scope. `make test` does NOT exercise the B9 XS fix (see §5 / B19).
 
+## Pi validation results (2026-07-08, cont. — B8/B9 SPI loopback)
+
+Ran the board-2 SPI loopback (`t/410`, MCP4922 DAC -> MCP3008 ADC) on the primary
+Pi, which is a **Raspberry Pi 5**. **B8 (MCP3008) and B9 (DAC) are now
+HW-validated**: all 12 loopback signal assertions pass, the DAC tracks the
+written value 0->4095 on both VOUTA/VOUTB, and the ADC reads it back reliably
+(20/20 on a fixed reference input). Only 3 pin-mode *cleanup* checks fail (§5).
+
+Key discoveries this session:
+
+- **The rpi-spi side of B8 was never actually landed on this Pi.**
+  `wiringpi-api` carried the `spiNoCS()`/`spiBitBang()` commit (8887d3f) but the
+  **installed `.so` predated it** — same `$VERSION` 3.1804, so nothing flagged
+  the staleness; rebuilt+installed. `rpi-spi`'s committed `SPI.pm` had **no**
+  spiNoCS/bit-bang code at all. Implemented the consumer (GPIO-CS wrapped in
+  SPI_NO_CS, a hashref bit-bang mode, and a graceful fallback) — **uncommitted
+  in rpi-spi** (`SPI.pm`, `Changes`, `Makefile.PL` prereq ->3.1804); user
+  commits. The installed DAC `.so` also predated the B9 fix, and installing the
+  pure-Perl MCP3008 over the old XS left stale arch-dir orphans shadowing it in
+  `@INC` (removed). **Lesson: versions weren't bumped with fixes -- check the
+  installed `.so` mtime, not just `$VERSION`.**
+
+- **The long "unstable SPI" hunt was WIRING, not the platform.** Bad power, then
+  a miswired DAC CS (DAC output frozen ~126). Once corrected, the bit-banged
+  GPIO chip-select + system-SPI mechanism reads 20/20 clean. Trap that
+  contaminated intermediate results: full bit-bang leaves GPIO 9/10/11 in
+  plain-GPIO mode, so **any hardware-SPI test run after a bit-bang test reads
+  all-zeros** until the pins are restored to ALT0 (`pinctrl set 9,10,11 a0`).
+
+- **Pi 5 / RP1 rejects `SPI_NO_CS`** (kernel: `unsupported mode bits 40`), so
+  B8's "don't strobe CE0" goal is unachievable at runtime on the Pi 5 -- CE0 is
+  driven on every channel-0 transfer. The bit-banged GPIO-CS still works fine;
+  CE0 just isn't isolated. Clean fix is the `spi0-0cs` device-tree overlay
+  (frees CE0/CE1 entirely); user declined it as a default since normal users
+  won't have it set. B9 caveat: validated on the 12-bit MCP4922 (loopback
+  tracks), but the mask fix is a no-op there -- an 8/10-bit MCP4902/4912 is
+  still the only part that exercises the actual bug.
+
 ## 1. Change inventory (what to validate)
 
 | Repo | Task(s) this session | Uncommitted files |
@@ -122,14 +160,18 @@ Then each remaining chip dist independently:
   2. Write timing over 32 writes — **min 1.94 / avg 1.98 / max 1.99 ms**, far
      under the 15ms floor: the poll loop exits on the chip's ACK (real
      completion), and the adapter honours `i2c_smbus_write_quick` ACK/NACK.
-- **B9 — rpi-dac-mcp4922 (an 8- or 10-bit MCP4902/4912):** write a mid-scale
-  value and a high-data-bit value; measure that Vout tracks the written value.
-  The mask fix only bites when a cached register carried stale data bits, so
-  exercise **repeated** `set()` calls on the same DAC. On a 12-bit MCP4922
-  (lsb = 0) the mask change is a no-op.
-- **B8 — rpi-adc-mcp3008 GPIO-CS:** scope **CE0** during a GPIO-CS transfer — it
-  must stay idle (no spurious selects); confirm the new bit-bang mode drives a
-  conversion.
+- **B9 — rpi-dac-mcp4922: ✅ VALIDATED 2026-07-08** (regression, on the 12-bit
+  MCP4922). `t/410` loopback tracks 0->4095 on both VOUTA/VOUTB, read back via
+  the MCP3008. NOTE: the mask fix is a **no-op on the 12-bit part** (lsb = 0), so
+  this proves the refactored `_set()` path is sound but does **not** exercise the
+  actual bug — an 8/10-bit **MCP4902/4912** with repeated `set()` calls is still
+  needed to bite the stale-top-bits case.
+- **B8 — rpi-adc-mcp3008 GPIO-CS: ✅ VALIDATED 2026-07-08** (functional). Bit-bang
+  and hardware-CE0 reads both clean (1023 on a 3V3 input, 20/20); `t/410` GPIO-CS
+  loopback passes all signal assertions. The "scope CE0 stays idle" goal is
+  **moot on the Pi 5** — RP1 rejects `SPI_NO_CS`, so CE0 *is* driven on every
+  transfer (harmless here, nothing on CE0). The new bit-bang mode drives
+  conversions correctly.
 
 ## 5. Automated-coverage gaps (backlog)
 
@@ -137,3 +179,17 @@ Then each remaining chip dist independently:
   HW-free unit-testable.
 - Optional — a mocked-`i2c_smbus_write_quick` test asserting `eeprom_write()`
   polls rather than sleeps (B10).
+- **t/410 pin-cleanup checks (NOT a B8 regression — root-caused 2026-07-08).**
+  The 3 cleanup failures (pins 8/12/26) are **inter-run contamination**, not a
+  driver bug. `register_pin` captures a pin's mode at registration and `cleanup`
+  restores exactly that (`_restore_pin_alt`); if a prior run left the pin OUTPUT,
+  the next run captures OUTPUT and restores OUTPUT. **From a pristine start
+  (`pinctrl set 12,13,26 no; pinctrl set 9,10,11 a0`), pins 12/13/26 PASS
+  (restored to 31).** The dirt came from raw probe scripts that set the CS pins
+  OUTPUT without `$pi->cleanup`. Pin 8 (CE0) is an *unmanaged* pin (not a board
+  chip-select, never registered), so its post-test alt is just its prior state;
+  the Pi5 config expects alt 1 (OUTPUT) but nothing parks CE0 that way — a
+  test-config question, tangled with the SPI_NO_CS/CE0 story, not a defect.
+  Removing the old XS `DESTROY` (B8) actually *helped* — it used to fire after
+  cleanup and strand the pin. Optional robustness: have the MCP3008/board tests
+  reset their CS pins to `none` at start so a dirty prior run can't poison them.
