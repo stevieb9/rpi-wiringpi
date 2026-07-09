@@ -49,17 +49,19 @@ is $? >> 8, 0, 'test-platform model: re-derivation matches canonical board-model
 # (custom parts and stock footprints that intentionally diverge from the
 # generated scaffold) it is deliberately left untouched. Validating such a board
 # here would be both wrong and a way for it to break the build, so frozen boards
-# are listed here and skipped entirely.
-#   board-2: finalized + ordered.
-#   board-3: finalized + ordered.
-#   board-4: finalized + ordered.
-#   board-5: finalized + ordered.
-my %FROZEN = (
-    'rpi-wiringpi-unit-test-platform-board-2' => 1,
-    'rpi-wiringpi-unit-test-platform-board-3' => 1,
-    'rpi-wiringpi-unit-test-platform-board-4' => 1,
-    'rpi-wiringpi-unit-test-platform-board-5' => 1,
-);
+# are skipped entirely.
+#
+# The single source of "which boards are off-limits" is board-locks.json: a
+# board is frozen iff it is blessed there. %FROZEN is DERIVED from it via
+# check-board-locks.py --names, so it can never drift from the lock manifest (a
+# frozen-but-unblessed board is impossible by construction). gen-kicad.py
+# refuses to scaffold the same names. If the lock script is absent (installed
+# dist), %FROZEN is empty and nothing is treated as frozen here.
+my %FROZEN;
+if (-f $locks) {
+    my @names = grep { length } split /\n/, qx("$python" "$locks" --names 2>/dev/null);
+    %FROZEN = map { $_ => 1 } @names;
+}
 
 my $kroot = File::Spec->catdir($root, 'docs', 'test-platform', 'kicad');
 my @projects;

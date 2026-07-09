@@ -32,6 +32,9 @@ USAGE
   check-board-locks.py                 verify every locked board (CI / make test)
   check-board-locks.py --bless BOARD…  (re)snapshot one or more boards
   check-board-locks.py --list          list locked boards and file counts
+  check-board-locks.py --names         print locked board names, one per line
+                                       (machine-readable; the single source the
+                                       test suite and gen-kicad.py consult)
 
   BOARD may be a directory name, a path, or just its number (e.g. "2" ->
   rpi-wiringpi-unit-test-platform-board-2).
@@ -192,6 +195,19 @@ def cmd_list():
     return 0
 
 
+def cmd_names():
+    """Print each locked board's directory name, one per line.
+
+    Machine-readable single source of "which boards are off-limits": t/04
+    derives its %FROZEN skip-set from this, and gen-kicad.py refuses to
+    scaffold any name it lists. Emits nothing when no board is locked.
+    """
+    data = load_manifest()
+    for name in sorted(data.get('boards', {})):
+        print(name)
+    return 0
+
+
 def main():
     argv = sys.argv[1:]
     if not argv:
@@ -203,6 +219,8 @@ def main():
         return cmd_bless(argv[1:])
     if argv[0] == '--list':
         return cmd_list()
+    if argv[0] == '--names':
+        return cmd_names()
     print(__doc__)
     return 2
 

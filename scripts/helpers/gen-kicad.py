@@ -486,6 +486,24 @@ def main(argv=None):
     fptbl = os.path.join(outdir, 'fp-lib-table')
     fpdir = os.path.join(outdir, f'{PROJECT}.pretty')
 
+    # Refuse to scaffold a board that is blessed/locked. board-locks.json is the
+    # single "off-limits" source (check-board-locks.py --names lists it; t/04
+    # derives its %FROZEN skip-set from the same file). This is the principled
+    # guard; the exists-check below is the belt-and-suspenders backstop.
+    board_name = os.path.basename(outdir.rstrip(os.sep))
+    locks_path = os.path.join(HERE, '..', '..', 'docs', 'test-platform',
+                              'kicad', 'board-locks.json')
+    if os.path.isfile(locks_path):
+        try:
+            with open(locks_path) as fh:
+                locked = json.load(fh).get('boards', {})
+        except (OSError, ValueError):
+            locked = {}
+        if board_name in locked:
+            sys.exit(f'refusing to scaffold {board_name!r}: it is blessed in '
+                     'board-locks.json (frozen). Regenerating a locked board is '
+                     'forbidden; unbless it deliberately first.')
+
     # One-shot: never clobber a project that may already be hand-finalized.
     existing = [p for p in (sch, pro, fptbl, fpdir) if os.path.exists(p)]
     if existing:
