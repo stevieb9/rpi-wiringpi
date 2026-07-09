@@ -146,6 +146,7 @@ t/506-oled_pixel.t
 t/507-oled_char.t
 t/508-oled_vertical_line.t
 t/509-oled_horizontal_line.t
+t/510-oled_unit.t
 t/520-oled_cleanup.t
 t/530-rtc.t
 t/531-bmp.t

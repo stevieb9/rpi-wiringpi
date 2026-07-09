@@ -1,8 +1,8 @@
 # Plan: Test platform completion + family-wide release readiness (MASTER)
 
-> **NEXT ACTION:** V20 — RPi::OLED::SSD1306 HW-free croak/bounds + TCG F16 singleton (in ~/repos/rpi-oled-ssd1306 + mirror) — re-verify vs the current tree first
+> **NEXT ACTION:** V21 — RPi::SysInfo HW-free (ungate cpu/mem percent, OO replay, 16GB decode, TCG F15; in ~/repos/rpi-sysinfo + mirror) — re-verify vs the current tree first
 > **LAST SESSION:** 2026-07-09 — executed …/V13/V14. V14 (RPi::Serial): TCG F14 fixed + surfaced and fixed 3 more real bugs (write() >255 silent-wrap→croak; **tx() was sending 0x00 for the payload**; **rx() returned a defined 0 mid-frame**; **flush() called an undefined tty_flush → added the XSUB**). Dist t/05-unit.t + **live t/10-loopback.t (8/8 PASS on real TX↔RX loopback, /dev/ttyAMA0, gate RPI_SERIAL_LOOPBACK)**; main mirror t/438 = crc vectors only (installed 3.02 predates/breaks the rest). Then (user-directed) rewrote t/610-serial.t into a full live-loopback suite + real-world CRC-framed example, which found + fixed a 6th RPi::Serial bug (tty_open not fully raw — ICRNL mapped 0x0D→0x0A); installed 3.03, bumped main prereq to 3.03. **Rig now has serial loopback wired** (GPIO14↔15) — usable for V28; t/610 26/26 serial tests green (only pre-existing pin-8 contamination fails). **HEADS-UP: sub-dists actively reworked — re-verify each PC row vs the tree first.** **Uncommitted: rpi-wiringpi, rpi-eeprom-at24c32, rpi-i2c, rpi-adc-mcp3008, rpi-spi, rpi-serial — user commits.** F2 looks resolved (rpi-i2c 3.1803 UNREL) → V26. **Rule: present point-form plan before executing any V task**
-> **ARCHIVE:** See test-platform-release-master-archive.md for completed V tasks (V1-V5, V7-V10, V12-V19, V33, V34)
+> **ARCHIVE:** See test-platform-release-master-archive.md for completed V tasks (V1-V5, V7-V10, V12-V20, V33, V34)
 
 ## Goal
 
@@ -181,7 +181,6 @@ Phases: P0 housekeeping · PH hardware · PC coverage (absorbed from test-covera
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V20 | **PC** (was TCG V21) — RPi::OLED::SSD1306 HW-free croak/bounds: rect/pixel bounds, dim/invert 0/1, text_size ^\d+$; TCG F16 (silent singleton ignores new addr/splash) | `cd ~/repos/rpi-oled-ssd1306 && make test` + ungated mirror | 6 validating methods + singleton behavior covered | ⏳ |
 | V21 | **PC** (was TCG V22) — RPi::SysInfo: ungate cpu_percent/mem_percent (XS runs on any Linux), OO-form replay through the seam, 16GB revision decode, TCG F15 (_format -1.0 sentinel; malformed raspi_config regex) | `cd ~/repos/rpi-sysinfo && make test` + mirror | Wrappers + OO + defects covered HW-free | ⏳ |
 | V22 | **PC** (was TCG V23) — WiringPi::API interrupt machinery HW-free: auto_dispatch_interrupts (enable/disable, unknown-signal croak, handler save/restore) + singular background_interrupt + results channel, via faked self-pipe + stubbed _arm_interrupt (t/75 pattern) | `cd ~/repos/wiringpi-api && make test` | Dispatch wiring + framed results + teardown covered | ⏳ |
 | V23 | **PC** (was TCG V8) — RPi::RTC::DS3231 depth: full 0-99 BCD round-trip + field maxes in t/532, temp decode incl. negative path, HW-free setter validation croaks (mock-fd; TCG B3). HW half runs once board-4 is live (V8) | `prove -l t/532-rtc-bcd.t` + dist tests | BCD/temp/validation HW-free green; HW portion queued on board-4 | ⏳ |

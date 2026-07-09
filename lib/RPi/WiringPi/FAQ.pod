@@ -1466,6 +1466,7 @@ per-board suites.
     507-oled_char.t                             OLED character                                 RPI_BOARD_4   RPI_OLED
     508-oled_vertical_line.t                    OLED vertical line                             RPI_BOARD_4   RPI_OLED
     509-oled_horizontal_line.t                  OLED horizontal line                           RPI_BOARD_4   RPI_OLED
+    510-oled_unit.t                             RPi::OLED::SSD1306 unit (HW-free)              -             (none)
     520-oled_cleanup.t                          OLED cleanup                                   RPI_BOARD_4   RPI_OLED
     530-rtc.t                                   DS3231 real-time clock                         RPI_BOARD_4   RPI_RTC
     531-bmp.t                                   BMP180 temp/pressure                           RPI_BOARD_4   RPI_BMP
