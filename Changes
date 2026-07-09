@@ -108,6 +108,13 @@ Revision history for Perl extension RPi::WiringPi.
       rather than restating a literal minimum
     - Added a FAQ entry, "Where is the required wiringPi version defined?",
       documenting the single-source minimum and the family drift gate
+    - Added scripts/gen-min-version.pl and wired it into gen-pod-md.pl: the
+      wiringPi minimum in the WiringPi.pm / FAQ.pod prose is now rewritten
+      from RPi::Const::WIRINGPI_MIN_VERSION at doc-regen time, so the docs
+      (and generated README.md / FAQ.md) can never drift from the constant
+    - Added xt/author/min-version-doc-sync.t: fails if the committed prose
+      minimum has drifted from the constant (bumped without re-running the
+      generator)
 
 3.1802     2026-06-12
     - bump prereq of RPi::I2C to 2.3608

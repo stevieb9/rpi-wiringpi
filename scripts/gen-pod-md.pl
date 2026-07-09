@@ -44,6 +44,15 @@ my $pod2md = find_pod2markdown();
         or die "gen-pod-md: $table_gen failed (exit " . ($? >> 8) . ")\n";
 }
 
+# Sync the wiringPi minimum-version literal in the prose POD to the single
+# source (RPi::Const::WIRINGPI_MIN_VERSION) before rendering, so README.md /
+# FAQ.md inherit the current value and can't drift from the constant.
+{
+    my $ver_gen = File::Spec->catfile($script_dir, 'gen-min-version.pl');
+    system($^X, $ver_gen) == 0
+        or die "gen-pod-md: $ver_gen failed (exit " . ($? >> 8) . ")\n";
+}
+
 # Collect candidate POD sources under lib/.
 my @sources;
 find(
