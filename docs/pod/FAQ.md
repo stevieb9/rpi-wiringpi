@@ -1605,6 +1605,7 @@ per-board suites.
     530-rtc.t                                   DS3231 real-time clock                         RPI_BOARD_4   RPI_RTC
     531-bmp.t                                   BMP180 temp/pressure                           RPI_BOARD_4   RPI_BMP
     532-rtc-bcd.t                               DS3231 BCD encode/decode (HW-free)             -             (none)
+    533-bmp180_unit.t                           RPi::BMP180 unit (HW-free)                     -             (none)
     540-eeprom_args.t                           EEPROM argument validation                     RPI_BOARD_4   RPI_EEPROM
     541-eeprom_read_write_byte_croak.t          EEPROM byte r/w error handling                 RPI_BOARD_4   RPI_EEPROM
     542-eeprom_read_write_byte.t                EEPROM byte read/write                         RPI_BOARD_4   RPI_EEPROM

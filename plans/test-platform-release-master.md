@@ -1,8 +1,8 @@
 # Plan: Test platform completion + family-wide release readiness (MASTER)
 
-> **NEXT ACTION:** V18 — RPi::BMP180 _pin_base validation (in ~/repos/rpi-bmp180 + mirror) — re-verify vs the current tree first
+> **NEXT ACTION:** V19 — RPi::LCD HW-free (init required-key deaths, _fd confess, print/put aliases; in ~/repos/rpi-lcd + mirror) — re-verify vs the current tree first
 > **LAST SESSION:** 2026-07-09 — executed …/V13/V14. V14 (RPi::Serial): TCG F14 fixed + surfaced and fixed 3 more real bugs (write() >255 silent-wrap→croak; **tx() was sending 0x00 for the payload**; **rx() returned a defined 0 mid-frame**; **flush() called an undefined tty_flush → added the XSUB**). Dist t/05-unit.t + **live t/10-loopback.t (8/8 PASS on real TX↔RX loopback, /dev/ttyAMA0, gate RPI_SERIAL_LOOPBACK)**; main mirror t/438 = crc vectors only (installed 3.02 predates/breaks the rest). Then (user-directed) rewrote t/610-serial.t into a full live-loopback suite + real-world CRC-framed example, which found + fixed a 6th RPi::Serial bug (tty_open not fully raw — ICRNL mapped 0x0D→0x0A); installed 3.03, bumped main prereq to 3.03. **Rig now has serial loopback wired** (GPIO14↔15) — usable for V28; t/610 26/26 serial tests green (only pre-existing pin-8 contamination fails). **HEADS-UP: sub-dists actively reworked — re-verify each PC row vs the tree first.** **Uncommitted: rpi-wiringpi, rpi-eeprom-at24c32, rpi-i2c, rpi-adc-mcp3008, rpi-spi, rpi-serial — user commits.** F2 looks resolved (rpi-i2c 3.1803 UNREL) → V26. **Rule: present point-form plan before executing any V task**
-> **ARCHIVE:** See test-platform-release-master-archive.md for completed V tasks (V1-V5, V7-V10, V12-V17, V33, V34)
+> **ARCHIVE:** See test-platform-release-master-archive.md for completed V tasks (V1-V5, V7-V10, V12-V18, V33, V34)
 
 ## Goal
 
@@ -181,7 +181,6 @@ Phases: P0 housekeeping · PH hardware · PC coverage (absorbed from test-covera
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V18 | **PC** (was TCG V19) — RPi::BMP180: _pin_base validation (non-int/unset die) + mirror; compensation/OSS math gap stays logged (TCG B10) | `cd ~/repos/rpi-bmp180 && make test` + mirror | Validation HW-free; upstream math gap logged | ⏳ |
 | V19 | **PC** (was TCG V20) — RPi::LCD HW-free: init(%params) 14 required-key death tests (lcd_init mocked), _fd(-1) confess + round-trip, print/puts + print_char/put_char alias identity | `cd ~/repos/rpi-lcd && make test` + mirror | init/_fd/aliases covered HW-free | ⏳ |
 | V20 | **PC** (was TCG V21) — RPi::OLED::SSD1306 HW-free croak/bounds: rect/pixel bounds, dim/invert 0/1, text_size ^\d+$; TCG F16 (silent singleton ignores new addr/splash) | `cd ~/repos/rpi-oled-ssd1306 && make test` + ungated mirror | 6 validating methods + singleton behavior covered | ⏳ |
 | V21 | **PC** (was TCG V22) — RPi::SysInfo: ungate cpu_percent/mem_percent (XS runs on any Linux), OO-form replay through the seam, 16GB revision decode, TCG F15 (_format -1.0 sentinel; malformed raspi_config regex) | `cd ~/repos/rpi-sysinfo && make test` + mirror | Wrappers + OO + defects covered HW-free | ⏳ |
@@ -254,7 +253,7 @@ B7: (TCG B8) rpi-hcsr04 — extract pure raw→cm/inch conversion (divisor 58 vs
 
 B8: (TCG B9) rpi-dht11 — injectable 5-byte frame for read_env so bit-decode + checksum are testable.
 
-B9: (TCG B10) BMP180 compensation/OSS math lives in WiringPi::API XS — add coverage there or a Perl-side injectable refactor.
+B9: (TCG B10) BMP180 compensation/OSS math — CORRECTION (V18, 2026-07-09): it does NOT live in WiringPi::API (its bmp180Temp/bmp180Pressure are `return analogRead(pin)` passthroughs); the actual Bosch compensation + hardcoded `#define BMP180_OSS 0` live in EXTERNAL wiringPi's devLib bmp180.c (libwiringPiDev). So there is nothing to fix in our code, and no confirmed defect. The clean enhancement (post-release, NOT train-time surgery on the foundational WiringPi::API/wiringPi) is to reimplement the BMP180 read + compensation in RPi::BMP180 itself via RPi::I2C, making it HW-free testable against datasheet worked-examples and OSS-selectable.
 
 B10: (TCG B12) systematic mirror sweep — diff each sub-repo t/ against rpi-wiringpi/t/, port non-conflicting tests, prove the superset property.
 

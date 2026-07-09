@@ -150,6 +150,7 @@ t/520-oled_cleanup.t
 t/530-rtc.t
 t/531-bmp.t
 t/532-rtc-bcd.t
+t/533-bmp180_unit.t
 t/540-eeprom_args.t
 t/541-eeprom_read_write_byte_croak.t
 t/542-eeprom_read_write_byte.t
