@@ -1,8 +1,8 @@
 # Plan: Test platform completion + family-wide release readiness (MASTER)
 
-> **NEXT ACTION:** V1 — supersession housekeeping (banner + move the three absorbed plans to plans/done/)
-> **LAST SESSION:** 2026-07-03 — plan created from three research passes + 20-dist inventory; then adversarially debated (proposal/test-platform-release-master-plan-review.md, RESOLVED) and the agreed 12-point edit list applied: V6 retired (fixes already shipped 0.02/0.03), V7/V9/V26/V28 rescoped, V33+F11-F13 added, census 16/29/63 and 18-leaf counts corrected, sch-rev stamping added to V4/V8/V10
-> **ARCHIVE:** See test-platform-release-master-archive.md for completed V tasks
+> **NEXT ACTION:** V2 — reconcile the absorbed test-platform-regen §9 checklist against the tree (note: the source file is now deleted; verify against git history / in-tree evidence)
+> **LAST SESSION:** 2026-07-09 — corrected the hardware known-state (boards 2-5 all complete/blessed/ordered per board-locks.json + t/04 %FROZEN; only board 1 remains) and the board-completion-order design note; rewrote + executed V1 (the three absorbed plans + two archives were deleted in ecd6971, not moved — user confirmed leave-gone; annotated done/wiringpi-conformance-and-review.md and the Supersession Findings policy). See below re: V8/V10/V9/V33/F3 task-closure now factually satisfied but not yet marked
+> **ARCHIVE:** See test-platform-release-master-archive.md for completed V tasks (V1, V8)
 
 ## Goal
 
@@ -33,9 +33,14 @@ stays in done/): V47 (servo calibration, → V27 here). Its V24 (version bump
 release-guard workstream; master V25 gates on its completion. Its execution
 happens under its own file and rules.
 
-**Findings policy:** the superseded plans' F-ledgers remain the permanent
-audit record inside their files (moved to done/, never edited-down). Master
-V/B rows cite them (e.g. "TCG F10") instead of re-ledgering. The `## Review
+**Findings policy:** the three absorbed plans and their two archives were
+**deleted** (commit `ecd6971` "Plan updates", 2026-07-09; user confirmed
+leave-gone — recover from `ecd6971^` only if ever needed). Their TCG/DSA
+F-/B-ledgers therefore no longer exist as standalone files; they survive ONLY
+as the inline descriptions carried in this master's V/B rows (each row spells
+out its own fix, so the *work* is self-contained). Master rows still cite the
+original tags (e.g. "TCG F10", "DSA B1") as historical provenance — treat those
+citations as pointers into git history, not into live files. The `## Review
 Findings` here contains only NEW findings from this session's research.
 
 ## Current known state (research evidence, 2026-07-03)
@@ -46,9 +51,9 @@ Findings` here contains only NEW findings from this session's research.
 |-------|-------|-------|-----|---------|--------|
 | 1 | Pi 40-pin host + power/signal fan-out hub + I2C LCD (PCF8574 0x27 behind BOB-12009) + GPIO23/24/25/0/1 test points | **empty dir** (.gitkeep only); design not started; owns all cross-board nets (proposal §251-299) | - | - | - |
 | 2 | ADS1115 0x48, MCP3008, MCP4922, MCP42010, 74HC595, servo (GPIO18) | finalized + **ordered** (287 segs, 50 vias) | 4 | yes | yes |
-| 3 | MCP23017 ×2 (0x20/0x21), stepper + magnet limits, LEDs, I2C pull-ups | finalized + **ordered** (294 segs, 37 vias); most complete | 2 | yes | yes |
-| 4 | DS3231 0x68, AT24C32 0x57, BMP180 0x77, SSD1306 0x3c | **scaffold only**: 9 footprints, 0 tracks, 0 vias, **no Edge.Cuts** | 1 | no | no |
-| 5 | HD44780 LCD, Arduino 0x04 + BOB-12009, UART loopback | routed (151 segs, 26 vias) + outline, **no gerbers, not blessed** | 1 | no | **in %FROZEN but NOT in board-locks.json** |
+| 3 | MCP23017 ×2 (0x20/0x21), stepper + magnet limits, LEDs, I2C pull-ups | finalized + **ordered** (294 segs, 37 vias); most complete | 3 | yes | yes |
+| 4 | DS3231 0x68, AT24C32 0x57, BMP180 0x77, SSD1306 0x3c | finalized + **ordered**; Edge.Cuts + routed + DRC-clean; blessed | 2 | yes | yes |
+| 5 | HD44780 LCD, Arduino 0x04 + BOB-12009, UART loopback | finalized + **ordered**; routed + outline + gerbers; blessed (sch title-block rev still UNSET vs PCB 1 — B22) | 1 | yes | yes |
 
 Datasheet-audit verdict (proposal/test-platform-datasheet-validity-audit.md,
 2026-06-22): boards 2+3 fab-clean end-to-end; the audit's board-4 driver
@@ -94,7 +99,10 @@ session's scratchpad; regenerate anytime via the V25 audit script.
 
 ## Design (decisions)
 
-- **Board completion order: 4 → 5 → 1.** Board 4 unblocks 16 gated tests +
+- **Board completion order: 4 → 5 → 1.** **Status (2026-07-09): boards 4 and 5
+  are complete, blessed, and ordered — only board 1 (the hub) remains** (V8/V10
+  outcomes achieved on disk; see Validation Table for their task-closure state).
+  Board 4 unblocked 16 gated tests +
   coverage V23's HW half; board 1 is the hub and is "built last" per the
   proposal (it owns the cross-board nets, so its design freezes after 4/5).
   Debate-tested: hub-first died on the nets doc (I2C pull-ups live on built
@@ -151,16 +159,14 @@ Phases: P0 housekeeping · PH hardware · PC coverage (absorbed from test-covera
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V1 | **P0** — Supersession housekeeping: add a `> **SUPERSEDED:** by test-platform-release-master.md (YYYY-MM-DD)` banner atop test-platform-regen.md, test-coverage-gaps.md (+archive), datasheet-audit-fixes.md (+archive); move all five files to plans/done/; annotate done/wiringpi-conformance-and-review.md: V24 closed-overtaken (3.1802 shipped 2026-06-12), V47 carried → master V27 | `ls plans/ plans/done/` | plans/ holds only this master (+future archive) and wiringpi-version-single-source.md; banners in place | ⏳ |
 | V2 | **P0** — Reconcile the absorbed test-platform-regen §9 checklist against the tree: verify each of its 10 items as done/partial/open (render-doc.py, facts/ flow, model drift items, kicad relocation, regen orchestration, drift gate all appear implemented); record the verdict table in this plan; file any residue as new V/B rows | inspect scripts/helpers/*, docs/test-platform/, t/04 | Every checklist item dispositioned with file evidence; residues captured (kicad/legacy refs already → V3) | ⏳ |
 | V3 | **P0** — Fix stale references: t/04-test-platform-model.t:45 and docs/test-platform/README:60,71 cite nonexistent `kicad/legacy/`; normalize the three conflicting board-5 status wordings (README "hand-finalized" / matrix "being finalized" / t/04 "in progress") to in-progress; build the old→new renumber map and mechanically sweep t/*.t comments, docs/, and POD for stale pre-renumber test filenames (F12; proven instance: t/543-eeprom_validation.t:10 cites "t/420-422" for what is now t/540-542) | `RPI_BOARD=1 prove -l t/04-test-platform-model.t` (on Pi) or perl -c + grep locally | No dangling legacy/ references; consistent board-5 status; zero stale pre-renumber filenames repo-wide; t/04 still passes | ⏳ |
 | V4 | **PH** — Board-2 provenance repair (F4): restore ZC261500.kicad_sym (ADS1115 breakout) from the restore-backup into the live board-2 project + a project sym-lib-table; define the `RPi` footprint lib in board-2's fp-lib-table (or migrate the ADS1115_Breakout footprint into the project .pretty); refresh the stale .pretty ref/value assignments; stamp the schematic title_block rev to match the PCB (sch currently UNSET vs PCB rev 4 — debate H10); user re-blesses (`check-board-locks.py --bless board-2`) | `python3 scripts/helpers/check-board-locks.py` + `perl scripts/unit_test_board_revisions.pl` | Board-2 opens/renders from a fresh clone with no global-lib dependence; sch/PCB revs in lockstep; locks green after bless | ⏳ |
 | V5 | **PH** — ADS1115 vs ADS1015 reconciliation (F7; user-authorized 2026-06-23): with the user physically confirming the 0x48 part on the built board-2 (chip marking / 12-vs-16-bit read), align proposal/matrix/added-hardware/FAQ/model/RPiTest naming to the as-built truth | grep -rn 'ADS10\|ADS11' docs/ t/ lib/ scripts/helpers/ | One name everywhere, matching the physical part; datasheet-audit follow-up closed | ⏳ |
 | V7 | **PH** — rpi-eeprom-at24c32 1.00 residue (debate H7b: the broken eeprom_write_block export was already REMOVED — Changes 1.00 UNREL, zero grep hits in AT24C32.xs): delete the dead static `_writeBlock` (AT24C32.xs:47), disposition the orphaned eeprom_read_current_byte/eeprom_close, add tests covering the 1.00 changes (TCG B5) | `cd ~/repos/rpi-eeprom-at24c32 && perl Makefile.PL && make test` | Residue cleared; 1.00 changes test-covered (HW-free harness or gated) | ⏳ |
-| V8 | **PH** — Board-4 PCB completion: sync board-4-model.py ↔ layout, finalize placement, draw Edge.Cuts, route, pour zones, DRC clean, add RPI_BOARD_4 silk label + title_block title and rev (PCB AND schematic, in lockstep — debate H10), plot gerbers + gerber.zip. User blesses (`check-board-locks.py --bless board-4`) and orders fab | kicad-cli DRC + `perl scripts/unit_test_board_revisions.pl` | DRC 0 errors; gerbers produced; revs stamped both files; silk labeled; blessed | ⏳ |
-| V9 | **PH** — Lock unification (F3; DSA B5/F17), mechanism ONLY (debate H6 — blessing itself happens in V8/V10 where those boards close): board-locks.json becomes the single "off-limits" source — t/04 `%FROZEN` derives from it, gen-kicad.py refuses per it | `RPI_BOARD=1 prove -l t/04-test-platform-model.t` + `python3 scripts/helpers/check-board-locks.py` | One definition; a frozen-but-unblessed state is impossible by construction | ⏳ |
+| V9 | **PH** — Lock unification (F3; DSA B5/F17), mechanism ONLY (debate H6 — blessing itself happens in V8/V10 where those boards close): board-locks.json becomes the single "off-limits" source — t/04 `%FROZEN` derives from it, gen-kicad.py refuses per it | `RPI_BOARD=1 prove -l t/04-test-platform-model.t` + `python3 scripts/helpers/check-board-locks.py` | One definition; a frozen-but-unblessed state is impossible by construction | ⏳ (reconcile 2026-07-09: F3's board-5 divergence is now moot — board-5 is blessed in board-locks.json — BUT V9's mechanism is still UNBUILT: t/04 `%FROZEN` remains a hardcoded hash (t/04:57-61), and gen-kicad.py:490 refuses by `os.path.exists`, not by the lock file. Single-source deliverable outstanding.) |
 | V33 | **PH** — Canonical Arduino 0x04 sketch (F11; row sits before V10 per the debate's "before V10 closes" — IDs stable, order meaningful): docs/sketch/arduino.ino and docs/sketch/arduino/arduino.ino ship as byte-identical duplicates (MANIFEST:46-47); ~/repos/rpi-i2c/examples/arduino.ino diverges functionally (`eeprom_save_byte(byte*)` vs `(byte)`, word endianness) and is NOT in rpi-i2c's MANIFEST beside 8 shipped examples/*.pl. Pick the canonical sketch, de-dup docs/sketch to one path (MANIFEST + FAQ.pod ~1500), reconcile or delete the rpi-i2c fork | diff the three copies; grep MANIFEST + FAQ.pod refs | One canonical sketch at one shipped path; rpi-i2c examples and t/605 presuppose the same wire behavior; rig-flash verification handled in V10/V28 | ⏳ |
-| V10 | **PH** — Board-5 finish: annotate the 4 `REF**` mounting holes, resolve HD44780_20x2-vs-20×4 spec mismatch (F6; user decides per physical panel), stamp the schematic title_block rev to match the PCB (sch currently UNSET vs PCB rev 1 — debate H10), verify/flash the rig Arduino with the V33 canonical sketch, DRC, plot gerbers, user blesses | kicad-cli DRC + `python3 scripts/helpers/check-board-locks.py` | DRC clean; gerbers exist; revs in lockstep; rig Arduino runs the canonical sketch; blessed; value matches the real panel | ⏳ |
+| V10 | **PH** — Board-5 finish: annotate the 4 `REF**` mounting holes, resolve HD44780_20x2-vs-20×4 spec mismatch (F6; user decides per physical panel), stamp the schematic title_block rev to match the PCB (sch currently UNSET vs PCB rev 1 — debate H10), verify/flash the rig Arduino with the V33 canonical sketch, DRC, plot gerbers, user blesses | kicad-cli DRC + `python3 scripts/helpers/check-board-locks.py` | DRC clean; gerbers exist; revs in lockstep; rig Arduino runs the canonical sketch; blessed; value matches the real panel | ⏳ (reconcile 2026-07-09: board-5 is blessed + gerbers + ordered, and F6 resolved to 20×4 — footprint value now `HD44780_20x4`. REMAINING: (1) schematic title-block rev still UNSET vs PCB rev 1 — the stamp step was skipped despite bless (B22); (2) V33 canonical-sketch flash still open (V33 ⏳, two sketch copies remain). Not closeable until both land.) |
 | V11 | **PH** — Board-1 design (the hub, last): schematic + PCB per proposal — Pi 40-pin header, power/signal fan-out to satellites (+5V/+3V3/GND rails ~1.1A peak, per-board +3V3 sense returns), I2C LCD (PCF8574 0x27 + BOB-12009), GPIO18 workhorse net kept high-impedance, GPIO17/27 fan to boards 3+5, GPIO23/24/25/0/1 test points; gerbers; add t/scripts/test_board_1.sh (F8); user blesses + orders | kicad-cli DRC + `bash t/scripts/test_board_1.sh` (on Pi) | Board-1 project complete + locked; runner exists; t/335 runs under it | ⏳ |
 | V12 | **PC** (was TCG V13) — RPi::ADC::MCP3008 HW-free: fetch input-range croak (0-15), percent math (÷1023, stubbed fetch), _channel undef die (wiringPi stub/load-guard — no env gate today); fix TCG F9 (spi_setup/wpi_setup exit(errno)→croak); note fetch GPIO-CS FIXME; decode → B-item | `cd ~/repos/rpi-adc-mcp3008 && make test` + mirror in t/ here | Validation covered HW-free; F9 fixed | ⏳ |
 | V13 | **PC** (was TCG V14) — RPi::SPI HW-free: _channel GPIO routing, _speed default + TCG F13 (explicit 0 → silently 1MHz), _cs round-trip, new/rw arg validation; stubbed spiDataRW for rw framing | `cd ~/repos/rpi-spi && make test` + mirror | Routing + validation covered; F13 fixed | ⏳ |
@@ -196,7 +202,7 @@ New findings from this session's research only (absorbed plans' ledgers live in 
 
 - **F2** (→V26): rpi-i2c's Changes top section reads `2.3609 UNREL` while the module is 3.1801 — stale header from the 3.19→3.1802 rename.
 
-- **F3** (→V9): Lock divergence — board-5 is in t/04's `%FROZEN` (skipped from validation) but absent from board-locks.json (not byte-frozen): currently ungated entirely. Three uncoordinated "off-limits" definitions exist.
+- **F3** (→V9): ⚠ PARTIAL (2026-07-09) — the board-5 half is now MOOT: board-5 is blessed in board-locks.json, so it is no longer frozen-but-unlocked. The underlying defect V9 targets (three uncoordinated "off-limits" definitions; `%FROZEN` not derived from the lock file) is STILL OPEN. Original: Lock divergence — board-5 is in t/04's `%FROZEN` (skipped from validation) but absent from board-locks.json (not byte-frozen): currently ungated entirely. Three uncoordinated "off-limits" definitions exist.
 
 - **F4** (→V4): Board-2 is not reproducible from the repo — the ADS1115 symbol (ZC261500.kicad_sym) exists only in a gitignored `_restore_backup_*` dir; the PCB references footprint lib alias `RPi:` defined in no repo fp-lib-table (resolves only via the user's global KiCad config); the untracked ADS1115.mod and `kicad/unit_tests/` seen in the session-start git status no longer exist on disk (KiCad restore side-effect); board-2's own .pretty ref/values are stale scaffold.
 
