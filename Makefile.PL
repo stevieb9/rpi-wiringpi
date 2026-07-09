@@ -61,7 +61,7 @@ WriteMakefile(
         'RPi::Pin'                  => 3.1802,
         'RPi::Radar::RCWL0516'      => 0.01,
         'RPi::RTC::DS3231'          => 0.03,
-        'RPi::Serial'               => 3.02,
+        'RPi::Serial'               => 3.03,
         'RPi::SPI'                  => 3.1801,
         'RPi::StepperMotor'         => 3.1801,
         'RPi::SysInfo'              => 1.02,

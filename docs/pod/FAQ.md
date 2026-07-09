@@ -1586,6 +1586,7 @@ per-board suites.
     435-shift_reg_adc.t                         74HC595 shift reg (read via ADC)               RPI_BOARD_2   RPI_MCP3008, RPI_SHIFTREG
     436-mcp3008_unit.t                          RPi::ADC::MCP3008 unit (HW-free)               -             (none)
     437-spi_unit.t                              RPi::SPI unit (HW-free)                        -             (none)
+    438-serial_unit.t                           RPi::Serial unit (HW-free)                     -             (none)
     440-pca9685.t                               PCA9685 16-channel PWM (I2C register readback) RPI_BOARD_1   RPI_PCA9685
     445-dpot.t                                  MCP4XXXX digital pot (read via ADC)            RPI_BOARD_2   RPI_ADC, RPI_DIGIPOT
     446-dpot_unit.t                             MCP4XXXX digipot unit (HW-free)                -             (none)

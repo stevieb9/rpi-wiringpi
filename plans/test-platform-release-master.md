@@ -1,8 +1,8 @@
 # Plan: Test platform completion + family-wide release readiness (MASTER)
 
-> **NEXT ACTION:** V14 — RPi::Serial HW-free coverage (in ~/repos/rpi-serial + mirror) — re-verify the row vs the current tree first (sub-dists are being reworked)
-> **LAST SESSION:** 2026-07-09 — executed …/V12/V13. V13: RPi::SPI also reworked (pure Perl 3.1802); TCG F9 moot (uses wiringPiSPISetup→die), TCG F13 fixed (croak on explicit invalid speed, user's call), added minimal rw() arg validation; dist t/05-unit.t + main mirror t/437-spi_unit.t (F13-croak/rw-validation are dist-only until fixed RPi::SPI installs — installed 3.1802 lacks them). **HEADS-UP: sub-dists are being actively reworked — ALWAYS re-verify each PC row vs the current tree before planning.** **Uncommitted: ~/repos/rpi-wiringpi, rpi-eeprom-at24c32, rpi-i2c, rpi-adc-mcp3008, rpi-spi — user commits.** F2 looks resolved (rpi-i2c 3.1803 UNREL) → V26. **Rule: present point-form plan before executing any V task**
-> **ARCHIVE:** See test-platform-release-master-archive.md for completed V tasks (V1, V2, V3, V4, V5, V7, V8, V9, V10, V33, V34)
+> **NEXT ACTION:** V15 — RPi::StepperMotor HW-free coverage (in ~/repos/rpi-steppermotor + mirror) — re-verify vs the current tree first
+> **LAST SESSION:** 2026-07-09 — executed …/V13/V14. V14 (RPi::Serial): TCG F14 fixed + surfaced and fixed 3 more real bugs (write() >255 silent-wrap→croak; **tx() was sending 0x00 for the payload**; **rx() returned a defined 0 mid-frame**; **flush() called an undefined tty_flush → added the XSUB**). Dist t/05-unit.t + **live t/10-loopback.t (8/8 PASS on real TX↔RX loopback, /dev/ttyAMA0, gate RPI_SERIAL_LOOPBACK)**; main mirror t/438 = crc vectors only (installed 3.02 predates/breaks the rest). Then (user-directed) rewrote t/610-serial.t into a full live-loopback suite + real-world CRC-framed example, which found + fixed a 6th RPi::Serial bug (tty_open not fully raw — ICRNL mapped 0x0D→0x0A); installed 3.03, bumped main prereq to 3.03. **Rig now has serial loopback wired** (GPIO14↔15) — usable for V28; t/610 26/26 serial tests green (only pre-existing pin-8 contamination fails). **HEADS-UP: sub-dists actively reworked — re-verify each PC row vs the tree first.** **Uncommitted: rpi-wiringpi, rpi-eeprom-at24c32, rpi-i2c, rpi-adc-mcp3008, rpi-spi, rpi-serial — user commits.** F2 looks resolved (rpi-i2c 3.1803 UNREL) → V26. **Rule: present point-form plan before executing any V task**
+> **ARCHIVE:** See test-platform-release-master-archive.md for completed V tasks (V1-V5, V7-V10, V12, V13, V14, V33, V34)
 
 ## Goal
 
@@ -181,7 +181,6 @@ Phases: P0 housekeeping · PH hardware · PC coverage (absorbed from test-covera
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V14 | **PC** (was TCG V15) — RPi::Serial HW-free: crc/crc16 vectors, tx frame+CRC order, rx reassembly + CRC-mismatch warn + pre-start discard, write undef croak + >255 wrap; TCG F14 (new() fd=-1 no croak; baud unvalidated) | `cd ~/repos/rpi-serial && make test` + mirror | Framing stack + validation covered; F14 fixed | ⏳ |
 | V15 | **PC** (was TCG V16) — RPi::StepperMotor HW-free via injected mock expander: cw/ccw patterns + wraps, _turns rounding, _pins/new croaks; fix TCG F10 (speed() inverted dead validation) | `cd ~/repos/rpi-steppermotor && make test` + mirror | Step logic covered; F10 fixed | ⏳ |
 | V16 | **PC** (was TCG V17) — RPi::HCSR04: fix TCG F11 (new() never blesses) + F12 (pin guard `&&`→`||` dead range check) with tests; un-gate 05-new.t validation; cm/inch math extraction → B-item | `cd ~/repos/rpi-hcsr04 && make test` | Real blessed object; live pin validation; tests off-board | ⏳ |
 | V17 | **PC** (was TCG V18) — RPi::DHT11 noboard-mode wins (RDE_NOBOARD_TEST=1): temp('f') conversion, humidity sanity, c_debug; reconcile TCG F17 (RPI_BOARD vs RPI_DHT11 vs unused RDE_HAS_BOARD) | `cd ~/repos/rpi-dht11 && make test` + mirror | HW-free paths covered; one coherent gate story | ⏳ |
