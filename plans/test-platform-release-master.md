@@ -1,8 +1,8 @@
 # Plan: Test platform completion + family-wide release readiness (MASTER)
 
-> **NEXT ACTION:** V2 — reconcile the absorbed test-platform-regen §9 checklist against the tree (note: the source file is now deleted; verify against git history / in-tree evidence)
-> **LAST SESSION:** 2026-07-09 — corrected the hardware known-state (boards 2-5 all complete/blessed/ordered per board-locks.json + t/04 %FROZEN; only board 1 remains) and the board-completion-order design note; rewrote + executed V1 (the three absorbed plans + two archives were deleted in ecd6971, not moved — user confirmed leave-gone; annotated done/wiringpi-conformance-and-review.md and the Supersession Findings policy). See below re: V8/V10/V9/V33/F3 task-closure now factually satisfied but not yet marked
-> **ARCHIVE:** See test-platform-release-master-archive.md for completed V tasks (V1, V8)
+> **NEXT ACTION:** V4 — board-2 provenance repair (F4). **First: user must `git commit` the re-blessed board-locks.json (V34) — modified in working tree, uncommitted.**
+> **LAST SESSION:** 2026-07-09 — executed V1/V2/V3/V34; reconciled V8/V9/V10. V3 stale-ref sweep done (legacy/ refs, F12 pre-renumber names, doc regenerated). Discovered F14 (boards 4/5 lock hashes stale since 0011bce) and resolved it via V34: user-authorized re-bless of boards 4 & 5 → check-board-locks clean, t/04 6/6 PASS. **board-locks.json commit is pending user.** B22 sch-rev stamping deferred (edits frozen boards). Boards 2/3 were already clean
+> **ARCHIVE:** See test-platform-release-master-archive.md for completed V tasks (V1, V2, V3, V8, V34)
 
 ## Goal
 
@@ -52,8 +52,8 @@ Findings` here contains only NEW findings from this session's research.
 | 1 | Pi 40-pin host + power/signal fan-out hub + I2C LCD (PCF8574 0x27 behind BOB-12009) + GPIO23/24/25/0/1 test points | **empty dir** (.gitkeep only); design not started; owns all cross-board nets (proposal §251-299) | - | - | - |
 | 2 | ADS1115 0x48, MCP3008, MCP4922, MCP42010, 74HC595, servo (GPIO18) | finalized + **ordered** (287 segs, 50 vias) | 4 | yes | yes |
 | 3 | MCP23017 ×2 (0x20/0x21), stepper + magnet limits, LEDs, I2C pull-ups | finalized + **ordered** (294 segs, 37 vias); most complete | 3 | yes | yes |
-| 4 | DS3231 0x68, AT24C32 0x57, BMP180 0x77, SSD1306 0x3c | finalized + **ordered**; Edge.Cuts + routed + DRC-clean; blessed | 2 | yes | yes |
-| 5 | HD44780 LCD, Arduino 0x04 + BOB-12009, UART loopback | finalized + **ordered**; routed + outline + gerbers; blessed (sch title-block rev still UNSET vs PCB 1 — B22) | 1 | yes | yes |
+| 4 | DS3231 0x68, AT24C32 0x57, BMP180 0x77, SSD1306 0x3c | finalized + **ordered**; Edge.Cuts + routed + DRC-clean; blessed (re-blessed V34; commit pending) | 2 | yes | yes |
+| 5 | HD44780 LCD, Arduino 0x04 + BOB-12009, UART loopback | finalized + **ordered**; routed + outline + gerbers; blessed (re-blessed V34; commit pending; sch title-block rev still UNSET vs PCB 1 — B22, deferred) | 1 | yes | yes |
 
 Datasheet-audit verdict (proposal/test-platform-datasheet-validity-audit.md,
 2026-06-22): boards 2+3 fab-clean end-to-end; the audit's board-4 driver
@@ -130,6 +130,28 @@ session's scratchpad; regenerate anytime via the V25 audit script.
 - Evidence throughout is dated 2026-07-03; agents' full reports live in this
   session; re-verify file-level claims before acting on stale ones.
 
+## V2 verdict — test-platform-regen §9 checklist reconciliation (2026-07-09)
+
+Source file deleted in V1; §9 read from git `ecd6971^`. All 10 migration-checklist
+items are implemented in-tree; residues noted below.
+
+| # | Item | Verdict | Evidence |
+|---|------|---------|----------|
+| 1 | Canonical board-model.py; drop gen-schematic.py duplicate; repoint imports | ✅ done | board-model.py canonical; gen-kicad.py:58-61 & gen-schematic.py:22-29 load it by path ("single source of truth"); no inline model dict remains (J1FUNC/DRIVER/POWER/SHEETS come from the model) |
+| 2 | Extract `[F]` facts to `facts/board-facts.*` | ✅ done (path variant) | facts live in scripts/helpers/board-facts.py (sibling module, not a facts/ dir); board-model.py:30-31 loads it; shared with model-from-tests.py |
+| 3 | Correct model drift: 16-pin loop, 0x21 stepper+magnet, drop photo-sensor | ✅ done | board-model.py carries 0x21/stepper/magnet (8 refs), zero photo-sensor remnants tree-wide; the item's "t/330" is a pre-renumber name — the 16-pin MCP23017 test is now t/355/t/356 (stale-name sweep already owned by V3/F12) |
+| 4 | render-doc.py + test-pinout-doc.tmpl.md | ✅ done | both present (scripts/helpers/render-doc.py, docs/test-platform/test-pinout-doc.tmpl.md) |
+| 5 | Relocate KiCad to docs/test-platform/kicad/ | ✅ done | boards live there; gen-kicad.py takes an output-project-dir + writes a project-local fp-lib-table (`${KIPRJMOD}`); check-kicad.py points there |
+| 6 | Trim schematic renderer (drop schemdraw); SVGs→scratch→gen-pdf.py, don't commit; links→PDF | ✅ done (1 deliberate deviation) | schemdraw net-label path removed (gen-schematic.py:118 records it); gen-pdf.py present; doc links point to the A3/A4 PDFs. **Deviation:** the schematic PDFs ARE committed (shipped deliverables, though excluded from the CPAN tarball) — the checklist's "don't commit" was intentionally reversed |
+| 7 | Write regen.py folding in the diff gate + check-kicad.py | ✅ done (no standalone regen.py) | orchestration is Makefile.PL `regen_docs` → gen-pod-md.pl + gen-test-platform.pl (drives the Python generators); the drift gate + check-kicad run in the test path (t/04), not inside a regen.py |
+| 8 | Generate test-pinout-doc.md; diff vs hand doc; reconcile | ✅ done | generated doc present via tmpl + render-doc.py; the one-time reconciliation is historical |
+| 9 | New operational README; delete the old | ✅ done | single docs/test-platform/README ("test platform guide"); no old duplicate |
+| 10 | Drift gate in test/CI so stale docs fail | ✅ done | t/04-test-platform-model.t runs check-model-drift.py (fails on drift) + model re-derivation + KiCad validation + board-lock check |
+
+**Residues:** none require a new V/B row. Item 3's stale "t/330" name is already
+covered by V3's pre-renumber sweep (F12). Items 2/6/7 are intentional path/
+architecture deviations from the design doc (recorded above); no action.
+
 ## Execution rules
 
 - **One task per turn**: when told to proceed or continue (or "next", "go", etc.), perform only the next ⏳ V task listed, then stop and wait for further instruction. Do NOT batch multiple V tasks per turn unless the user explicitly authorizes a batch (e.g., "do V1-V3", "do all the style fixes").
@@ -159,8 +181,6 @@ Phases: P0 housekeeping · PH hardware · PC coverage (absorbed from test-covera
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V2 | **P0** — Reconcile the absorbed test-platform-regen §9 checklist against the tree: verify each of its 10 items as done/partial/open (render-doc.py, facts/ flow, model drift items, kicad relocation, regen orchestration, drift gate all appear implemented); record the verdict table in this plan; file any residue as new V/B rows | inspect scripts/helpers/*, docs/test-platform/, t/04 | Every checklist item dispositioned with file evidence; residues captured (kicad/legacy refs already → V3) | ⏳ |
-| V3 | **P0** — Fix stale references: t/04-test-platform-model.t:45 and docs/test-platform/README:60,71 cite nonexistent `kicad/legacy/`; normalize the three conflicting board-5 status wordings (README "hand-finalized" / matrix "being finalized" / t/04 "in progress") to in-progress; build the old→new renumber map and mechanically sweep t/*.t comments, docs/, and POD for stale pre-renumber test filenames (F12; proven instance: t/543-eeprom_validation.t:10 cites "t/420-422" for what is now t/540-542) | `RPI_BOARD=1 prove -l t/04-test-platform-model.t` (on Pi) or perl -c + grep locally | No dangling legacy/ references; consistent board-5 status; zero stale pre-renumber filenames repo-wide; t/04 still passes | ⏳ |
 | V4 | **PH** — Board-2 provenance repair (F4): restore ZC261500.kicad_sym (ADS1115 breakout) from the restore-backup into the live board-2 project + a project sym-lib-table; define the `RPi` footprint lib in board-2's fp-lib-table (or migrate the ADS1115_Breakout footprint into the project .pretty); refresh the stale .pretty ref/value assignments; stamp the schematic title_block rev to match the PCB (sch currently UNSET vs PCB rev 4 — debate H10); user re-blesses (`check-board-locks.py --bless board-2`) | `python3 scripts/helpers/check-board-locks.py` + `perl scripts/unit_test_board_revisions.pl` | Board-2 opens/renders from a fresh clone with no global-lib dependence; sch/PCB revs in lockstep; locks green after bless | ⏳ |
 | V5 | **PH** — ADS1115 vs ADS1015 reconciliation (F7; user-authorized 2026-06-23): with the user physically confirming the 0x48 part on the built board-2 (chip marking / 12-vs-16-bit read), align proposal/matrix/added-hardware/FAQ/model/RPiTest naming to the as-built truth | grep -rn 'ADS10\|ADS11' docs/ t/ lib/ scripts/helpers/ | One name everywhere, matching the physical part; datasheet-audit follow-up closed | ⏳ |
 | V7 | **PH** — rpi-eeprom-at24c32 1.00 residue (debate H7b: the broken eeprom_write_block export was already REMOVED — Changes 1.00 UNREL, zero grep hits in AT24C32.xs): delete the dead static `_writeBlock` (AT24C32.xs:47), disposition the orphaned eeprom_read_current_byte/eeprom_close, add tests covering the 1.00 changes (TCG B5) | `cd ~/repos/rpi-eeprom-at24c32 && perl Makefile.PL && make test` | Residue cleared; 1.00 changes test-covered (HW-free harness or gated) | ⏳ |
@@ -223,6 +243,8 @@ New findings from this session's research only (absorbed plans' ledgers live in 
 - **F12** (→V3, V27): Stale pre-renumber test filenames persist in t/ and in this plan itself — t/543-eeprom_validation.t:10 cites "t/420-422" for what is now t/540-542; V27's carried-forward text said "t/109/t/140" for t/400/t/405. Same disease F9 diagnosed in Changes. (Debate H3.)
 
 - **F13** (→V30): wiringpi-api's POD sends users to the defunct wiringpi.com at six sites (API.pm:1922, 1926, 2516, 2572, 2652, 2825) while main's 3.1803 UNREL already migrated its own links to github.com/WiringPi/WiringPi. (Debate H5.)
+
+- **F14** ✅ RESOLVED (V34, 2026-07-09 — user-authorized re-bless run in-session; board-locks.json updated in working tree, **commit pending user**): Board-lock drift — on a clean checkout `check-board-locks.py` reported boards 4 AND 5 as "file CHANGED since bless" (board-4 .kicad_pcb/.pro/.sch; board-5 .kicad_pcb/.pro), so **t/04 test 4 FAILS on HEAD**. Cause: the boards were finalized in commit 0011bce (2026-07-07) but board-locks.json was last re-blessed in ab80ad0 (2026-07-05) — the bless lags the finish by two days. Boards 2 and 3 lock clean. Impact: the "blessed" state this session attributed to boards 4/5 (V8 closure, V10, hardware known-state) is a lock *entry* with stale hashes, not a consistent bless. Fix is user-gated (re-bless).
 
 ## Backlog
 

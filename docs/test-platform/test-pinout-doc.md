@@ -250,8 +250,8 @@ ships as a multi-page vector **PDF**, and the KiCad board projects live under
   a multi-page vector PDF (title/contents page + whole board + one page each for
   I2C / SPI / stepper / display), orthogonally wire-routed via netlistsvg/ELK.
   Open and zoom to read; the best single file to read/print.
-- **`kicad/`** — one self-contained KiCad project per PCB (`legacy/` plus
-  `rpi-wiringpi-unit-test-platform-board-1..4/`), each with its own
+- **`kicad/`** — one self-contained KiCad project per PCB
+  (`rpi-wiringpi-unit-test-platform-board-1..5/`), each with its own
   `.kicad_sch` / `.kicad_pro`, `<board>.pretty/` footprint library and
   `fp-lib-table`. These are **not** part of the every-run regeneration: each
   board is scaffolded once with `gen-kicad.py`, then hand-finalized in KiCad.
@@ -276,8 +276,8 @@ separately and once, with `scripts/helpers/gen-kicad.py <kicad/board-dir>`.
 
 Every test that touches a pin or a device, decoded from its constructor call to
 the concrete devices and pins it needs on the board. Tests that exercise no
-hardware — module-load (`t/00,02,03,05`), identification/config (`t/100,104,106,409`),
-in-process metadata (`t/111`), signal/exit (`t/153,154`), sysinfo (`t/400-408`),
+hardware — module-load (`t/00,02,03,05`), identification/config (`t/100,104,106,309`),
+in-process metadata (`t/111`), signal/exit (`t/153,154`), sysinfo (`t/300-308`),
 the OLED lock-file cleanup (`t/520`), and POD/manifest (`t/899,900,905,910,915`) —
 are omitted here.
 

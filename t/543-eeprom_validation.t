@@ -7,7 +7,7 @@ use Test::More;
 use RPi::EEPROM::AT24C32;
 
 # HW-free unit coverage of RPi::EEPROM::AT24C32's argument validators, split out
-# of the RPI_EEPROM-gated integration tests (t/420-422). _check_addr/_check_byte
+# of the RPI_EEPROM-gated integration tests (t/540-542). _check_addr/_check_byte
 # are plain package subs that croak before any I2C, so they run ungated here -
 # no chip, no RPiTest, no shm. Also documents F6 (new() swallows eeprom_init's
 # -1 on a bad device instead of croaking).

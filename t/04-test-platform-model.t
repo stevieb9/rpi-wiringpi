@@ -42,7 +42,7 @@ is $? >> 8, 0, 'test-platform model: re-derivation matches canonical board-model
 # 2. Each populated KiCad board project under docs/test-platform/kicad/ still
 #    validates (every symbol's footprint resolves and covers its pins - the
 #    "Update PCB from Schematic" invariant). Each board is its own self-contained
-#    project subdirectory (legacy/, rpi-wiringpi-unit-test-platform-board-N/);
+#    project subdirectory (rpi-wiringpi-unit-test-platform-board-N/);
 #    those are scaffolded once by gen-kicad.py then hand-managed, so empty
 #    placeholders (no .kicad_sch yet) are skipped rather than failed.
 # Hand-managed boards are FROZEN: once a board is being hand-finalized in KiCad
