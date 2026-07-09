@@ -1,8 +1,8 @@
 # Plan: rpi-i2c fixes — review findings from the 2026-07-05 audit
 
-> **NEXT ACTION:** None — ALL V tasks complete (V1-V12). Remaining for the user: review + commit/push both repos (CI goes live on push); run the updated t/250 mirror on the rig Pi after installing RPi::I2C 3.1803; backlog B4-B6 (B4 croak-path pin; B5 Test::CheckManifest home; B6 drop the audit-confirmed-unneeded ppport.h include?).
-> **LAST SESSION:** 2026-07-07 — plan COMPLETED (V1-V12). V12 (was B3): RPi::PWM::PCA9685 compat vs 3.1803 confirmed no-op — zero changed-method call sites; sole write_block sends 4 bytes; general-call addr 0 preserved by V11; suite 33 tests green on rpi2 vs the 3.1803 blib (rpi2 clone fast-forwarded to b863cdb); PREREQ_PM floor stays 3.1801 (nothing needs 3.1803; it's unreleased). Earlier today: V1-V11 (see archive). Trees synced.
-> **ARCHIVE:** See rpi-i2c-fixes-archive.md for completed V tasks (V1-V12 — all)
+> **NEXT ACTION:** None — ALL V tasks complete (V1-V15); backlog fully drained (B1-B6 all promoted). For the user: V2-V12 are already committed+pushed as origin/master `01a7f20` (so the V6 CI is already live) — the only thing left to review/commit/push on the Mac is V13 (B4 croak-path test) + V15 (B6 ppport.h removal): `Changes`, `I2C.xs`, `MANIFEST`, deleted `ppport.h`, `t/10-validation.t`. Also: run the updated t/250 mirror on the rig Pi after installing RPi::I2C 3.1803. rpi2 is a content-synced test rig at `1d2d63f` (uncommitted mirror), not a commit location — leave its git state to the user.
+> **LAST SESSION:** 2026-07-07 — V15 (was B6): removed ppport.h from the dist. Self-audit re-confirmed "No need to include 'ppport.h'"; dropped the #include from I2C.xs + the MANIFEST line + deleted the file (both trees). rpi2/perlbrew rebuild WITHOUT ppport.h clean (0 warn/error, fresh I2C.c has 0 ppport refs); full RELEASE_TESTING green (5 files, 24 tests). Discovery: Mac HEAD `01a7f20` (the V2-V12 bundle) is already pushed to origin/master — CI already live; only V13+V15 uncommitted on the Mac. Earlier today: V14 (B5 release-host decision) + V13 (B4 croak-path pin) + plan V1-V12 (committed+pushed as 01a7f20; see archive).
+> **ARCHIVE:** See rpi-i2c-fixes-archive.md for completed V tasks (V1-V15 — all)
 
 Scope: the RPi::I2C distribution (`~/repos/rpi-i2c`, on both the Mac and rpi2).
 The review ran on rpi2 (current tree, commit `1d2d63f`, 3.1802 UNREL); the Mac
@@ -54,7 +54,7 @@ plan's F1; their F8 = this plan's F2; their B18 = executed here as V8.
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| — | _All V tasks complete (V1-V12) — see rpi-i2c-fixes-archive.md_ | | | |
+| — | _All V tasks complete (V1-V15) — see rpi-i2c-fixes-archive.md_ | | | |
 
 ## Discovery Tracking
 
@@ -72,7 +72,7 @@ not these.
 
 - **F3** (→V8): ✅ RESOLVED (V8) — `process($register_address, $value)` — POD says `process($value, [$reg])`; code order disagrees and skips the `_set_reg` default. In B18's scope but never pinned by a test. [fixed 2026-07-07 in 3.1803: ($value, [$reg]) + _set_reg default; NOW test-pinned in t/10 + t/250]
 
-- **F4** (→V2): ✅ RESOLVED (V2) — `I2C__readBlockData` XSUB falls through to `sv_setpvn(output, buf, ret)` when `ret == -1` — (STRLEN)-1 over-read; the preceding `if (ret == -1) RETVAL = ret;` doesn't stop execution. Unused by the .pm (read_block uses the I2C-block variant) but publicly callable. [croaks as of 2026-07-07; verified live on rpi2]
+- **F4** (→V2): ✅ RESOLVED (V2) — `I2C__readBlockData` XSUB falls through to `sv_setpvn(output, buf, ret)` when `ret == -1` — (STRLEN)-1 over-read; the preceding `if (ret == -1) RETVAL = ret;` doesn't stop execution. Unused by the .pm (read_block uses the I2C-block variant) but publicly callable. [croaks as of 2026-07-07; verified live on rpi2] [test-pinned in t/10 via V13 (was B4), 2026-07-07]
 
 - **F5** (→V3): ✅ RESOLVED (V3) — `new()` with an unopenable device path: `IO::File->new` returns undef, `bless $fh` dies "Can't bless non-reference value" — uninformative. [croaks "could not open $dev: $!" as of 2026-07-07; test-pinned]
 
@@ -100,11 +100,11 @@ B2 — ⬆ PROMOTED → V11 (2026-07-07); slot retired: Consider address-range v
 
 B3 — ⬆ PROMOTED → V12 (2026-07-07); slot retired: After the B18 contract changes ship, confirm RPi::PWM::PCA9685 compatibility and bump its PREREQ_PM floor if needed. (Expected no-op: it uses only read_byte/write_byte/read_block/write_block/write — none of the changed methods.)
 
-B4: Pin the V2 croak path in t/10-validation.t — `RPi::I2C::_readBlockData(-1, 0, $buf)` must die with "invalid return" (pre-V2 this exact call was the segfault landmine). Could ride along with V3's new HW-free tests.
+B4 — ⬆ PROMOTED → V13 (2026-07-07); slot retired: Pin the V2 croak path in t/10-validation.t — `RPi::I2C::_readBlockData(-1, 0, $buf)` must die with "invalid return" (pre-V2 this exact call was the segfault landmine).
 
-B5: Decide where release-time RELEASE_TESTING should run and durably install Test::CheckManifest there — absent on rpi2 (cpanm available at /usr/bin/cpanm); the Mac has 1.43 under perlbrew 5.36.0. Meanwhile a shim copy sits at rpi2:~/tmp-tcm/Test/CheckManifest.pm for `PERL5LIB=~/tmp-tcm` runs.
+B5 — ⬆ PROMOTED → V14 (2026-07-07); slot retired: Decide where release-time RELEASE_TESTING should run and durably install Test::CheckManifest there.
 
-B6: Per the ppport.h 3.68 self-audit ("No need to include 'ppport.h'"), I2C.xs uses no API requiring compat shims — consider removing the `#include "ppport.h"` from I2C.xs and dropping ppport.h from the dist (MANIFEST + git) entirely. Trivial change, but it alters the dist's file set; the regenerated 3.68 copy ships harmlessly meanwhile.
+B6 — ⬆ PROMOTED → V15 (2026-07-07); slot retired: Per the ppport.h 3.68 self-audit ("No need to include 'ppport.h'"), I2C.xs uses no API requiring compat shims — remove the `#include "ppport.h"` from I2C.xs and drop ppport.h from the dist (MANIFEST + git).
 
 ## Explicitly NOT doing
 
