@@ -1,5 +1,5 @@
 /*
- * examples/arduino.ino
+ * docs/sketch/arduino.ino
  *
  * Copyright (c) 2017 by Steve Bertrand
  *
@@ -95,7 +95,7 @@ void send_data (){
             int value = 1023;
             uint8_t buf[2];
 
-            // reverse endian so we're little on the way out, and separate the
+            // reverse endian so we're big on the way out, and separate the
             // 16-bit word
 
             buf[1] = value & 0xFF;
@@ -122,7 +122,7 @@ int read_analog (int pin){
 
     uint8_t buf[2];
 
-    // reverse endian so we're little endian going out
+    // reverse endian so we're big endian going out
 
     buf[1] = val & 0xFF;
     buf[0] = (val & 0xFF00) >> 8;
