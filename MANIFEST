@@ -119,6 +119,7 @@ t/309-board_tag.t
 t/335-lcd_i2c.t
 t/350-stepper.t
 t/351-stepper-seek.t
+t/352-steppermotor_unit.t
 t/355-mcp23017.t
 t/356-mcp23017_unit.t
 t/400-pwm_hw_mods.t

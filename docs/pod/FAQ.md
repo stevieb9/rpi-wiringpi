@@ -1573,6 +1573,7 @@ per-board suites.
     335-lcd_i2c.t                               I2C LCD via PCF8574 backpack                   RPI_BOARD_1   RPI_LCD_I2C
     350-stepper.t                               Stepper motor (timed limit switches)           RPI_BOARD_3   RPI_MCP23017, RPI_STEPPER
     351-stepper-seek.t                          StepperSeek homing unit (HW-free)              -             (none)
+    352-steppermotor_unit.t                     RPi::StepperMotor unit (HW-free)               -             (none)
     355-mcp23017.t                              MCP23017 GPIO expander                         RPI_BOARD_3   RPI_MCP23017
     356-mcp23017_unit.t                         MCP23017 unit (HW-free)                        -             (none)
     400-pwm_hw_mods.t                           HW PWM sweep (read via ADC)                    RPI_BOARD_2   RPI_ADC, RPI_I2C
