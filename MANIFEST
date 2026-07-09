@@ -116,6 +116,7 @@ t/306-sysinfo_file_system.t
 t/307-sysinfo_pi_details.t
 t/308-sysinfo_pi_model.t
 t/309-board_tag.t
+t/310-sysinfo_unit.t
 t/335-lcd_i2c.t
 t/350-stepper.t
 t/351-stepper-seek.t
