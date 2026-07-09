@@ -130,6 +130,7 @@ t/421-adc_gain.t
 t/422-adc_unit.t
 t/425-servo.t
 t/435-shift_reg_adc.t
+t/436-mcp3008_unit.t
 t/445-dpot.t
 t/446-dpot_unit.t
 t/500-oled_new.t

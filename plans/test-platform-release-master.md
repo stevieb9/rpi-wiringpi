@@ -1,8 +1,8 @@
 # Plan: Test platform completion + family-wide release readiness (MASTER)
 
-> **NEXT ACTION:** V10 — board-5 finish (remaining: sch-rev stamp/B22 + V33 canonical-sketch flash on the rig)
-> **LAST SESSION:** 2026-07-09 — executed V1/V2/V3/V34/V4/V5/V7/V9/V33; reconciled V8. V33: proved docs/sketch/arduino.ino canonical (protocol trace of t/605 + 9 rpi-i2c examples; rpi-i2c fork was a broken refactor); de-duped to one flat path, fixed endian comments, reconciled rpi-i2c fork → bodies byte-identical. **Uncommitted in ~/repos/rpi-wiringpi AND ~/repos/rpi-i2c — user commits.** Discovered: F2 looks already-resolved (rpi-i2c Changes now 3.1803 UNREL, not 2.3609) → for V26. **Rule: present point-form plan before executing any V task**
-> **ARCHIVE:** See test-platform-release-master-archive.md for completed V tasks (V1, V2, V3, V4, V5, V7, V8, V9, V33, V34)
+> **NEXT ACTION:** V13 — RPi::SPI HW-free coverage (in ~/repos/rpi-spi + mirror) — note RPi::SPI was reworked recently; re-verify the row first
+> **LAST SESSION:** 2026-07-09 — executed V1/V2/V3/V34/V4/V5/V7/V9/V33/V12; V8 + V10 closed; V11 retired (user owns board-1). V12: mcp3008 was heavily reworked (3.1802) — overtook most of V12 (F9 moot, GPIO-CS resolved, validation already covered); added the missing read-path HW-free coverage (dist t/06 + main mirror t/436, seam-stub) and FAQ regenerated. F9 re-homed to V13. **HEADS-UP: sub-dists are being actively reworked — ALWAYS re-verify each PC row against the current tree before planning (V12's description was largely stale).** **Uncommitted across ~/repos/rpi-wiringpi, rpi-eeprom-at24c32, rpi-i2c, rpi-adc-mcp3008 — user commits.** F2 looks resolved (rpi-i2c 3.1803 UNREL) → V26. **Rule: present point-form plan before executing any V task**
+> **ARCHIVE:** See test-platform-release-master-archive.md for completed V tasks (V1, V2, V3, V4, V5, V7, V8, V9, V10, V33, V34)
 
 ## Goal
 
@@ -181,10 +181,7 @@ Phases: P0 housekeeping · PH hardware · PC coverage (absorbed from test-covera
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V10 | **PH** — Board-5 finish: annotate the 4 `REF**` mounting holes, resolve HD44780_20x2-vs-20×4 spec mismatch (F6; user decides per physical panel), stamp the schematic title_block rev to match the PCB (sch currently UNSET vs PCB rev 1 — debate H10), verify/flash the rig Arduino with the V33 canonical sketch, DRC, plot gerbers, user blesses | kicad-cli DRC + `python3 scripts/helpers/check-board-locks.py` | DRC clean; gerbers exist; revs in lockstep; rig Arduino runs the canonical sketch; blessed; value matches the real panel | ⏳ (reconcile 2026-07-09: board-5 is blessed + gerbers + ordered, and F6 resolved to 20×4 — footprint value now `HD44780_20x4`. REMAINING: (1) schematic title-block rev still UNSET vs PCB rev 1 — the stamp step was skipped despite bless (B22); (2) V33 canonical-sketch flash still open (V33 ⏳, two sketch copies remain). Not closeable until both land.) |
-| V11 | **PH** — Board-1 design (the hub, last): schematic + PCB per proposal — Pi 40-pin header, power/signal fan-out to satellites (+5V/+3V3/GND rails ~1.1A peak, per-board +3V3 sense returns), I2C LCD (PCF8574 0x27 + BOB-12009), GPIO18 workhorse net kept high-impedance, GPIO17/27 fan to boards 3+5, GPIO23/24/25/0/1 test points; gerbers; add t/scripts/test_board_1.sh (F8); user blesses + orders | kicad-cli DRC + `bash t/scripts/test_board_1.sh` (on Pi) | Board-1 project complete + locked; runner exists; t/335 runs under it | ⏳ |
-| V12 | **PC** (was TCG V13) — RPi::ADC::MCP3008 HW-free: fetch input-range croak (0-15), percent math (÷1023, stubbed fetch), _channel undef die (wiringPi stub/load-guard — no env gate today); fix TCG F9 (spi_setup/wpi_setup exit(errno)→croak); note fetch GPIO-CS FIXME; decode → B-item | `cd ~/repos/rpi-adc-mcp3008 && make test` + mirror in t/ here | Validation covered HW-free; F9 fixed | ⏳ |
-| V13 | **PC** (was TCG V14) — RPi::SPI HW-free: _channel GPIO routing, _speed default + TCG F13 (explicit 0 → silently 1MHz), _cs round-trip, new/rw arg validation; stubbed spiDataRW for rw framing | `cd ~/repos/rpi-spi && make test` + mirror | Routing + validation covered; F13 fixed | ⏳ |
+| V13 | **PC** (was TCG V14) — RPi::SPI HW-free: _channel GPIO routing, _speed default + TCG F13 (explicit 0 → silently 1MHz), _cs round-trip, new/rw arg validation; stubbed spiDataRW for rw framing. **Also re-homed from V12: verify whether TCG F9 (spi_setup/wpi_setup exit(errno)→croak) still applies here — mcp3008 dropped those calls (replaced 3.1801, XS removed 3.1802), so if the defect survives it lives in RPi::SPI's setup path.** NOTE: RPi::SPI was reworked recently too (mcp3008 now delegates all SPI to it) — re-verify this row against the current tree before acting | `cd ~/repos/rpi-spi && make test` + mirror | Routing + validation covered; F13 fixed; F9 dispositioned | ⏳ |
 | V14 | **PC** (was TCG V15) — RPi::Serial HW-free: crc/crc16 vectors, tx frame+CRC order, rx reassembly + CRC-mismatch warn + pre-start discard, write undef croak + >255 wrap; TCG F14 (new() fd=-1 no croak; baud unvalidated) | `cd ~/repos/rpi-serial && make test` + mirror | Framing stack + validation covered; F14 fixed | ⏳ |
 | V15 | **PC** (was TCG V16) — RPi::StepperMotor HW-free via injected mock expander: cw/ccw patterns + wraps, _turns rounding, _pins/new croaks; fix TCG F10 (speed() inverted dead validation) | `cd ~/repos/rpi-steppermotor && make test` + mirror | Step logic covered; F10 fixed | ⏳ |
 | V16 | **PC** (was TCG V17) — RPi::HCSR04: fix TCG F11 (new() never blesses) + F12 (pin guard `&&`→`||` dead range check) with tests; un-gate 05-new.t validation; cm/inch math extraction → B-item | `cd ~/repos/rpi-hcsr04 && make test` | Real blessed object; live pin validation; tests off-board | ⏳ |
@@ -224,11 +221,11 @@ New findings from this session's research only (absorbed plans' ledgers live in 
 
 - **F5** (→V3): t/04-test-platform-model.t and docs/test-platform/README reference `kicad/legacy/`, which does not exist.
 
-- **F6** (→V10): Board-5's LCD1 value is `HD44780_20x2` but board-layout-proposal.md:217/:239 specify a 20×4 panel (pointer corrected per debate).
+- **F6** ✅ RESOLVED (V10, 2026-07-09): board-5's LCD1 footprint value is now `HD44780_20x4`, matching the proposal's 20×4 panel. Board is complete/blessed/ordered; user declared it finished. Original: LCD1 value was `HD44780_20x2` but board-layout-proposal.md:217/:239 specify a 20×4 panel.
 
 - **F7** ✅ RESOLVED (V5, 2026-07-09): the physical 0x48 part is a 12-bit **ADS1015** (HW-confirmed 2026-06-23). Bulk of the docs/code/POD ADS1115→ADS1015 correction shipped that day; V5 cleared the last residual miss — `t/421-adc_gain.t` TESTDOC (renumbered from t/142) + its two generated FAQ table lines (regenerated via gen-pod-md.pl). `t/` and `lib/` are now 100% ADS1015. **Deliberate split preserved (user-directed):** the frozen board-2 KiCad and the board-mirror helpers (board-model.py, model-from-tests.py, datasheet-pinouts.json, gen-pinout-images.py) keep "ADS1115" as the module-as-placed — so the goal is ADS1015 in all true prose, ADS1115 on board-mirror artifacts, NOT one name literally everywhere. Original: naming conflict — proposal/matrix/added-hardware say ADS1015; built board-2/FAQ/symbol said ADS1115; datasheet audit concluded 12-bit ADS1015.
 
-- **F8** (→V11): No t/scripts/test_board_1.sh despite board-1 having a gated test (t/335) and the FAQ referring to per-board runners.
+- **F8** ⏸ USER-OWNED (V11 retired 2026-07-09): No t/scripts/test_board_1.sh despite board-1 having a gated test (t/335) and the FAQ referring to per-board runners. Folds into the user's board-1 work (he handles all of board-1). If desired, the runner alone is a non-hardware sliver Claude could author from the test_board_{2..5}.sh pattern — ask.
 
 - **F9** (→V26): Main repo's 3.1803 UNREL section's early entries cite pre-renumber test filenames (t/321-rtc-bcd, t/140-pwm_spi_adc, …) that no longer exist — confusing for release notes.
 
@@ -256,7 +253,7 @@ B4: ✅ DONE (V7, 2026-07-09) — (TCG B5) rpi-eeprom-at24c32: dead _writeBlock 
 
 B5: (TCG B6) rpi-gpioexpander-mcp23017 — getFd/_establishI2C exit(-1) → croak.
 
-B6: (TCG B7) rpi-adc-mcp3008 — extract fetch's frame-build + 10-bit decode into a pure helper; add env gate.
+B6: (TCG B7) rpi-adc-mcp3008 — extract fetch's frame-build + 10-bit decode into a pure helper. NOTE (V12, 2026-07-09): the behavior is now covered HW-free via the _spi seam-stub (t/06 + main t/436), so the "add env gate" half is moot (no gate needed); the pure-helper extraction remains an optional refactor only.
 
 B7: (TCG B8) rpi-hcsr04 — extract pure raw→cm/inch conversion (divisor 58 vs 58.27, also DSA B3).
 
@@ -292,7 +289,7 @@ B20: UNWRAPPED.md roadmap — 69 of 107 WiringPi::API capabilities have no RPi::
 
 B21: Release-state check for the user's non-family prereqs (GPSD::Parse, IPC::Shareable) — confirm CPAN-current before wave 4.
 
-B22: Keep KiCad schematic title-block revs in lockstep with PCB revs at bless time. Live mismatches exist on LOCKED boards (board-2 sch UNSET vs PCB 4; board-5 sch UNSET vs PCB 1 — stamped in V4/V10; debate H10). Also extend scripts/unit_test_board_revisions.pl to flag a SET PCB rev with an UNSET schematic rev — today it only flags when both exist and differ, which is why these mismatches went unreported.
+B22: Keep KiCad schematic title-block revs in lockstep with PCB revs at bless time. Boards 2 and 5 ship with an UNSET schematic rev vs SET PCB rev (board-2 PCB 4; board-5 PCB 1) — **accepted as-is**: V4 and V10 both closed by user directive (boards complete + frozen; no edits to their design files), so these are NOT being stamped. The remaining actionable is the tooling fix: extend scripts/unit_test_board_revisions.pl to flag a SET PCB rev with an UNSET schematic rev (today it only flags when both exist and differ, which is why these went unreported) and apply lockstep at bless for any future board (board-1 is now user-owned — V11 retired — so the user applies it there).
 
 ## Explicitly NOT doing
 
@@ -302,4 +299,5 @@ B22: Keep KiCad schematic title-block revs in lockstep with PCB revs at bless ti
 - **Wrapping the 69 unwrapped API capabilities before the release train** — roadmap work (B20), not release-gating.
 - **Cloud CI (GitHub Actions)** — the project's CI is Test::BrewBuild on the Pi by design; the drift gates run in `make test`.
 - **rpi-i2c breaking API fixes inside the main train** (B15) — coordinated contract changes ship separately so the train stays low-risk.
+- **V11 board-1 design (retired 2026-07-09, slot never reused)** — user handles ALL board-1 (the hub) work himself: schematic, PCB, gerbers, bless, order. Not release-gating (design §: the rig works hubless — I2C pull-ups live on built board-3, GPIO18 already jumpers to board-2). F8's `t/scripts/test_board_1.sh` runner rides along as part of the user's board-1 ownership (see F8).
 - **Committing, blessing locked boards, ordering fab, or uploading to CPAN on Steve's behalf** — per git rules and lock workflow, every commit/bless/order/upload is his.
