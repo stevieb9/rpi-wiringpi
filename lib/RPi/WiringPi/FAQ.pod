@@ -1445,7 +1445,7 @@ per-board suites.
     410-dac.t                                   MCP4922 DAC (read via MCP3008)                 RPI_BOARD_2   RPI_MCP3008, RPI_MCP4922
     411-dac_unit.t                              MCP4922 DAC unit (HW-free)                     -             (none)
     420-adc_samples.t                           ADS samples() averaging                        -             RPI_ADC
-    421-adc_gain.t                              ADS1115 gain/PGA arg                           -             RPI_ADC, RPI_I2C, RPI_SUDO
+    421-adc_gain.t                              ADS1015 gain/PGA arg                           -             RPI_ADC, RPI_I2C, RPI_SUDO
     422-adc_unit.t                              RPi::ADC::ADS unit (HW-free)                   -             (none)
     425-servo.t                                 Servo HW PWM (read via ADC)                    RPI_BOARD_2   RPI_ADC, RPI_I2C, RPI_SERVO
     435-shift_reg_adc.t                         74HC595 shift reg (read via ADC)               RPI_BOARD_2   RPI_MCP3008, RPI_SHIFTREG
