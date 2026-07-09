@@ -1479,6 +1479,7 @@ per-board suites.
     605-i2c.t                                   I2C read/write (Arduino)                       RPI_BOARD_5   RPI_ARDUINO
     610-serial.t                                Serial loopback                                RPI_BOARD_5   RPI_SERIAL
     620-lcd.t                                   HD44780 LCD                                    RPI_BOARD_5   RPI_LCD
+    621-lcd_unit.t                              RPi::LCD unit (HW-free)                        -             (none)
     899-test_suite_cleanup.t                    Final meta/pin reset                           -             (none)
     900-pod_coverage.t                          POD coverage (author)                          -             RPI_RELEASE_TESTING
     905-pod_linkcheck.t                         POD link check (author)                        -             RPI_RELEASE_TESTING

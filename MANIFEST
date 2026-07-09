@@ -159,6 +159,7 @@ t/600-i2c_exceptions.t
 t/605-i2c.t
 t/610-serial.t
 t/620-lcd.t
+t/621-lcd_unit.t
 t/899-test_suite_cleanup.t
 t/900-pod_coverage.t
 t/905-pod_linkcheck.t
