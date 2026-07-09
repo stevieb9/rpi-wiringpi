@@ -681,6 +681,17 @@ the Pi. If this is the case, lower the I2C bus speed on the Pi:
 
     $device->write_block([1, 2, 3, 4]);
 
+=head2 Bus datasheet
+
+The Pi's I2C hardware is defined in the SoC peripherals manuals. On the
+Pi 1/2/3 and Zero the I2C master is the "BSC" (Broadcom Serial Controller)
+documented in the
+L<BCM2835 ARM Peripherals|https://datasheets.raspberrypi.com/bcm2835/bcm2835-peripherals.pdf>;
+the Pi 4 uses the
+L<BCM2711 peripherals|https://datasheets.raspberrypi.com/bcm2711/bcm2711-peripherals.pdf>;
+and on the Pi 5 the I2C controllers moved into the RP1 southbridge
+(L<RP1 peripherals|https://datasheets.raspberrypi.com/rp1/rp1-peripherals.pdf>).
+
 =head1 SERIAL BUS
 
 Allows you to perform basic read and write operations on a standard serial
@@ -747,6 +758,16 @@ usage instructions.
     my $dummy = [0x00, 0x00, 0x00];
 
     my @read_buf = $spi->rw($dummy, 3);
+
+=head2 Bus datasheet
+
+The Pi's SPI hardware is defined in the same SoC peripherals manuals: the
+SPI0 controller documented in the
+L<BCM2835 ARM Peripherals|https://datasheets.raspberrypi.com/bcm2835/bcm2835-peripherals.pdf>
+(Pi 1/2/3/Zero) and the
+L<BCM2711 peripherals|https://datasheets.raspberrypi.com/bcm2711/bcm2711-peripherals.pdf>
+(Pi 4), moving into the RP1 southbridge on the Pi 5
+(L<RP1 peripherals|https://datasheets.raspberrypi.com/rp1/rp1-peripherals.pdf>).
 
 =head1 ANALOG TO DIGITAL CONVERTERS (ADC)
 
