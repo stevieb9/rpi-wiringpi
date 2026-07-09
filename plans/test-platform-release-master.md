@@ -1,8 +1,8 @@
 # Plan: Test platform completion + family-wide release readiness (MASTER)
 
-> **NEXT ACTION:** V7 — rpi-eeprom-at24c32 1.00 residue (in ~/repos/rpi-eeprom-at24c32)
-> **LAST SESSION:** 2026-07-09 — executed V1/V2/V3/V34/V4/V5; reconciled V8/V9/V10; V34 committed+pushed by user. V5: cleared last ADS1115→ADS1015 doc miss (t/421 TESTDOC + regenerated FAQ); t/ and lib/ now 100% ADS1015; per user, board-mirror helpers + frozen board keep ADS1115 (deliberate split); F7 RESOLVED. **Working-session rule: present point-form plan before executing any V task**
-> **ARCHIVE:** See test-platform-release-master-archive.md for completed V tasks (V1, V2, V3, V4, V5, V8, V34)
+> **NEXT ACTION:** V9 — lock unification mechanism (%FROZEN derives from board-locks.json; gen-kicad refuses per it)
+> **LAST SESSION:** 2026-07-09 — executed V1/V2/V3/V34/V4/V5/V7; reconciled V8/V9/V10. V7 (non-HW half): removed dead _writeBlock + orphaned eeprom_close/eeprom_read_current_byte in ~/repos/rpi-eeprom-at24c32, added HW-free tests (t/10, 20 tests), Changes+MANIFEST; build+make test+author tests all green. **Uncommitted in that repo — user commits.** Silicon ACK-poll verification split to new V35 (board-4). B4 done. **Rule: present point-form plan before executing any V task**
+> **ARCHIVE:** See test-platform-release-master-archive.md for completed V tasks (V1, V2, V3, V4, V5, V7, V8, V34)
 
 ## Goal
 
@@ -181,7 +181,6 @@ Phases: P0 housekeeping · PH hardware · PC coverage (absorbed from test-covera
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V7 | **PH** — rpi-eeprom-at24c32 1.00 residue (debate H7b: the broken eeprom_write_block export was already REMOVED — Changes 1.00 UNREL, zero grep hits in AT24C32.xs): delete the dead static `_writeBlock` (AT24C32.xs:47), disposition the orphaned eeprom_read_current_byte/eeprom_close, add tests covering the 1.00 changes (TCG B5) | `cd ~/repos/rpi-eeprom-at24c32 && perl Makefile.PL && make test` | Residue cleared; 1.00 changes test-covered (HW-free harness or gated) | ⏳ |
 | V9 | **PH** — Lock unification (F3; DSA B5/F17), mechanism ONLY (debate H6 — blessing itself happens in V8/V10 where those boards close): board-locks.json becomes the single "off-limits" source — t/04 `%FROZEN` derives from it, gen-kicad.py refuses per it | `RPI_BOARD=1 prove -l t/04-test-platform-model.t` + `python3 scripts/helpers/check-board-locks.py` | One definition; a frozen-but-unblessed state is impossible by construction | ⏳ (reconcile 2026-07-09: F3's board-5 divergence is now moot — board-5 is blessed in board-locks.json — BUT V9's mechanism is still UNBUILT: t/04 `%FROZEN` remains a hardcoded hash (t/04:57-61), and gen-kicad.py:490 refuses by `os.path.exists`, not by the lock file. Single-source deliverable outstanding.) |
 | V33 | **PH** — Canonical Arduino 0x04 sketch (F11; row sits before V10 per the debate's "before V10 closes" — IDs stable, order meaningful): docs/sketch/arduino.ino and docs/sketch/arduino/arduino.ino ship as byte-identical duplicates (MANIFEST:46-47); ~/repos/rpi-i2c/examples/arduino.ino diverges functionally (`eeprom_save_byte(byte*)` vs `(byte)`, word endianness) and is NOT in rpi-i2c's MANIFEST beside 8 shipped examples/*.pl. Pick the canonical sketch, de-dup docs/sketch to one path (MANIFEST + FAQ.pod ~1500), reconcile or delete the rpi-i2c fork | diff the three copies; grep MANIFEST + FAQ.pod refs | One canonical sketch at one shipped path; rpi-i2c examples and t/605 presuppose the same wire behavior; rig-flash verification handled in V10/V28 | ⏳ |
 | V10 | **PH** — Board-5 finish: annotate the 4 `REF**` mounting holes, resolve HD44780_20x2-vs-20×4 spec mismatch (F6; user decides per physical panel), stamp the schematic title_block rev to match the PCB (sch currently UNSET vs PCB rev 1 — debate H10), verify/flash the rig Arduino with the V33 canonical sketch, DRC, plot gerbers, user blesses | kicad-cli DRC + `python3 scripts/helpers/check-board-locks.py` | DRC clean; gerbers exist; revs in lockstep; rig Arduino runs the canonical sketch; blessed; value matches the real panel | ⏳ (reconcile 2026-07-09: board-5 is blessed + gerbers + ordered, and F6 resolved to 20×4 — footprint value now `HD44780_20x4`. REMAINING: (1) schematic title-block rev still UNSET vs PCB rev 1 — the stamp step was skipped despite bless (B22); (2) V33 canonical-sketch flash still open (V33 ⏳, two sketch copies remain). Not closeable until both land.) |
@@ -207,6 +206,7 @@ Phases: P0 housekeeping · PH hardware · PC coverage (absorbed from test-covera
 | V30 | **PR** — Release wave 2: WiringPi::API 3.1804. Prep gains the six-site wiringpi.com → github.com/WiringPi/WiringPi sweep + an explicit install-≥3.18 pointer (API.pm:1922, 1926, 2516, 2572, 2652, 2825 — F13); user uploads; verify | metacpan + testers | Live + green; no defunct-domain links shipped | ⏳ |
 | V31 | **PR** — Release wave 3: the 18 leaf dists (debate H9: 20 sub-dists − const − api; rpi-i2c IS in the train — only its breaking changes defer to B15). Batch prep, one commit set per repo; user uploads in any order after waves 1-2 | family inventory rerun: CPAN == local everywhere | All 18 leaves live; zero UNREL sections left in leaves | ⏳ |
 | V32 | **PR** — Release wave 4: RPi::WiringPi 3.1803 (main, last): final regen_docs, MANIFEST check, verify every V26-raised floor is indexed on CPAN before upload, disttest on the Pi, user uploads; then watch CPAN testers across the family for a week; file any FAILs as new V rows | metacpan + testers matrix | Raised floors indexed; main live; family-wide testers PASS/NA only | ⏳ |
+| V35 | **PH** (USER hardware; board-4 connected — split out of V7 2026-07-09) — rpi-eeprom-at24c32 on-silicon verification: with the AT24C32 (0x57) live on board-4, verify the 1.00 **ACK-polling write cycle** (t_WR, doc0336 p.9) returns as soon as the chip ACKs (not a fixed sleep) and a write→read round-trip is correct. This is the gated hardware half V7 (HW-free) deliberately left. Can run in the same powered session as V23 (board-4 RTC/EEPROM depth) | on-Pi with board-4 wired: the RPI_EEPROM-gated integration path (main repo t/542/543 and/or a gated dist test) | ACK-poll timing + round-trip verified on real silicon | ⏳ |
 
 ## Discovery Tracking
 
@@ -254,7 +254,7 @@ B2: (TCG B2) rpi-adc-ads — expose pga_fsr + 12-vs-16-bit full-scale + VREF/per
 
 B3: (TCG B4/B11) cross-repo — split HW-free validation/math tests out of RPI_*/PI_TEST skip_all gates; add noboard/env gates to dists that have none (mcp3008, spi, bmp180, lcd, oled, hcsr04); reconcile gate-var names.
 
-B4: (TCG B5) rpi-eeprom-at24c32 — remove dead _writeBlock; wire or remove orphaned eeprom_read_current_byte/eeprom_close (partially handled in V7).
+B4: ✅ DONE (V7, 2026-07-09) — (TCG B5) rpi-eeprom-at24c32: dead _writeBlock removed; orphaned eeprom_read_current_byte/eeprom_close removed (user chose "delete both"); HW-free tests added (t/10-api_and_validation.t). Uncommitted in ~/repos/rpi-eeprom-at24c32.
 
 B5: (TCG B6) rpi-gpioexpander-mcp23017 — getFd/_establishI2C exit(-1) → croak.
 
