@@ -60,3 +60,4 @@ _restore_backup_*/
 *.drl
 gerber/
 gerber.zip
+.claude/
