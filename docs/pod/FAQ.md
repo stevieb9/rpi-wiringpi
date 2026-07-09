@@ -1516,8 +1516,9 @@ on via its convenience variable, `RPI_BOARD_X` (X = the board number). Setting
 that one variable automatically enables every per-device env gate that board's
 tests need, so you don't have to export each one (e.g. `RPI_RTC`, `RPI_BMP`,
 `RPI_EEPROM`, `RPI_OLED`) by hand. A `-` means the test isn't tied to a
-satellite board. See ["RUNNING TESTS"](#running-tests) rig runners under `t/scripts/` for the
-per-board suites.
+satellite board. The per-board rig runners under `t/scripts/` (present in the
+source repository, not the installed distribution) run each board's suite in
+order.
 
     Test file                                   What it tests                                  Test hardware Additional env vars
     ------------------------------------------- ---------------------------------------------- ------------- ---------------------------
@@ -1570,6 +1571,7 @@ per-board suites.
     307-sysinfo_pi_details.t                    SysInfo: board/OS details                      -             (none)
     308-sysinfo_pi_model.t                      SysInfo: Pi model                              -             (none)
     309-board_tag.t                             Board-family detection (rpi_board_tag)         -             (none)
+    310-sysinfo_unit.t                          RPi::SysInfo unit (HW-free)                    -             (none)
     335-lcd_i2c.t                               I2C LCD via PCF8574 backpack                   RPI_BOARD_1   RPI_LCD_I2C
     350-stepper.t                               Stepper motor (timed limit switches)           RPI_BOARD_3   RPI_MCP23017, RPI_STEPPER
     351-stepper-seek.t                          StepperSeek homing unit (HW-free)              -             (none)
@@ -1580,8 +1582,8 @@ per-board suites.
     405-pwm_i2c_adc.t                           PWM/I2C/ADC integration                        RPI_BOARD_2   RPI_ADC, RPI_I2C, RPI_SUDO
     410-dac.t                                   MCP4922 DAC (read via MCP3008)                 RPI_BOARD_2   RPI_MCP3008, RPI_MCP4922
     411-dac_unit.t                              MCP4922 DAC unit (HW-free)                     -             (none)
-    420-adc_samples.t                           ADS samples() averaging                        -             RPI_ADC
-    421-adc_gain.t                              ADS1015 gain/PGA arg                           -             RPI_ADC, RPI_I2C, RPI_SUDO
+    420-adc_samples.t                           ADS samples() averaging                        RPI_BOARD_2   RPI_ADC
+    421-adc_gain.t                              ADS1015 gain/PGA arg                           RPI_BOARD_2   RPI_ADC, RPI_I2C, RPI_SUDO
     422-adc_unit.t                              RPi::ADC::ADS unit (HW-free)                   -             (none)
     425-servo.t                                 Servo HW PWM (read via ADC)                    RPI_BOARD_2   RPI_ADC, RPI_I2C, RPI_SERVO
     435-shift_reg_adc.t                         74HC595 shift reg (read via ADC)               RPI_BOARD_2   RPI_MCP3008, RPI_SHIFTREG
@@ -1607,6 +1609,7 @@ per-board suites.
     531-bmp.t                                   BMP180 temp/pressure                           RPI_BOARD_4   RPI_BMP
     532-rtc-bcd.t                               DS3231 BCD encode/decode (HW-free)             -             (none)
     533-bmp180_unit.t                           RPi::BMP180 unit (HW-free)                     -             (none)
+    534-rtc_unit.t                              RPi::RTC::DS3231 unit (HW-free)                -             (none)
     540-eeprom_args.t                           EEPROM argument validation                     RPI_BOARD_4   RPI_EEPROM
     541-eeprom_read_write_byte_croak.t          EEPROM byte r/w error handling                 RPI_BOARD_4   RPI_EEPROM
     542-eeprom_read_write_byte.t                EEPROM byte read/write                         RPI_BOARD_4   RPI_EEPROM
@@ -1624,9 +1627,10 @@ per-board suites.
 
 ## Setup and configuration
 
-First off, please review the `docs/test-platform/README` file for the GPIO pins
-we use for the test physical configuration, and set up the Pi according to the
-[unit test diagram](https://stevieb9.github.io/rpi-wiringpi/breadboard/brewbuild_test_platform_bb.jpg).
+First off, please review `docs/test-platform/test-pinout-doc.md` for the full
+GPIO pin map, buses and loop-backs we use for the test physical configuration,
+and set up the Pi accordingly. The pin-by-pin
+`docs/test-platform/test-pinout-detail.jpg` image renders the same wiring.
 
 ### Base information
 

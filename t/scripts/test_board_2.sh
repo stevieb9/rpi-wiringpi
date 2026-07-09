@@ -2,11 +2,11 @@
 #
 # test_board_2 - run the board-2 hardware test suite, in order.
 #
-# Board 2 (analog loop-back + servo) is exercised by these six files. Exporting
+# Board 2 (analog loop-back + servo) is exercised by these eight files. Exporting
 # RPI_BOARD_2=1 auto-enables every env gate they need (see the BEGIN block at
 # the top of each file), so you don't have to set RPI_ADC / RPI_I2C / RPI_SUDO /
-# ... by hand. The sudo-requiring files (109/140/325) re-exec themselves under
-# sudo, so passwordless sudo must be configured.
+# ... by hand. The sudo-requiring files re-exec themselves under sudo, so
+# passwordless sudo must be configured.
 #
 # Serial only: the suite shares physical pins and one shared-memory segment, so
 # it must never run under prove's -j parallelism.
@@ -23,6 +23,8 @@ tests=(
     t/400-pwm_hw_mods.t
     t/405-pwm_i2c_adc.t
     t/410-dac.t
+    t/420-adc_samples.t
+    t/421-adc_gain.t
     t/425-servo.t
     t/435-shift_reg_adc.t
     t/445-dpot.t

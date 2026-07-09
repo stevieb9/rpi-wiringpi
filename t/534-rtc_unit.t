@@ -1,4 +1,4 @@
-# TESTDOC: RPi::RTC::DS3231 setter validation + temp conversion (HW-free)
+# TESTDOC: RPi::RTC::DS3231 unit (HW-free)
 use strict;
 use warnings;
 

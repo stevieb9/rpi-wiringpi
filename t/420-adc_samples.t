@@ -4,6 +4,18 @@ use warnings;
 
 use lib 't/';
 
+# Board-2 convenience: set RPI_BOARD_2=1 and every env gate the board-2 suite
+# needs is enabled automatically, instead of exporting each one by hand. Runs in
+# BEGIN so it lands before RPiTest's compile-time RPI_BOARD skip_all gate.
+BEGIN {
+    if ($ENV{RPI_BOARD_2}) {
+        $ENV{$_} = 1 for qw(
+            RPI_BOARD RPI_SUDO RPI_I2C RPI_ADC RPI_MCP3008
+            RPI_MCP4922 RPI_SERVO RPI_SHIFTREG RPI_DIGIPOT
+        );
+    }
+}
+
 use RPiTest;
 use RPi::WiringPi;
 use Test::More;
