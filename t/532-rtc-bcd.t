@@ -41,6 +41,23 @@ my $bcd2dec = \&RPi::RTC::DS3231::bcd2dec;
     is $dec2bcd->(12), 0x12, 'month/hour 12 encodes to BCD 0x12 (not raw 0x0C)';
 }
 
+{ # Each DS3231 time/date field at its documented maximum must encode to the
+  # expected BCD byte and round-trip (register map: seconds/minutes 00-59,
+  # hours 00-23, weekday 1-7, date 01-31, month 01-12, year 00-99).
+    my %max = (
+        'seconds 59' => [59, 0x59], 'minutes 59' => [59, 0x59],
+        'hours 23'   => [23, 0x23], 'weekday 7'  => [ 7, 0x07],
+        'date 31'    => [31, 0x31], 'month 12'   => [12, 0x12],
+        'year 99'    => [99, 0x99],
+    );
+
+    for my $field (sort keys %max){
+        my ($dec, $bcd) = @{ $max{$field} };
+        is $dec2bcd->($dec), $bcd, "field max: $field encodes to BCD " . sprintf('0x%02X', $bcd);
+        is $bcd2dec->($bcd), $dec, "field max: $field round-trips back to $dec";
+    }
+}
+
 { # 0..9 are identical raw and BCD -- this is why the bug stayed invisible
     for my $v (0 .. 9) {
         is $dec2bcd->($v), $v, "value $v is identical raw and BCD (bug hidden)";
