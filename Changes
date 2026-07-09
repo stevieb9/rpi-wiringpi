@@ -100,6 +100,8 @@ Revision history for Perl extension RPi::WiringPi.
       sections of the FAQ POD: the BCM2835 (Pi 1/2/3/Zero), BCM2711 (Pi 4)
       and RP1 (Pi 5) peripherals manuals, so the umbrella's bus overviews
       point at the hardware references that define the Pi's I2C/SPI blocks
+    - Added RPi::Accelerometer::ADXL335, RPi::Gyro::MPU6050 and
+      RPi::Radar::RCWL0516 (all 0.01) to PREREQ_PM
 
 3.1802     2026-06-12
     - bump prereq of RPi::I2C to 2.3608
