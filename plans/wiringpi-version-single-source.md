@@ -1,8 +1,8 @@
 # Plan: Single source of truth for the wiringPi version requirement
 
-> **NEXT ACTION:** V1 — write and run `perl scripts/audit-family-buildcheck.pl`
-> **LAST SESSION:** 2026-07-05 — outside this plan's V-flow, per direct user instruction: `WIRINGPI_MIN_VERSION` ('3.18', :wiringpi tag) added to RPi::Const 1.07; wiringpi-api + rpi-oled-ssd1306 Makefile.PLs now consume it (eval-require, 3.18 literal fallback — oled's stale 2.36 corrected); both dists' POD points at the constant; site catalog in `rpi-const/REQ.md`. See Discovery Tracking. V1-V8 (BuildCheck, tuple compare, audit gate) remain open.
-> **ARCHIVE:** See wiringpi-version-single-source-archive.md for completed V tasks
+> **NEXT ACTION:** _All V tasks (V1-V8) complete._ The wiringPi minimum is now single-sourced in `RPi::Const::WIRINGPI_MIN_VERSION`, enforced everywhere via `RPi::Const::BuildCheck`; no dist restates the literal. Remaining is Steve's alone: **release sequencing** — publish rpi-const 1.07 (ships the constant + BuildCheck) to CPAN FIRST, then the converted dists (their `CONFIGURE_REQUIRES` can't resolve otherwise), plus optional backlog B1-B6.
+> **LAST SESSION:** 2026-07-08 — V1-V8 DONE (see archive). V8: converted the last 6 XS dists (oled/dac/hcsr04/dht11 -> wiringpi shim; adc-ads/rtc-ds3231 -> i2c shim); discovered `rpi-eeprom-at24c32` bundles its own i2c-dev.h so needs NO guard (corrected V2, refined the audit's angle-vs-quote detection + drift labels); emptied the gate %TODO and reframed test 2 to assert full single-sourcing + a canonical-constant cross-check (gate 13 subtests). Final audit: 9 converted, 0 drift, 0 genuine guardless. V7: converted gpioexpander + rpi-i2c; found B6 (stray `<<<<<<< HEAD` in gpioexpander Changes — Steve fixed it). V6: single-sourced the prose. V5: drift gate. V4: wiringpi-api shim. V3: BuildCheck (F2/F3). V2: classified. V1: audit script.
+> **ARCHIVE:** See wiringpi-version-single-source-archive.md for completed V tasks (V1-V8)
 
 ## Goal
 
@@ -45,6 +45,55 @@ rpi-i2c, rpi-gpioexpander-mcp23017 and wiringpi-api are cloned locally; the
 rest live at `github.com/stevieb9/<slug>` (V1 fetches their Makefile.PLs —
 note the `gh` CLI token is currently invalid, so use
 `raw.githubusercontent.com` or local clones, not `gh`).
+
+### V2 classification — what each dist needs (2026-07-08, from the V1 audit)
+
+The family is now **23 dists** (the "20 dists" list above predates three
+pure-perl additions to this repo's PREREQ_PM: RPi::Accelerometer::ADXL335,
+RPi::Gyro::MPU6050, RPi::Radar::RCWL0516). **All 23 are cloned locally now** —
+the "only rpi-const / rpi-i2c / rpi-gpioexpander / wiringpi-api are local" note
+above is stale; V1 read every Makefile.PL from a local clone with zero fetches.
+
+Classified by what each dist's XS actually links/includes (Makefile.PL LIBS +
+`.xs` #includes), not by the guard it happens to carry today:
+
+| Dist | XS | Links / includes | NEEDS | Has now | V7/V8 action |
+|------|----|------------------|-------|---------|--------------|
+| wiringpi-api | yes | `-lwiringPi(Dev)`, wiringPi.h | wiringpi | wiringpi (canonical) | V4 reference shim |
+| rpi-oled-ssd1306 | yes | `-lwiringPi`, wiringPi.h + wiringPiI2C.h | wiringpi | wiringpi (canonical, via const) | convert to shim |
+| rpi-dac-mcp4922 | yes | `-lwiringPi`, wiringPi.h + wiringPiSPI.h | wiringpi | **NONE** | add wiringpi shim |
+| rpi-hcsr04 | yes | `-lwiringPi -lrt`, wiringPi.h | wiringpi | **NONE** | add wiringpi shim |
+| rpi-dht11 | yes | `-lwiringPi -lrt`, wiringPi.h | wiringpi | presence-only | upgrade to version shim |
+| rpi-gpioexpander-mcp23017 | yes | linux/i2c-dev.h + linux/i2c.h | i2c | i2c | convert to i2c shim |
+| rpi-adc-ads | yes | linux/i2c-dev.h (system) | i2c | **NONE** | add i2c shim |
+| rpi-rtc-ds3231 | yes | linux/i2c-dev.h + linux/i2c.h (system) | i2c | **NONE** | add i2c shim |
+| rpi-eeprom-at24c32 | yes | bundled i2c-dev.h + linux/fs.h | i2c | **NONE** | add i2c shim |
+| rpi-i2c | yes | bundled i2c-dev.h + linux/types.h | i2c | **NONE** | add i2c shim |
+| rpi-serial | yes | termios/fcntl/ioctl (POSIX) | none | none | none — standard-C XS, compiles anywhere |
+| rpi-sysinfo | yes | sys/sysinfo.h (standard C) | none | none | none — standard-C XS, compiles anywhere |
+| adc-mcp3008, accelerometer-adxl335, bmp180, const, digipot-mcp4xxxx, gyro-mpu6050, lcd, pin, radar-rcwl0516, spi, steppermotor (11) | no | pure perl (deps carry any guard) | none | none | none |
+
+**Refinement of V1's flags:** V1 marked 8 dists "GUARDLESS XS", but only **6
+actually need a guard** — `rpi-dac-mcp4922` + `rpi-hcsr04` (wiringpi) and
+`rpi-adc-ads` + `rpi-rtc-ds3231` + `rpi-eeprom-at24c32` + `rpi-i2c` (i2c).
+`rpi-serial` and `rpi-sysinfo` are XS but link nothing Pi-specific (pure POSIX /
+standard C), so they compile on any tester — guardless is fine; they need
+**none**. No dist needs **both**.
+
+**Conversion worklist (fixes V7/V8):**
+- **wiringpi shim:** rpi-dac-mcp4922, rpi-hcsr04 (add); rpi-dht11 (upgrade
+  presence -> version); rpi-oled-ssd1306 (already consumes the const — swap to
+  the shim); wiringpi-api is the V4 reference conversion.
+- **i2c shim:** rpi-adc-ads, rpi-rtc-ds3231, rpi-eeprom-at24c32, rpi-i2c (add);
+  rpi-gpioexpander-mcp23017 (convert its inline i2c check to the shim).
+- **none (leave as-is):** rpi-serial, rpi-sysinfo + the 11 pure-perl dists.
+- Because every family repo is now local, V7's local / V8's remote split
+  collapses — V8 no longer needs to clone anything; both just apply the shim
+  per this table.
+
+**The 2.36 paste** (F1) came from **rpi-oled-ssd1306**'s Makefile.PL — Fix 1
+(2026-07-05) already corrected it to 3.18 via RPi::Const, which is why V1 shows
+it canonical.
 
 ## Design (decisions)
 
@@ -103,14 +152,7 @@ note the `gh` CLI token is currently invalid, so use
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V1 | Write `scripts/audit-family-buildcheck.pl` — read-only reporter. Derives the family list from this repo's `PREREQ_PM` (RPi::\* + WiringPi::API), locates each dist's Makefile.PL (local clone at `~/repos/<slug>` first, else `raw.githubusercontent.com/stevieb9/<slug>/master/Makefile.PL`; small slug-exceptions hash for non-obvious repo names), and reports per dist: guard class (wiringpi / i2c / both / none), min version found, and drift vs canonical. `--markdown` emits a table | `perl scripts/audit-family-buildcheck.pl --markdown` | One row per family dist, no fetch errors; the 2.36-vs-3.18 drift and the guardless XS dists (e.g. rpi-i2c) are visible in the output | ⏳ |
-| V2 | Classify every dist from the V1 report: which check(s) does each need (wiringpi / i2c / both / none, based on what its XS actually links/includes)? Append the classification table + the V1 drift report to this plan under "Current known state", and identify which repo the user's 2.36 paste came from | manual review of V1 output + each dist's `LIBS`/`INC` | Every one of the 20 dists classified with rationale; conversion worklist for V7/V8 is fixed | ⏳ |
-| V3 | Implement `RPi::Const::BuildCheck` in `~/repos/rpi-const`: `$MIN_WIRINGPI_VERSION = 3.18`, `wiringpi_build_check()`, `i2c_build_check()`, integer tuple version compare, `RPI_DIST_RELEASE` bypass, exit-0 NA semantics; unit tests covering tuple compare (`3.8` fails a `3.18` minimum; `3.18` passes; `2.36` fails), unparseable `gpio -v` output → hard NA exit (not silent pass), bypass behavior; POD + Changes entry | `cd ~/repos/rpi-const && perl Makefile.PL && make test` | All tests pass on this mac (pure perl, no wiringPi needed — check functions are testable via injected paths/output) | ⏳ |
-| V4 | Reference conversion: replace `wiringpi-api/Makefile.PL`'s inline guard with the shim + `CONFIGURE_REQUIRES => { 'RPi::Const' => <new ver> }`; drop `use version;` | `cd ~/repos/wiringpi-api && PERL5LIB=~/repos/rpi-const/lib perl Makefile.PL; echo "exit=$?"` | On this mac (no wiringPi): message + exit 0, no Makefile written. With `RPI_DIST_RELEASE=1`: Makefile written. Final on-Pi pass/fail verification is Steve's, on the test platform | ⏳ |
-| V5 | Add author-side drift gate in this repo: `xt/author/buildcheck-audit.t` wraps the V1 script and fails on any dist whose guard drifts from canonical; unconverted dists sit in an explicit TODO list inside the test that shrinks as V7/V8 land | `cd ~/repos/rpi-wiringpi && prove -l xt/author/buildcheck-audit.t` | Passes with current TODO list; a simulated drift (edit a local clone's min ver) makes it fail | ⏳ |
-| V6 | Docs: update FAQ.pod's `RPI_DIST_RELEASE` section and WiringPi.pm's v3.18 prose (line ~717) to name `RPi::Const::BuildCheck` as the canonical minimum; add a FAQ entry "where is the required wiringPi version defined?"; regen derived docs | `perl scripts/gen-pod-md.pl && grep -rn 'BuildCheck' docs/pod/FAQ.md README.md` | Prose + generated md reference the single source; no stale standalone version claims left | ⏳ |
-| V7 | Convert remaining local clones per V2 classification: `rpi-gpioexpander-mcp23017` (i2c check → shim) and `rpi-i2c` (add missing guard via shim) | `for r in rpi-gpioexpander-mcp23017 rpi-i2c; do (cd ~/repos/$r && PERL5LIB=~/repos/rpi-const/lib perl Makefile.PL); done` | Both behave per their V2 class on this mac: exit-0 NA without headers, Makefile written with `RPI_DIST_RELEASE=1` | ⏳ |
-| V8 | Convert the remaining non-local family repos: clone each (worklist from V2) into `~/repos`, apply the shim per classification, rerun the audit | `perl scripts/audit-family-buildcheck.pl --markdown` | Every family dist reports "shim, canonical" — zero drift rows; V5's TODO list is emptied. Steve then releases rpi-const first, then the converted dists | ⏳ |
+| _(all V tasks complete — see archive)_ | | | | |
 
 ## Discovery Tracking
 
@@ -131,15 +173,15 @@ Defects found while researching this plan (the "issues like the paste"). Each ma
 
 - **F1** (→V1, V8): Minimum-version drift across copies — the pasted Makefile.PL requires `2.36`, `wiringpi-api` requires `3.18`; the other ~16 XS dists are unaudited and likely stale.
 
-- **F2** (→V3): Wrong version comparison semantics — `version->parse($version) < $min` treats `3.8` as v3.800.0 > v3.180.0, so a Pi running wiringPi 3.8 **passes** a 3.18 minimum. wiringPi minors are integers (3.8 is ten releases older than 3.18); same false-pass class for `2.5` vs `2.36`. Needs integer (major, minor) tuple compare.
+- **F2** (→V3): ✅ RESOLVED (V3) — Wrong version comparison semantics — `version->parse($version) < $min` treats `3.8` as v3.800.0 > v3.180.0, so a Pi running wiringPi 3.8 **passes** a 3.18 minimum. wiringPi minors are integers (3.8 is ten releases older than 3.18); same false-pass class for `2.5` vs `2.36`. Needs integer (major, minor) tuple compare. [Fixed in `RPi::Const::BuildCheck::version_ge()` — integer (major,minor) tuple compare, test-pinned (3.8/3.17/2.36 fail, 3.18/3.20/4.0 pass). The inline `version->parse` in wiringpi-api/oled is retired as those dists convert to the shim, V4/V7/V8.]
 
-- **F3** (→V3): Silent pass when `gpio -v` output doesn't match `/version:\s+(\d+\.\d+)/` — the inner `if` has no `else`, so an unparseable output skips version validation entirely and the build proceeds against a possibly-too-old library.
+- **F3** (→V3): ✅ RESOLVED (V3) — Silent pass when `gpio -v` output doesn't match `/version:\s+(\d+\.\d+)/` — the inner `if` has no `else`, so an unparseable output skips version validation entirely and the build proceeds against a possibly-too-old library. [Fixed in `RPi::Const::BuildCheck`: an unparseable or absent `gpio -v` now exits NA (not a silent pass), test-pinned. Retired from the inline guards as they convert, V4/V7/V8.]
 
-- **F4** (→V2, V7, V8): Guard coverage is inconsistent — `rpi-i2c` is XS with **no** guard (CPAN testers without headers get FAIL, not NA); `rpi-gpioexpander-mcp23017` checks only i2c.h; no record exists of which dist needs which check.
+- **F4** (→V2, V7, V8): ✅ RESOLVED (V7+V8) — Guard coverage is inconsistent — `rpi-i2c` is XS with **no** guard (CPAN testers without headers get FAIL, not NA); `rpi-gpioexpander-mcp23017` checks only i2c.h; no record exists of which dist needs which check. [V2 2026-07-08: the record now exists — the classification table in "Current known state" states each dist's needed check, refined the count of genuinely-guardless dists (rpi-serial/rpi-sysinfo are standard-C XS, not affected). V7 converted rpi-gpioexpander-mcp23017 + rpi-i2c; V8 converted rpi-oled-ssd1306, rpi-dac-mcp4922, rpi-hcsr04, rpi-dht11, rpi-adc-ads, rpi-rtc-ds3231. V8 also corrected the classification: rpi-eeprom-at24c32 bundles its own `i2c-dev.h` and needs NO guard (standard-C XS, like serial/sysinfo). Final audit: 9 converted, 0 drift, 0 genuine guardless-XS. Every XS dist that links wiringPi or includes a system i2c header now exits NA-not-FAIL through the canonical shim.]
 
-- **F5** (→V5): The duplication itself is structural — N hand-edited copies with no markers, no tooling, no drift detection, so divergence will recur without an audit gate.
+- **F5** (→V5): ✅ RESOLVED (V5) — The duplication itself is structural — N hand-edited copies with no markers, no tooling, no drift detection, so divergence will recur without an audit gate. [Fixed: `scripts/audit-family-buildcheck.pl` is the tooling and `xt/author/buildcheck-audit.t` is the drift gate — it fails on any non-canonical minimum (proven by a live injected-2.36 edit to a clone) and keeps an explicit TODO list of unconverted dists that must shrink as V7/V8 land.]
 
-- **F6** (→V6): Prose version references (WiringPi.pm "v3.18", README/docs copies, FAQ's `RPI_DIST_RELEASE` section) are hand-maintained in parallel with the code copies — another drift surface.
+- **F6** (→V6): ✅ RESOLVED (V6) — Prose version references (WiringPi.pm "v3.18", README/docs copies, FAQ's `RPI_DIST_RELEASE` section) are hand-maintained in parallel with the code copies — another drift surface. [Fixed: the prose now points at the single source rather than restating a literal — WiringPi.pm's v3.18 prose and FAQ.pod's `RPI_DIST_RELEASE` section name `RPi::Const/WIRINGPI_MIN_VERSION` + `RPi::Const::BuildCheck`, and a new FAQ entry documents where the version lives. Derived docs regenerated. B2 still tracks the deeper fix — interpolating `$MIN_WIRINGPI_VERSION` at regen time so even the "(currently 3.18)" parenthetical can't drift.]
 
 ## Backlog
 
@@ -150,6 +192,10 @@ B2: Interpolate the canonical minimum version into POD/README at regen time (ext
 B3: Broaden library discovery in `wiringpi_build_check()` — today only `/usr/include` and `/usr/local/include` are probed; consider `pkg-config`/`ldconfig` or a Devel::CheckLib-style compile-and-link probe.
 
 B4: Have Dist::Mgr template the shim into newly created RPi-family dists so future modules are born conformant.
+
+B5: rpi-bmp180 and rpi-digipot-mcp4xxxx are pure-perl (no XS) but their Makefile.PL still carries a vestigial `LIBS => ['-lwiringPi']` from a former XS incarnation. It's inert (nothing compiles or links, so it needs no guard), but misleading — drop the stale LIBS. Discovered during V5 (it briefly mis-flagged them as needing the wiringpi check).
+
+B6: ✅ DONE (Steve, 2026-07-08) — `rpi-gpioexpander-mcp23017/Changes` had a stray, committed `<<<<<<< HEAD` git conflict marker at line 7 (dangling — no matching `=======`/`>>>>>>>`, coherent entries on both sides). Discovered during V7; flagged to Steve, who removed the lone marker line.
 
 ## Explicitly NOT doing
 

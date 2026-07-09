@@ -120,7 +120,10 @@ Raspberry Pi board, its accessories and its GPIO pins via the
 module, and various other custom device specific  modules.
 
 [wiringPi](https://github.com/WiringPi/WiringPi) must be installed prior to installing/using
-this module (v3.18).
+this module. The required minimum version is the family-wide constant
+["WIRINGPI\_MIN\_VERSION" in RPi::Const](https://metacpan.org/pod/RPi%3A%3AConst#WIRINGPI_MIN_VERSION) (currently 3.18), enforced at build time by
+[RPi::Const::BuildCheck](https://metacpan.org/pod/RPi%3A%3AConst%3A%3ABuildCheck) in each distribution's `Makefile.PL` - so the
+minimum is defined in exactly one place.
 
 By default we use the `GPIO` (Broadcom (BCM) GPIO) pin numbering scheme;
 wiringPi's own (WPI) scheme is also available via `setup => 'wiringpi'`.

@@ -102,6 +102,12 @@ Revision history for Perl extension RPi::WiringPi.
       point at the hardware references that define the Pi's I2C/SPI blocks
     - Added RPi::Accelerometer::ADXL335, RPi::Gyro::MPU6050 and
       RPi::Radar::RCWL0516 (all 0.01) to PREREQ_PM
+    - Reworded the WiringPi.pm v3.18 prerequisite prose and the FAQ's
+      RPI_DIST_RELEASE section to point at the single-source constant
+      RPi::Const::WIRINGPI_MIN_VERSION, enforced by RPi::Const::BuildCheck,
+      rather than restating a literal minimum
+    - Added a FAQ entry, "Where is the required wiringPi version defined?",
+      documenting the single-source minimum and the family drift gate
 
 3.1802     2026-06-12
     - bump prereq of RPi::I2C to 2.3608
