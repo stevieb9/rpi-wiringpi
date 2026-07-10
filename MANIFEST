@@ -137,6 +137,7 @@ t/435-shift_reg_adc.t
 t/436-mcp3008_unit.t
 t/437-spi_unit.t
 t/438-serial_unit.t
+t/440-pca9685.t
 t/445-dpot.t
 t/446-dpot_unit.t
 t/500-oled_new.t
