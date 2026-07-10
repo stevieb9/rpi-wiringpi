@@ -3,13 +3,13 @@ Revision history for Perl extension RPi::WiringPi.
 3.1803 UNREL
     - Updated wiringPi documentation links from the defunct wiringpi.com to
       https://github.com/WiringPi/WiringPi
-    - Added t/321-rtc-bcd.t, a hardware-free exhaustive proof of the DS3231
+    - Added t/532-rtc-bcd.t, a hardware-free exhaustive proof of the DS3231
       BCD encoding requirement (runs without the chip)
-    - Expanded the raw-register BCD checks in t/320-rtc.t to the full month
+    - Expanded the raw-register BCD checks in t/530-rtc.t to the full month
       and 12-hour ranges, plus century / AM-PM / 12-24 bit preservation, as
       the on-silicon falsification for the DS3231 BCD fix (board 4)
-    - Added the missing t/321-rtc-bcd.t to the MANIFEST
-    - Renamed t/140-pwm_spi_adc.t to t/140-pwm_i2c_adc.t (the ADS1115 is an
+    - Added the missing t/532-rtc-bcd.t to the MANIFEST
+    - Renamed t/405-pwm_spi_adc.t to t/405-pwm_i2c_adc.t (the ADS1115 is an
       I2C part, not SPI), and replaced its magic pin-mode integers with the
       RPi::Const names: PWM_OUT to set, and the board-aware get_alt() readback
       (ALT3 on the Pi 5 / RP1, ALT5 on the legacy boards)
@@ -17,17 +17,17 @@ Revision history for Perl extension RPi::WiringPi.
       historical (Pi 3) windows were too tight for the Pi 5 / RP1, whose
       single-read ADC feedback is noisier; added an empirically sampled Pi 5
       window set (boards without a table fall back to the +/- tolerance model)
-    - Aligned t/109-pwm_hw_mods.t's root-env gating with t/140 so it no longer
+    - Aligned t/400-pwm_hw_mods.t's root-env gating with t/405 so it no longer
       self-skips under the sudo re-exec
-    - Fixed t/109-pwm_hw_mods.t on the Pi 5. Its RANGE-2000 (~50Hz, servo-rate)
+    - Fixed t/400-pwm_hw_mods.t on the Pi 5. Its RANGE-2000 (~50Hz, servo-rate)
       PWM makes a single ADC feedback read pure ripple (0..100); it now sweeps
       in steps and has percent() average SAMPLES conversions per point (the
       RPi::ADC::ADS 1.03 averaging feature), recovering the true duty to within
       ~1 point
-    - Added t/141-adc_samples.t, exercising the RPi::ADC::ADS samples()
+    - Added t/420-adc_samples.t, exercising the RPi::ADC::ADS samples()
       averaging feature through the $pi->adc integration path (mirrors that
       dist's t/55-samples.t); requires RPi::ADC::ADS 1.03
-    - Added t/142-adc_gain.t, verifying the ADS1115 gain => arg is applied via
+    - Added t/421-adc_gain.t, verifying the ADS1115 gain => arg is applied via
       $pi->adc (the RPi::ADC::ADS gain-constructor fix) and actuating the PGA
       on hardware: raw() rises with gain for a fixed PWM-derived input
     - Corrected stale "RPi::Pin 2.3609" references to the real prerequisite
@@ -39,7 +39,7 @@ Revision history for Perl extension RPi::WiringPi.
       constants the suite relies on (RPi::GPIOExpander::MCP23017 already
       requires 1.06)
     - Documented bmp()'s mandatory $pin_base parameter in the POD (it was
-      undocumented, though t/340 passes it)
+      undocumented, though t/531 passes it)
     - Corrected the board 4 DS3231 module (M1) pin map in board-4-model.py to the
       confirmed hardware silk (1:GND 2:VCC 3:SDA 4:SCL 5:SQW 6:32K; SQW/32K N/C)
       and re-scaffolded the board-4 KiCad project from it
