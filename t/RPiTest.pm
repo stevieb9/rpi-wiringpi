@@ -19,6 +19,8 @@ our @EXPORT = qw(
     rpi_multi_check
     rpi_i2c_check
     rpi_pwm_adc_window
+    rpi_servo_adc_mean
+    rpi_servo_adc_window
     rpi_running_test
     rpi_oled_available
     rpi_oled_unavailable
@@ -152,6 +154,89 @@ sub rpi_pwm_adc_window {
     $min = 0 if $min < 0;
 
     my $max = $duty + RPI_PWM_TOLERANCE;
+    $max = 100 if $max > 100;
+
+    return ($min, $max);
+}
+
+# Servo (GPIO18 PWM) -> ADS1015 (0x48) A0 feedback calibration, single-sourced
+# here so t/425-servo.t gates on real, empirically measured windows instead of
+# the vacuous +/-40 bound it historically carried.
+#
+# The ADS integration window (~8ms) is shorter than the 50Hz PWM period (20ms),
+# so a SINGLE feedback read is phase-dependent: it swings from 0 up to ~33 (the
+# fraction of the window a full high-pulse fills) regardless of servo position -
+# useless as a gate, since a severed line reading 0 sits inside every raw span.
+# The MEAN of RPI_SERVO_SAMPLES reads cancels the phase noise and tracks ideal
+# duty (pwm / range * 100) to within ~0.3 points, cleanly separating LEFT /
+# CENTRE / RIGHT. So the gate asserts the mean: a broken PWM->A0 path (mean
+# collapses to ~0) then falls outside the window and FAILS, as intended.
+#
+# %servo_adc_windows holds the calibrated mean windows per servo pwm level,
+# keyed by board family (measured on the pi5 / RP1 board-2 rig, no servo
+# attached - the ADC reads the GPIO18 line directly). For any uncalibrated
+# board/level, rpi_servo_adc_window() falls back to the ideal-duty model widened
+# by RPI_SERVO_TOLERANCE.
+
+use constant RPI_SERVO_RANGE     => 2000;
+use constant RPI_SERVO_SAMPLES   => 100;
+use constant RPI_SERVO_TOLERANCE => 3;
+
+my %servo_adc_windows = (
+    pi5 => {
+        60  => [1.5, 5.5],
+        150 => [5.5, 10.5],
+        255 => [10.5, 15.5],
+    },
+);
+
+sub rpi_servo_adc_mean {
+    my ($adc, $channel) = @_;
+
+    if (! defined $adc || ! ref $adc){
+        croak "rpi_servo_adc_mean() requires the \$adc param, and it must " .
+              "be an ADC object";
+    }
+
+    if (! defined $channel || $channel !~ /^\d+$/){
+        croak "rpi_servo_adc_mean() requires the \$channel param, and it " .
+              "must be an integer";
+    }
+
+    my $sum = 0;
+
+    for (1 .. RPI_SERVO_SAMPLES){
+        $sum += $adc->percent($channel);
+        select(undef, undef, undef, 0.01);
+    }
+
+    return $sum / RPI_SERVO_SAMPLES;
+}
+sub rpi_servo_adc_window {
+    my ($pwm) = @_;
+
+    if (! defined $pwm || $pwm !~ /^\d+$/){
+        croak "rpi_servo_adc_window() requires the \$pwm param, and it must " .
+              "be an integer";
+    }
+
+    my $board = rpi_board_tag();
+
+    if (exists $servo_adc_windows{$board}
+        && exists $servo_adc_windows{$board}{$pwm}){
+        return @{ $servo_adc_windows{$board}{$pwm} };
+    }
+
+    # Uncalibrated board/level: fall back to the ideal-duty model. The feedback
+    # mean tracks pwm / range * 100; widen by RPI_SERVO_TOLERANCE. Clamp the low
+    # bound at 0 (matches rpi_pwm_adc_window), so this fallback is a coarse
+    # sanity bound - the calibrated table above is the real regression gate.
+    my $duty = $pwm / RPI_SERVO_RANGE * 100;
+
+    my $min = $duty - RPI_SERVO_TOLERANCE;
+    $min = 0 if $min < 0;
+
+    my $max = $duty + RPI_SERVO_TOLERANCE;
     $max = 100 if $max > 100;
 
     return ($min, $max);
