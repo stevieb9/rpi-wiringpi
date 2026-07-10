@@ -125,6 +125,7 @@ t/353-a4988.t
 t/354-a4988_unit.t
 t/355-mcp23017.t
 t/356-mcp23017_unit.t
+t/357-gyro_deadband_unit.t
 t/400-pwm_hw_mods.t
 t/405-pwm_i2c_adc.t
 t/410-dac.t

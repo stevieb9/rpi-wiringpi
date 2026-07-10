@@ -1445,6 +1445,7 @@ order.
     354-a4988_unit.t                            RPi::StepperMotor::A4988 unit (HW-free)        -             (none)
     355-mcp23017.t                              MCP23017 GPIO expander                         RPI_BOARD_3   RPI_MCP23017
     356-mcp23017_unit.t                         MCP23017 unit (HW-free)                        -             (none)
+    357-gyro_deadband_unit.t                    RPi::Gyro::MPU6050::Deadband (HW-free)         -             (none)
     400-pwm_hw_mods.t                           HW PWM sweep (read via ADC)                    RPI_BOARD_2   RPI_ADC, RPI_I2C
     405-pwm_i2c_adc.t                           PWM/I2C/ADC integration                        RPI_BOARD_2   RPI_ADC, RPI_I2C, RPI_SUDO
     410-dac.t                                   MCP4922 DAC (read via MCP3008)                 RPI_BOARD_2   RPI_MCP3008, RPI_MCP4922

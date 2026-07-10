@@ -1521,7 +1521,7 @@ source repository, not the installed distribution) run each board's suite in
 order.
 
     Test file                                   What it tests                                  Test hardware Additional env vars
-    ------------------------------------------- ---------------------------------------------- ------------- ---------------------------
+    ------------------------------------------- ---------------------------------------------- ------------- -----------------------------------------------------------------------------------------------------------------------------------------
     00-load.t                                   Module loads (use_ok)                          -             (none)
     01-validate_test_suite_config.t             Reset meta/pins; validate config               -             (none)
     02-shm_key.t                                CRC32 shared-mem key                           -             (none)
@@ -1576,8 +1576,11 @@ order.
     350-stepper.t                               Stepper motor (timed limit switches)           RPI_BOARD_3   RPI_MCP23017, RPI_STEPPER
     351-stepper-seek.t                          StepperSeek homing unit (HW-free)              -             (none)
     352-steppermotor_unit.t                     RPi::StepperMotor unit (HW-free)               -             (none)
+    353-a4988.t                                 A4988 stepper driver (live GPIO readback)      -             RPI_A4988, RPI_A4988_DIR, RPI_A4988_ENABLE, RPI_A4988_MS1, RPI_A4988_MS2, RPI_A4988_MS3, RPI_A4988_RESET, RPI_A4988_SLEEP, RPI_A4988_STEP
+    354-a4988_unit.t                            RPi::StepperMotor::A4988 unit (HW-free)        -             (none)
     355-mcp23017.t                              MCP23017 GPIO expander                         RPI_BOARD_3   RPI_MCP23017
     356-mcp23017_unit.t                         MCP23017 unit (HW-free)                        -             (none)
+    357-gyro_deadband_unit.t                    RPi::Gyro::MPU6050::Deadband (HW-free)         -             (none)
     400-pwm_hw_mods.t                           HW PWM sweep (read via ADC)                    RPI_BOARD_2   RPI_ADC, RPI_I2C
     405-pwm_i2c_adc.t                           PWM/I2C/ADC integration                        RPI_BOARD_2   RPI_ADC, RPI_I2C, RPI_SUDO
     410-dac.t                                   MCP4922 DAC (read via MCP3008)                 RPI_BOARD_2   RPI_MCP3008, RPI_MCP4922
