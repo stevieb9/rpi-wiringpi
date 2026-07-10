@@ -115,6 +115,16 @@ Revision history for Perl extension RPi::WiringPi.
     - Added xt/author/min-version-doc-sync.t: fails if the committed prose
       minimum has drifted from the constant (bumped without re-running the
       generator)
+    - Bumped the RPi::I2C prerequisite floor to 3.1803 for the reworked I2C
+      API that t/250-i2c_unit.t asserts (7-bit address validation, read_bytes
+      accumulation, write_word/process value-first arg order, write_block
+      32-byte cap)
+    - Bumped every family prerequisite floor to its current release version so
+      the main dist requires exactly what the release train ships (RPi::ADC::ADS
+      1.04, RPi::Const 1.07, RPi::Pin 3.1803, WiringPi::API 3.1804, the 3.1802
+      leaf batch, RPi::EEPROM::AT24C32 1.00, RPi::RTC::DS3231 0.04, and the rest)
+    - Classified GPSD::Parse and IPC::Shareable as in-family prerequisites and
+      bumped their floors to the current repo versions (1.04 and 1.20)
 
 3.1802     2026-06-12
     - bump prereq of RPi::I2C to 2.3608
