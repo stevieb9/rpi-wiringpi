@@ -52,70 +52,145 @@ showing up.)
 | Heatsinks for the A4988s | thermal headroom at balancing currents | |
 | Jumper wire, screws (#4-40 per reference), zip ties | assembly | |
 
-## Proposed wiring / pinout (finalise at V7)
+## Wiring — exact connections (verified for THIS Pi 5 / RP1)
 
-BCM numbering. The A4988 driver takes its `pin()` objects from an `RPi::WiringPi`
-instance (its `new()` requires a `pi` object exposing `pin($n)`). MPU + ADS share
-the I2C bus.
+> **This is the solder-once map.** Pin assignments below were verified against the
+> live board (`pinctrl`, `dtoverlay -h pwm`, `config.txt`) on 2026-07-10 — every
+> control pin listed reads free, and the two STEP lines land on the **only** header
+> pins the RP1 can drive as hardware PWM. Solder to *these* and Architecture B works
+> without rework. BCM (GPIO) numbering throughout; physical header pin in parens.
 
-### I2C bus (shared)
+### The one rule that must not be broken
 
-| Signal | Pi pin | Device |
-|--------|--------|--------|
-| SDA | BCM 2 (phys 3) | MPU-6050 (0x68) + ADS1015 (0x48) |
-| SCL | BCM 3 (phys 5) | " |
-| 3V3 | 3V3 | MPU + ADS Vcc (3.3 V logic) |
-| GND | GND | common ground (Pi + drivers + pack must share GND) |
+The two **STEP** lines carry the hardware-PWM step clock (Architecture B). On the
+Pi 5 the RP1 exposes PWM on the 40-pin header at **only**:
 
-### A4988 — LEFT wheel (proposed GPIO)
+- **PWM0 → GPIO12** (phys 32) — `Alt0` / `func=4`
+- **PWM1 → GPIO13** (phys 33) — `Alt0` / `func=4`
 
-| A4988 pin | Pi BCM | Notes |
-|-----------|--------|-------|
-| STEP | 17 | pulse train (rate = speed) |
-| DIR | 27 | direction |
-| ENABLE | 22 | active-low; drop to kill motors (safety) |
-| MS1 / MS2 / MS3 | 5 / 6 / 13 | microstep select (all-or-none per the distro) |
-| RESET ↔ SLEEP | tie together, or to a GPIO | must be high to run |
-| VMOT / GND | pack + / GND | **100 µF cap across here** |
-| VDD / GND | 3V3 / GND | logic supply |
-| 1A/1B/2A/2B | NEMA17 (L) coils | verify coil pairs before power-up |
+(GPIO18/19 are the other option but are `Alt5`, shared with the onboard audio/I2S —
+avoid.) **Left STEP → GPIO12, Right STEP → GPIO13. No substitutions.** Everything
+else (DIR/EN/MS/RESET/SLEEP) is ordinary GPIO and can move; STEP cannot.
 
-### A4988 — RIGHT wheel (proposed GPIO)
+### Reserved pins we route around (already claimed on this Pi)
 
-| A4988 pin | Pi BCM | Notes |
-|-----------|--------|-------|
-| STEP | 23 | |
-| DIR | 24 | |
-| ENABLE | 25 | active-low |
-| MS1 / MS2 / MS3 | 12 / 16 / 20 | |
-| (RESET/SLEEP/VMOT/VDD/coils) | as left | separate 100 µF cap |
+I2C1 `GPIO2/3` · SPI0 `GPIO7–11` · UART0 `GPIO14/15` · 1-Wire `GPIO4` (w1-gpio).
+The map below avoids all of them.
 
-> The two MS triples can instead be tied to fixed levels (jumpers) if we don't
-> need software microstep changes — then pass the matching `mode` to the distro
-> so the step math stays correct. Decide at V3/V7.
+### I2C bus — MPU-6050 + ADS1015 (shared, bus `/dev/i2c-1`)
 
-### Battery sense (ADS1015)
+| Signal | Pi pin (phys) | To |
+|--------|---------------|----|
+| SDA1 | GPIO2 (phys 3) | MPU-6050 SDA **and** ADS1015 SDA |
+| SCL1 | GPIO3 (phys 5) | MPU-6050 SCL **and** ADS1015 SCL |
+| 3V3 | phys 1 | MPU Vcc + ADS Vdd (3.3 V logic) |
+| GND | phys 9 | MPU GND + ADS GND |
+| MPU `AD0` | → GND | selects address **0x68** |
+| ADS `ADDR` | → GND | selects address **0x48** |
+
+### A4988 — LEFT wheel
+
+| A4988 pin | Pi pin (phys) | Notes |
+|-----------|---------------|-------|
+| **STEP** | **GPIO12 (phys 32)** | **PWM0 — do not move** |
+| DIR | GPIO5 (phys 29) | direction |
+| ENABLE | GPIO6 (phys 31) | active-low; drive LOW = motor on, HIGH = off (safety kill) |
+| MS1 | GPIO16 (phys 36) | microstep select |
+| MS2 | GPIO20 (phys 38) | " |
+| MS3 | GPIO21 (phys 40) | " |
+| RESET **tied to** SLEEP | GPIO26 (phys 37) | one wire to both pads; must be HIGH to run |
+| VDD | 3V3 (phys 17) | logic supply |
+| GND (logic) | GND (phys 34) | |
+| VMOT | pack + | **100 µF cap VMOT→GND right here** |
+| GND (motor) | pack − | |
+| 1A / 1B | NEMA17-L coil A | one identified coil pair |
+| 2A / 2B | NEMA17-L coil B | the other coil pair |
+
+### A4988 — RIGHT wheel
+
+| A4988 pin | Pi pin (phys) | Notes |
+|-----------|---------------|-------|
+| **STEP** | **GPIO13 (phys 33)** | **PWM1 — do not move** |
+| DIR | GPIO23 (phys 16) | |
+| ENABLE | GPIO24 (phys 18) | active-low |
+| MS1 | GPIO17 (phys 11) | |
+| MS2 | GPIO22 (phys 15) | |
+| MS3 | GPIO27 (phys 13) | |
+| RESET **tied to** SLEEP | GPIO25 (phys 22) | |
+| VDD | 3V3 (phys 17) | shares the Pi 3V3 rail with the left driver |
+| VMOT / GND | pack + / − | **its own 100 µF cap** |
+| 1A/1B / 2A/2B | NEMA17-R coils | identify pairs (below) |
+
+Spare GPIO left over: GPIO18 (phys 12, only if audio disabled) and GPIO19 (phys 35).
+
+### Battery sense — ADS1015
 
 | Node | Connection |
 |------|------------|
-| Pack + → Rtop → sense node → Rbot → GND | classic divider |
-| sense node | ADS1015 AIN0 |
-| divider ratio | chosen so max pack voltage < ADS full-scale at the configured gain |
+| divider | pack + → **Rtop** → sense node → **Rbot** → GND |
+| sense node | ADS1015 **AIN0** |
+| ratio | pick so max pack (12.6 V) at the node stays under the ADS full-scale at the chosen gain (e.g. Rtop≈10 kΩ, Rbot≈2.2 kΩ → 12.6 V ⇒ ~2.28 V; verify against your gain setting) |
+
+## Config the pins need (apply at V1 — requires a reboot; documented now so it's ready)
+
+Add to `/boot/firmware/config.txt`:
+
+```
+# STEP clocks: PWM0 on GPIO12, PWM1 on GPIO13 (Alt0 = func 4)
+dtoverlay=pwm-2chan,pin=12,func=4,pin2=13,func2=4
+# Free both PWM channels from the onboard audio, which otherwise claims them
+dtparam=audio=off
+```
+
+I2C is already enabled (`dtparam=i2c_arm=on`). After reboot, expect a `pwmchip`
+under `/sys/class/pwm/` exporting 2 usable channels — that's what the V3 XS driver
+targets. *(This is a config step for V1/V7, not soldering — listed here so the
+electrical plan is complete.)*
 
 ## Power topology
 
 ```
-  3S LiPo (11.1–12.6 V) --+--> VMOT (both A4988s, each with 100 µF)
-                          |
-                          +--> 5 V buck --> Raspberry Pi 5 V
-                          |
-                          +--> divider --> ADS1015 AIN0 (telemetry)
+  3S LiPo (11.1–12.6 V) --+--> VMOT, LEFT A4988   (+ its own 100 µF cap)
+                          +--> VMOT, RIGHT A4988  (+ its own 100 µF cap)
+                          +--> 5 V buck --> Raspberry Pi 5V (phys 2/4)
+                          +--> Rtop/Rbot divider --> ADS1015 AIN0
 
-  All grounds common: pack GND == Pi GND == A4988 GND == ADS GND.
+  Logic 3V3 for both A4988 VDD comes from the Pi (phys 17), NOT the pack.
+  ALL grounds common: pack GND == Pi GND == both A4988 GND == ADS GND == MPU GND.
 ```
 
-- Set each A4988 **VREF current limit** to the NEMA17's 1.0 A/phase (or a touch
-  under) *before* the motor ever moves — this is a screwdriver + multimeter step,
-  not software.
-- Keep the motor rail and the Pi's 5 V physically separate downstream of the
-  pack; only grounds are common. Stepper current spikes must not brown out the Pi.
+## Solder-once checklist (do these in order)
+
+1. **Identify each NEMA17's coil pairs first.** With the motor unplugged, measure
+   resistance across wire pairs: the two wires that read a few ohms to each other
+   are one coil → `1A/1B`; the other pair → `2A/2B`. A wrong pairing makes the
+   motor buzz/lock instead of turn. (Wrong *direction* later is just a DIR flip in
+   software — don't rewire for that.)
+2. **Fit the 100 µF cap across each A4988's VMOT→GND before anything else**, right
+   at the driver. Observe polarity. Never connect/disconnect a motor with VMOT
+   live and no cap — the inductive spike kills A4988s.
+3. **Tie RESET to SLEEP** on each driver (a short solder bridge or a wire between
+   the two pads), then run one wire from that node to its GPIO. Both are active-low
+   and must sit HIGH to operate.
+4. Solder the logic lines per the tables (STEP/DIR/EN/MS + RESET-SLEEP), VDD to Pi
+   3V3, logic GND to Pi GND.
+5. **Set VREF (current limit) with the motors DISCONNECTED and VMOT powered.**
+   Target ≤ **1.0 A/phase** (the NEMA17 rating). Limit = `VREF / (8 × Rcs)` →
+   `VREF = I × 8 × Rcs`. **Rcs varies wildly between A4988 clones** (0.05 / 0.068 /
+   0.1 Ω) — read *your* carrier's sense-resistor value off the board before you
+   trust a number. Turn the pot, measure VREF pad to GND, dial it in, *then* power
+   off and connect the motors.
+6. Only after 1–5: bring up VMOT, confirm the Pi enumerates MPU (0x68) and ADS
+   (0x48) on `i2cdetect -y 1`, and you're ready for the V1 bench.
+
+- Keep the motor rail and the Pi 5 V physically separate downstream of the pack;
+  only grounds are common. Stepper current spikes must not brown out the Pi.
+
+## Microstepping — MS pins are GPIO-wired on purpose
+
+We route MS1/2/3 to GPIO (not fixed jumpers) so the microstep mode is
+software-selectable during V3/tuning without desoldering — higher microstepping is
+smoother but needs a higher step rate (harder on timing), so we want to sweep it,
+not commit now. If you'd rather save six wires, tie each MS triple to fixed levels
+per the A4988 truth table and pass the matching `mode` to `RPi::StepperMotor::A4988`
+so the degree math stays correct — but then the mode is frozen in copper.
