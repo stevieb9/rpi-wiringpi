@@ -16,6 +16,7 @@ various items
   - [dac](#dac)
   - [dpot($cs, $channel)](#dpotcs-channel)
   - [gps](#gps)
+  - [gyro(%args)](#gyroargs)
   - [hcsr04($trig, $echo)](#hcsr04trig-echo)
   - [hygrometer($pin)](#hygrometerpin)
   - [i2c($addr, \[$device\])](#i2caddr-device)
@@ -298,6 +299,41 @@ Returns a [GPSD::Parse](https://metacpan.org/pod/GPSD%3A%3AParse) object, allowi
 The GPS distribution requires `gpsd` to be installed and running. All
 parameters for the GPS can be sent in here and we'll pass them along. Please see
 the link above for the full documentation on that module.
+
+## gyro(%args)
+
+Returns an [RPi::Gyro::MPU6050](https://metacpan.org/pod/RPi%3A%3AGyro%3A%3AMPU6050) object for an MPU-6050 six-axis (accelerometer
+\+ gyroscope) IMU on the I2C bus. It reads tilt angle from gravity, angular rate
+from the gyroscope, and die temperature, with software gyro calibration and a
+deadband smoothing filter.
+
+All parameters are passed straight through to the driver's constructor; all are
+optional:
+
+    device => $str
+
+Optional, String: The I2C device path. Defaults to `/dev/i2c-1`.
+
+    addr => $int
+
+Optional, Integer: The I2C address, `0x68` (AD0 low, the default) or `0x69`
+(AD0 high).
+
+    accel_range => $int
+    gyro_range  => $int
+
+Optional, Integer: The full-scale accelerometer range (`2`, `4`, `8` or
+`16` g) and gyroscope range (`250`, `500`, `1000` or `2000` deg/s). Each
+defaults to the chip's most sensitive setting.
+
+    gyro_offsets => $href
+
+Optional, Hash Reference: Per-axis gyro zero-rate offsets (`{ x => ...,
+y => ..., z => ... }`), as produced by the driver's
+`calibrate_gyro`.
+
+See the linked documentation for the full method set, or the
+[RPi::WiringPi::FAQ](https://metacpan.org/pod/RPi%3A%3AWiringPi%3A%3AFAQ) for usage examples.
 
 ## hcsr04($trig, $echo)
 

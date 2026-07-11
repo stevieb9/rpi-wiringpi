@@ -201,6 +201,12 @@ sub gps {
     GPSD::Parse->import;
     return GPSD::Parse->new(%args);
 }
+sub gyro {
+    my ($self, %args) = @_;
+    require RPi::Gyro::MPU6050;
+    RPi::Gyro::MPU6050->import;
+    return RPi::Gyro::MPU6050->new(%args);
+}
 sub hcsr04 {
     my ($self, $t, $e) = @_;
     $self->pin($t, "HCSR04 Ultrasonic Distance Sensor Trigger");
@@ -920,7 +926,42 @@ Returns a L<GPSD::Parse> object, allowing you to track your location.
 The GPS distribution requires C<gpsd> to be installed and running. All
 parameters for the GPS can be sent in here and we'll pass them along. Please see
 the link above for the full documentation on that module.
- 
+
+=head2 gyro(%args)
+
+Returns an L<RPi::Gyro::MPU6050> object for an MPU-6050 six-axis (accelerometer
++ gyroscope) IMU on the I2C bus. It reads tilt angle from gravity, angular rate
+from the gyroscope, and die temperature, with software gyro calibration and a
+deadband smoothing filter.
+
+All parameters are passed straight through to the driver's constructor; all are
+optional:
+
+    device => $str
+
+Optional, String: The I2C device path. Defaults to C</dev/i2c-1>.
+
+    addr => $int
+
+Optional, Integer: The I2C address, C<0x68> (AD0 low, the default) or C<0x69>
+(AD0 high).
+
+    accel_range => $int
+    gyro_range  => $int
+
+Optional, Integer: The full-scale accelerometer range (C<2>, C<4>, C<8> or
+C<16> g) and gyroscope range (C<250>, C<500>, C<1000> or C<2000> deg/s). Each
+defaults to the chip's most sensitive setting.
+
+    gyro_offsets => $href
+
+Optional, Hash Reference: Per-axis gyro zero-rate offsets (C<< { x =E<gt> ...,
+y =E<gt> ..., z =E<gt> ... } >>), as produced by the driver's
+C<calibrate_gyro>.
+
+See the linked documentation for the full method set, or the
+L<RPi::WiringPi::FAQ> for usage examples.
+
 =head2 hcsr04($trig, $echo)
  
 Returns a L<RPi::HCSR04> ultrasonic distance measurement sensor object, allowing

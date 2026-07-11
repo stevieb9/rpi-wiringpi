@@ -77,14 +77,16 @@ RPi::WiringPi::FAQ - FAQ and Tutorial for RPi::WiringPi
   - [Usage](#usage-4)
 - [ULTRASONIC DISTANCE SENSOR](#ultrasonic-distance-sensor)
   - [Usage](#usage-5)
-- [REAL-TIME CLOCK](#real-time-clock)
+- [IMU / GYROSCOPE](#imu--gyroscope)
   - [Usage](#usage-6)
-- [OLED DISPLAY](#oled-display)
+- [REAL-TIME CLOCK](#real-time-clock)
   - [Usage](#usage-7)
-- [EEPROM](#eeprom)
+- [OLED DISPLAY](#oled-display)
   - [Usage](#usage-8)
-- [GPIO EXPANDERS](#gpio-expanders)
+- [EEPROM](#eeprom)
   - [Usage](#usage-9)
+- [GPIO EXPANDERS](#gpio-expanders)
+  - [Usage](#usage-10)
 - [SERVO](#servo)
   - [Description](#description-1)
   - [Example](#example)
@@ -1237,6 +1239,38 @@ through the [RPi::HCSR04](https://metacpan.org/pod/RPi%3A%3AHCSR04) distribution
     my $cm     = $sensor->cm;
     my $raw    = $sensor->raw;
 
+# IMU / GYROSCOPE
+
+We provide access to the `MPU-6050` six-axis (accelerometer + gyroscope) IMU
+through the [RPi::Gyro::MPU6050](https://metacpan.org/pod/RPi%3A%3AGyro%3A%3AMPU6050) distribution. It reports tilt angle from
+gravity, angular rate from the gyroscope, and die temperature over I2C.
+
+## Usage
+
+    my $mpu = $pi->gyro;    # I2C 0x68 on /dev/i2c-1 by default
+
+    my ($pitch, $roll) = $mpu->tilt;   # Degrees, from the accelerometer
+    my $rate = $mpu->gyro('z');        # Angular rate, deg/s, about Z
+    my $temp = $mpu->temp;             # Die temperature, celsius
+
+The gyro drifts, so zero it while the sensor is still, then reuse the offsets:
+
+    my $offsets = $mpu->calibrate_gyro(200);   # Average 200 still samples
+
+    my $mpu = $pi->gyro(gyro_offsets => $offsets);
+
+For a sensor that only reports when it has actually moved, wrap it in the
+deadband smoothing filter:
+
+    my $filter = $mpu->deadband(threshold => 1.0, window => 5);
+
+    if ($filter->update($mpu->gyro('z'))) {
+        # ...the rate moved beyond the noise band...
+    }
+
+The `addr` (`0x68` or `0x69`), `device`, `accel_range` and `gyro_range`
+parameters are all passed straight through - see the linked documentation.
+
 # REAL-TIME CLOCK
 
 We provide access to the `DS3231` and `DS1307` real-time clock modules (RTC)
@@ -1624,6 +1658,7 @@ order.
     355-mcp23017.t                              MCP23017 GPIO expander                                    RPI_BOARD_3   RPI_MCP23017
     356-mcp23017_unit.t                         MCP23017 unit (HW-free)                                   -             (none)
     357-gyro_deadband_unit.t                    RPi::Gyro::MPU6050::Deadband (HW-free)                    -             (none)
+    358-gyro.t                                  MPU-6050 IMU (live, over I2C)                             -             RPI_GYRO, RPI_GYRO_ADDR, RPI_GYRO_DEVICE
     400-pwm_hw_mods.t                           HW PWM sweep (read via ADC)                               RPI_BOARD_2   RPI_ADC, RPI_I2C
     405-pwm_i2c_adc.t                           PWM/I2C/ADC integration                                   RPI_BOARD_2   RPI_ADC, RPI_I2C, RPI_SUDO
     410-dac.t                                   MCP4922 DAC (read via MCP3008)                            RPI_BOARD_2   RPI_MCP3008, RPI_MCP4922

@@ -137,6 +137,13 @@ Revision history for Perl extension RPi::WiringPi.
       mirroring the dist's HW-free suite through a mock expander
     - Documented the stepper_motor() model parameter and the A4988 driver in
       the WiringPi.pm POD and the FAQ
+    - Added the gyro() accessor, returning an RPi::Gyro::MPU6050 object for an
+      MPU-6050 six-axis IMU on the I2C bus (tilt, angular rate, temperature)
+    - Added t/358-gyro.t, a live MPU-6050 integration test driven through
+      $pi->gyro (WHO_AM_I identity, ~1 g gravity vector, calibrated gyro rest,
+      temperature, and sleep/wake/reset register state; gated by RPI_GYRO)
+    - Documented the gyro() accessor and the MPU-6050 in the WiringPi.pm POD
+      and added an IMU / gyroscope section to the FAQ
 
 3.1802     2026-06-12
     - bump prereq of RPi::I2C to 2.3608
