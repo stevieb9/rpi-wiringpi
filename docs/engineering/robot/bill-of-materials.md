@@ -147,6 +147,12 @@ under `/sys/class/pwm/` exporting 2 usable channels — that's what the V3 XS dr
 targets. *(This is a config step for V1/V7, not soldering — listed here so the
 electrical plan is complete.)*
 
+> ⚠️ **This overlay regresses the shared `rpi-wiringpi` test suite** — see robot.md
+> Discovery Tracking **Fix 1**. It re-muxes GPIO12/13 off alt 31, which `t/107` and
+> `t/108` assert as the Pi-5 default, so those tests fail on 12/13 until `t/RPiTest.pm`
+> is made overlay-aware. Robot and test platform share THIS Pi, so this fires the
+> moment you reboot for V1.
+
 ## Power topology
 
 ```

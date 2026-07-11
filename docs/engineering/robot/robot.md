@@ -70,7 +70,7 @@ A stepper balancer needs a **fast, low-jitter** control loop *and* **continuous,
 
 ## Discovery Tracking
 
-_None yet._
+Fix 1: discovered during V1 prep — **the V1 prereq reboot regresses the shared `rpi-wiringpi` test suite.** The prereq `dtoverlay=pwm-2chan,pin=12,func=4,pin2=13,func2=4` re-muxes GPIO12/13 to the RP1 PWM funcsel at boot. The suite hard-codes (in `t/RPiTest.pm` `rpi_default_pin_config()`, pi5 branch) that pins 12/13 idle at **alt 31** ("no function"), and `rpi_check_pin_status()` — run **ungated** by `t/107-alt_modes.t` and `t/108-mode_state_all_pins.t`, plus the cleanup sweeps — asserts `get_alt(12)==31` / `get_alt(13)==31`. After the reboot those return the PWM funcsel, so **107/108 (and possibly 150-cleanup) fail on 12/13**. This bites because the robot and the test platform **share THIS Pi** (`bill-of-materials.md` "verified for THIS Pi 5"). Confirmed clean today: `pinctrl get 12,13,18` shows all three as `none`/31. **Pin 18 is unaffected** (BOM remaps PWM off the overlay's default 18/19; `audio=off` doesn't move 18 on Pi 5). Wiring the hardware alone is benign (A4988 inputs are hi-Z → mode checks unaffected; I2C pull-ups on 2/3 already assumed) — only the overlay breaks tests. **FIX:** make the pi5 branch of `rpi_default_pin_config()` overlay-aware — when `pwm-2chan` is active on 12/13, expect the PWM funcsel instead of 31, gated so non-overlay Pis still expect 31 (same per-board pattern already used for the pin-13 dpot / pin-12/26 CS special-cases). Cross-plan: the fix lives in the **test-platform-release-master** repo (`t/RPiTest.pm`); resolve alongside V1's reboot.
 
 ## Open decisions (resolve as they come up; defaults chosen so work isn't blocked)
 
