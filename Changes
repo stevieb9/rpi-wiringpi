@@ -152,6 +152,10 @@ Revision history for Perl extension RPi::WiringPi.
       through $pi->accelerometer over a real ADC (gated by RPI_ADXL335)
     - Documented the accelerometer() accessor and the ADXL335 in the
       WiringPi.pm POD and added an accelerometer section to the FAQ
+    - Documented in the FAQ that one expander object can be shared between
+      several devices (eg. two steppers) as long as each uses its own pins,
+      with a note on the concurrency caveat
+    - Fixed a broken L</adc> internal link in the FAQ accelerometer section
 
 3.1802     2026-06-12
     - bump prereq of RPi::I2C to 2.3608

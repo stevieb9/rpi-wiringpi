@@ -89,6 +89,7 @@ RPi::WiringPi::FAQ - FAQ and Tutorial for RPi::WiringPi
   - [Usage](#usage-10)
 - [GPIO EXPANDERS](#gpio-expanders)
   - [Usage](#usage-11)
+  - [Sharing one expander between devices](#sharing-one-expander-between-devices)
 - [SERVO](#servo)
   - [Description](#description-1)
   - [Example](#example)
@@ -1248,9 +1249,9 @@ We provide access to the `ADXL335` three-axis analog accelerometer through the
 tilt angle in degrees.
 
 The Pi has no analog inputs, so the sensor's three outputs (`XOUT`, `YOUT`,
-`ZOUT`) run through an ADC. Build the ADC first (see the ["adc"](#adc) examples
-above), then hand it to `accelerometer` along with the channel each axis is
-wired to.
+`ZOUT`) run through an ADC. Build the ADC first (see
+["ANALOG TO DIGITAL CONVERTERS (ADC)"](#analog-to-digital-converters-adc) above), then hand it to
+`accelerometer` along with the channel each axis is wired to.
 
 ## Usage
 
@@ -1398,6 +1399,23 @@ usage information.
     # Cleanup all pins and reset them to default before exiting your program
 
     $exp->cleanup;
+
+## Sharing one expander between devices
+
+A single expander object can drive several devices at once - for example two
+stepper motors - as long as each device uses its own pins. The object is just a
+handle to the chip: every pin operation reads the chip, changes only that pin's
+bit, and writes it back, so one device never disturbs another's pins.
+
+    my $exp = $pi->expander(0x20);
+
+    my $m1 = $pi->stepper_motor(model => 'A4988', expander => $exp, step => 0, dir => 1);
+    my $m2 = $pi->stepper_motor(model => 'A4988', expander => $exp, step => 2, dir => 3);
+
+If you drive the shared devices concurrently (from separate processes or
+threads), keep each on its own bank - pins `0-7` versus `8-15` - or serialise
+the writes, so two simultaneous updates to the same bank can't collide. Call the
+expander's own `cleanup` just once, after all its devices are done.
 
 # SERVO
 

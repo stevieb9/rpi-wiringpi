@@ -1108,9 +1108,9 @@ L<RPi::Accelerometer::ADXL335> distribution. It reports acceleration in g and
 tilt angle in degrees.
 
 The Pi has no analog inputs, so the sensor's three outputs (C<XOUT>, C<YOUT>,
-C<ZOUT>) run through an ADC. Build the ADC first (see the L</adc> examples
-above), then hand it to C<accelerometer> along with the channel each axis is
-wired to.
+C<ZOUT>) run through an ADC. Build the ADC first (see
+L</"ANALOG TO DIGITAL CONVERTERS (ADC)"> above), then hand it to
+C<accelerometer> along with the channel each axis is wired to.
 
 =head2 Usage
 
@@ -1258,6 +1258,23 @@ usage information.
     # Cleanup all pins and reset them to default before exiting your program
 
     $exp->cleanup;
+
+=head2 Sharing one expander between devices
+
+A single expander object can drive several devices at once - for example two
+stepper motors - as long as each device uses its own pins. The object is just a
+handle to the chip: every pin operation reads the chip, changes only that pin's
+bit, and writes it back, so one device never disturbs another's pins.
+
+    my $exp = $pi->expander(0x20);
+
+    my $m1 = $pi->stepper_motor(model => 'A4988', expander => $exp, step => 0, dir => 1);
+    my $m2 = $pi->stepper_motor(model => 'A4988', expander => $exp, step => 2, dir => 3);
+
+If you drive the shared devices concurrently (from separate processes or
+threads), keep each on its own bank - pins C<0-7> versus C<8-15> - or serialise
+the writes, so two simultaneous updates to the same bank can't collide. Call the
+expander's own C<cleanup> just once, after all its devices are done.
 
 =head1 SERVO
 
