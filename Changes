@@ -144,6 +144,14 @@ Revision history for Perl extension RPi::WiringPi.
       temperature, and sleep/wake/reset register state; gated by RPI_GYRO)
     - Documented the gyro() accessor and the MPU-6050 in the WiringPi.pm POD
       and added an IMU / gyroscope section to the FAQ
+    - Added the accelerometer() accessor, returning an
+      RPi::Accelerometer::ADXL335 object for an ADXL335 three-axis analog
+      accelerometer read through an injected ADC (acceleration in g, tilt)
+    - Added t/359-adxl335_unit.t, a hardware-free mirror of the dist's suite
+      driven through mock ADCs, and t/360-adxl335.t, a live ADXL335 test
+      through $pi->accelerometer over a real ADC (gated by RPI_ADXL335)
+    - Documented the accelerometer() accessor and the ADXL335 in the
+      WiringPi.pm POD and added an accelerometer section to the FAQ
 
 3.1802     2026-06-12
     - bump prereq of RPi::I2C to 2.3608

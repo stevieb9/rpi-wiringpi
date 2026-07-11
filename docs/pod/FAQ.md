@@ -77,16 +77,18 @@ RPi::WiringPi::FAQ - FAQ and Tutorial for RPi::WiringPi
   - [Usage](#usage-4)
 - [ULTRASONIC DISTANCE SENSOR](#ultrasonic-distance-sensor)
   - [Usage](#usage-5)
-- [IMU / GYROSCOPE](#imu--gyroscope)
+- [ACCELEROMETER](#accelerometer)
   - [Usage](#usage-6)
-- [REAL-TIME CLOCK](#real-time-clock)
+- [IMU / GYROSCOPE](#imu--gyroscope)
   - [Usage](#usage-7)
-- [OLED DISPLAY](#oled-display)
+- [REAL-TIME CLOCK](#real-time-clock)
   - [Usage](#usage-8)
-- [EEPROM](#eeprom)
+- [OLED DISPLAY](#oled-display)
   - [Usage](#usage-9)
-- [GPIO EXPANDERS](#gpio-expanders)
+- [EEPROM](#eeprom)
   - [Usage](#usage-10)
+- [GPIO EXPANDERS](#gpio-expanders)
+  - [Usage](#usage-11)
 - [SERVO](#servo)
   - [Description](#description-1)
   - [Example](#example)
@@ -1239,6 +1241,41 @@ through the [RPi::HCSR04](https://metacpan.org/pod/RPi%3A%3AHCSR04) distribution
     my $cm     = $sensor->cm;
     my $raw    = $sensor->raw;
 
+# ACCELEROMETER
+
+We provide access to the `ADXL335` three-axis analog accelerometer through the
+[RPi::Accelerometer::ADXL335](https://metacpan.org/pod/RPi%3A%3AAccelerometer%3A%3AADXL335) distribution. It reports acceleration in g and
+tilt angle in degrees.
+
+The Pi has no analog inputs, so the sensor's three outputs (`XOUT`, `YOUT`,
+`ZOUT`) run through an ADC. Build the ADC first (see the ["adc"](#adc) examples
+above), then hand it to `accelerometer` along with the channel each axis is
+wired to.
+
+## Usage
+
+    my $adc = $pi->adc(model => 'ADS1115');
+
+    my $accel = $pi->accelerometer(
+        adc => $adc,
+        x   => 0,      # XOUT on ADC channel 0
+        y   => 1,      # YOUT on channel 1
+        z   => 2,      # ZOUT on channel 2
+    );
+
+    my ($gx, $gy, $gz) = $accel->g;      # Acceleration, in g
+    my $gz = $accel->g('z');             # ...or a single axis
+
+    my ($pitch, $roll) = $accel->tilt;   # Tilt, in degrees
+
+Zero the sensor once while it's level and still, and the reading is corrected
+from then on:
+
+    $accel->calibrate;
+
+The `vs` (supply voltage), `vref`, `sensitivity` and `zero_g` parameters are
+all passed straight through - see the linked documentation.
+
 # IMU / GYROSCOPE
 
 We provide access to the `MPU-6050` six-axis (accelerometer + gyroscope) IMU
@@ -1659,6 +1696,8 @@ order.
     356-mcp23017_unit.t                         MCP23017 unit (HW-free)                                   -             (none)
     357-gyro_deadband_unit.t                    RPi::Gyro::MPU6050::Deadband (HW-free)                    -             (none)
     358-gyro.t                                  MPU-6050 IMU (live, over I2C)                             -             RPI_GYRO, RPI_GYRO_ADDR, RPI_GYRO_DEVICE
+    359-adxl335_unit.t                          RPi::Accelerometer::ADXL335 unit (HW-free)                -             (none)
+    360-adxl335.t                               ADXL335 accelerometer (live, through an ADC)              -             RPI_ADXL335, RPI_ADXL335_ADC, RPI_ADXL335_X, RPI_ADXL335_Y, RPI_ADXL335_Z
     400-pwm_hw_mods.t                           HW PWM sweep (read via ADC)                               RPI_BOARD_2   RPI_ADC, RPI_I2C
     405-pwm_i2c_adc.t                           PWM/I2C/ADC integration                                   RPI_BOARD_2   RPI_ADC, RPI_I2C, RPI_SUDO
     410-dac.t                                   MCP4922 DAC (read via MCP3008)                            RPI_BOARD_2   RPI_MCP3008, RPI_MCP4922

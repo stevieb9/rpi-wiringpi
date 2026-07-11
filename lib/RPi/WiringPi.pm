@@ -133,6 +133,12 @@ sub new {
 
     return $self;
 }
+sub accelerometer {
+    my ($self, %args) = @_;
+    require RPi::Accelerometer::ADXL335;
+    RPi::Accelerometer::ADXL335->import;
+    return RPi::Accelerometer::ADXL335->new(%args);
+}
 sub adc {
     my ($self, %args) = @_;
 
@@ -838,6 +844,62 @@ to false, no object or pin cleanup will take place at the end of a program run.
 Optional: Similar to C<rpi_register>, but only bypasses the pin registration.
 Object registration will still occur, and the object will be cleaned up after
 but the pins will not. Should only be used for testing.
+
+=head2 accelerometer(%args)
+
+Returns an L<RPi::Accelerometer::ADXL335> object for an ADXL335 three-axis
+analog accelerometer, reporting acceleration in g and tilt angle in degrees.
+
+The Pi has no analog inputs, so the sensor's three outputs go through an ADC.
+You build the ADC yourself (see L</adc>) and hand it in, along with the ADC
+channel each axis is wired to. All parameters are passed straight through to
+the driver's constructor:
+
+    adc => $object
+
+Mandatory, Object: An ADC object providing a C<volts()> or C<percent()> method,
+such as the one returned by L</adc>.
+
+    x => $int
+    y => $int
+    z => $int
+
+Mandatory, Integer: The ADC input channels wired to the sensor's C<XOUT>,
+C<YOUT> and C<ZOUT> pins.
+
+    vs => $num
+
+Optional, Number: The sensor's supply voltage, which sets the ratiometric
+sensitivity and the zero-g point. Defaults to C<3.3>.
+
+    vref => $num
+
+Optional, Number: The ADC's full-scale reference voltage, used to scale
+percent-only ADCs. Defaults to C<vs>.
+
+    sensitivity => $num
+    zero_g      => $href
+
+Optional: Override the volts-per-g sensitivity, or the per-axis zero-g voltage
+(C<< { x =E<gt> ..., y =E<gt> ..., z =E<gt> ... } >>, as produced by the
+driver's C<calibrate>).
+
+Example:
+
+    my $adc = $pi->adc(model => 'ADS1115');
+
+    my $accel = $pi->accelerometer(
+        adc => $adc,
+        x   => 0,
+        y   => 1,
+        z   => 2,
+    );
+
+    my ($gx, $gy, $gz) = $accel->g;      # Acceleration, in g
+    my ($pitch, $roll) = $accel->tilt;   # Tilt, in degrees
+
+See the linked documentation for the full method set, or the
+L<RPi::WiringPi::FAQ> for usage examples.
 
 =head2 adc
  
