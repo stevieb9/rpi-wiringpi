@@ -129,6 +129,8 @@ t/357-gyro_deadband_unit.t
 t/358-gyro.t
 t/359-adxl335_unit.t
 t/360-adxl335.t
+t/361-radar.t
+t/362-radar_unit.t
 t/400-pwm_hw_mods.t
 t/405-pwm_i2c_adc.t
 t/410-dac.t
@@ -144,6 +146,8 @@ t/438-serial_unit.t
 t/440-pca9685.t
 t/445-dpot.t
 t/446-dpot_unit.t
+t/447-tft_st7735s.t
+t/448-tft_st7735s_unit.t
 t/500-oled_new.t
 t/501-oled_string.t
 t/502-oled_rect.t

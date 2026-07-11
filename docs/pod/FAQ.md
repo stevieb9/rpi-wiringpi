@@ -77,18 +77,22 @@ RPi::WiringPi::FAQ - FAQ and Tutorial for RPi::WiringPi
   - [Usage](#usage-4)
 - [ULTRASONIC DISTANCE SENSOR](#ultrasonic-distance-sensor)
   - [Usage](#usage-5)
-- [ACCELEROMETER](#accelerometer)
+- [RADAR / MOTION SENSOR](#radar--motion-sensor)
   - [Usage](#usage-6)
-- [IMU / GYROSCOPE](#imu--gyroscope)
+- [ACCELEROMETER](#accelerometer)
   - [Usage](#usage-7)
-- [REAL-TIME CLOCK](#real-time-clock)
+- [IMU / GYROSCOPE](#imu--gyroscope)
   - [Usage](#usage-8)
-- [OLED DISPLAY](#oled-display)
+- [REAL-TIME CLOCK](#real-time-clock)
   - [Usage](#usage-9)
-- [EEPROM](#eeprom)
+- [OLED DISPLAY](#oled-display)
   - [Usage](#usage-10)
-- [GPIO EXPANDERS](#gpio-expanders)
+- [TFT DISPLAY](#tft-display)
   - [Usage](#usage-11)
+- [EEPROM](#eeprom)
+  - [Usage](#usage-12)
+- [GPIO EXPANDERS](#gpio-expanders)
+  - [Usage](#usage-13)
   - [Sharing one expander between devices](#sharing-one-expander-between-devices)
 - [SERVO](#servo)
   - [Description](#description-1)
@@ -170,6 +174,7 @@ In this document we use constants that are provided with the `:all` tag in
     EDGE_RISING  -  Triggers when a pin goes from LOW to HIGH
     EDGE_BOTH    -  Triggers when either of the above two states
     OLED         -  Organic Light Emitting Diode
+    TFT          -  Thin-Film-Transistor (colour LCD display)
     DPOT         -  Digital potentiometer
     ADC          -  Analog to digital converter (in)
     DAC          -  Digital to analog converter (out)
@@ -1242,6 +1247,24 @@ through the [RPi::HCSR04](https://metacpan.org/pod/RPi%3A%3AHCSR04) distribution
     my $cm     = $sensor->cm;
     my $raw    = $sensor->raw;
 
+# RADAR / MOTION SENSOR
+
+We provide access to the `RCWL-0516` microwave (doppler radar) motion sensor
+through the [RPi::Radar::RCWL0516](https://metacpan.org/pod/RPi%3A%3ARadar%3A%3ARCWL0516) distribution. Unlike the ultrasonic sensor,
+it doesn't measure distance - it drives a single `OUT` pin high while it
+detects movement, so it's read on one GPIO input.
+
+## Usage
+
+    my $radar = $pi->radar(pin => 26);      # OUT wired to GPIO 26
+
+    if ($radar->motion){
+        print "movement detected\n";
+    }
+
+    $radar->wait_for_motion;                # block until movement
+    $radar->wait_for_clear(10);             # then until clear, or 10s timeout
+
 # ACCELEROMETER
 
 We provide access to the `ADXL335` three-axis analog accelerometer through the
@@ -1344,6 +1367,35 @@ Please see its documentation for full usage information.
     $oled->display;
 
     $oled->clear;
+
+# TFT DISPLAY
+
+We provide access to colour TFT LCD displays. Currently, the 1.44" 128x128
+RGB panel driven by the ST7735S controller over SPI is available, and is
+brought in by the [RPi::TFT::ST7735S](https://metacpan.org/pod/RPi%3A%3ATFT%3A%3AST7735S) distribution. Please see its
+documentation for full usage information.
+
+Unlike the I2C OLED, the ST7735S writes straight to the panel over SPI with no
+in-memory framebuffer: every drawing call is pushed to the screen immediately,
+so there's no separate `display()` step. Colours are 16-bit RGB565.
+
+## Usage
+
+    my $tft = $pi->tft(
+        dc  => 25,      # D/C line
+        rst => 24,      # reset line (optional)
+        bl  => 23,      # backlight (optional)
+    );
+
+    $tft->clear;
+
+    $tft->fill_screen(0x001F);              # blue (RGB565)
+    $tft->rect(10, 10, 40, 30, 0xF800);     # X, Y, width, height, colour
+    $tft->line(0, 0, 127, 127, 0xFFFF);
+
+    $tft->string(6, 6, "hello, world!", 0xFFFF, 0x0000);  # X, Y, text, fg, bg
+
+    $tft->cleanup;
 
 # EEPROM
 
@@ -1716,6 +1768,8 @@ order.
     358-gyro.t                                  MPU-6050 IMU (live, over I2C)                             -             RPI_GYRO, RPI_GYRO_ADDR, RPI_GYRO_DEVICE
     359-adxl335_unit.t                          RPi::Accelerometer::ADXL335 unit (HW-free)                -             (none)
     360-adxl335.t                               ADXL335 accelerometer (live, through an ADC)              -             RPI_ADXL335, RPI_ADXL335_ADC, RPI_ADXL335_X, RPI_ADXL335_Y, RPI_ADXL335_Z
+    361-radar.t                                 RCWL-0516 radar motion sensor (live, through $pi->radar)  -             RPI_RADAR, RPI_RADAR_PIN
+    362-radar_unit.t                            RPi::Radar::RCWL0516 unit (HW-free)                       -             (none)
     400-pwm_hw_mods.t                           HW PWM sweep (read via ADC)                               RPI_BOARD_2   RPI_ADC, RPI_I2C
     405-pwm_i2c_adc.t                           PWM/I2C/ADC integration                                   RPI_BOARD_2   RPI_ADC, RPI_I2C, RPI_SUDO
     410-dac.t                                   MCP4922 DAC (read via MCP3008)                            RPI_BOARD_2   RPI_MCP3008, RPI_MCP4922
@@ -1731,6 +1785,8 @@ order.
     440-pca9685.t                               PCA9685 16-channel PWM (I2C register readback)            RPI_BOARD_1   RPI_PCA9685
     445-dpot.t                                  MCP4XXXX digital pot (read via ADC)                       RPI_BOARD_2   RPI_ADC, RPI_DIGIPOT
     446-dpot_unit.t                             MCP4XXXX digipot unit (HW-free)                           -             (none)
+    447-tft_st7735s.t                           ST7735S 128x128 SPI TFT display (live, through $pi->tft)  -             RPI_ST7735S, RPI_ST7735S_BL, RPI_ST7735S_CHANNEL, RPI_ST7735S_DC, RPI_ST7735S_RST
+    448-tft_st7735s_unit.t                      RPi::TFT::ST7735S unit (HW-free)                          -             (none)
     500-oled_new.t                              OLED object creation                                      RPI_BOARD_4   RPI_OLED
     501-oled_string.t                           OLED draw string                                          RPI_BOARD_4   RPI_OLED
     502-oled_rect.t                             OLED rectangle                                            RPI_BOARD_4   RPI_OLED
@@ -2051,13 +2107,18 @@ column unit, leave those last two digits off.
     RPI_SHIFTREG=1
     RPI_LCD=1
     RPI_OLED=1
+    RPI_ST7735S=1
     RPI_SERIAL=1
     RPI_HCSR04=0
     RPI_STEPPER=1
+    RPI_A4988=1
     RPI_SERVO=1
     BB_RPI_LCD=5,6,4,17,27,22,4,20
     RPI_RTC=1
     RPI_MCP23017=1
+    RPI_GYRO=1
+    RPI_ADXL335=1
+    RPI_RADAR=1
     RPI_MULTI=1
     RELEASE_TESTING=0
     GMAIL_ADDR=email@addr.com

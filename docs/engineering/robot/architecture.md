@@ -14,8 +14,8 @@ this document adapts it to a Raspberry Pi driven entirely by Perl and by our own
 | Drive | 2 motors + 2× A4988 | 2× **NEMA17** + 2× **A4988** via **`RPi::StepperMotor::A4988`** |
 | Angle | complementary filter (`0.9996`/`0.0004`) | complementary filter, ported — see [control-theory.md](control-theory.md) |
 | Control | PID P=15 I=1.5 D=30, clamp ±400 | same coefficients as a **starting point**, retuned on our platform |
-| Battery | analog pin + divider | **`RPi::ADC::ADS`** (ADS1015 @ 0x48) + divider |
 | Step timing | hardware timer ISR | **RP1 hardware PWM** as the step clock, driven from an XS layer (Pi 5; see the ladder below) |
+| Power/compute | onboard, battery | **off-robot & tethered** — Pi + bench supply reach the chassis over an umbilical; no battery (see [robot.md](robot.md)) |
 
 We keep the reference's control *math* (it's platform-independent) and its *sensor
 and driver ICs* (which we happen to own). What fundamentally differs is the
@@ -26,24 +26,31 @@ to one place: step-pulse generation.
 ## Block diagram
 
 ```
-                +-------------------- Raspberry Pi (Perl) --------------------+
+                +---------------- off-robot Raspberry Pi (Perl) --------------+
                 |                                                             |
    MPU-6050 --- I2C ---> RPi::Gyro::MPU6050 --> angle estimator (comp. filter)|
    (0x68)       |                                        |                    |
                 |                                         v                    |
-   ADS1015 ---- I2C ---> RPi::ADC::ADS ----> battery     PID controller       |
-   (0x48)       |        (pack voltage)      telemetry   (setpoint = upright) |
+                |                                  PID controller             |
+                |                                  (setpoint = upright)        |
                 |                                         |                    |
                 |                                         v                    |
                 |                              two-wheel drive module         |
                 |                              /                    \         |
                 |     RPi::StepperMotor::A4988 (L)      RPi::StepperMotor::A4988 (R)
                 +----------------|--------------------------------|-----------+
+                ================ | ====== umbilical / tether ===== | ==========
                             STEP/DIR/EN/MS                    STEP/DIR/EN/MS
                                  |                                |
                             A4988 (L) --coils--> NEMA17 (L)   A4988 (R) --coils--> NEMA17 (R)
-                                 \______________ VMOT (pack) ______________/
+                                 \__________ VMOT (bench supply) ___________/
 ```
+
+The MPU's I2C, both A4988s' STEP/DIR/EN/MS, and the 3V3 logic + VMOT rails **all
+cross the tether** — the entire chassis is passive silicon; the brain and the power
+are off-board. Keep the umbilical short (I2C/STEP integrity) and slack (no
+disturbance force); see [control-theory.md](control-theory.md) §4 and
+[bill-of-materials.md](bill-of-materials.md).
 
 Software layering (each layer only knows the one below it):
 
@@ -162,8 +169,10 @@ and the chosen rung back in this table** when V1 completes — left blank until 
 
 - **Tilt cutoff** (V9): past ±N° from upright the robot cannot recover — disable
   both A4988 `ENABLE` lines immediately rather than let the motors thrash.
-- **Low battery** (V6): a sagging pack both under-drives the motors and misleads
-  any voltage-referenced logic; surface a warning and a cutoff.
+- **Tether integrity**: the umbilical must hang slack — a taut or snagged cable
+  injects a disturbance force the controller can't distinguish from a real tilt.
+  Route it from above with strain relief; a yanked tether should trip the same
+  ENABLE-drop kill as a tilt cutoff.
 - **Integral windup**: clamp the PID integral and the total output (reference
   clamp ±400) so a stall doesn't accumulate an unrecoverable command.
 - **Clean disable on exit**: any controlled shutdown drops `ENABLE` so the robot

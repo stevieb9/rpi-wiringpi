@@ -12,9 +12,8 @@ still has to be **procured**. Pinout is a starting proposal to finalise at V7.
 |------|-------|-----------------------|------------|
 | NEMA17 Stepper Motor Kit | **6** | 1.0 A/phase, 33 N·cm holding, 1.8°/step (200 steps/rev), bipolar; ~2.8 V rated coil | 2 used — the two wheels |
 | A4988 Stepper Driver Carrier | **10** | Allegro A4988, up to ~2 A/coil w/ cooling, MS1–3 microstep select, VREF current limit; 8–35 V VMOT, 3–5.5 V logic | 2 used — one driver per wheel |
-| ADS1015 ADC | 1 (board-2 device) | 12-bit I2C ADC @ 0x48 | battery pack voltage sense |
 | MPU-6050 | (drives `RPi::Gyro::MPU6050`) | 6-axis accel+gyro, I2C 0x68/0x69 | the balance sensor |
-| Raspberry Pi | this host family | — | the brain (runs the Perl) |
+| Raspberry Pi | this host family | — | the brain — **off-robot**, drives the chassis over the tether |
 
 > The inventory lists **6 motors and 10 drivers** — plenty of spares for bench
 > work, and headroom to break one without stalling the project.
@@ -26,10 +25,9 @@ still has to be **procured**. Pinout is a starting proposal to finalise at V7.
 | `RPi::Gyro::MPU6050` | 0.01 | **No** — connect here | tilt + angular rate |
 | `RPi::StepperMotor::A4988` | 0.01 | **No** — connect + extend (V3) | wheel drivers |
 | `RPi::Accelerometer::ADXL335` | 0.01 | **No** | optional redundant tilt (backlog B1) |
-| `RPi::ADC::ADS` | 1.04 | yes | battery telemetry |
 | `RPi::WiringPi` | 3.1803 | yes | board/GPIO umbrella (provides `pin()` for A4988) |
 | `RPi::Pin` | 3.1803 | yes | per-pin objects |
-| `RPi::I2C` | 3.1803 | yes | I2C bus (MPU + ADS) |
+| `RPi::I2C` | 3.1803 | yes | I2C bus (MPU) |
 | `RPi::Const` | 1.07 | yes | HIGH/LOW/mode constants |
 
 The three "No" rows are the distributions we built but never connected — the
@@ -41,13 +39,14 @@ showing up.)
 
 | Part | Why | Notes |
 |------|-----|-------|
-| **Chassis** — 2 plywood/acrylic tiers + 4× ¼" threaded rod + standoffs | frame for the inverted pendulum | reference used plywood for vibration damping; keep CoM high for a gentler, slower fall |
+| **Chassis** — 2× 3/8″ plywood tiers + 4× 3/16″ threaded rod + standoffs/nuts | frame for the inverted pendulum | build to the CoM/ballast spec in [control-theory.md](control-theory.md) §4 (~25 cm rod; rods in a wide rectangle for mast rigidity) |
+| **~300 g ballast** — steel plate or stacked washers/nuts on the rod studs | raise CoM to ≈10 cm — **mandatory** (nothing heavy up top without a battery) | tunable during V8: add/remove washers; leave ~3–4 cm spare stud |
 | **2× wheels + motor hubs** (5 mm bore for NEMA17 shaft) | the actual wheels | rubber-tyred for traction |
 | **L-brackets / NEMA17 mounts (×2)** | fix motors low on the frame | |
-| **Battery — 3S LiPo (11.1–12.6 V)** + connector/strap | VMOT for the steppers | sized above the ~2.8 V rated coil; A4988 current-limits |
-| **5 V buck / BEC** | Pi supply from the pack | Pi needs a clean 5 V, separate from motor rail |
-| **2× resistors for a voltage divider** | scale pack V into the ADS1015's input range | pick ratio so full pack < ADS FSR at the chosen gain |
-| **Dot/proto PCB + headers** | solder the driver + divider (reference dropped breadboards — vibration) | |
+| **Front + back extender poles** (~2″ outriggers), mounted **LOW** | self-park + auto-erect: park the robot at a small lean *inside the capture envelope*, and act as bi-directional fall-stops | mount near ground & reach out so the rest lean is ~10° (not ~40° at axle height); see [control-theory.md](control-theory.md) §6; set geometry against the V8-measured envelope |
+| **Umbilical/tether cable + strain relief** | carries VMOT + logic 3V3 + I2C + STEP/DIR/EN/MS from the off-robot Pi & bench supply | gauge the motor pair for stepper current; keep it separated from the I2C/STEP lines; keep short (≤ ~50 cm) for signal integrity |
+| **Bench DC supply (~12 V)** for VMOT | motor rail over the tether | replaces the on-robot LiPo; regulated + current-limited |
+| **Dot/proto PCB + headers** | solder the two A4988s + MPU breakout onto the frame (reference dropped breadboards — vibration) | |
 | **2× ~100 µF caps across VMOT** | protect each A4988 from LC voltage spikes | **required by the A4988** — never hot-plug VMOT without it |
 | Heatsinks for the A4988s | thermal headroom at balancing currents | |
 | Jumper wire, screws (#4-40 per reference), zip ties | assembly | |
@@ -77,16 +76,18 @@ else (DIR/EN/MS/RESET/SLEEP) is ordinary GPIO and can move; STEP cannot.
 I2C1 `GPIO2/3` · SPI0 `GPIO7–11` · UART0 `GPIO14/15` · 1-Wire `GPIO4` (w1-gpio).
 The map below avoids all of them.
 
-### I2C bus — MPU-6050 + ADS1015 (shared, bus `/dev/i2c-1`)
+### I2C bus — MPU-6050 (bus `/dev/i2c-1`, over the tether)
 
 | Signal | Pi pin (phys) | To |
 |--------|---------------|----|
-| SDA1 | GPIO2 (phys 3) | MPU-6050 SDA **and** ADS1015 SDA |
-| SCL1 | GPIO3 (phys 5) | MPU-6050 SCL **and** ADS1015 SCL |
-| 3V3 | phys 1 | MPU Vcc + ADS Vdd (3.3 V logic) |
-| GND | phys 9 | MPU GND + ADS GND |
+| SDA1 | GPIO2 (phys 3) | MPU-6050 SDA |
+| SCL1 | GPIO3 (phys 5) | MPU-6050 SCL |
+| 3V3 | phys 1 | MPU Vcc (3.3 V logic) |
+| GND | phys 9 | MPU GND |
 | MPU `AD0` | → GND | selects address **0x68** |
-| ADS `ADDR` | → GND | selects address **0x48** |
+
+*(The ADS1015 @ 0x48 is a board-2 device already on this shared bus, not part of the
+robot — the robot no longer uses it. See robot.md "Explicitly NOT doing".)*
 
 ### A4988 — LEFT wheel
 
@@ -101,8 +102,8 @@ The map below avoids all of them.
 | RESET **tied to** SLEEP | GPIO26 (phys 37) | one wire to both pads; must be HIGH to run |
 | VDD | 3V3 (phys 17) | logic supply |
 | GND (logic) | GND (phys 34) | |
-| VMOT | pack + | **100 µF cap VMOT→GND right here** |
-| GND (motor) | pack − | |
+| VMOT | supply +12 V | **100 µF cap VMOT→GND right here** |
+| GND (motor) | supply GND | |
 | 1A / 1B | NEMA17-L coil A | one identified coil pair |
 | 2A / 2B | NEMA17-L coil B | the other coil pair |
 
@@ -118,18 +119,10 @@ The map below avoids all of them.
 | MS3 | GPIO27 (phys 13) | |
 | RESET **tied to** SLEEP | GPIO25 (phys 22) | |
 | VDD | 3V3 (phys 17) | shares the Pi 3V3 rail with the left driver |
-| VMOT / GND | pack + / − | **its own 100 µF cap** |
+| VMOT / GND | supply +12 V / GND | **its own 100 µF cap** |
 | 1A/1B / 2A/2B | NEMA17-R coils | identify pairs (below) |
 
 Spare GPIO left over: GPIO18 (phys 12, only if audio disabled) and GPIO19 (phys 35).
-
-### Battery sense — ADS1015
-
-| Node | Connection |
-|------|------------|
-| divider | pack + → **Rtop** → sense node → **Rbot** → GND |
-| sense node | ADS1015 **AIN0** |
-| ratio | pick so max pack (12.6 V) at the node stays under the ADS full-scale at the chosen gain (e.g. Rtop≈10 kΩ, Rbot≈2.2 kΩ → 12.6 V ⇒ ~2.28 V; verify against your gain setting) |
 
 ## Config the pins need (apply at V1 — requires a reboot; documented now so it's ready)
 
@@ -153,16 +146,18 @@ electrical plan is complete.)*
 > is made overlay-aware. Robot and test platform share THIS Pi, so this fires the
 > moment you reboot for V1.
 
-## Power topology
+## Power topology (tethered — no on-robot battery)
 
 ```
-  3S LiPo (11.1–12.6 V) --+--> VMOT, LEFT A4988   (+ its own 100 µF cap)
-                          +--> VMOT, RIGHT A4988  (+ its own 100 µF cap)
-                          +--> 5 V buck --> Raspberry Pi 5V (phys 2/4)
-                          +--> Rtop/Rbot divider --> ADS1015 AIN0
+  Bench DC supply (~12 V) --+--> VMOT, LEFT A4988   (+ its own 100 µF cap)   [over tether]
+                            +--> VMOT, RIGHT A4988  (+ its own 100 µF cap)   [over tether]
 
-  Logic 3V3 for both A4988 VDD comes from the Pi (phys 17), NOT the pack.
-  ALL grounds common: pack GND == Pi GND == both A4988 GND == ADS GND == MPU GND.
+  Off-robot Pi 3V3 (phys 17) --> A4988 VDD (L + R) + MPU-6050 Vcc            [over tether]
+  Off-robot Pi GPIO/I2C ------> STEP/DIR/EN/MS + SDA/SCL                     [over tether]
+
+  ALL grounds common: bench-supply GND == Pi GND == both A4988 GND == MPU GND.
+  In the tether, keep the ~12 V motor pair separated from / twisted away from the
+  I2C + STEP signal lines so stepper-current spikes don't couple into them.
 ```
 
 ## Solder-once checklist (do these in order)
@@ -186,11 +181,12 @@ electrical plan is complete.)*
    0.1 Ω) — read *your* carrier's sense-resistor value off the board before you
    trust a number. Turn the pot, measure VREF pad to GND, dial it in, *then* power
    off and connect the motors.
-6. Only after 1–5: bring up VMOT, confirm the Pi enumerates MPU (0x68) and ADS
-   (0x48) on `i2cdetect -y 1`, and you're ready for the V1 bench.
+6. Only after 1–5: bring up VMOT, confirm the off-robot Pi enumerates the MPU
+   (0x68) on `i2cdetect -y 1` over the tether, and you're ready for the V1 bench.
 
-- Keep the motor rail and the Pi 5 V physically separate downstream of the pack;
-  only grounds are common. Stepper current spikes must not brown out the Pi.
+- Keep the ~12 V motor rail and the logic 3V3 physically separate in the tether
+  (only grounds common). Stepper-current spikes must not couple into the I2C/STEP
+  lines or the shared 3V3.
 
 ## Microstepping — MS pins are GPIO-wired on purpose
 

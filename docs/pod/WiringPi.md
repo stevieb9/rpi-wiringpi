@@ -24,6 +24,7 @@ various items
   - [lcd(...)](#lcd)
   - [oled(\[$model\], \[$i2c\_addr\], \[$display\_splash\_page\])](#oledmodel-i2c_addr-display_splash_page)
   - [pin($pin\_num, $comment)](#pinpin_num-comment)
+  - [radar(%args)](#radarargs)
   - [rtc](#rtc)
   - [eeprom](#eeprom)
   - [expander](#expander)
@@ -32,6 +33,7 @@ various items
   - [shift\_register($base, $num\_pins, $data, $clk, $latch)](#shift_registerbase-num_pins-data-clk-latch)
   - [spi($channel, $speed)](#spichannel-speed)
   - [stepper\_motor(%args)](#stepper_motorargs)
+  - [tft(%args)](#tftargs)
   - [CORE PI SYSTEM METHODS](#core-pi-system-methods)
     - [gpio\_layout](#gpio_layout)
     - [io\_led](#io_led)
@@ -509,6 +511,34 @@ Mandatory, Integer: The pin number to attach to.
 Optional, String: A label stored alongside the pin's registration (visible in
 the metadata store and used by the test suite). Defaults to none.
 
+## radar(%args)
+
+Returns an [RPi::Radar::RCWL0516](https://metacpan.org/pod/RPi%3A%3ARadar%3A%3ARCWL0516) object for an RCWL-0516 microwave motion
+sensor, which drives its `OUT` pin high while it detects movement. See the
+[RPi::Radar::RCWL0516](https://metacpan.org/pod/RPi%3A%3ARadar%3A%3ARCWL0516) documentation for full usage details.
+
+Parameters:
+
+    pin
+
+Mandatory, Integer: The BCM GPIO pin wired to the sensor's `OUT` terminal.
+
+    poll
+
+Optional, Float: The interval, in seconds, between reads when polling with
+`wait_for_motion`/`wait_for_clear`. Defaults to `0.1`.
+
+Example:
+
+    my $radar = $pi->radar(pin => 26);
+
+    if ($radar->motion){
+        print "movement detected\n";
+    }
+
+    $radar->wait_for_motion;        # block until movement
+    $radar->wait_for_clear(10);     # then until clear, or 10s elapse
+
 ## rtc
 
 Creates a new [RPi::RTC::DS3231](https://metacpan.org/pod/RPi%3A%3ARTC%3A%3ADS3231) object which provides access to the `DS3231`
@@ -749,6 +779,51 @@ Example:
     $sm->cw(360);   # One full turn clockwise
     $sm->mode('sixteenth');
     $sm->ccw(90);
+
+## tft(%args)
+
+Returns an [RPi::TFT::ST7735S](https://metacpan.org/pod/RPi%3A%3ATFT%3A%3AST7735S) object for a 1.44" 128x128 RGB TFT LCD driven
+by the ST7735S controller over the 4-wire SPI bus, allowing you to draw
+pixels, shapes and text to the screen in 16-bit colour.
+
+See the [RPi::TFT::ST7735S](https://metacpan.org/pod/RPi%3A%3ATFT%3A%3AST7735S) documentation for full usage details and every
+optional parameter. The common ones:
+
+    model
+
+Optional, String: Which controller to build. Defaults to `ST7735S`, the only
+one currently supported. Case-insensitive.
+
+    dc
+
+Mandatory, Integer: The GPIO pin wired to the display's `D/C` (data/command)
+line.
+
+    channel
+
+Optional, Integer or hashref. Default `0`. The SPI channel: `0` or `1` for
+the hardware chip select pins `CE0`/`CE1`, any GPIO pin above `1` to use as
+the chip select instead, or a hashref of [RPi::SPI](https://metacpan.org/pod/RPi%3A%3ASPI) bit-bang parameters.
+
+    rst
+
+Optional, Integer: The GPIO pin wired to the display's `RES` reset line.
+
+    bl
+
+Optional, Integer: The GPIO pin wired to the display's `BLK` backlight line.
+
+Example:
+
+    my $tft = $pi->tft(
+        dc  => 25,
+        rst => 24,
+        bl  => 23,
+    );
+
+    $tft->clear;
+    $tft->fill_screen(0x001F);              # blue
+    $tft->string(6, 6, "Hello, Pi!", 0xFFFF, 0x0000);
 
 ## CORE PI SYSTEM METHODS
 

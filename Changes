@@ -156,6 +156,25 @@ Revision history for Perl extension RPi::WiringPi.
       several devices (eg. two steppers) as long as each uses its own pins,
       with a note on the concurrency caveat
     - Fixed a broken L</adc> internal link in the FAQ accelerometer section
+    - Added the tft() accessor, returning an RPi::TFT::ST7735S object for a
+      1.44" 128x128 RGB TFT LCD driven by the ST7735S controller over SPI
+      (pixels, shapes, text and 16-bit colour)
+    - Added RPi::TFT::ST7735S 0.01 to the prerequisites
+    - Added t/448-tft_st7735s_unit.t, a hardware-free mirror of the dist's
+      framing/validation suite driven through a fake SPI seam, and
+      t/447-tft_st7735s.t, a live ST7735S test through $pi->tft (gated by
+      RPI_ST7735S)
+    - Documented the tft() accessor and the ST7735S in the WiringPi.pm POD
+      and added a TFT display section to the FAQ
+    - Added the radar() accessor, returning an RPi::Radar::RCWL0516 object for
+      an RCWL-0516 microwave motion sensor read on a single GPIO input
+    - Added t/362-radar_unit.t, a hardware-free mirror of the dist's suite
+      driven through a mock pin, and t/361-radar.t, a live RCWL-0516 test
+      through $pi->radar (gated by RPI_RADAR)
+    - Documented the radar() accessor and the RCWL-0516 in the WiringPi.pm POD
+      and added a radar / motion sensor section to the FAQ
+    - Added the RPI_ST7735S, RPI_A4988, RPI_GYRO, RPI_ADXL335 and RPI_RADAR
+      bench-device gates to the FAQ testing environment variable list
 
 3.1802     2026-06-12
     - bump prereq of RPi::I2C to 2.3608

@@ -107,7 +107,79 @@ achievable pulse rate (V1) actually bite — the reference applies a *nonlinear*
 compensation here because step torque falls off with speed. Expect to shape this
 curve during tuning, not to get it right first try.
 
-## 4. Tuning procedure (V8)
+## 4. Physical design — CoM height sets the difficulty
+
+Balancing difficulty is set by **how high the centre of mass (CoM) sits above the
+wheel axle**, because the robot is an inverted pendulum whose fall time-constant is
+
+```
+τ ≈ √(L / g)      L = CoM height above the axle
+```
+
+Counterintuitively, **taller is easier** (broomstick-on-palm vs. pencil-on-palm): a
+higher CoM falls slower, giving the loop more ticks to react — which directly buys
+margin against the Perl-loop jitter V1 measures. A low/flat robot falls faster and
+demands a faster, lower-jitter loop and quicker motor response.
+
+| CoM (L) | τ | at 100 Hz | verdict |
+|---|---|---|---|
+| 5 cm | 71 ms | ~7 samples/τ | tight — avoid |
+| 8 cm | 90 ms | ~9 samples/τ | snappy but fine |
+| **10 cm** | **101 ms** | **~10 samples/τ** | **target** |
+| 12 cm | 111 ms | ~11 samples/τ | very forgiving |
+| 15 cm+ | 124 ms+ | — | tippy; needs heavy ballast + more motor torque |
+
+**Aim for CoM ≈ 9–11 cm** for first balance; trim toward 8 cm later if you want it
+snappier.
+
+### Mass model (this build: NO battery, Pi is off-robot)
+
+Only a light control board (A4988s + MPU6050, cabled to the off-robot Pi) rides the
+chassis, so the **two NEMA17s (~480 g) at the axle dominate the mass and anchor the
+CoM down**. With the battery and Pi gone, there is nothing heavy up top — **the top
+shelf exists purely as a ballast platform, and ballast is now mandatory, not
+optional.** (No ballast → even a 30 cm mast only reaches ~5 cm CoM.)
+
+Lumping on-robot mass — low (at axle, L≈0): 2× NEMA17 480 g + bottom shelf 85 g +
+control board 50 g ≈ 615 g; rods ~85 g at H/2; top shelf 85 g + ballast W at height H:
+
+```
+L = H · (127 + W) / (785 + W)      H in cm, W = top ballast in grams, L in cm
+```
+
+Ballast needed to hit a target CoM (3/8″ ply shelves, 3/16″ threaded-rod standoffs):
+
+| Rod height H (axle→top shelf) | Ballast for CoM 8 cm | for 9 cm | for 10 cm |
+|---|---|---|---|
+| 20 cm (8″)  | ~310 g | ~410 g | ~530 g |
+| **25 cm (10″)** | ~185 g | ~245 g | **~310 g** |
+| 30 cm (12″) | ~110 g | ~155 g | ~200 g |
+
+**Recommended: 25 cm rod + ~300 g ballast → CoM ≈ 10 cm, τ ≈ 100 ms**, total robot
+~1.1 kg (well inside the 2× 33 N·cm motors' torque headroom). A taller mast now costs
+nothing (no battery to keep low) and roughly halves the ballast vs. a 20 cm mast.
+
+### Practical build notes
+
+- **Tunable ballast = the CoM tuning knob.** Since the top shelf is held by 3/16″
+  threaded rod, stack steel nuts/washers (or a bolt-on plate) on the studs above the
+  shelf, and leave ~3–4 cm of extra stud. During V8 you add/remove washers to move
+  the CoM empirically — start heavy/high (easy), lighten as confidence grows. No rebuild.
+- **Spread the 4 rods in a wide rectangle**, not clustered — a floppy mast adds a
+  flexible resonant mode the balancer will fight, and makes the IMU read mast wobble
+  instead of true body tilt.
+- **Mount the MPU6050 low and rigid** on the bottom shelf near the axle (reads the
+  rigid base; less tangential-acceleration artifact during body rotation).
+- **Tether discipline (Pi off-robot).** The cable must not inject a disturbance
+  force: route it slack from *above* with strain relief so cable tension never pulls
+  the chassis. Keep it **short** — I2C (MPU6050) and STEP edges degrade over length;
+  ≤ ~50 cm is safe, longer needs an I2C buffer / dropping to 100 kHz. Keep motor-power
+  conductors separated from / twisted away from the I2C + STEP signal lines to avoid
+  coupling motor-current spikes into them. See [bill-of-materials.md](bill-of-materials.md).
+- Mass assumptions (NEMA17 ~240 g ea, ply shelf ~85 g) are estimates — weigh actuals;
+  because ballast is tunable the design is robust to these being off.
+
+## 5. Tuning procedure (V8)
 
 1. All gains 0. Bring up the angle estimate; confirm sign (lean forward → error
    of the expected sign). Fix any inversion in software, not by rewiring.
@@ -118,5 +190,43 @@ curve during tuning, not to get it right first try.
    the integral clamp — this is the windup-prone term.
 5. Trim **`balance_setpoint`** so it sits still without creeping either way.
 6. Set the **dead-band** just wide enough to stop the at-rest buzz.
-7. Iterate tethered (V8) before free-standing (V9). Log angle + P/I/D terms every
-   tick and tune from the logs, not by eye alone.
+7. Iterate hand-caught (V8) before balancing under a slack overhead tether (V9).
+   Log angle + P/I/D terms every tick and tune from the logs, not by eye alone.
+
+## 6. Startup, self-park & auto-erect
+
+Powered off, the robot tips until it rests on a **front or back extender pole** —
+low, ~2″ outriggers that double as bi-directional bump-stops. Sized so the **rest
+lean sits inside the capture envelope** (§4; measured in V8), recovery is *not* a
+swing-up — it's ordinary balancing from a known small offset, which the steppers
+handle fine. **Keep the rest angle small: mount the poles LOW (near ground) and reach
+them out.** Height dominates: a pole at axle height parks it ~40° (outside the
+envelope — bad); the *same* pole mounted low parks it ~10° (inside — good).
+
+### Which way is it leaning? — the accelerometer, absolutely
+
+The **gyro gives only rate**, so at power-up it has no orientation reference. The
+**accelerometer gives an absolute tilt from the gravity vector**, and resting on a
+pole the robot is dead still — the *best-case* condition for the accel (its only
+weakness, linear-acceleration/vibration noise, is absent at rest). Startup sequence:
+
+1. `calibrate_gyro` while still on the pole — zeroes the gyro *rate* bias; this is
+   orientation-independent, so being tilted doesn't spoil it.
+2. Read `$mpu->tilt` → **absolute signed pitch. Sign = which pole** (e.g. +pitch →
+   front pole, −pitch → back); magnitude = the lean. (Axis + sign pinned in V2.)
+3. **Seed the complementary filter with it:** initialise `$angle = $accel_pitch`,
+   *do not* start at 0. Starting at 0 while actually leaning ~10° makes the
+   controller act on a wrong angle until the 0.04 % accel term slowly drags the
+   estimate to truth — many ticks of bad commands right when it matters most.
+4. Enter the PID loop. `error = angle − setpoint` already carries the right sign, so
+   the wheels drive *toward* the lean, the body rotates up off the pole, and it
+   settles vertical (the pole lifts clear). No discrete "which pole" logic — the
+   signed angle is all the controller needs.
+
+### Sanity gate (safety)
+
+Before enabling motors, check the seeded angle is a *sane pole-rest* value: erect
+only if `|angle|` is within `[envelope_min … expected_rest + margin]`. If it reads
+~0° it's already upright (just balance); if it's too large the pole failed / it fell
+flat — **stay disabled and flag it** rather than attempt the impossible from-flat
+recovery. This makes power-cycling safe for an unattended test-platform tenant.

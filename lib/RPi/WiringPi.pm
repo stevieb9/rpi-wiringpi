@@ -381,6 +381,19 @@ sub pin {
 
     return $pin;
 }
+sub radar {
+    my ($self, %args) = @_;
+
+    # The RCWL-0516 reports motion by driving its OUT terminal high; register
+    # the GPIO pin we read it on so the metadata tracks it. The driver sets the
+    # pin to INPUT itself
+    $self->pin($args{pin}, 'RCWL0516 Radar OUT') if defined $args{pin};
+
+    require RPi::Radar::RCWL0516;
+    RPi::Radar::RCWL0516->import;
+
+    return RPi::Radar::RCWL0516->new(%args);
+}
 sub rtc {
     my ($self, $rtc_addr) = @_;
     require RPi::RTC::DS3231;
@@ -500,6 +513,37 @@ sub stepper_motor {
     }
 
     return RPi::StepperMotor->new(%args);
+}
+sub tft {
+    my ($self, %args) = @_;
+
+    # Named for the controller chip, the same way adc() and dac() pick
+    # their part
+    $args{model} = 'ST7735S' if ! defined $args{model};
+
+    if (uc $args{model} ne 'ST7735S') {
+        die "tft() model '$args{model}' is not recognized; only 'ST7735S' " .
+            "is currently supported\n";
+    }
+
+    # Register the control lines we drive directly on the Pi. D/C is
+    # mandatory (the driver croaks without it); RES and BLK are optional.
+    # A hardware chip select (channel 0/1) is framed by the SPI bus
+    # globally, but a GPIO chip select (any channel above 1) is a pin we
+    # drive, so track it too
+    $self->pin($args{dc},  'ST7735S TFT D/C')       if defined $args{dc};
+    $self->pin($args{rst}, 'ST7735S TFT Reset')     if defined $args{rst};
+    $self->pin($args{bl},  'ST7735S TFT Backlight') if defined $args{bl};
+
+    if (defined $args{channel} && ref $args{channel} ne 'HASH'
+        && $args{channel} =~ /^\d+$/ && $args{channel} > 1) {
+        $self->pin($args{channel}, 'ST7735S TFT CS');
+    }
+
+    require RPi::TFT::ST7735S;
+    RPi::TFT::ST7735S->import;
+
+    return RPi::TFT::ST7735S->new(%args);
 }
 
 # Interrupts
@@ -1137,6 +1181,34 @@ Mandatory, Integer: The pin number to attach to.
 Optional, String: A label stored alongside the pin's registration (visible in
 the metadata store and used by the test suite). Defaults to none.
 
+=head2 radar(%args)
+
+Returns an L<RPi::Radar::RCWL0516> object for an RCWL-0516 microwave motion
+sensor, which drives its C<OUT> pin high while it detects movement. See the
+L<RPi::Radar::RCWL0516> documentation for full usage details.
+
+Parameters:
+
+    pin
+
+Mandatory, Integer: The BCM GPIO pin wired to the sensor's C<OUT> terminal.
+
+    poll
+
+Optional, Float: The interval, in seconds, between reads when polling with
+C<wait_for_motion>/C<wait_for_clear>. Defaults to C<0.1>.
+
+Example:
+
+    my $radar = $pi->radar(pin => 26);
+
+    if ($radar->motion){
+        print "movement detected\n";
+    }
+
+    $radar->wait_for_motion;        # block until movement
+    $radar->wait_for_clear(10);     # then until clear, or 10s elapse
+
 =head2 rtc
  
 Creates a new L<RPi::RTC::DS3231> object which provides access to the C<DS3231>
@@ -1371,6 +1443,51 @@ Example:
     $sm->cw(360);   # One full turn clockwise
     $sm->mode('sixteenth');
     $sm->ccw(90);
+
+=head2 tft(%args)
+
+Returns an L<RPi::TFT::ST7735S> object for a 1.44" 128x128 RGB TFT LCD driven
+by the ST7735S controller over the 4-wire SPI bus, allowing you to draw
+pixels, shapes and text to the screen in 16-bit colour.
+
+See the L<RPi::TFT::ST7735S> documentation for full usage details and every
+optional parameter. The common ones:
+
+    model
+
+Optional, String: Which controller to build. Defaults to C<ST7735S>, the only
+one currently supported. Case-insensitive.
+
+    dc
+
+Mandatory, Integer: The GPIO pin wired to the display's C<D/C> (data/command)
+line.
+
+    channel
+
+Optional, Integer or hashref. Default C<0>. The SPI channel: C<0> or C<1> for
+the hardware chip select pins C<CE0>/C<CE1>, any GPIO pin above C<1> to use as
+the chip select instead, or a hashref of L<RPi::SPI> bit-bang parameters.
+
+    rst
+
+Optional, Integer: The GPIO pin wired to the display's C<RES> reset line.
+
+    bl
+
+Optional, Integer: The GPIO pin wired to the display's C<BLK> backlight line.
+
+Example:
+
+    my $tft = $pi->tft(
+        dc  => 25,
+        rst => 24,
+        bl  => 23,
+    );
+
+    $tft->clear;
+    $tft->fill_screen(0x001F);              # blue
+    $tft->string(6, 6, "Hello, Pi!", 0xFFFF, 0x0000);
 
 =head2 CORE PI SYSTEM METHODS
  
