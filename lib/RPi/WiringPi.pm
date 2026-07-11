@@ -432,6 +432,39 @@ sub spi {
 sub stepper_motor {
     my ($self, %args) = @_;
 
+    # Which driver: the original 28BYJ-48/ULN2003 (the default) or the
+    # A4988 microstepping driver. Named for the driver chip, the same way
+    # adc() and dac() pick their part
+    my $model = delete $args{model} // 'ULN2003';
+
+    if (uc $model eq 'A4988') {
+        require RPi::StepperMotor::A4988;
+        RPi::StepperMotor::A4988->import;
+
+        # The A4988 has named, roled control lines rather than a flat
+        # four-pin array. Register the ones we drive directly on the Pi so
+        # the metadata tracks them; an expander owns its own pins
+        if (! exists $args{expander}) {
+            my %pin_comment = (
+                step   => 'A4988 STEP',
+                dir    => 'A4988 DIR',
+                ms1    => 'A4988 MS1',
+                ms2    => 'A4988 MS2',
+                ms3    => 'A4988 MS3',
+                enable => 'A4988 ENABLE',
+                sleep  => 'A4988 SLEEP',
+                reset  => 'A4988 RESET',
+            );
+
+            for my $role (qw(step dir ms1 ms2 ms3 enable sleep reset)) {
+                next if ! exists $args{$role};
+                $self->pin($args{$role}, $pin_comment{$role});
+            }
+        }
+
+        return RPi::StepperMotor::A4988->new(%args);
+    }
+
     require RPi::StepperMotor;
     RPi::StepperMotor->import;
 
@@ -1136,34 +1169,106 @@ Peripheral Interface (SPI) bus with attached devices.
 See the linked documentation for full documentation on usage, or the
 L<RPi::WiringPi::FAQ> for usage examples.
  
-=head2 stepper_motor($pins)
- 
-Creates a new L<RPi::StepperMotor> object which allows you to drive a
-28BYJ-48 stepper motor with a ULN2003 driver chip.
- 
-See the linked documentation for full usage instructions and the optional
-parameters.
- 
-Parameters:
- 
+=head2 stepper_motor(%args)
+
+Creates a stepper motor driver object. Two drivers are supported, selected
+by the C<model> parameter:
+
+=over 4
+
+=item * C<ULN2003> (the default) - an L<RPi::StepperMotor> object driving a
+28BYJ-48 unipolar motor through a ULN2003.
+
+=item * C<A4988> - an L<RPi::StepperMotor::A4988> object driving a bipolar
+motor through an Allegro A4988 microstepping driver, with software microstep
+selection and power-state control.
+
+=back
+
+Both drivers can run either straight off the Pi's GPIO header, or off an
+L<RPi::GPIOExpander::MCP23017> passed as the C<expander> param, in which case
+the pin numbers name the expander's C<0-15> lines instead of Pi GPIOs.
+
+See the linked driver documentation for full usage instructions and every
+optional parameter. The common parameters are:
+
+    model => 'ULN2003'|'A4988'
+
+Optional, String: Which driver to build. Defaults to C<ULN2003> (the original
+28BYJ-48 driver). Case-insensitive.
+
+    expander => $object
+
+Optional, Object: An L<RPi::GPIOExpander::MCP23017> instance (see
+L</expander>). When supplied, the motor is driven from the expander's pins
+rather than the Pi's own GPIO.
+
+B<C<ULN2003> parameters>
+
     pins => $aref
- 
+
 Mandatory, Array Reference: The ULN2003 has four data pins, IN1, IN2, IN3 and
 IN4. Send in the GPIO pin numbers in the array reference which correlate to the
 driver pins in the listed order.
- 
+
     speed => 'half'|'full'
- 
+
 Optional, String: By default we run in "half speed" mode. Essentially, in this
 mode we run through all eight steps. Send in 'full' to double the speed of the
 motor. We do this by skipping every other step.
- 
+
     delay => Float|Int
- 
+
 Optional, Float or Int: By default, between each step, we delay by C<0.01>
 seconds. Send in a float or integer for the number of seconds to delay each step
 by. The smaller this number, the faster the motor will turn.
- 
+
+B<C<A4988> parameters>
+
+    step => $int
+    dir  => $int
+
+Mandatory, Integer: The GPIO (or expander) pins wired to the A4988's C<STEP>
+and C<DIR> inputs.
+
+    ms1 => $int
+    ms2 => $int
+    ms3 => $int
+
+Optional, Integer: The pins wired to the microstep-select inputs, all three
+together or none. With them wired, the resolution is selectable from software.
+
+    enable => $int
+    sleep  => $int
+    reset  => $int
+
+Optional, Integer: The pins wired to the active-low C<ENABLE>, C<SLEEP> and
+C<RESET> lines, enabling the matching power-state methods.
+
+    rpm           => $num
+    steps_per_rev => $int
+    mode          => $str
+
+Optional: The stepping speed in motor RPM (default C<60>), the motor's full
+steps per revolution (default C<200>), and the initial microstep resolution
+(C<full>, C<half>, C<quarter>, C<eighth> or C<sixteenth>; default C<full>).
+
+Example:
+
+    my $sm = $pi->stepper_motor(
+        model => 'A4988',
+        step  => 23,
+        dir   => 24,
+        ms1   => 17,
+        ms2   => 27,
+        ms3   => 22,
+        rpm   => 120,
+    );
+
+    $sm->cw(360);   # One full turn clockwise
+    $sm->mode('sixteenth');
+    $sm->ccw(90);
+
 =head2 CORE PI SYSTEM METHODS
  
 Core methods are inherited in and documented in L<RPi::WiringPi::Core>. See

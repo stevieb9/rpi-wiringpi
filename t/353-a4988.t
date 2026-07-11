@@ -1,15 +1,15 @@
-# TESTDOC: A4988 stepper driver (live GPIO readback)
+# TESTDOC: A4988 stepper driver (live, through an MCP23017 expander)
 use warnings;
 use strict;
 
 use lib 't/';
 
-# Convenience: RPI_A4988=1 flips on the board + sudo gates this file needs, so
-# you don't export each by hand. Runs in BEGIN so it lands before RPiTest's
+# Convenience: RPI_A4988=1 flips on the board + expander gates this file needs,
+# so you don't export each by hand. Runs in BEGIN so it lands before RPiTest's
 # compile-time RPI_BOARD skip_all gate.
 BEGIN {
     if ($ENV{RPI_A4988}){
-        $ENV{$_} = 1 for qw(RPI_BOARD RPI_SUDO);
+        $ENV{$_} = 1 for qw(RPI_BOARD RPI_MCP23017);
     }
 }
 
@@ -19,89 +19,87 @@ use RPi::Const qw(:all);
 use Test::More;
 
 # ===========================================================================
-# t/353-a4988.t - RPi::StepperMotor::A4988 live-GPIO integration test
+# t/353-a4988.t - RPi::StepperMotor::A4988 live integration, driven from an
+#                 MCP23017 I2C expander via $pi->stepper_motor(model => 'A4988')
 # ===========================================================================
 #
 # WHAT THIS PROVES
 #
-#   The driver manipulates REAL GPIO the way its HW-free unit test
-#   (t/354-a4988_unit.t) only proves against mocks. A stepper is open-loop with
-#   no feedback wire, so we verify what we CAN observe: every steady-state
-#   control line (DIR, MS1-3, ENABLE, SLEEP, RESET) reaches the level the module
-#   drives it to, read back through the module's own live RPi::Pin object; the
-#   degree/step math returns the right microstep counts; and a real rotation
-#   runs end to end without croaking. STEP itself pulses too fast (2 us) to
-#   sample by polling, so we assert only that it idles low between and after
+#   The A4988 driver, reached through RPi::WiringPi's stepper_motor() model
+#   dispatch and driven from an MCP23017 expander, manipulates REAL expander
+#   pins the way its HW-free unit test (t/354-a4988_unit.t) only proves against
+#   a mock. A stepper is open-loop with no feedback wire, so we verify what we
+#   CAN observe: every steady-state control line (DIR, MS1-3, ENABLE, SLEEP,
+#   RESET) reaches the level the module drives it to, READ BACK through the same
+#   expander; the degree/step math returns the right microstep counts; and real
+#   rotations run end to end without croaking. STEP itself pulses too fast (2 us)
+#   to sample by polling, so we assert only that it idles low between and after
 #   motion.
 #
 # WIRING (bench; NOT tied to a test-platform board)
 #
-#   Wire each A4988 logic input to the BCM GPIO below (override any via env),
-#   and power the board (VDD 3-5 V; VMOT 8-35 V with a bulk cap). A motor is
-#   optional - with none attached the readbacks still pass; attach one to watch
-#   it turn.
+#   An MCP23017 at RPI_A4988_ADDR (default 0x22) drives the A4988's logic
+#   inputs from its BANK A pins. Power the A4988 (VDD 3-5 V; VMOT 8-35 V with a
+#   bulk cap). A motor is optional - with none attached the readbacks still
+#   pass; attach one to watch it turn.
 #
-#     STEP -> GPIO23   ENABLE -> GPIO5    (ENABLE/SLEEP/RESET are active low)
-#     DIR  -> GPIO24   SLEEP  -> GPIO6
-#     MS1  -> GPIO17   RESET  -> GPIO13
-#     MS2  -> GPIO27
-#     MS3  -> GPIO22
+#     expander 0 -> STEP     expander 5 -> ENABLE   (ENABLE/SLEEP/RESET
+#     expander 1 -> DIR      expander 6 -> SLEEP     are active low)
+#     expander 2 -> MS1      expander 7 -> RESET
+#     expander 3 -> MS2
+#     expander 4 -> MS3
+#
+#   Every pin is overridable via env (RPI_A4988_STEP, ..._DIR, ..._MS1, etc.)
+#   so the bench wiring can move without an edit.
 #
 # GATE
 #
-#   RPI_A4988 - the A4988 is wired and powered. Needs a Pi (RPI_BOARD) and root
-#   (RPI_SUDO / sudo) for GPIO. Skips cleanly when unset.
+#   RPI_A4988      - the A4988 is wired to the expander and powered.
+#   RPI_MCP23017   - the expander is present on I2C (enabled by RPI_A4988).
+#   Skips cleanly when unset, or when the installed driver predates the
+#   expander interface.
 #
 # ===========================================================================
-
-rpi_sudo_check();
-
-if ($> == 0){
-    # Under the sudo re-exec below, sudo strips RPI_A4988 from the environment;
-    # restore the gate (running as root is itself the intent to run) so the
-    # checks that follow don't wrongly skip.
-    $ENV{RPI_A4988} = 1;
-    $ENV{RPI_BOARD} = 1;
-}
 
 if (! $ENV{RPI_A4988}){
     plan skip_all => "RPI_A4988 environment variable not set\n";
 }
 
-if (! $ENV{RPI_BOARD}){
-    plan skip_all => "RPI_BOARD environment variable not set\n";
-}
-
-if ($> != 0){
-    print "enforcing sudo for live GPIO tests...\n";
-    # Re-exec with $^X (the running perl) so sudo doesn't fall back to the
-    # system perl, which lacks our perlbrew-installed prerequisites
-    system("sudo", $^X, "-I", "blib/lib", "-I", "lib", $0);
-    exit;
+if (! $ENV{RPI_MCP23017}){
+    plan skip_all => "RPI_MCP23017 environment variable not set\n";
 }
 
 # Loaded at runtime, after the gates: the module is an as-yet-unreleased family
-# leaf, so a checkout without it installed still parses and skips this file
-# rather than dying at compile time
+# leaf, so a checkout without it installed still parses and skips rather than
+# dying at compile time.
 if (! eval { require RPi::StepperMotor::A4988; 1 }){
     plan skip_all => "RPi::StepperMotor::A4988 not installed\n";
 }
 
+# The redesigned (expander) build dropped the pi() accessor its earlier
+# injected-transport version carried; skip cleanly on the older build.
+if (RPi::StepperMotor::A4988->can('pi')){
+    plan skip_all => "installed RPi::StepperMotor::A4988 predates the expander interface\n";
+}
+
 rpi_running_test(__FILE__);
 
-# Pin map (BCM), each overridable so the bench wiring can move without an edit
+# Expander pin map (bank A), each overridable so the bench wiring can move
 my %pin = (
-    step   => $ENV{RPI_A4988_STEP}   // 23,
-    dir    => $ENV{RPI_A4988_DIR}    // 24,
-    ms1    => $ENV{RPI_A4988_MS1}    // 17,
-    ms2    => $ENV{RPI_A4988_MS2}    // 27,
-    ms3    => $ENV{RPI_A4988_MS3}    // 22,
+    step   => $ENV{RPI_A4988_STEP}   // 0,
+    dir    => $ENV{RPI_A4988_DIR}    // 1,
+    ms1    => $ENV{RPI_A4988_MS1}    // 2,
+    ms2    => $ENV{RPI_A4988_MS2}    // 3,
+    ms3    => $ENV{RPI_A4988_MS3}    // 4,
     enable => $ENV{RPI_A4988_ENABLE} // 5,
     sleep  => $ENV{RPI_A4988_SLEEP}  // 6,
-    reset  => $ENV{RPI_A4988_RESET}  // 13,
+    reset  => $ENV{RPI_A4988_RESET}  // 7,
 );
 
-my $pi = RPi::WiringPi->new(label => 't/353-a4988.t', shm_key => 'rpit');
+my $addr = $ENV{RPI_A4988_ADDR} // 0x22;
+
+my $pi  = RPi::WiringPi->new(label => 't/353-a4988.t', shm_key => 'rpit');
+my $exp = $pi->expander($addr);
 
 my $motor;
 my $cleaned = 0;
@@ -110,6 +108,7 @@ my $cleanup = sub {
     return if $cleaned;
     $cleaned = 1;
     $motor->cleanup if $motor;
+    $exp->cleanup;
     $pi->cleanup;
 };
 
@@ -125,18 +124,23 @@ my %ms_levels = (
 );
 
 my $ok = eval {
-    $motor = RPi::StepperMotor::A4988->new(
-        pi     => $pi,
-        step   => $pin{step},
-        dir    => $pin{dir},
-        ms1    => $pin{ms1},
-        ms2    => $pin{ms2},
-        ms3    => $pin{ms3},
-        enable => $pin{enable},
-        sleep  => $pin{sleep},
-        reset  => $pin{reset},
-        rpm    => 120,
+    # Build through the RPi::WiringPi facade's model dispatch, on the expander
+    $motor = $pi->stepper_motor(
+        model    => 'A4988',
+        expander => $exp,
+        step     => $pin{step},
+        dir      => $pin{dir},
+        ms1      => $pin{ms1},
+        ms2      => $pin{ms2},
+        ms3      => $pin{ms3},
+        enable   => $pin{enable},
+        sleep    => $pin{sleep},
+        reset    => $pin{reset},
+        rpm      => 120,
     );
+
+    isa_ok $motor, 'RPi::StepperMotor::A4988',
+        "stepper_motor(model => 'A4988') returns an A4988 driver";
 
     # new() brings every line up at its documented safe idle level
     is level('dir'),    HIGH, "new() leaves DIR high (default cw)";
@@ -182,6 +186,14 @@ my $ok = eval {
     is $motor->ccw(180), 100, "ccw(180) returns 100 microsteps";
     is $motor->step(0), 0, "step(0) is a no-op";
 
+    # Finer resolution scales the count, not the angle
+    $motor->mode('sixteenth');
+    is $motor->cw(18), 160, "cw(18) is 160 microsteps in sixteenth step";
+    is level('step'), LOW, "STEP still idles low";
+
+    # cleanup() is a no-op with an expander: the expander owns its own pins
+    is $motor->cleanup, 0, "cleanup() returns 0 and leaves the expander pins alone";
+
     1;
 };
 
@@ -195,11 +207,10 @@ if (! $ok){
 
 done_testing();
 
-# level($role) - read back the current level of one of the motor's own live
-# pins (the same RPi::Pin object the module drives), so we don't register the
-# GPIO a second time in the shared meta and corrupt the pin counts.
+# level($role) - read the current level of one of the A4988's control lines
+# back through the expander it's driven from.
 
 sub level {
     my ($role) = @_;
-    return $motor->{pin}{$role}->read;
+    return $exp->read($pin{$role});
 }

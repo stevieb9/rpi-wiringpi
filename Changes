@@ -125,6 +125,18 @@ Revision history for Perl extension RPi::WiringPi.
       leaf batch, RPi::EEPROM::AT24C32 1.00, RPi::RTC::DS3231 0.04, and the rest)
     - Classified GPSD::Parse and IPC::Shareable as in-family prerequisites and
       bumped their floors to the current repo versions (1.04 and 1.20)
+    - Added a model dispatch to stepper_motor(): model => 'A4988' now builds an
+      RPi::StepperMotor::A4988 driver (bipolar, microstepping), alongside the
+      default 'ULN2003' 28BYJ-48 driver. Both run off the Pi's GPIO or an
+      MCP23017 expander
+    - Added RPi::StepperMotor::A4988 0.01 to the prerequisites
+    - Rewrote t/353-a4988.t to drive the A4988 through a live MCP23017 expander
+      via stepper_motor(model => 'A4988'), reading every control line back
+      through the expander (gated by RPI_A4988 + RPI_MCP23017)
+    - Rewrote t/354-a4988_unit.t against the redesigned expander interface,
+      mirroring the dist's HW-free suite through a mock expander
+    - Documented the stepper_motor() model parameter and the A4988 driver in
+      the WiringPi.pm POD and the FAQ
 
 3.1802     2026-06-12
     - bump prereq of RPi::I2C to 2.3608

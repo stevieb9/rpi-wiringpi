@@ -29,7 +29,7 @@ various items
   - [servo($pin\_num)](#servopin_num)
   - [shift\_register($base, $num\_pins, $data, $clk, $latch)](#shift_registerbase-num_pins-data-clk-latch)
   - [spi($channel, $speed)](#spichannel-speed)
-  - [stepper\_motor($pins)](#stepper_motorpins)
+  - [stepper\_motor(%args)](#stepper_motorargs)
   - [CORE PI SYSTEM METHODS](#core-pi-system-methods)
     - [gpio\_layout](#gpio_layout)
     - [io\_led](#io_led)
@@ -562,36 +562,100 @@ Peripheral Interface (SPI) bus with attached devices.
 See the linked documentation for full documentation on usage, or the
 [RPi::WiringPi::FAQ](https://metacpan.org/pod/RPi%3A%3AWiringPi%3A%3AFAQ) for usage examples.
 
-## stepper\_motor($pins)
+## stepper\_motor(%args)
 
-Creates a new [RPi::StepperMotor](https://metacpan.org/pod/RPi%3A%3AStepperMotor) object which allows you to drive a
-28BYJ-48 stepper motor with a ULN2003 driver chip.
+Creates a stepper motor driver object. Two drivers are supported, selected
+by the `model` parameter:
 
-See the linked documentation for full usage instructions and the optional
-parameters.
+- `ULN2003` (the default) - an [RPi::StepperMotor](https://metacpan.org/pod/RPi%3A%3AStepperMotor) object driving a
+28BYJ-48 unipolar motor through a ULN2003.
+- `A4988` - an [RPi::StepperMotor::A4988](https://metacpan.org/pod/RPi%3A%3AStepperMotor%3A%3AA4988) object driving a bipolar
+motor through an Allegro A4988 microstepping driver, with software microstep
+selection and power-state control.
 
-Parameters:
+Both drivers can run either straight off the Pi's GPIO header, or off an
+[RPi::GPIOExpander::MCP23017](https://metacpan.org/pod/RPi%3A%3AGPIOExpander%3A%3AMCP23017) passed as the `expander` param, in which case
+the pin numbers name the expander's `0-15` lines instead of Pi GPIOs.
 
-       pins => $aref
-    
+See the linked driver documentation for full usage instructions and every
+optional parameter. The common parameters are:
+
+    model => 'ULN2003'|'A4988'
+
+Optional, String: Which driver to build. Defaults to `ULN2003` (the original
+28BYJ-48 driver). Case-insensitive.
+
+    expander => $object
+
+Optional, Object: An [RPi::GPIOExpander::MCP23017](https://metacpan.org/pod/RPi%3A%3AGPIOExpander%3A%3AMCP23017) instance (see
+["expander"](#expander)). When supplied, the motor is driven from the expander's pins
+rather than the Pi's own GPIO.
+
+**`ULN2003` parameters**
+
+    pins => $aref
 
 Mandatory, Array Reference: The ULN2003 has four data pins, IN1, IN2, IN3 and
 IN4. Send in the GPIO pin numbers in the array reference which correlate to the
 driver pins in the listed order.
 
-       speed => 'half'|'full'
-    
+    speed => 'half'|'full'
 
 Optional, String: By default we run in "half speed" mode. Essentially, in this
 mode we run through all eight steps. Send in 'full' to double the speed of the
 motor. We do this by skipping every other step.
 
-       delay => Float|Int
-    
+    delay => Float|Int
 
 Optional, Float or Int: By default, between each step, we delay by `0.01`
 seconds. Send in a float or integer for the number of seconds to delay each step
 by. The smaller this number, the faster the motor will turn.
+
+**`A4988` parameters**
+
+    step => $int
+    dir  => $int
+
+Mandatory, Integer: The GPIO (or expander) pins wired to the A4988's `STEP`
+and `DIR` inputs.
+
+    ms1 => $int
+    ms2 => $int
+    ms3 => $int
+
+Optional, Integer: The pins wired to the microstep-select inputs, all three
+together or none. With them wired, the resolution is selectable from software.
+
+    enable => $int
+    sleep  => $int
+    reset  => $int
+
+Optional, Integer: The pins wired to the active-low `ENABLE`, `SLEEP` and
+`RESET` lines, enabling the matching power-state methods.
+
+    rpm           => $num
+    steps_per_rev => $int
+    mode          => $str
+
+Optional: The stepping speed in motor RPM (default `60`), the motor's full
+steps per revolution (default `200`), and the initial microstep resolution
+(`full`, `half`, `quarter`, `eighth` or `sixteenth`; default `full`).
+
+Example:
+
+    my $sm = $pi->stepper_motor(
+        model => 'A4988',
+        step  => 23,
+        dir   => 24,
+        ms1   => 17,
+        ms2   => 27,
+        ms3   => 22,
+        rpm   => 120,
+    );
+
+    $sm->cw(360);   # One full turn clockwise
+    $sm->mode('sixteenth');
+    $sm->ccw(90);
 
 ## CORE PI SYSTEM METHODS
 
