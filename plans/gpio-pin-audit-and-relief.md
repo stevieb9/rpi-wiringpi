@@ -1,8 +1,8 @@
 # Plan: Audit every Pi GPIO pin used across the test suite, bring the pin docs up to date, and produce grounded strategies to free up GPIO pins
 
-> **NEXT ACTION:** ⛔ **COMMIT GATE** — Phase 1 (V1–V6) done. Waiting for the USER to review + commit the factual-baseline docs. Do NOT start V7 (strategy) until that baseline is committed. (Proposed commit message is in the plan handoff / this session's final message.)
-> **LAST SESSION:** 2026-07-12 — autonomous run (user away, authorized V1–V6 then stop at commit gate). **V1–V6 ✅ — Phase 1 COMPLETE.** All doc-truth work done: pinout doc template rewritten + regenerated, board matrix updated, remaining docs verified consistent (no drift). Stopped at the commit gate as instructed. Baseline doc changes for the user to commit: `docs/test-platform/test-pinout-doc.tmpl.md`, `docs/test-platform/test-pinout-doc.md`, `docs/test-platform/test-board-matrix.md` (the `t/448` XS fix was already committed separately by the user as bd40b8f). Plan files (`plans/gpio-pin-audit-and-relief.md` + `-archive.md`) also changed — commit with the baseline or separately, user's choice. Scratchpad analyses at `/tmp/claude-1000/-home-steve-repos-rpi-wiringpi/8cc6203d-c22a-427c-9a7a-ecbcd3880fab/scratchpad/`.
-> **ARCHIVE:** See gpio-pin-audit-and-relief-archive.md for completed V1-V6
+> **NEXT ACTION:** ✅ **All plan tasks (V1–V8) complete.** Awaiting user decisions A/B/C on which relief strategies to implement. Implementation is a NEW user-gated phase — each accepted strategy (R1/R2/R3/…) becomes a new V-task; do not implement until the user picks.
+> **LAST SESSION:** 2026-07-12 — full run. **V1–V6 ✅** (audit + docs, baseline committed as 584570c). **V7–V8 ✅** (strategy): scope = board re-wiring allowed. Recommend R1 (radar off GPIO26) + R2 (parallel LCD→I2C, frees 4/5/6/22) + R3 (centre LED→expander) = ~+5 header pins, low risk; R4/R5 optional (~+4 more, coverage trades). Recommendation + decisions in `scratchpad/pin-relief-recommendation.md`; full eval in `scratchpad/pin-relief-strategies.md`. Scratchpad dir: `/tmp/claude-1000/-home-steve-repos-rpi-wiringpi/8cc6203d-c22a-427c-9a7a-ecbcd3880fab/scratchpad/`.
+> **ARCHIVE:** See gpio-pin-audit-and-relief-archive.md for completed V1-V8
 
 ## Purpose & governing rule
 
@@ -49,8 +49,12 @@ Unknowns are **flagged as unknown**, never invented. The test suite is the sourc
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V7 | **(GATED — do not start until the user has committed the V1–V6 factual baseline.)** **Enumerate & evaluate pin-freeing strategies (the core deliverable).** For each candidate, give: pins freed, mechanism, cost/effort, test-code impact, and feasibility — all grounded in what the suite/submodules prove (cite), never guessed. Candidate seeds to evaluate (add/reject with reasons): (a) **MCP23017 I2C-expander offload** — already proven in-tree (28BYJ-48 @0x21, A4988 @0x22 use 0 Pi GPIO); which other fixtures (74HC595 16/20/21, parallel-LCD lines) could move onto an expander for 2-pin I2C cost? (b) **Retire the parallel HD44780 (`t/620`, pins 4/5/6/17/22, +17/27 shared) in favour of the I2C LCD (`t/335`, PCF8574 @0x27)** — frees up to 4 dedicated pins; does coverage overlap? (c) **Move radar off GPIO26** (MCP3008 CS net) to a genuinely-free pin. (d) **Consolidate bit-banged SPI CS (12/13/26) onto hardware CE0/CE1 (8/7)** — weigh against the Pi 5 SPI_NO_CS limitation ([[pi5-spi-nocs-limitation]] in memory: RP1 rejects SPI_NO_CS). (e) **Free GPIO0/1** (already unrouted-recommended). (f) any pin already only used as a generic/loopback that a device could reuse serially. | manual → `scratchpad/pin-relief-strategies.md` | ≥5 strategies each with pins-freed + feasibility + citations; a ranked shortlist | ⏳ |
-| V8 | **Final recommendation & user decision points.** Synthesize V7 into a short recommendation (biggest wins, lowest risk) and a list of decisions only the user can make (which fixtures to retire/relocate, board re-layout appetite). Present; do not implement HW/test changes. | write `scratchpad/pin-relief-recommendation.md` + summarize to user | Clear ranked recommendation + explicit user decision list | ⏳ |
+| _(all V1–V8 complete — see archive)_ | | | | |
+
+Implementation of the accepted relief strategies is a **new, user-gated phase**: on
+the user's decisions (A/B/C in `scratchpad/pin-relief-recommendation.md`), promote each
+accepted strategy (R1/R2/R3/…) to a fresh V-task here. Per "Explicitly NOT doing", this
+plan itself does not implement HW/test changes.
 
 ## Discovery Tracking
 
