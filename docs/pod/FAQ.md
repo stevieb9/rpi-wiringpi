@@ -1256,7 +1256,7 @@ detects movement, so it's read on one GPIO input.
 
 ## Usage
 
-    my $radar = $pi->radar(pin => 26);      # OUT wired to GPIO 26
+    my $radar = $pi->radar(pin => 7);       # OUT wired to GPIO 7 (CE1)
 
     if ($radar->motion){
         print "movement detected\n";

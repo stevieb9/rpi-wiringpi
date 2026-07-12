@@ -47,7 +47,7 @@ Legend for "pins": **Pi** = Raspberry Pi BCM GPIO on the 40-pin header;
 | **353-a4988** | A4988 stepper via MCP23017 | **0x22** | — | **none** (all lines on expander) | step..reset = exp@0x22 GPA0–7 | RPI_A4988(+RPI_MCP23017) | t/353:88-97,99,102,135; WiringPi.pm:472-488 [T] |
 | **358-gyro** | MPU-6050 IMU | **0x68** | — | none beyond I2C | — | RPI_GYRO | t/358:76,101-102 [T]; MPU6050.pm:198 [L] |
 | **360-adxl335** | ADXL335 via ADS1115 ADC | **0x48** (ADC) | — | none beyond I2C | ADXL335 X/Y/Z → ADS **ch0/ch1/ch2** | RPI_ADXL335 | t/360:71-76,93-100; WiringPi.pm:153-157; ADS.pm:191 [T/L] |
-| **361-radar** | RCWL-0516 motion | — | — | **26** (OUT, input) — test default; driver has NO default | — | RPI_RADAR | t/361:65,43-44; RCWL0516.pm:27-28 [T] |
+| **361-radar** | RCWL-0516 motion | — | — | **7** (OUT, input, CE1) — test default since R1 (was 26); driver has NO default | — | RPI_RADAR | t/361:75; RCWL0516.pm:27-28 [T] |
 | **440-pca9685** | PCA9685 16-ch PWM | **0x40** | — | none beyond I2C | 16 PWM outs are the chip's own | RPI_PCA9685 (board 1; NOT auto-enabled) | t/440:55; PCA9685.pm:47 [L] |
 | **447-tft_st7735s** | ST7735S 128×128 TFT | — | **CE0 = GPIO8** (channel 0, hardware) | **8**(CE0/CS),**10**(MOSI),**11**(SCLK),**25**(DC),**24**(RES),**23**(BLK) | write-only, no MISO | RPI_ST7735S (bench, no board) | t/447:46-47,69-72; ST7735S.pm:152-156; WiringPi.pm:531-536 [T/L] |
 
@@ -106,7 +106,7 @@ is bench (robot family), so no same-board defect, but it's a real header/bus
 contention. Classify in V3. (Also: bench test names model ADS1115 by default;
 memory notes the board-2 silicon at 0x48 is actually an ADS1015 — separate issue.)
 
-**C4 — GPIO26 double-booked (real single-net question).** MCP3008 ADC CS = GPIO26
+**C4 — GPIO26 double-booked → RESOLVED (R1: radar moved to GPIO7).** MCP3008 ADC CS = GPIO26
 (bit-bang) [T t/410:35] AND radar OUT = GPIO26 [T t/361:65]. MCP3008 is board 2;
 radar is bench. On one Pi you cannot have both wired to pin 26 at once. Radar's pin
 is env-overridable (`RPI_RADAR_PIN`) and the driver has no built-in default, so

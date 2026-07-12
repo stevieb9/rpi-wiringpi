@@ -45,7 +45,7 @@ per command) and **native-edge-interrupt** inputs do NOT move without extra work
 - **Done:** `t/361` now defaults the radar to **GPIO7** (CE1), the only board-free pin,
   and asserts the pin comes up INPUT and that `cleanup()` restores it. Interim — the
   permanent home is an MCP23017 expander input (radar rework, backlog), which frees GPIO7.
-- Now: radar OUT defaults to **GPIO26**, colliding with the MCP3008 bit-banged CS
+- Was (pre-R1): radar OUT defaulted to **GPIO26**, colliding with the MCP3008 bit-banged CS
   [V1 K1; t/361:65]. The driver has **no** built-in default and the pin is env-settable
   (`RPI_RADAR_PIN`) [RCWL0516.pm:27-28], so 26 is purely the test file's choice.
 - Do: change the `t/361` default to the one free header pin **GPIO7/CE1** (or any pin
@@ -129,7 +129,7 @@ Updated after the R2 rejection (user 2026-07-12): the parallel LCD stays native 
 | # | Strategy | Header pins freed | Risk | Needs |
 |---|----------|-------------------|------|-------|
 | 1 | **R3** centre LED (GPIO19) → 0x21 expander | **1** | LOW | small test/driver change; uses the user's own MCP23017 lib |
-| 2 | **R1** radar off GPIO26 | 0 (resolves conflict) | ~0 | 1-line test default (bench) |
+| 2 | **R1** ✅ radar off GPIO26 → 7 | 0 (resolves conflict) | ~0 | done in t/361 (interim; bench) |
 | — | **R4** TFT BLK/RES → expander/tie-off | up to 2 (**bench only**) | MED | TFT expander-pin support (F-a) or coverage drop |
 | ✗ | **R2** parallel LCD → expander/backpack | — | — | **REJECTED** — LCD tests the native parallel path by design |
 | ⊘ | **R5** stepper limits off 17/27 | 0 | — | **MOOT** — LCD keeps 17/27 |

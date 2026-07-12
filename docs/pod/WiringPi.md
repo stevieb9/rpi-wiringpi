@@ -530,7 +530,7 @@ Optional, Float: The interval, in seconds, between reads when polling with
 
 Example:
 
-    my $radar = $pi->radar(pin => 26);
+    my $radar = $pi->radar(pin => 7);
 
     if ($radar->motion){
         print "movement detected\n";

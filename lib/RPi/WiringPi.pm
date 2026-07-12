@@ -1200,7 +1200,7 @@ C<wait_for_motion>/C<wait_for_clear>. Defaults to C<0.1>.
 
 Example:
 
-    my $radar = $pi->radar(pin => 26);
+    my $radar = $pi->radar(pin => 7);
 
     if ($radar->motion){
         print "movement detected\n";

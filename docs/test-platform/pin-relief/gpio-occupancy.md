@@ -1,10 +1,10 @@
 # V2 — Master GPIO occupancy table (BCM 0–27)
 
 > **Post-audit update (2026-07-12): R1 implemented (interim).** The radar's default
-> moved **GPIO26 → GPIO7** in `t/361`, so the GPIO26 CONFLICT below is **resolved**
-> (see K1) and GPIO7 is now the radar's interim default (free again once the radar
-> moves to an expander — backlog B3). The table/notes below are the *as-audited*
-> (pre-R1) snapshot; `../test-pinout-doc.md` carries the current state.
+> moved **GPIO26 → GPIO7** in `t/361`, resolving the GPIO26 conflict; GPIO7 is now the
+> radar's interim default (free again once the radar moves to an expander — backlog
+> B3). Entries below are updated inline to reflect this (original audit evidence kept).
+> `../test-pinout-doc.md` carries the authoritative current state.
 
 Built from `pin-inventory.md` (V1). Every role traces to a V1 [T]/[L] fact.
 Classification: **FREE** (no assigned role) · **SINGLE** (one fixture) ·
@@ -23,7 +23,7 @@ boards; **bench** = jumper-wired robot/display devices not on any fabbed board.
 | 4 | 7 | LCD D4 | 620 | B5 | SINGLE |
 | 5 | 29 | LCD RS | 620 | B5 | SINGLE |
 | 6 | 31 | LCD E | 620 | B5 | SINGLE |
-| **7** | 26 | **CE1 — unused (SPI-alt default); no fixture** | — | — | **FREE** ← only truly-free header pin |
+| **7** | 26 | **CE1 — bench radar OUT default** (R1, interim); no fabbed-board fixture | 361 | bench | SINGLE (interim — free once radar→expander, B3) |
 | **8** | 24 | **TFT ST7735S CS (hardware CE0)** — *doc still says "unused/free"* | 447 | bench | SINGLE (newly claimed) |
 | 9 | 21 | **SPI MISO** (MCP3008 read-back) | 410,435 | B2 | SHARED-safe (SPI bus) |
 | 10 | 19 | **SPI MOSI** (MCP3008/MCP4922/MCP4XXXX + **TFT**) | 410,435,445,447 | B2+bench | SHARED-safe (SPI bus) |
@@ -42,15 +42,17 @@ boards; **bench** = jumper-wired robot/display devices not on any fabbed board.
 | **23** | 16 | **TFT BLK (backlight)** — *doc still says "fully spare"* | 447 | bench | SINGLE (newly claimed) |
 | **24** | 18 | **TFT RES (reset)** — *doc still says "fully spare"* | 447 | bench | SINGLE (newly claimed) |
 | **25** | 22 | **TFT D/C (data-command)** — *doc still says "fully spare"* | 447 | bench | SINGLE (newly claimed) |
-| **26** | 37 | MCP3008 ADC CS (bit-bang) + generic **+ radar OUT** | 410,435,110,112,150; **361** | B2 + bench | **CONFLICT** (CS vs radar input on one net) |
+| 26 | 37 | MCP3008 ADC CS (bit-bang) + generic | 410,435,110,112,150 | B2 | SHARED-safe (radar moved off → GPIO7 by R1; was CONFLICT) |
 | 27 | 13 | LCD D6 **+ stepper CCW limit switch** | 620; 350 | B5/B3 | SHARED-safe (never concurrent) |
 
 ## Free-pin count (with evidence)
 
-- **Truly unassigned header GPIO: exactly ONE — GPIO7 (CE1).** No test references
-  it; it sits at its SPI-alt default (`RPiTest.pm` pi5 alt=1/state=1 for 7/8). Doc
-  §9's claim that 23/24/25 are "fully spare" and CE0/CE1 "stay free" is now false:
-  the TFT took CE0(8)+23+24+25 (V1 C1).
+- **Board-free header GPIO: GPIO7 (CE1)** — no fabbed-board fixture uses it (it sits at
+  its SPI-alt default, `RPiTest.pm` pi5 alt=1/state=1 for 7/8). **But it is now the bench
+  radar's interim default** (R1, `t/361`), so it's only actually free when the radar isn't
+  bench-wired — or permanently, once the radar moves to an expander (B3). Doc §9's old
+  claim that 23/24/25 are "fully spare" and CE0/CE1 "stay free" is false: the TFT took
+  CE0(8)+23+24+25 (V1 C1).
 - **Caveated generics: GPIO0 / GPIO1.** Used only as generic idle-high pins (t/108);
   hardware convention (reserved HAT ID-EEPROM) says leave unrouted on a real board
   [F]. Usable as scratch GPIO but not recommended for a fixture.
@@ -59,11 +61,12 @@ boards; **bench** = jumper-wired robot/display devices not on any fabbed board.
 
 ## Notes for V3 (conflicts to reconcile)
 
-- GPIO26 is the only same-net **CONFLICT** (MCP3008 CS ⟷ radar OUT).
+- GPIO26 was the only same-net **CONFLICT** (MCP3008 CS ⟷ radar OUT) — **RESOLVED by R1**
+  (radar moved to GPIO7); see K1.
 - I2C address clashes 0x68 (gyro/RTC) and 0x48 (board-2 ADS ⟷ ADXL335 ADS, incl.
   overlapping channels A0/A1/A2) are **bus/address** contentions, not header-pin
   ones — carried into V3.
-- The TFT's four claims (8/23/24/25) and radar's (26) are **bench-vs-board**
+- The TFT's four claims (8/23/24/25) and the radar's (now GPIO7, was 26) are **bench-vs-board**
   header contention: none of these devices sit on a fabbed board, so on the PCBs
   the pins are free; the contention only arises when bench devices and board
   fixtures hang off the same Pi header at once.
@@ -84,11 +87,10 @@ cleanup, and on the per-device env gates.
 - The radar driver has **no built-in default pin** — it croaks if none is given
   [T RCWL0516.pm:27-28] — so GPIO26 is purely the *test file's* choice, landing on a
   live bit-banged CS net for no reason.
-- Verdict: not a software defect (serial suite). It IS a needless default collision
-  and the single cheapest pin-relief move: change the `t/361` default (and
-  `RPI_RADAR_PIN` guidance) to a genuinely-free pin — **GPIO7/CE1** is the obvious
-  target (V2: the only truly-free header pin). Recorded for V7; do NOT change now
-  (Phase-1 is doc-truth only).
+- Verdict: not a software defect (serial suite), but a needless default collision.
+  **RESOLVED (R1, 2026-07-12):** `t/361` now defaults the radar to **GPIO7/CE1** (the
+  board-free pin) with INPUT-mode + cleanup-restore asserts. Interim — permanent fix is
+  reading the radar through an MCP23017 expander input (B3), which frees GPIO7 again.
 
 ### K2 — I2C 0x68: MPU-6050 gyro ⟷ DS3231 RTC → **ACCEPTED-TIMESHARE / DOC note**
 - Evidence: gyro 0x68 [T t/358:76], RTC 0x68 [L t/530:31]. Gyro bench, RTC board 4.
