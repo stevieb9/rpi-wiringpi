@@ -16,6 +16,7 @@ BEGIN {
 
 use RPiTest;
 use RPi::WiringPi;
+use RPi::Const qw(:all);
 use Test::More;
 
 # ===========================================================================
@@ -31,8 +32,10 @@ use Test::More;
 #   verify what we CAN observe without a person waving at it: the accessor
 #   returns the right object, motion() reports a clean boolean, poll() reads
 #   back and re-sets, pin() exposes the transport, and the zero-timeout
-#   wait_for_* calls take exactly one look and return a boolean. Wave a hand to
-#   watch motion() flip; the test confirms the software path.
+#   wait_for_* calls take exactly one look and return a boolean. It also confirms
+#   the OUT pin is put into INPUT mode and that cleanup() restores it to its
+#   at-rest default. Wave a hand to watch motion() flip; the test confirms the
+#   software path.
 #
 # WIRING (bench; NOT tied to a test-platform board)
 #
@@ -40,7 +43,12 @@ use Test::More;
 #   OUT terminal to the GPIO below (3.3V logic - the module's OUT is 3.3V).
 #   Override the pin via RPI_RADAR_PIN.
 #
-#     VIN -> 5V     GND -> GND     OUT -> GPIO 26
+#     VIN -> 5V     GND -> GND     OUT -> GPIO 7
+#
+#   The OUT line defaults to GPIO 7 (CE1) - the only header pin no other test
+#   claims. It used to default to GPIO 26, the MCP3008 bit-banged chip select, so
+#   the radar and that ADC couldn't share one Pi; GPIO 7 clears that (pin-relief
+#   item R1). GPIO 7 idles at alt 1, which cleanup() restores cleanly via pinMode.
 #
 # GATE
 #
@@ -62,9 +70,16 @@ if (! eval { require RPi::Radar::RCWL0516; 1 }){
 
 rpi_running_test(__FILE__);
 
-my $pin = $ENV{RPI_RADAR_PIN} // 26;
+# Default to GPIO 7 (CE1), the only free header pin; GPIO 26 (the old default)
+# is the MCP3008 chip select - see the wiring note above / pin-relief R1.
+my $pin = $ENV{RPI_RADAR_PIN} // 7;
 
 my $pi = RPi::WiringPi->new(label => 't/361-radar.t', shm_key => 'rpit');
+
+# Capture the pin's at-rest mode now, before the radar driver switches it to
+# INPUT, so we can assert cleanup() puts it back. Registered pins are restored
+# to the alt captured at registration time (RPi::WiringPi::Core::cleanup).
+my $orig_alt = WiringPi::API::get_alt($pin);
 
 my $radar;
 my $cleaned = 0;
@@ -92,6 +107,8 @@ my $ok = eval {
 
     isa_ok $radar->pin, 'RPi::Pin', "pin() exposes the underlying transport";
 
+    is $radar->pin->mode, INPUT, "radar() put BCM$pin into INPUT mode";
+
     my $wm = $radar->wait_for_motion(0);
     ok $wm == 0 || $wm == 1, "wait_for_motion(0) takes one look, returns a boolean (got $wm)";
 
@@ -104,6 +121,10 @@ my $ok = eval {
 my $err = $@;
 
 $cleanup->();
+
+# cleanup() must hand the borrowed pin back in the state it found it.
+is WiringPi::API::get_alt($pin), $orig_alt,
+    "cleanup() restored BCM$pin to its default mode (alt $orig_alt)";
 
 if (! $ok){
     fail("RCWL-0516 live test died before completion: $err");

@@ -25,16 +25,19 @@ are the detailed evidence base and the strategy options.
 
 ## The options at a glance
 
+> **Revised 2026-07-12 (user decision):** the parallel LCD stays on native GPIO — it exists
+> to test wiringPi's native parallel `lcd_init` path — so **R2 is rejected** and its 6 pins
+> (4/5/6/17/22/27) are irreducible by design. That removes ~80% of the earlier estimate.
+
 | | Strategy | Header pins freed | Risk |
 |---|---|---|---|
-| **R1** | Radar default off GPIO26 → GPIO7 | 0 (resolves the only conflict) | ~0 |
-| **R2** | Board-5 parallel LCD → PCF8574 I2C backpack | **4** (4/5/6/22) + un-share 17/27 | LOW* |
-| **R3** | Stepper centre LED (GPIO19) → MCP23017 | 1 | LOW |
-| **R4** | TFT BLK/RES (23/24) → expander / tie-off | up to 2 | MED |
-| **R5** | Stepper limits (17/27) → expander INT | 2 | MED-HIGH |
+| **R3** | Stepper centre LED (GPIO19) → 0x21 MCP23017 (your own lib) | **1** | LOW — the one clean fabbed-board win |
+| **R1** | ✅ **DONE (interim)** — radar default off GPIO26 → GPIO7 (bench), in t/361 | 0 (resolves the only conflict) | ~0 |
+| **R4** | TFT BLK/RES (23/24) → expander / tie-off (**bench only**) | up to 2 | MED |
+| **R2** | Parallel LCD → expander/backpack | — | ❌ REJECTED (tests the native path) |
+| **R5** | Stepper limits (17/27) → expander INT | 0 | ⊘ MOOT (LCD keeps 17/27) |
 | R6/R7/R8 | 74HC595 relocate / hardware-CE consolidate / GPIO0-1 | — | reject / low value |
 
-\* R2's only cost is a coverage decision (keep or drop the native-GPIO 4-bit LCD path,
-`t/620`) — see Decision A in the recommendation.
-
-Implementation is a separate, user-gated phase — nothing here is implemented.
+Realistic fabbed-board relief is **~+1 pin (R3)** plus clearing the GPIO26 conflict (R1) —
+the platform is near-fully-subscribed on purpose. Implementation is a separate, user-gated
+phase — nothing here is implemented.

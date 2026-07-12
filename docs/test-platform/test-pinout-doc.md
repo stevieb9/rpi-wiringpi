@@ -117,7 +117,7 @@ fabbed board — see the Scope note) · blank = free / generic.
 |  4 |  7 | ★ | LCD D4 (`d0`) | t/620:50-59 |
 |  5 | 29 | ★ | LCD RS (`rs`) | t/620:50-59 |
 |  6 | 31 | ★ | LCD E (`strb`) | t/620:50-59 |
-|  7 | 26 |   | SPI CE1 — **unused; the only truly-free header pin** (§9) | default-config alt; §5,§9 |
+|  7 | 26 | ☖ | **bench radar OUT default** (CE1; free on the fabbed boards, interim) | t/361:75; §9,§10 |
 |  8 | 24 | ☖ | **TFT ST7735S CS — hardware CE0** (bench) — *was "unused"* | t/447:46,69 [L] channel 0→CE0 |
 |  9 | 21 | ★ | **SPI MISO** (shared) — MCP3008 read-back only | t/410,435 [L] pin# |
 | 10 | 19 | ★ | **SPI MOSI** (shared) — MCP3008/MCP4922/MCP4XXXX + TFT (bench) | t/410,435,445,447 [L] pin# |
@@ -136,7 +136,7 @@ fabbed board — see the Scope note) · blank = free / generic.
 | 23 | 16 | ☖ | **TFT BLK / backlight** (bench) — *was "fully spare"* | t/447:47,72 [T] |
 | 24 | 18 | ☖ | **TFT RES / reset** (bench) — *was "fully spare"* | t/447:47,71 [T] |
 | 25 | 22 | ☖ | **TFT D/C** (bench) — *was "fully spare"* | t/447:46,70 [T] |
-| 26 | 37 | ★☖ | MCP3008 ADC **CS** (bit-banged) (+ generic) **+ radar OUT (bench)** | t/410,435; t/110; **t/361:65** |
+| 26 | 37 | ★ | MCP3008 ADC **CS** (bit-banged) (+ generic) | t/410,435; t/110 |
 | 27 | 13 | ★ | LCD D6 (`d2`) + stepper **CCW limit switch** | t/620:50-59; t/350:152 |
 |  0 | 27 |   | ID_SD — generic test pin | default-config (idles high) |
 |  1 | 28 |   | ID_SC — generic test pin | default-config (idles high) |
@@ -145,13 +145,14 @@ fabbed board — see the Scope note) · blank = free / generic.
 > The tests only treat them as generic pins that idle high; the "leave unrouted"
 > guidance is hardware convention, not a test fact.
 
-> **Only one truly-free header pin remains.** After the bench device wave, GPIO7
-> (CE1) is the sole header BCM with no assigned role. The pins the older doc called
-> "spare" — **GPIO23/24/25** and hardware **CE0/GPIO8** — are now claimed by the
-> bench-wired TFT (`t/447`), and **GPIO26** additionally carries the radar OUT
-> (`t/361`, bench) on top of the MCP3008 CS. These bench claims do **not** consume
-> pins on the fabbed boards (the TFT/radar are off-PCB), but on a live header they
-> leave the Pi effectively out of GPIO — the motivation for the pin-relief work.
+> **The fabbed boards have one spare header pin: GPIO7 (CE1).** The pins the older
+> doc called "spare" — **GPIO23/24/25** and hardware **CE0/GPIO8** — are now claimed
+> by the bench-wired TFT (`t/447`). GPIO7 is the last board-free pin, and it is now
+> the **bench radar's default OUT** (`t/361`, interim — see §10 item 11 / pin-relief
+> R1; the radar will move to an MCP23017 expander input when permanently placed, at
+> which point GPIO7 is free again). These bench claims do **not** consume pins on the
+> fabbed boards (TFT/radar are off-PCB), but on a live header carrying the bench
+> devices the Pi is effectively out of GPIO — the motivation for the pin-relief work.
 
 ### 2.1 Bare 40-pin header (J8) — native functions (orientation only)
 
@@ -210,9 +211,10 @@ ordinary GPIOs toggled in software, **not** the hardware CE0/CE1 (GPIO8/7) — s
 §5 for the decoding. The 74HC595 (GPIO21/20/16) is fully bit-banged GPIO
 (`t/435:48`). Clock/data still ride hardware SPI (GPIO9/10/11) **[L]**.
 
-**The map above is the fabbed-board (PCB) view** — on the PCB, `8/23/24/25` are
+**The map above is the fabbed-board (PCB) view** — on the PCB, `7/8/23/24/25` are
 spare and CE0/CE1 are unused, as drawn. The bench-wired TFT/radar (§Scope) claim
-`8/23/24/25/26` only when jumpered to the live header; they are off-PCB.
+`8/23/24/25` (TFT) and `7` (radar OUT) only when jumpered to the live header; they
+are off-PCB.
 
 ### 2.3 Bus topology and loop-backs
 
@@ -357,7 +359,7 @@ the I2C LCD and PCA9685 belong to board 1.
 | `353-a4988.t` | A4988 stepper via MCP23017 | I2C SDA2/SCL3 @**0x22**; STEP/DIR/MS1-3/ENABLE/SLEEP/RESET = expander GPA0-7, **no Pi GPIO** (`t/353:88-97,99,135`; facade skips Pi-pin registration when `expander` passed, `WiringPi.pm:472-488`) — bench |
 | `358-gyro.t` | MPU-6050 IMU | I2C SDA2/SCL3 @**0x68** (`t/358:76`; WHO_AM_I asserted); shares the RTC address (§4, §10) — bench |
 | `360-adxl335.t` | ADXL335 via ADS ADC | I2C SDA2/SCL3; analog X/Y/Z → ADS (model `ADS1115` default) @**0x48** channels **0/1/2** (`t/360:71-76`; `ADS.pm:191`) — no Pi GPIO beyond the bus — bench. Same addr+channels as the board-2 ADS (§10) |
-| `361-radar.t` | RCWL-0516 motion | **GPIO26** OUT (input) — test default (driver has none; `RCWL0516.pm:27-28`), env `RPI_RADAR_PIN`; shares the MCP3008 CS net (§10) — bench |
+| `361-radar.t` | RCWL-0516 motion | **GPIO7** OUT (input, CE1) — test default (driver has none; `RCWL0516.pm:27-28`), env `RPI_RADAR_PIN`; the only board-free pin, interim until an expander (§10 item 11) — bench |
 | `440-pca9685.t` | PCA9685 16-ch PWM | I2C SDA2/SCL3 @**0x40** (`PCA9685.pm:47`); register readback only, 16 PWM outs are the chip's own — board 1 (not wired yet) |
 | `447-tft_st7735s.t` | ST7735S 128×128 TFT | **hardware SPI0** MOSI10/SCLK11, **CS = hardware CE0/GPIO8** (channel 0); D/C=**GPIO25**, RES=**GPIO24**, BLK=**GPIO23**; write-only, no MISO (`t/447:46-47,69-72`) — bench |
 
@@ -601,17 +603,19 @@ and asserts both magnet edges trip within **±5%** of these measured means
 
 > **Update:** the bench device wave (§Scope) consumed nearly all the headroom the
 > original derivation reported. On the **fabbed boards** GPIO7/8/23/24/25 are still
-> free; on a **live header** carrying the bench devices, only **GPIO7 (CE1)**
-> remains truly unassigned.
+> free; on a **live header** carrying the bench devices, none is guaranteed free —
+> GPIO7 (CE1) is now the bench radar's default (interim, §10 item 11).
 
-- **GPIO7 (CE1)** — the **only** header BCM with no assigned role in the entire
-  suite; sits at its SPI-alt default. The sole genuine break-out/relief target.
+- **GPIO7 (CE1)** — the last header BCM with no fabbed-board role; now the **bench
+  radar's default OUT** (`t/361`, interim — it will move to an MCP23017 expander
+  input when the radar is permanently placed, freeing GPIO7 again; see §10 item 11 /
+  pin-relief R1).
 - **GPIO8 (CE0)** — free on the fabbed boards, but **claimed by the bench TFT** as
   its hardware chip-select (`t/447`, §5).
 - **GPIO23, 24, 25** — spare on the fabbed boards, but **claimed by the bench TFT**
   (BLK/RES/DC respectively, `t/447`, §2). No longer "fully spare".
-- **GPIO26** — the MCP3008 bit-banged CS; **also the bench radar's OUT default**
-  (`t/361:65`, env `RPI_RADAR_PIN`). Not free.
+- **GPIO26** — the MCP3008 bit-banged CS (+ generic). (The bench radar used to
+  default here; moved to GPIO7 to clear the CS collision — §10 item 11.)
 - **GPIO21** — also the alt-mode round-trip pin in `t/107` (loops ALT0–ALT7), on
   top of its 74HC595 DATA duty.
 - **GPIO0 / GPIO1** (phys 27/28) — used as generic test pins; idle high. **[F]**
@@ -685,12 +689,14 @@ gyro and PCA9685 are pure I2C. This is the lever the pin-relief work builds on.
    serial suite keeps them apart in software, but they are one shared net on the
    board — don't add a pull/load that fights either role. GPIO19 (stepper centre
    LED) is dedicated.
-11. **GPIO26 shared — MCP3008 CS vs radar OUT [T] (bench).** GPIO26 is the MCP3008
-   bit-banged CS (board 2) and also the bench radar's OUT default (`t/361:65`). Never
-   concurrent (separate gates, serial suite), and the radar driver has **no** built-in
-   default (`RCWL0516.pm:27-28`) so GPIO26 is purely the test file's choice — move it
-   to a free pin (GPIO7) via `RPI_RADAR_PIN` if you want the two co-resident. This is
-   the single cheapest pin-relief move (see the relief notes / plan).
+11. **GPIO26 / radar OUT — RESOLVED (pin-relief R1).** The bench radar's OUT default
+   used to be GPIO26, the MCP3008 bit-banged CS (board 2). Unlike a passive shared net
+   (e.g. the reed switches on 17/27), the radar OUT is an **always-on active driver**, so
+   it fights the Pi-driven CS whenever the ADC test runs — and software cleanup can't
+   quiet an external sensor. `t/361` now defaults the radar to **GPIO7** (CE1), the only
+   board-free pin (`t/361:75`; env `RPI_RADAR_PIN`). **Interim:** when the radar is
+   permanently placed it will read through an MCP23017 expander input (zero header pin,
+   like the steppers), which frees GPIO7 again.
 12. **Shared I2C addresses across contexts [T] (bench).** MPU-6050 gyro and DS3231
    RTC both answer at **0x68**; the ADXL335's ADS and the board-2 ADS both at
    **0x48** on the same channels. Board vs bench, never co-resident; escape hatches
@@ -920,6 +926,6 @@ objects/pins in the same shm segment.
       Arduino. **[F]** — verify rails/parts against your hardware (§11).
 - [ ] **Bench devices (not on the fabbed boards, §Scope)** — wire only when needed;
       they claim header pins the boards leave free: TFT ST7735S on CE0/GPIO8 +
-      DC25/RES24/BLK23 + MOSI10/SCLK11 (t/447); radar OUT on GPIO26 or a free pin via
-      `RPI_RADAR_PIN` (t/361); MPU-6050 @0x68 and ADXL335's ADS @0x48 on I2C (t/358,
+      DC25/RES24/BLK23 + MOSI10/SCLK11 (t/447); radar OUT on GPIO7/CE1 (default; interim
+      until an expander, `RPI_RADAR_PIN` to move it) (t/361); MPU-6050 @0x68 and ADXL335's ADS @0x48 on I2C (t/358,
       t/360); A4988 via MCP23017 @0x22 (t/353, zero header GPIO). **[T]**

@@ -49,16 +49,25 @@ Unknowns are **flagged as unknown**, never invented. The test suite is the sourc
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| _(all V1–V8 complete — see archive)_ | | | | |
+| V9 | **Implement R1 (interim)** — change `t/361-radar.t` default pin **26 → 7** (CE1), add assertions that `radar()` puts the pin in INPUT mode and that `cleanup()` restores its at-rest alt; sync the docs (pinout doc, board matrix, pin-relief) off GPIO26. | `perl -c t/361-radar.t`; live bench run with radar OUT rewired to GPIO7 | Syntax OK + skip-clean + docs synced (done); live 361 passes incl. the new mode + restore asserts | ⏳ code + docs done 2026-07-12; live bench run pending (rewire radar OUT→GPIO7). Interim — permanent home is B3 (expander). |
 
 Implementation of the accepted relief strategies is a **new, user-gated phase**: on
-the user's decisions (A/B/C in `scratchpad/pin-relief-recommendation.md`), promote each
-accepted strategy (R1/R2/R3/…) to a fresh V-task here. Per "Explicitly NOT doing", this
-plan itself does not implement HW/test changes.
+the user's decisions (A/B/C in `docs/test-platform/pin-relief/pin-relief-recommendation.md`),
+promote each accepted strategy (R1/R3/R4/…) to a fresh V-task here. Per "Explicitly NOT
+doing", this plan itself does not implement HW/test changes.
 
 ## Discovery Tracking
 
-_None yet._
+**Post-V8 refinement (2026-07-12, user):** **R2 REJECTED.** The board-5 parallel LCD stays
+on native GPIO — its purpose is to test wiringPi's native parallel `lcd_init` path, which
+moving it to any expander/backpack would delete. Verified `RPi::LCD` is a thin wrapper over
+wiringPi's C `lcd_init` (`LCD.pm:8,34`); its pins bit-bang in C and can't be driven by the
+user's own `RPi::GPIOExpander::MCP23017` without reimplementing HD44780 in Perl (and
+`WiringPi::API` exposes no `mcp23017Setup`). So GPIO 4/5/6/17/22/27 are irreducible by
+design. Revised relief: **R3** (centre LED GPIO19 → 0x21 expander via the user's own lib,
+~+1 pin) + **R1** (radar off GPIO26, hygiene); R5 moot. The `pin-relief/` docs are updated;
+resolves flag F-d. Net honest gain is ~1 fabbed-board pin — the platform is near-full by
+design.
 
 ## Known findings seeded at plan authoring (2026-07-12, to verify in V1–V3)
 
@@ -82,6 +91,8 @@ These were observed while authoring; each must be re-verified with citations dur
 B1: Consider adding a machine-checkable test/assertion that fails when a doc pin table drifts from the suite (guard against the staleness this plan is fixing).
 
 B2: `test-pinout-doc.tmpl.md` §12 default-state table is generated from `RPiTest.pm`; confirm the generator still round-trips after V4 edits (it should only own §12).
+
+B3: **Radar permanent home — read through an MCP23017 expander input (frees GPIO7).** The GPIO7 placement (V9/R1) is interim. When the user permanently attaches the radar, rework `RPi::Radar::RCWL0516` to accept an `expander =>` (like the steppers) and read its OUT via an I2C expander input pin, so the bench radar costs zero header GPIO. User will drive this when they wire it to its permanent spot ("finalize the mess permanently").
 
 ## Explicitly NOT doing
 

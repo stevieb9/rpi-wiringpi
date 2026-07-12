@@ -1,5 +1,11 @@
 # V2 — Master GPIO occupancy table (BCM 0–27)
 
+> **Post-audit update (2026-07-12): R1 implemented (interim).** The radar's default
+> moved **GPIO26 → GPIO7** in `t/361`, so the GPIO26 CONFLICT below is **resolved**
+> (see K1) and GPIO7 is now the radar's interim default (free again once the radar
+> moves to an expander — backlog B3). The table/notes below are the *as-audited*
+> (pre-R1) snapshot; `../test-pinout-doc.md` carries the current state.
+
 Built from `pin-inventory.md` (V1). Every role traces to a V1 [T]/[L] fact.
 Classification: **FREE** (no assigned role) · **SINGLE** (one fixture) ·
 **SHARED-safe** (multiple roles but the tests never run concurrently — serial
@@ -72,7 +78,7 @@ Each clash classified grounded (no guessing): **DEFECT** (a real bug to fix),
 once). "Never concurrent" rests on `RPiTest.pm:3-7` (serial-only) + per-test
 cleanup, and on the per-device env gates.
 
-### K1 — GPIO26: MCP3008 CS ⟷ radar OUT → **DOC-ERROR + relief candidate** (not a defect)
+### K1 — GPIO26: MCP3008 CS ⟷ radar OUT → **RESOLVED 2026-07-12 (R1)** — radar moved to GPIO7 (interim)
 - Evidence: MCP3008 CS=26 [T t/410:35], radar OUT=26 [T t/361:65]. MCP3008 is board 2;
   radar is bench. Gated separately (RPI_I2C-family vs RPI_RADAR); never concurrent.
 - The radar driver has **no built-in default pin** — it croaks if none is given

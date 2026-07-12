@@ -19,9 +19,14 @@ The platform spends Pi GPIO for two different reasons, and only one is negotiabl
     lives only on a few pins and the interrupt tests need a real Pi pin [tmpl §7; t/200-213,400,425]
   - the **bit-banged SPI CS 12/13/26** and **74HC595 16/20/21** — testing software-CS
     and `shift_register()` over *real GPIO* is the point of t/410/435/445 [tmpl §5,§8]
-- **Reducible — the pin drives a peripheral that could ride I2C/an expander instead,
-  or duplicates coverage.** Displays, indicator LEDs, sensor sensing, and the parallel
-  LCD (which duplicates the I2C LCD's driver coverage). This is where the pins are.
+  - the **parallel LCD 4/5/6/17/22/27** — exercising wiringPi's *native parallel*
+    `lcd_init` path is the deliberate purpose of t/620 (user 2026-07-12); the I2C path is
+    covered separately by the PCF8574 LCD (t/335). Moving these to an expander deletes that
+    coverage → **irreducible by design** (see R2, rejected).
+- **Reducible — the pin drives a peripheral that could ride I2C/an expander instead.**
+  After the parallel-LCD decision, this is now just **indicator LEDs** and the **bench**
+  devices — a much smaller set than first estimated. This is where the (little) remaining
+  relief is.
 
 **The proven lever (already in-tree):** an MCP23017 makes a fixture cost **zero** header
 GPIO — the 28BYJ-48 (@0x21) and A4988 (@0x22) drive *all* their control lines, including
@@ -36,7 +41,10 @@ per command) and **native-edge-interrupt** inputs do NOT move without extra work
 
 ## Strategies
 
-### R1 — Move the radar OUT off GPIO26  ·  freed: resolves the only conflict (net 0)  ·  risk: ~0
+### R1 — Move the radar OUT off GPIO26  ·  ✅ IMPLEMENTED 2026-07-12 (interim)  ·  freed: resolves the only conflict (net 0)  ·  risk: ~0
+- **Done:** `t/361` now defaults the radar to **GPIO7** (CE1), the only board-free pin,
+  and asserts the pin comes up INPUT and that `cleanup()` restores it. Interim — the
+  permanent home is an MCP23017 expander input (radar rework, backlog), which frees GPIO7.
 - Now: radar OUT defaults to **GPIO26**, colliding with the MCP3008 bit-banged CS
   [V1 K1; t/361:65]. The driver has **no** built-in default and the pin is env-settable
   (`RPI_RADAR_PIN`) [RCWL0516.pm:27-28], so 26 is purely the test file's choice.
@@ -45,27 +53,37 @@ per command) and **native-edge-interrupt** inputs do NOT move without extra work
 - Effect: doesn't increase the free count, but lets radar + MCP3008 co-exist and stops
   a live-header conflict. **The cheapest, safest item — do it regardless.**
 
-### R2 — Convert the board-5 parallel HD44780 to an I2C backpack  ·  freed: 4 (+ de-conflict 2)  ·  risk: LOW*
-- Now: the parallel LCD (t/620) burns **6** pins: **4/5/6/22** dedicated + **17/27**
-  shared with the stepper limits [V1; tmpl §6]. It's the single largest reducible
-  consumer.
-- Proven alternative: the **I2C LCD** (t/335, HD44780 behind a **PCF8574 @0x27**) drives
-  the *same* `RPi::LCD` module over I2C with **zero** Pi GPIO — and it already passes
-  [V1 t/335; tmpl §6 note].
-- Do: re-wire board 5's LCD to a PCF8574 backpack (you've OK'd board changes).
-- Effect: frees **4/5/6/22** outright; **17/27** become stepper-limit-only (no longer a
-  shared net → removes collision K5). **Biggest single win.**
-- *Coverage cost (your call, V8):* `RPi::LCD`'s *native-GPIO 4-bit* path is only covered
-  by t/620. Options: (a) drop t/620 and accept I2C-only LCD coverage; (b) keep t/620 but
-  move its 6 lines onto an MCP23017 (parallel-over-expander) — costs an expander, keeps
-  the driver's parallel path exercised, still frees the *header* pins.
+### R2 — Convert the board-5 parallel HD44780 to an expander/backpack  ·  ❌ REJECTED (user 2026-07-12)
+- **REJECTED — the parallel LCD is irreducible by design.** Its whole purpose is to
+  exercise wiringPi's **native parallel `lcd_init` path**; moving its data lines onto any
+  expander (PCF8574 backpack *or* the `0x21` MCP23017) deletes exactly that coverage.
+  `RPi::LCD` is a thin wrapper over wiringPi's C LCD library (`LCD.pm:8,34` — `use parent
+  'WiringPi::API'`, `init`→`lcd_init`→C `lcdInit`), so the HD44780 protocol bit-bangs in C
+  and only reaches pins wiringPi knows (native, or `pcf8574Setup`/`sr595Setup` nodes — **no
+  `mcp23017Setup` is exposed** in this WiringPi::API build). The user's own
+  `RPi::GPIOExpander::MCP23017` can't be injected into that C path without reimplementing
+  HD44780 in Perl, and doing so would test a *different* path than the one t/620 exists for.
+  The I2C-backpack path gets its own coverage from a separate PCF8574 LCD (`t/335`) sited
+  elsewhere.
+- **Consequence:** GPIO **4/5/6/17/22/27** are now **irreducible** (moved to the floor
+  below). This removes the single largest relief candidate; the reclaimable budget on the
+  fabbed boards shrinks to essentially **GPIO19** (R3).
+- Footnote for R3: the `0x21` expander's spare Bank-B pins the user has wired ARE a good
+  home — but for the **centre LED** (a plain `$exp->write`, works through the user's own
+  library), not the LCD.
 
-### R3 — Move the stepper centre LED (GPIO19) onto an expander  ·  freed: 1  ·  risk: LOW
+### R3 — Move the stepper centre LED (GPIO19) onto the 0x21 expander  ·  freed: 1  ·  risk: LOW  ·  **the one clean fabbed-board win**
 - Now: **GPIO19** is a plain indicator LED pulsed by a `worker` fork [V1 t/350:143; tmpl §8].
-- An LED is the ideal low-frequency expander load (the A4988 precedent proves outputs work).
-  Board 3 already has MCP23017s on the bus — add the LED to a spare expander pin.
-- Effect: frees **19**. Small driver-side change (drive the LED via the expander object);
-  the stepper test already talks to an expander, so the plumbing exists.
+- Unlike the LCD (R2), this works through the user's **own** `RPi::GPIOExpander::MCP23017`
+  with **no** wiringPi involvement — an LED is a single digital output, so it's just
+  `$exp->write($pin, HIGH/LOW)`, exactly like the stepper already drives its coils. No
+  HD44780/`lcd_init` C-path problem applies here.
+- Fit: the `0x21` chip (board 3, stepper drive) has 12 free pins (16 − 4 for the 28BYJ-48 on
+  Bank A0-3); a Bank-B pin is a perfect home. The stepper test already builds that expander,
+  so the plumbing exists.
+- Effect: frees **19**. Small test/driver change (drive the LED via the expander object);
+  negligible coverage change (the `worker`-fork test still pulses an output). **Primary
+  recommendation now that R2 is out.**
 
 ### R4 — Move the TFT BLK + RES (GPIO23/24) off the header  ·  freed: up to 2  ·  risk: MEDIUM
 - Now: the bench TFT uses **8**(CE0/CS), **25**(D/C), **24**(RES), **23**(BLK) [V1 t/447].
@@ -77,15 +95,11 @@ per command) and **native-edge-interrupt** inputs do NOT move without extra work
   the `backlight()`/reset test coverage.
 - Effect: frees **23/24**; TFT shrinks to 2 header pins (CS + D/C).
 
-### R5 — Move the stepper CW/CCW limit switches (GPIO17/27) onto an expander  ·  freed: 2 (post-R2)  ·  risk: MED-HIGH
-- Now: **17/27** read magnetic limit switches via the Pi's **native `background_interrupt`**
-  [V1 t/350:148,152,157,163]. (Pre-R2 they're shared with the LCD; post-R2 they're
-  stepper-only.)
-- MCP23017 has its own INT output, but moving these loses the *native* Pi-interrupt path
-  the test exercises — you'd route the expander INT to one Pi GPIO and rework the test's
-  interrupt handling (**test + wiring change**). This partly defeats the purpose (the test
-  is partly *about* native background interrupts).
-- Effect: frees **17/27** but trades native-interrupt coverage. Lower priority than R1–R4.
+### R5 — Move the stepper CW/CCW limit switches (GPIO17/27) onto an expander  ·  ⊘ MOOT (R2 rejected)
+- **Now moot.** 17/27 are **shared** with the parallel LCD (D5/D6), which stays on native
+  GPIO (R2 rejected). So the LCD keeps 17/27 regardless — moving the stepper limits off them
+  frees **nothing**, and would still lose the native `background_interrupt` coverage
+  [V1 t/350:148,152,157,163]. Not worth doing.
 
 ### R6 — 74HC595 control lines (GPIO16/20/21)  ·  freed: up to 3  ·  risk: HIGH / low value
 - The 595 is bit-banged on **16/20/21** *because t/435 tests `shift_register()` over real
@@ -110,31 +124,37 @@ per command) and **native-edge-interrupt** inputs do NOT move without extra work
 
 ## Ranked shortlist (value ÷ risk)
 
+Updated after the R2 rejection (user 2026-07-12): the parallel LCD stays native GPIO.
+
 | # | Strategy | Header pins freed | Risk | Needs |
 |---|----------|-------------------|------|-------|
-| 1 | **R1** radar off GPIO26 | 0 (resolves conflict) | ~0 | 1-line test default |
-| 2 | **R2** parallel LCD → I2C backpack | **4** (+de-conflict 17/27) | LOW* | board-5 re-wire; coverage decision |
-| 3 | **R3** centre LED → expander | 1 | LOW | small driver change (expander already present) |
-| 4 | **R4** TFT BLK/RES → expander or tie-off | up to 2 | MED | TFT expander-pin support (unverified) or coverage drop |
-| 5 | **R5** stepper limits → expander INT | 2 | MED-HIGH | test rework; trades native-interrupt coverage |
-| — | R6 74HC595, R7 SPI-CS, R8 GPIO0/1 | — | — | **reject / low value** (coverage-defeating or marginal) |
+| 1 | **R3** centre LED (GPIO19) → 0x21 expander | **1** | LOW | small test/driver change; uses the user's own MCP23017 lib |
+| 2 | **R1** radar off GPIO26 | 0 (resolves conflict) | ~0 | 1-line test default (bench) |
+| — | **R4** TFT BLK/RES → expander/tie-off | up to 2 (**bench only**) | MED | TFT expander-pin support (F-a) or coverage drop |
+| ✗ | **R2** parallel LCD → expander/backpack | — | — | **REJECTED** — LCD tests the native parallel path by design |
+| ⊘ | **R5** stepper limits off 17/27 | 0 | — | **MOOT** — LCD keeps 17/27 |
+| — | R6 74HC595, R7 SPI-CS, R8 GPIO0/1 | — | — | **reject / low value** |
 
-## Net budget
+## Net budget (revised)
 
 - **Free header pins today:** 1 (GPIO7/CE1) [V2].
-- **Low-risk, minimal-coverage-loss (R1+R2+R3):** ~**+5** header pins (GPIO4/5/6/22 + 19),
-  and the header stops being over-subscribed. R2 is ~80% of the win.
-- **If you also accept coverage/rework trades (R4+R5):** up to **+4** more (23/24 + 17/27),
-  i.e. ~**9–10** pins reclaimable in total.
+- **Realistic fabbed-board relief:** ~**+1** (GPIO19 via R3), plus R1 resolves the GPIO26
+  conflict (net 0 pins). The earlier ~+5 estimate assumed R2, which the user has ruled out.
+- **Bench-only (doesn't help the fabbed-board budget):** R4 can trim the TFT to 2 header
+  pins (frees 23/24) if you add expander support or tie BLK/RES off.
 - **Irreducible floor (never free without dropping a library feature under test):**
-  2/3 (I2C), 9/10/11 (SPI), 14/15 (UART), 18 (PWM/servo/native-interrupt), and the
-  software-CS / shift-register GPIO the tests exist to prove.
+  2/3 (I2C), 9/10/11 (SPI), 14/15 (UART), 18 (PWM/servo/native-interrupt), the software-CS
+  12/13/26, the 74HC595 GPIO 16/20/21, **and the parallel LCD 4/5/6/17/22/27** (tests the
+  native `lcd_init` path — user decision).
+- **Bottom line:** this platform is near-fully-subscribed *on purpose*. The main honest
+  relief is R3 (one pin, clean, via your own library) + R1 (hygiene).
 
 ## Open items to verify before implementing (do-not-guess flags)
 - **F-a:** Does the ST7735S driver accept an expander/virtual pin for `bl`/`rst`? (R4)
-- **F-b:** Does `shift_register()` accept expander pins, and is I2C-bit-banged shifting
-  acceptable? (R6 — only matters if pursued)
-- **F-c:** MCP23017 INT→Pi-GPIO wiring + `background_interrupt` rework for R5.
-- **F-d:** If R2 keeps t/620 via an expander, confirm `RPi::LCD` parallel mode accepts
-  virtual pins (the PCF8574 path suggests yes, but the *parallel* constructor path is
-  separate — verify).
+- **F-b:** Does `shift_register()` accept expander pins? (R6 — only matters if pursued)
+- **F-c:** MCP23017 INT→Pi-GPIO wiring + `background_interrupt` rework (R5 — now moot).
+- **F-d:** ✅ RESOLVED — `RPi::LCD` is a thin wrapper over wiringPi's C `lcd_init`
+  (`LCD.pm:8,34`); the HD44780 protocol bit-bangs in C and can only reach native pins or
+  wiringPi extension nodes. No `mcp23017Setup` is exposed, and the user's own MCP23017 lib
+  can't be injected without reimplementing HD44780 in Perl. This (plus the design intent to
+  test the native path) is why R2 is rejected.
