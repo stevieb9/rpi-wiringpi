@@ -25,6 +25,18 @@ position) or "chip pin" (a peripheral IC's own pin). The suite forces the BCM
 numbering scheme (`pin_scheme()` ⇒ GPIO; `t/106`), and `last_interrupt()` reports
 `pin_bcm` (`t/204:56`).
 
+**Scope — fabbed boards vs bench devices.** This reference covers two populations
+of hardware. (1) The **fabbed test-platform boards 1–5** (the PCB this doc was
+built for): boards 2/3/4/5 carry the SPI-analog, expander/stepper, I2C-sensor and
+5V-logic fixtures; board 1 (host) additionally carries the I2C LCD (`t/335`) and
+the planned PCA9685 (`t/440`). (2) A newer wave of **bench-wired** robot/display
+devices that are **not on any fabbed board** — the ST7735S TFT (`t/447`), RCWL-0516
+radar (`t/361`), MPU-6050 gyro (`t/358`), ADXL335 accelerometer (`t/360`) and A4988
+stepper (`t/353`) — jumper-wired straight to the header and gated by their own env
+vars. Where a pin/role is bench-only it is tagged **(bench)**; on the fabbed boards
+those pins are still free. See the board matrix (`test-board-matrix.md`) for the
+device↔board mapping.
+
 ---
 
 ## Table of contents
@@ -42,7 +54,7 @@ numbering scheme (`pin_scheme()` ⇒ GPIO; `t/106`), and `last_interrupt()` repo
 - [6. LCD — HD44780, 4-bit mode](#6-lcd--hd44780-4-bit-mode-t525-t)
 - [7. GPIO18 — the multiplexed workhorse pin](#7-gpio18--the-multiplexed-workhorse-pin-physical-pin-12)
 - [8. Shift register & stepper](#8-shift-register--stepper-indirect-drives)
-- [9. Pins NOT wired to fixtures](#9-pins-not-wired-to-fixtures-free-for-generic-tests-t)
+- [9. Pins NOT wired to fixtures](#9-pins-not-wired-to-fixtures-t)
 - [10. Collisions & shared-net warnings](#10-collisions--shared-net-warnings)
 - [11. Power rails — supply connections](#11-power-rails--supply-connections-f)
   - [11.1 +3V3 bus](#111-3v3-bus)
@@ -65,7 +77,8 @@ in the tests, which write a value and then read it back to compare.
    Pi / device drives  ───────────────►  read back by            Proven in
    --------------------------------------------------------------------------
    GPIO18 PWM / servo            ─►  ADS1015 #1 (0x48) A0         t/405, t/425
-   MCP4XXXX dpot wiper           ─►  ADS1015 #1 (0x48) A1         t/445
+   MCP4XXXX dpot PW0 wiper       ─►  ADS1015 #1 (0x48) A1         t/445
+   MCP4XXXX dpot PW1 wiper       ─►  ADS1015 #1 (0x48) A2         t/445
    MCP4922 DAC out A (set 0,..)  ─►  MCP3008 (CS=GPIO26) CH1      t/410
    MCP4922 DAC out B (set 1,..)  ─►  MCP3008 (CS=GPIO26) CH3      t/410
    74HC595 first Q (vpin 401)    ─►  MCP3008 (CS=GPIO26) CH2      t/435
@@ -76,9 +89,10 @@ in the tests, which write a value and then read it back to compare.
 ```
 
 Loop-back evidence (representative):
-- `t/405:55,57,75-82` writes PWM on GPIO18, reads `$adc_in=0` on ADS @ `0x48`.
-- `t/445:51,67-68` sweeps the dpot, reads channel `1` on ADS @ `0x48`.
-- `t/410:36-37,69-82,88-100` writes DAC A/B, reads MCP3008 CH1/CH3.
+- `t/405:56,57,75-82` writes PWM on GPIO18, reads `$adc_in=0` on ADS @ `0x48`.
+- `t/445:38-39,68-69` sweeps **two** dpots, reads PW0 on channel `1` (`ADC_PW0=>1`)
+  and PW1 on channel `2` (`ADC_PW1=>2`) of the ADS @ `0x48`.
+- `t/410:37-38,69-82,88-100` writes DAC A/B, reads MCP3008 CH1/CH3.
 - `t/435:51,53-76` writes shift-register output (virtual pin `401`), reads MCP3008 CH2.
 - `t/355:671-674` drives MCP23017 `GPA(n)` and reads `GPB(7-n)` (the IC is wired straight across the DIP) for n=0..7.
 - `t/350:362-395` steps via expander Bank A (0x21); the CW/CCW magnetic limit switches on GPIO17/27 fire edges captured by `background_interrupt` (`t/350:156,162`). Centre is computed, not sensed.
@@ -93,40 +107,51 @@ attached). "generic" = the pin is claimed/toggled as an ordinary GPIO by the
 registration test (`t/110`) and/or the multi-process tests (`t/111-114`,
 `t/multi/*`) — see §10. Every role here is **[T]** unless marked otherwise.
 
+`★` = wired to a fabbed-board fixture · `☖` = **bench**-wired only (not on any
+fabbed board — see the Scope note) · blank = free / generic.
+
 | BCM | Phys | Wired | Net / role | Proven by |
 |----:|-----:|:-----:|------------|-----------|
-|  2 |  3 | ★ | **I2C SDA** (shared bus) | t/605,530,355,531,540-542,350,500-520 |
+|  2 |  3 | ★ | **I2C SDA** (shared bus) | t/605,530,355,531,540-542,350,500-520,335,358,360,440,353 |
 |  3 |  5 | ★ | **I2C SCL** (shared bus) | (as above) |
-|  4 |  7 | ★ | LCD D4 (`d0`) | t/620:45-61 |
-|  5 | 29 | ★ | LCD RS (`rs`) | t/620:45-61 |
-|  6 | 31 | ★ | LCD E (`strb`) | t/620:45-61 |
-|  7 | 26 |   | SPI CE1 — **unused** (CS is bit-banged) | default-config alt; §5 |
-|  8 | 24 |   | SPI CE0 — **unused** (CS is bit-banged) | default-config alt; §5 |
+|  4 |  7 | ★ | LCD D4 (`d0`) | t/620:50-59 |
+|  5 | 29 | ★ | LCD RS (`rs`) | t/620:50-59 |
+|  6 | 31 | ★ | LCD E (`strb`) | t/620:50-59 |
+|  7 | 26 |   | SPI CE1 — **unused; the only truly-free header pin** (§9) | default-config alt; §5,§9 |
+|  8 | 24 | ☖ | **TFT ST7735S CS — hardware CE0** (bench) — *was "unused"* | t/447:46,69 [L] channel 0→CE0 |
 |  9 | 21 | ★ | **SPI MISO** (shared) — MCP3008 read-back only | t/410,435 [L] pin# |
-| 10 | 19 | ★ | **SPI MOSI** (shared) — MCP3008/MCP4922/MCP4XXXX | t/410,435,445 [L] pin# |
-| 11 | 23 | ★ | **SPI SCLK** (shared) | t/410,435,445 [L] pin# |
-| 12 | 32 | ★ | MCP4922 DAC **CS** (bit-banged) (+ generic) | t/410:34,46-50; t/110, multi |
-| 13 | 33 | ★ | MCP4XXXX dpot **CS** (bit-banged) | t/445:33,51 |
+| 10 | 19 | ★ | **SPI MOSI** (shared) — MCP3008/MCP4922/MCP4XXXX + TFT (bench) | t/410,435,445,447 [L] pin# |
+| 11 | 23 | ★ | **SPI SCLK** (shared) — + TFT (bench) | t/410,435,445,447 [L] pin# |
+| 12 | 32 | ★ | MCP4922 DAC **CS** (bit-banged) (+ generic) | t/410:35,59-63; t/110, multi |
+| 13 | 33 | ★ | MCP4XXXX dpot **CS** (bit-banged) | t/445:34,52 |
 | 14 |  8 | ★ | UART TXD → GPIO15 | t/610 |
 | 15 | 10 | ★ | UART RXD ← GPIO14 | t/610 |
-| 16 | 36 | ★ | 74HC595 LATCH (ST_CP) (+ generic) | t/435:47; multi |
-| 17 | 11 | ★ | LCD D5 (`d1`) + stepper **CW limit switch** | t/620:45-61; t/350:147 |
+| 16 | 36 | ★ | 74HC595 LATCH (ST_CP) (+ generic) | t/435:48; multi |
+| 17 | 11 | ★ | LCD D5 (`d1`) + stepper **CW limit switch** | t/620:50-59; t/350:148 |
 | 18 | 12 | ★ | **PWM/servo out + interrupt source + ADS#1 A0** (+ generic) | t/105,400,405,200-213,425,110,150,multi |
-| 19 | 35 | ★ | stepper **centre LED** (computed centre) | t/350:142-144 |
-| 20 | 38 | ★ | 74HC595 CLOCK (SH_CP) | t/435:47 |
-| 21 | 40 | ★ | 74HC595 DATA (DS) (+ alt-mode test, generic) | t/435:47; t/107; multi |
-| 22 | 15 | ★ | LCD D7 (`d3`) | t/620:45-61 |
-| 23 | 16 |   | spare / generic test pin | default-config; state checks |
-| 24 | 18 |   | spare / generic test pin | default-config; state checks |
-| 25 | 22 |   | spare / generic test pin | default-config; state checks |
-| 26 | 37 | ★ | MCP3008 ADC **CS** (bit-banged) (+ generic) | t/410,435; t/110, multi |
-| 27 | 13 | ★ | LCD D6 (`d2`) + stepper **CCW limit switch** | t/620:45-61; t/350:151 |
+| 19 | 35 | ★ | stepper **centre LED** (computed centre) | t/350:143 |
+| 20 | 38 | ★ | 74HC595 CLOCK (SH_CP) | t/435:48 |
+| 21 | 40 | ★ | 74HC595 DATA (DS) (+ alt-mode test, generic) | t/435:48; t/107; multi |
+| 22 | 15 | ★ | LCD D7 (`d3`) | t/620:50-59 |
+| 23 | 16 | ☖ | **TFT BLK / backlight** (bench) — *was "fully spare"* | t/447:47,72 [T] |
+| 24 | 18 | ☖ | **TFT RES / reset** (bench) — *was "fully spare"* | t/447:47,71 [T] |
+| 25 | 22 | ☖ | **TFT D/C** (bench) — *was "fully spare"* | t/447:46,70 [T] |
+| 26 | 37 | ★☖ | MCP3008 ADC **CS** (bit-banged) (+ generic) **+ radar OUT (bench)** | t/410,435; t/110; **t/361:65** |
+| 27 | 13 | ★ | LCD D6 (`d2`) + stepper **CCW limit switch** | t/620:50-59; t/350:152 |
 |  0 | 27 |   | ID_SD — generic test pin | default-config (idles high) |
 |  1 | 28 |   | ID_SC — generic test pin | default-config (idles high) |
 
 > **[F]** GPIO0/1 are physically the reserved I2C0 ID-EEPROM (HAT board-ID) pins.
 > The tests only treat them as generic pins that idle high; the "leave unrouted"
 > guidance is hardware convention, not a test fact.
+
+> **Only one truly-free header pin remains.** After the bench device wave, GPIO7
+> (CE1) is the sole header BCM with no assigned role. The pins the older doc called
+> "spare" — **GPIO23/24/25** and hardware **CE0/GPIO8** — are now claimed by the
+> bench-wired TFT (`t/447`), and **GPIO26** additionally carries the radar OUT
+> (`t/361`, bench) on top of the MCP3008 CS. These bench claims do **not** consume
+> pins on the fabbed boards (the TFT/radar are off-PCB), but on a live header they
+> leave the Pi effectively out of GPIO — the motivation for the pin-relief work.
 
 ### 2.1 Bare 40-pin header (J8) — native functions (orientation only)
 
@@ -183,7 +208,11 @@ registration test (`t/110`) and/or the multi-process tests (`t/111-114`,
 **Bit-banged chip-selects [T].** The three SPI chip-selects (GPIO26/12/13) are
 ordinary GPIOs toggled in software, **not** the hardware CE0/CE1 (GPIO8/7) — see
 §5 for the decoding. The 74HC595 (GPIO21/20/16) is fully bit-banged GPIO
-(`t/435:47`). Clock/data still ride hardware SPI (GPIO9/10/11) **[L]**.
+(`t/435:48`). Clock/data still ride hardware SPI (GPIO9/10/11) **[L]**.
+
+**The map above is the fabbed-board (PCB) view** — on the PCB, `8/23/24/25` are
+spare and CE0/CE1 are unused, as drawn. The bench-wired TFT/radar (§Scope) claim
+`8/23/24/25/26` only when jumpered to the live header; they are off-PCB.
 
 ### 2.3 Bus topology and loop-backs
 
@@ -278,8 +307,9 @@ Every test that touches a pin or a device, decoded from its constructor call to
 the concrete devices and pins it needs on the board. Tests that exercise no
 hardware — module-load (`t/00,02,03,05`), identification/config (`t/100,104,106,309`),
 in-process metadata (`t/111`), signal/exit (`t/153,154`), sysinfo (`t/300-308`),
-the OLED lock-file cleanup (`t/520`), and POD/manifest (`t/899,900,905,910,915`) —
-are omitted here.
+the OLED lock-file cleanup (`t/520`), the HW-free unit tests
+(`t/354,356,357,359,362,448` and the other `*_unit` files, which mock the bus and
+touch no pins), and POD/manifest (`t/899,900,905,910,915`) — are omitted here.
 
 Pins are **BCM GPIO**; I2C devices are given by bus address. "generic GPIO" =
 the pin is claimed/toggled as an ordinary GPIO with no peripheral attached. SPI
@@ -317,6 +347,20 @@ devices share **SDA=GPIO2 / SCL=GPIO3**. See the cited sections for full decodin
 | `500-oled_new.t` … `509-oled_horizontal_line.t` (10 OLED tests) | OLED SSD1306 128×64 | I2C SDA2/SCL3 @0x3c |
 | `620-lcd.t` | HD44780 LCD (20×4, 4-bit) | RS=GPIO5, E=GPIO6, D4=GPIO4, D5=GPIO17, D6=GPIO27, D7=GPIO22 |
 
+**Newer devices (added since the original derivation).** These join the suite via
+their own env gates; the TFT/radar/gyro/adxl335/a4988 are **bench**-wired (§Scope),
+the I2C LCD and PCA9685 belong to board 1.
+
+| Test file | Device(s) required | Pinout / connections |
+|-----------|--------------------|----------------------|
+| `335-lcd_i2c.t` | HD44780 on PCF8574 backpack | I2C SDA2/SCL3 @**0x27**; RS/E/D4-7 are PCF8574 virtual pins (base 64), **no Pi GPIO** beyond the bus (`t/335:38,62`; `WiringPi.pm:290,300`) — board 1 |
+| `353-a4988.t` | A4988 stepper via MCP23017 | I2C SDA2/SCL3 @**0x22**; STEP/DIR/MS1-3/ENABLE/SLEEP/RESET = expander GPA0-7, **no Pi GPIO** (`t/353:88-97,99,135`; facade skips Pi-pin registration when `expander` passed, `WiringPi.pm:472-488`) — bench |
+| `358-gyro.t` | MPU-6050 IMU | I2C SDA2/SCL3 @**0x68** (`t/358:76`; WHO_AM_I asserted); shares the RTC address (§4, §10) — bench |
+| `360-adxl335.t` | ADXL335 via ADS ADC | I2C SDA2/SCL3; analog X/Y/Z → ADS (model `ADS1115` default) @**0x48** channels **0/1/2** (`t/360:71-76`; `ADS.pm:191`) — no Pi GPIO beyond the bus — bench. Same addr+channels as the board-2 ADS (§10) |
+| `361-radar.t` | RCWL-0516 motion | **GPIO26** OUT (input) — test default (driver has none; `RCWL0516.pm:27-28`), env `RPI_RADAR_PIN`; shares the MCP3008 CS net (§10) — bench |
+| `440-pca9685.t` | PCA9685 16-ch PWM | I2C SDA2/SCL3 @**0x40** (`PCA9685.pm:47`); register readback only, 16 PWM outs are the chip's own — board 1 (not wired yet) |
+| `447-tft_st7735s.t` | ST7735S 128×128 TFT | **hardware SPI0** MOSI10/SCLK11, **CS = hardware CE0/GPIO8** (channel 0); D/C=**GPIO25**, RES=**GPIO24**, BLK=**GPIO23**; write-only, no MISO (`t/447:46-47,69-72`) — bench |
+
 ---
 
 ## 4. I2C bus (GPIO2 SDA / GPIO3 SCL)
@@ -325,19 +369,32 @@ One shared 2-wire bus; each device by address. Addresses below are **[T]** when
 the test passes them explicitly, **[L]** when the test relies on the submodule
 default.
 
-| Addr | Device | Tests | Source of address |
-|------|--------|-------|-------------------|
-| 0x04 | Arduino (I2C slave) | t/605 (‡t/600) | **[T]** `ARDUINO_ADDR` t/605:20,40 |
-| 0x20 | MCP23017 #1 GPIO expander | t/355 | **[T]** `expander(0x20)` t/355:44 |
-| 0x21 | MCP23017 #2 GPIO expander (stepper drive) | t/350 | **[T]** `expander(0x21)` t/350:137 |
-| 0x3c | OLED SSD1306 128×64 | t/500-520 | **[T]** `oled('128x64',0x3C,0)` t/500:31 |
-| 0x48 | ADS1015 ADC #1 | t/405,425,445 | **[T]** `adc(addr=>0x48)` t/405:55, t/425:90, t/445:50 |
-| 0x57 | AT24C32 EEPROM | t/540-542 | **[T]** asserted default t/540:31 |
-| 0x68 | DS3231 RTC | t/530 | **[L]** `rtc()` passes no addr; default 0x68 (DS3231.pm:13) |
-| 0x77 | BMP180 pressure/temp | t/531 | **[L]** `bmp(100)` arg is a pin-base, not an addr; 0x77 from driver/datasheet |
+| Addr | Device | Tests | Board/ctx | Source of address |
+|------|--------|-------|-----------|-------------------|
+| 0x04 | Arduino (I2C slave) | t/605 (‡t/600) | B5 | **[T]** `ARDUINO_ADDR` t/605:21,41 |
+| 0x20 | MCP23017 #1 GPIO expander (loopback) | t/355 | B3 | **[T]** `expander(0x20)` t/355:45 |
+| 0x21 | MCP23017 #2 GPIO expander (28BYJ-48 stepper drive) | t/350 | B3 | **[T]** `expander(0x21)` t/350:138 |
+| **0x22** | **MCP23017 #3 GPIO expander (A4988 stepper drive)** | **t/353** | **bench** | **[T]** `expander($addr)`, `$addr//0x22` t/353:99 |
+| **0x27** | **PCF8574 backpack → HD44780 (I2C LCD)** | **t/335** | **B1** | **[T]** `LCD_ADDR` t/335:38,62 |
+| 0x3c | OLED SSD1306 128×64 | t/500-520 | B4 | **[T]** `oled('128x64',0x3C,0)` t/500:32 |
+| **0x40** | **PCA9685 16-channel PWM** | **t/440** | **B1** | **[L]** `new()` no addr; default 0x40 (PCA9685.pm:47) |
+| 0x48 | ADS1015 ADC #1 (PWM/servo + dpot readback) | t/405,425,445 | B2 | **[T]** `adc(addr=>0x48)` t/405:56, t/425:92, t/445:51 |
+| 0x48 | **ADS ADC for ADXL335** (same addr, bench) | **t/360** | **bench** | **[L]** `adc(model=>'ADS1115')` default addr 0x48 (ADS.pm:191) — see below |
+| 0x57 | AT24C32 EEPROM | t/540-542 | B4 | **[T]** asserted default t/540:32 |
+| 0x68 | DS3231 RTC | t/530 | B4 | **[L]** `rtc()` passes no addr; default 0x68 (DS3231.pm:13) |
+| **0x68** | **MPU-6050 gyro** (same addr, bench) | **t/358** | **bench** | **[T]** `$addr//0x68` t/358:76 — see below |
+| 0x77 | BMP180 pressure/temp | t/531 | B4 | **[L]** `bmp(100)` arg is a pin-base, not an addr; 0x77 from driver/datasheet |
 
 ‡ `t/600` is the I2C *exception* test: it probes a deliberately-absent address
-`0x99` (t/600:35,43) to verify error handling — it does not talk to a real device.
+`0x99` (t/600:36,44) to verify error handling — it does not talk to a real device.
+
+> **Shared addresses [T] (never co-resident).** Two pairs answer at the same
+> address but are never on the bus together (different context, separate env gates):
+> - **0x68** — DS3231 RTC (board 4) and MPU-6050 gyro (bench, `t/358:76`). If ever
+>   co-resident, strap the MPU-6050 AD0 pin high → **0x69** (MPU6050.pm:194-195).
+> - **0x48** — the board-2 ADS (PWM/servo=A0, dpot PW0=A1, dpot PW1=A2) and the
+>   bench ADS the ADXL335 reads on channels 0/1/2 (`t/360:71-76`). Different physical
+>   chips; a second ADS can strap **0x49–0x4B** (ADS.pm:184-186) to coexist.
 
 > **[F]** Notes the tests do **not** establish:
 > - The Arduino's board type. The test only uses I2C address `0x04`; "Metro Mini"
@@ -349,36 +406,44 @@ default.
 >   the Pi's native 3V3 and never reveal a shifter; it's a board-design assumption.
 
 ```
-            +3V3 ── pull-ups ──┐     ┌──────┬──────┬──────┬──── ... (all I2C devices)
- GPIO2 (SDA) ──────────────────┴─SDA─┤      │      │      │
- GPIO3 (SCL) ───────────────────SCL──┤ 0x20 │ 0x21 │ 0x48 │ 0x68 0x77 0x57 0x3c 0x04
-                                    MCP#1   MCP#2  ADS#1  RTC  BMP  EEPROM OLED Ardu
+      +3V3 ─ pull-ups ─┐   ┌────┬────┬────┬────┬── ... (all I2C devices)
+ GPIO2 (SDA) ──────────┴SDA┤    │    │    │    │
+ GPIO3 (SCL) ──────────SCL─┤0x20 0x21 0x22 0x48 0x68 0x77 0x57 0x3c 0x04 0x27 0x40
+                          MCP#1 MCP#2 MCP#3 ADS  RTC  BMP  EEP  OLED Ardu LCD  PCA
+                          (t355)(t350)(t353)(t405)(t530)(t531)(t540)(t500)(t605)(t335)(t440)
 ```
+Bench-only extras on the same bus when wired: MPU-6050 @0x68 (`t/358`), an ADS
+@0x48 for the ADXL335 (`t/360`).
 
-**One ADS1015 ADC [T].** `0x48` carries the two analog read-backs the suite needs
-— PWM/servo on A0 (`t/405,425`) and the dpot wiper on A1 (`t/445`). The stepper no
-longer uses an ADC: its limits are magnetic switches on Pi GPIO17/27 and centre is
-computed (§8).
+**One board-2 ADS1015 ADC [T].** `0x48` carries the analog read-backs the suite
+needs — PWM/servo on A0 (`t/405,425`) and **both dpot wipers, PW0 on A1 and PW1 on
+A2** (`t/445:38-39`). The stepper no longer uses an ADC: its limits are magnetic
+switches on Pi GPIO17/27 and centre is computed (§8).
 
-**Two MCP23017 expanders [T].** `0x20` is the loopback chip (`t/355`); `0x21` is a
-separate expander that drives the stepper coils (`t/350:137`).
+**Three MCP23017 expanders [T].** `0x20` is the loopback chip (`t/355`); `0x21`
+drives the 28BYJ-48 stepper coils (`t/350:138`); `0x22` drives the bench A4988
+stepper's control lines (`t/353:99`).
 
 ### 4.1 MCP23017 expanders — pin allocation **[T]**
 
-Two **separate** MCP23017s, one per job — `t/355`'s loopback chip at `0x20` and
-the stepper's drive chip at `0x21`:
+**Three separate** MCP23017s, one per job — `t/355`'s loopback chip at `0x20`, the
+28BYJ-48 stepper's drive chip at `0x21`, and the bench A4988 stepper's control
+chip at `0x22`:
 
 ```
-  #2 @0x21:  GPA0..GPA3  ─► ULN2003 IN1..IN4 ─► 28BYJ-48 coils   (t/350; drive)
   #1 @0x20:  GPA(n)     <-> GPB(7-n)   straight across the DIP   (t/355 loopback)
+  #2 @0x21:  GPA0..GPA3  ─► ULN2003 IN1..IN4 ─► 28BYJ-48 coils   (t/350; drive)
+  #3 @0x22:  GPA0..GPA7  ─► A4988 STEP/DIR/MS1-3/ENABLE/SLEEP/RESET (t/353; bench)
 ```
 
 `t/355` writes `GPA(n)` and reads it back on `GPB(7-n)` — the IC is jumpered
 **straight across the DIP** (GPA0↔GPB7, GPA1↔GPB6, … GPA7↔GPB0) — for **n = 0..7**,
-bidirectionally on the **0x20** chip (`t/355:671-682,697-708`). `t/350` drives
-`pins => [A0,A1,A2,A3]` = **GPA0-3** on the **0x21** chip (`t/350:137,271`);
-the `expander => $exp` path means the StepperMotor driver writes via I2C, not Pi
-GPIO — `StepperMotor.pm:159-163`.
+bidirectionally on the **0x20** chip (`t/355:672-683,698-709`). `t/350` drives
+`pins => [A0,A1,A2,A3]` = **GPA0-3** on the **0x21** chip (`t/350:138,272`);
+`t/353` drives the A4988's 8 control lines on **GPA0-7** of the **0x22** chip
+(`t/353:88-97,99`). In every case the `expander => $exp` path means the driver
+writes via I2C, not Pi GPIO — the facade registers **no** Pi pin
+(`WiringPi.pm:472-488`), so these steppers cost **zero** header GPIO.
 
 > **[F]** The MCP23017 RESET (chip pin 18) tie-high to 3V3 is standard practice;
 > the tests don't touch it.
@@ -393,33 +458,39 @@ submodules **[T]**:
 
 - **MCP3008** `adc(model=>'MCP3008', channel=>26)` — the single arg is the SPI
   *bus channel* only when it is 0/1; when **> 1 it is a GPIO used as CS** by the
-  driver (`MCP3008.pm:30-32`). So `26` ⇒ **CS = BCM 26** (`t/410:34,52-55`,
-  `t/435:33,47`). MCP3008 is the only SPI device that uses **MISO**.
+  driver (`MCP3008.pm:30-32`). So `26` ⇒ **CS = BCM 26** (`t/410:35,65-68`,
+  `t/435:34,43-46`). MCP3008 is the only SPI device that uses **MISO**.
 - **MCP4922 DAC** `dac(model=>'MCP4922', channel=>0, cs=>12)` — `channel`=SPI bus
-  0, **CS = BCM 12** (`MCP4922.pm:36-37`; `t/410:34,46-50`). Write-only (no MISO).
+  0, **CS = BCM 12** (`MCP4922.pm:36-37`; `t/410:35,59-63`). Write-only (no MISO).
 - **MCP4XXXX dpot** `dpot(13, 0)` — arg1 = **CS = BCM 13**, arg2 = SPI bus 0
-  (`MCP4XXXX.pm:16,19`; `t/445:33,51`). Write-only (no MISO).
+  (`MCP4XXXX.pm:16,19`; `t/445:34,52`). Write-only (no MISO).
 
-The hardware CE0/CE1 (GPIO8/7) stay free. All three SPI devices are powered at
-3V3 **[F]** (so the DAC/dpot/ADC analog range matches the Pi's 3V3 levels).
+The three board-2 SPI devices all bit-bang CS, so the fabbed boards leave the
+hardware CE0/CE1 (GPIO8/7) free. **The one exception is the bench-wired TFT**
+(`t/447`): the ST7735S is driven on **hardware CE0 (GPIO8, channel 0)** — the only
+device in the suite that uses a hardware chip-select — plus its own D/C, RES and
+BLK GPIOs (§Scope). It shares MOSI/SCLK with the board-2 SPI bus (one CS active at
+a time). All four board-2 SPI devices are powered at 3V3 **[F]**; the TFT at 3V3.
 
-| Device | CS (BCM, bit-banged) | MOSI | SCLK | MISO | Tests | Output read back by |
-|--------|---------------------:|------|------|------|-------|---------------------|
-| MCP3008 ADC | **26** | 10 | 11 | 9 | t/410,435 | (it is the reader) |
-| MCP4922 DAC | **12** | 10 | 11 | — | t/410 | out A→MCP3008 CH1, out B→MCP3008 CH3 |
-| MCP4XXXX pot| **13** | 10 | 11 | — | t/445 | wiper→ADS1015 #1 A1 |
+| Device | CS | MOSI | SCLK | MISO | Tests | Output read back by |
+|--------|---:|------|------|------|-------|---------------------|
+| MCP3008 ADC | **26** (bit-bang) | 10 | 11 | 9 | t/410,435 | (it is the reader) |
+| MCP4922 DAC | **12** (bit-bang) | 10 | 11 | — | t/410 | out A→MCP3008 CH1, out B→MCP3008 CH3 |
+| MCP4XXXX pot| **13** (bit-bang) | 10 | 11 | — | t/445 | PW0→ADS#1 A1, PW1→ADS#1 A2 |
+| **ST7735S TFT** (bench) | **CE0/GPIO8** (hardware) | 10 | 11 | — | t/447 | write-only (no readback wire) |
 
 ```
- GPIO10 MOSI ─┬──────────┬───────────┐
- GPIO11 SCLK ─┼────┬─────┼─────┬─────┤
- GPIO9  MISO ─┘    │     │     │     │
-   CS GPIO26 ──► MCP3008 │     │
-   CS GPIO12 ──────────► MCP4922
-   CS GPIO13 ──────────────────────► MCP4XXXX
+ GPIO10 MOSI ─┬──────────┬───────────┬───────────┐
+ GPIO11 SCLK ─┼────┬─────┼─────┬─────┼─────┬─────┤
+ GPIO9  MISO ─┘    │     │     │     │     │     │
+   CS GPIO26 ──► MCP3008 │     │     │     │
+   CS GPIO12 ──────────► MCP4922     │     │
+   CS GPIO13 ──────────────────────► MCP4XXXX    │
+   CE0 GPIO8 ──────────────────────────────────► ST7735S TFT (bench)
 ```
 
-**MCP3008 channel map [T]:** CH1 ← DAC out A (`t/410:36`), CH2 ← 74HC595 first Q
-(`t/435`), CH3 ← DAC out B (`t/410:37`).
+**MCP3008 channel map [T]:** CH1 ← DAC out A (`t/410:37`), CH2 ← 74HC595 first Q
+(`t/435`), CH3 ← DAC out B (`t/410:38`).
 
 > The dpot in tests is the **MCP4XXXX** family (`rpi-digipot-mcp4xxxx`); the
 > existing schematic models it as the specific part **MCP42010** **[F]**.
@@ -428,7 +499,7 @@ The hardware CE0/CE1 (GPIO8/7) stay free. All three SPI devices are powered at
 
 ## 6. LCD — HD44780, 4-bit mode (`t/620`) **[T]**
 
-`lcd(... cols=>20, rows=>4, bits=>4, d4..d7=>0 ...)` (`t/620:45-61`) ⇒ a **20×4**
+`lcd(... cols=>20, rows=>4, bits=>4, d4..d7=>0 ...)` (`t/620:50-59`) ⇒ a **20×4**
 character module in **4-bit** mode (lower data lines D0–D3 unused; `RPi::LCD`
 requires `d4..d7 = 0` for 4-bit — `LCD.pm:114-120`).
 
@@ -442,12 +513,19 @@ requires `d4..d7 = 0` for 4-bit — `LCD.pm:114-120`).
 | 22 | D7 | `d3`  |
 
 `rpi_check_pin_status()` deliberately **excludes pins 4,5,6,17,22,27** "because of
-LCD" (`RPiTest.pm:204`) — they are reserved for the display and not asserted as
+LCD" (`RPiTest.pm:311`) — they are reserved for the display and not asserted as
 generic pins.
 
 > **Shared with the stepper:** GPIO17 (D5) and GPIO27 (D6) also serve as the
 > stepper's CW/CCW magnetic limit switches in `t/350` (§8). The two tests never run
 > at once (serial suite), but it is a shared physical net — see §10.
+
+> **An I2C variant of this LCD also exists (`t/335`).** The same HD44780 behind a
+> **PCF8574 backpack at 0x27** (`lcd(i2c => 0x27, rows => 4, cols => 20)`,
+> `t/335:38,62`) drives its RS/E/D4-7 as PCF8574 virtual pins (base 64) over the
+> I2C bus — **it uses none of the six Pi GPIOs above**. It's a board-1 device. This
+> is the pattern behind one of the pin-relief options: the parallel LCD's 6 pins
+> (4/5/6/22 dedicated, 17/27 shared) can be reclaimed by moving to the I2C LCD.
 
 > **[F]** The logical `d0..d3` → physical DB4..DB7 mapping is the standard HD44780
 > 4-bit convention; the test proves logical wiring + 4-bit mode, not silkscreen
@@ -461,27 +539,27 @@ One physical net wired to **ADS1015 #1 channel A0**, reused across many tests:
 
 | Mode | Tests | Dir | How |
 |------|-------|-----|-----|
-| Hardware PWM out | t/400, t/405 | OUT | sweeps duty; ADS #1 A0 reads voltage (`t/405:55,57,75-82`) |
+| Hardware PWM out | t/400, t/405 | OUT | sweeps duty; ADS #1 A0 reads voltage (`t/405:56,57,75-82`) |
 | Servo PWM out | t/425 | OUT | servo pulse; ADS #1 A0 reads position (`t/425:92,113-114`) |
-| Edge interrupt source | t/200-212 | IN | **self-triggered** by toggling the *internal* pull resistor (`pull(PUD_UP)`→`pull(PUD_DOWN)`) — no external edge driver (`t/200:39-44`) |
+| Edge interrupt source | t/200-212 | IN | **self-triggered** by toggling the *internal* pull resistor (`pull(PUD_UP)`→`pull(PUD_DOWN)`) — no external edge driver (`t/200:40-45`) |
 | Plain pin / register / worker | t/105,110,150,213,multi | IN/OUT | read/write + metadata registration |
 
 **PCB constraint [T] (load-bearing).** The interrupt tests swing the line using
 only the Pi's *internal* ~50 kΩ pull (`pull()` → `pullUpDnControl`, `RPi/Pin.pm:75-85`).
-The tests say so directly: "wire nothing to BCM18" (`t/213:120`), "self-triggered
+The tests say so directly: "wire nothing to BCM18" (`t/213:121`), "self-triggered
 pin" (`t/210:115`). Therefore the GPIO18 net must carry **no external pull
 resistor and no low-impedance load** — only the high-Z ADS1015 A0 input may hang
 off it (a series resistor to A0 is fine; a pull resistor would break the interrupt
 tests). Debounce is 0 throughout (`t/210:37`), so the net must also be kept short
 / low-capacitance to settle inside the ~20 ms edge pacing. The pin's at-rest
-default is INPUT (`get_alt(18)==0`, `t/213:151`).
+default is INPUT (`get_alt(18)==0`, `t/213:152`).
 
 ---
 
 ## 8. Shift register & stepper (indirect drives)
 
 **74HC595 (`t/435`) — fully bit-banged GPIO [T].** `shift_register(400, 8, 21, 20, 16)`
-(`t/435:47`) decodes (via `WiringPi.pm:334`) to base=400, 8 outputs,
+(`t/435:48`) decodes (via `WiringPi.pm:334`) to base=400, 8 outputs,
 **DATA=BCM21, CLOCK=BCM20, LATCH=BCM16**:
 
 | Pi BCM | 74HC595 | Library arg position |
@@ -491,15 +569,15 @@ default is INPUT (`get_alt(18)==0`, `t/213:151`).
 | 16 | ST_CP (pin 12) | latch |
 
 The first Q-output is exposed as virtual pin **401**; writing it HIGH/LOW is read
-back on **MCP3008 CH2** (`t/435:51,53-76`). Virtual pins 400-407 are not Pi GPIO.
+back on **MCP3008 CH2** (`t/435:52,54-77`). Virtual pins 400-407 are not Pi GPIO.
 
 **Stepper (`t/350`) — coils via I2C expander, limits on Pi GPIO [T].** Coils are
 driven through a ULN2003 by **MCP23017 #2 (0x21)** Bank A pins 0-3 (§4.1), so they
 use no direct Pi GPIO. Travel is bounded by **two magnetic limit switches** read
-directly on the Pi: **CW on GPIO17** (`t/350:147`) and **CCW on GPIO27**
-(`t/350:151`), each armed as a rising-edge `background_interrupt` (`t/350:156,162`).
+directly on the Pi: **CW on GPIO17** (`t/350:148`) and **CCW on GPIO27**
+(`t/350:152`), each armed as a rising-edge `background_interrupt` (`t/350:157,163`).
 **Centre is computed, not sensed** — symmetric tick counts return the motor to
-mid-travel — and shown on a **centre LED on GPIO19** (`t/350:142`), pulsed by a
+mid-travel — and shown on a **centre LED on GPIO19** (`t/350:143`), pulsed by a
 one-shot fork **`worker`** so the LED hold never stalls the sweep. So beyond the
 expander drive, the test concurrently exercises both the `background_interrupt`
 (ISR) and `worker` (fork) subsystems. The test
@@ -519,19 +597,32 @@ and asserts both magnet edges trip within **±5%** of these measured means
 
 ---
 
-## 9. Pins NOT wired to fixtures (free for generic tests) **[T]**
+## 9. Pins NOT wired to fixtures **[T]**
 
-Exercised only for default-mode/state, registration counting and alt-mode round
-trips — no peripheral attached; candidates for break-out test points:
+> **Update:** the bench device wave (§Scope) consumed nearly all the headroom the
+> original derivation reported. On the **fabbed boards** GPIO7/8/23/24/25 are still
+> free; on a **live header** carrying the bench devices, only **GPIO7 (CE1)**
+> remains truly unassigned.
 
-- **GPIO23, 24, 25** — fully spare (appear only in the default-state table).
-  GPIO19 is now the stepper **centre LED** (§8).
-- **GPIO7 (CE1), GPIO8 (CE0)** — at SPI-alt default; unused because CS is
-  bit-banged on 26/12/13.
-- **GPIO21** — also the alt-mode round-trip pin in `t/107` (loops ALT0–ALT7), in
-  addition to its 74HC595 DATA duty.
+- **GPIO7 (CE1)** — the **only** header BCM with no assigned role in the entire
+  suite; sits at its SPI-alt default. The sole genuine break-out/relief target.
+- **GPIO8 (CE0)** — free on the fabbed boards, but **claimed by the bench TFT** as
+  its hardware chip-select (`t/447`, §5).
+- **GPIO23, 24, 25** — spare on the fabbed boards, but **claimed by the bench TFT**
+  (BLK/RES/DC respectively, `t/447`, §2). No longer "fully spare".
+- **GPIO26** — the MCP3008 bit-banged CS; **also the bench radar's OUT default**
+  (`t/361:65`, env `RPI_RADAR_PIN`). Not free.
+- **GPIO21** — also the alt-mode round-trip pin in `t/107` (loops ALT0–ALT7), on
+  top of its 74HC595 DATA duty.
 - **GPIO0 / GPIO1** (phys 27/28) — used as generic test pins; idle high. **[F]**
-  reserved I2C0 ID-EEPROM pins — best left unrouted on a real board.
+  reserved I2C0 ID-EEPROM pins — best left unrouted on a real board, so they are
+  not dependable general-purpose spares.
+
+**Zero-GPIO fixtures worth noting (the relief pattern).** Several fixtures already
+cost **no** header GPIO by riding a bus: the 28BYJ-48 and A4988 steppers drive all
+their control lines through MCP23017 expanders (0x21 / 0x22, §4.1); the I2C LCD
+(`t/335`) drives HD44780 through a PCF8574 (0x27, §6); the OLED, RTC, EEPROM, BMP,
+gyro and PCA9685 are pure I2C. This is the lever the pin-relief work builds on.
 
 ---
 
@@ -540,8 +631,9 @@ trips — no peripheral attached; candidates for break-out test points:
 > Software-wise nothing conflicts — tests run **serially** and each cleans up
 > (`RPiTest.pm:3-7`). The items below are physical-net decisions for the PCB.
 
-1. **Shared I2C bus (GPIO2/3) [T] — provide no external pull-up pair [F].** Eight
-   addresses share the bus. The Pi already provides ~1.8 kΩ pull-ups on SDA/SCL to
+1. **Shared I2C bus (GPIO2/3) [T] — provide no external pull-up pair [F].** Up to a
+   dozen addresses share the bus (board fixtures + bench devices). The Pi already
+   provides ~1.8 kΩ pull-ups on SDA/SCL to
    3V3 (every 40-pin model, Pi 3 through Pi 5/RP1), so **add no external pull-up
    pair**. The Pi's 1.8 kΩ dominates; typical breakout pull-ups (4.7–10 kΩ) only
    nudge the combined value down and on a busy bus help drive the extra
@@ -552,33 +644,36 @@ trips — no peripheral attached; candidates for break-out test points:
    reads. To verify after assembly: measure SDA→3V3 / SCL→3V3 (≥0.6 kΩ is fine),
    run `i2cdetect -y 1` plus a soak loop, and if flaky drop to 100 kHz
    (`dtparam=i2c_arm_baudrate=100000`) for margin. A BSS138-type level-shifter for
-   the 5V Arduino adds its own ~10 kΩ pulls on the Pi side. Strap the ADS1015
-   to 0x48 and the two MCP23017s to 0x20 (t/355) and 0x21 (stepper).
-2. **Shared SPI bus (GPIO9/10/11) [T]** — three devices, one active CS at a time
-   (26/12/13). Write-only DAC/dpot must not drive MISO.
+   the 5V Arduino adds its own ~10 kΩ pulls on the Pi side. Strap the ADS to 0x48
+   and the three MCP23017s to 0x20 (t/355), 0x21 (28BYJ-48 stepper) and 0x22 (A4988,
+   bench); board-1 adds the I2C LCD 0x27 and PCA9685 0x40.
+2. **Shared SPI bus (GPIO9/10/11) [T]** — four devices total, one active CS at a
+   time: three bit-banged (26/12/13) plus the bench TFT on hardware CE0/GPIO8 (§5).
+   Write-only DAC/dpot/TFT must not drive MISO.
 3. **GPIO18 over-subscribed [T]** — PWM + servo + interrupt + generic + ADS#1 A0
    on one wire. Honour the "no external pull / no load" rule of §7.
 4. **Device-control pins doubling as generic GPIO [T]** — `t/110` and the
    multi-process tests register/toggle **GPIO12, 16, 18, 21, 26** as plain pins
-   (`t/110:22-24`; `full_slave.pl:13-20`; `full_master.pl:28`). On the board these
+   (`t/110:23-25`; `full_slave.pl:13-20`; `full_master.pl:28`). On the board these
    are live control lines (DAC CS, SR LATCH, PWM/ADS, SR DATA, ADC CS); toggling
    them while the device is idle is harmless but real.
 5. **CS lines excluded from state checks [T]** — `rpi_default_pin_config` marks
    **GPIO12 and GPIO26** as *mode-only* (state `undef`): "level depends on the
-   attached device's pull state" (`RPiTest.pm:338-340`). Don't add pulls that
-   fight the idle level.
+   attached device's pull state" (`RPiTest.pm:336-337`; the undef states sit in the
+   pi5/pi4/pi3 tables at `:523-524/:486-487/:451-452`). Don't add pulls that fight
+   the idle level.
 6. **GPIO13 comment vs asserted state — discrepancy [T].** The harness comments
    GPIO13 as "OUTPUT/HIGH due to the dpot test (t/445)" yet its expected resting
    `state` is **0** in all three board tables. Flagged as an inconsistency in the
    harness, not resolved by the tests.
 7. **Serial vs Bluetooth [F/L]** — the UART loopback (GPIO14→15) needs the primary
    header UART. `rpi_serial_device()` returns `/dev/ttyAMA0` on Pi 5 (RP1) and
-   `/dev/ttyS0` on Pi 3/4 (`RPiTest.pm:310-318`). On Pi 5 the header UART is its
+   `/dev/ttyS0` on Pi 3/4 (`RPiTest.pm:423-431`). On Pi 5 the header UART is its
    own PL011 (no `disable-bt` overlay needed); on Pi 3/4 freeing it from Bluetooth
    is the classic step. With UART enabled, GPIO14/15 report funcsel and idle high.
 8. **OLED locks the I2C bus [T]** — if `/dev/shm/oled_in_use` exists (an external
    OLED daemon, started by `t/crontab`), `rpi_check_pin_status` **drops pins 2 and
-   3** from the check (`RPiTest.pm:206-210`).
+   3** from the check (`RPiTest.pm:313`; `@gpio_pins` OLED-branch `:322-324`).
 9. **Mixed rails (3V3 / 5V) [F]** — not determinable from the tests. The existing
    design runs all Pi logic + I2C/SPI ICs + 74HC595 at 3V3, and the LCD, stepper
    (via ULN2003), servo and Arduino at 5V, with a level-shifter for the 5V I2C.
@@ -590,6 +685,16 @@ trips — no peripheral attached; candidates for break-out test points:
    serial suite keeps them apart in software, but they are one shared net on the
    board — don't add a pull/load that fights either role. GPIO19 (stepper centre
    LED) is dedicated.
+11. **GPIO26 shared — MCP3008 CS vs radar OUT [T] (bench).** GPIO26 is the MCP3008
+   bit-banged CS (board 2) and also the bench radar's OUT default (`t/361:65`). Never
+   concurrent (separate gates, serial suite), and the radar driver has **no** built-in
+   default (`RCWL0516.pm:27-28`) so GPIO26 is purely the test file's choice — move it
+   to a free pin (GPIO7) via `RPI_RADAR_PIN` if you want the two co-resident. This is
+   the single cheapest pin-relief move (see the relief notes / plan).
+12. **Shared I2C addresses across contexts [T] (bench).** MPU-6050 gyro and DS3231
+   RTC both answer at **0x68**; the ADXL335's ADS and the board-2 ADS both at
+   **0x48** on the same channels. Board vs bench, never co-resident; escape hatches
+   are MPU-6050 → 0x69 and a second ADS at 0x49–0x4B (§4).
 
 ---
 
@@ -719,22 +824,23 @@ lower.
 
 ## 12. Expected default pin states (from `t/RPiTest.pm`) **[T]**
 
-`rpi_default_pin_config()` is the at-rest mode/state every checked pin must return
-to after a run; `rpi_check_pin_status()` asserts it. `rpi_board_tag()` selects one
-of three tables (`RPiTest.pm:293-310`): **pi5** (RP1, via `pi_rp1_model()`),
-**pi4** (model 17/19/20), else **pi3**. `alt`/funcsel encodings: on Pi 5/RP1
-`31` = null/no-peripheral, `7` = I2C, `4` = SPI, `3` = UART; on Pi 3/4 the legacy
-scheme has ALT0 = `4`. `state = undef` ⇒ mode-only check (the CS pins).
+`rpi_default_pin_config()` (`RPiTest.pm:435-551`) is the at-rest mode/state every
+checked pin must return to after a run; `rpi_check_pin_status()` asserts it.
+`rpi_board_tag()` (`RPiTest.pm:400-417`) selects one of three tables: **pi5** (RP1,
+via `pi_rp1_model()`), **pi4** (model 17/19/20), else **pi3**. `alt`/funcsel
+encodings: on Pi 5/RP1 `31` = null/no-peripheral, `7` = I2C, `4` = SPI, `3` = UART;
+on Pi 3/4 the legacy scheme has ALT0 = `4`. `state = undef` ⇒ mode-only check (the
+CS pins).
 
-**Pins checked** (`@gpio_pins`, `RPiTest.pm:214-223`): `2 3 14 15 18 23 24 10 9 25
-11 8 7 0 1 12 13 19 16 20 21 26` (pins 2/3 dropped when the OLED holds the bus).
-**Excluded entirely** (LCD): `4 5 6 17 22 27`.
+**Pins checked** (`@gpio_pins`, `RPiTest.pm:327-329`): `2 3 14 15 18 23 24 10 9 25
+11 8 7 0 1 12 13 19 16 20 21 26` (pins 2/3 dropped when the OLED holds the bus —
+OLED-branch list `:322-324`). **Excluded entirely** (LCD): `4 5 6 17 22 27`.
 
-### Pi 5 / RP1 (the active dev board) — `RPiTest.pm:395-429`
+### Pi 5 / RP1 (the active dev board) — `RPiTest.pm:508-542`
 
 {{default_states_pi5}}
 
-### Pi 3 / Pi 4 (identical to each other) — `RPiTest.pm:325-392`
+### Pi 3 / Pi 4 (identical to each other) — `RPiTest.pm:438-470` / `:473-505`
 
 Same pins; legacy encoding. Differences from the Pi 5 table: I2C (2/3) alt `4`;
 UART (14/15) alt `4`; and the at-rest **state** for **4,5,6,17,22,27** is `1` and
@@ -753,12 +859,24 @@ From `t/RPiTest.pm` and `t/01`:
 
 | Var | Effect | Cite |
 |-----|--------|------|
-| `RPI_BOARD` | Run gate; unset ⇒ `skip_all` | RPiTest.pm:40-43 |
-| `RPI_OBJECT_COUNT` | Baseline of pre-existing registered objects in shm; **defaults to 0** | RPiTest.pm:56-61 |
-| `RPI_PIN_COUNT` | Baseline of pre-existing registered pins; defaults to 0 | RPiTest.pm:62-67 |
-| `RPI_SUDO` | Gate for sudo-requiring tests | RPiTest.pm:71-75 |
-| `RPI_MULTI` | Gate for the multi-process tests (t/111-114) | RPiTest.pm:76-80 |
-| `RPI_I2C` | Gate for I2C/ADS-dependent tests | RPiTest.pm:137-147 |
+| `RPI_BOARD` | Run gate; unset (and no `SUDO_USER`) ⇒ `skip_all` | RPiTest.pm:42-45 |
+| `RPI_OBJECT_COUNT` | Baseline of pre-existing registered objects in shm; **defaults to 0** | RPiTest.pm:58-63 |
+| `RPI_PIN_COUNT` | Baseline of pre-existing registered pins; defaults to 0 | RPiTest.pm:64-69 |
+| `RPI_SUDO` | Gate for sudo-requiring tests | RPiTest.pm:73-77 |
+| `RPI_MULTI` | Gate for the multi-process tests (t/111-114) | RPiTest.pm:78-82 |
+| `RPI_I2C` | Gate for I2C/ADS-dependent tests | RPiTest.pm:244-254 |
+
+The run gate is satisfied by **either** `RPI_BOARD` **or** `SUDO_USER`
+(`RPiTest.pm:42`). Beyond these, each device has its own gate — `RPI_ADC`,
+`RPI_ARDUINO`, `RPI_BMP`, `RPI_DIGIPOT`, `RPI_EEPROM`, `RPI_LCD`, `RPI_MCP3008`,
+`RPI_MCP4922`, `RPI_OLED`, `RPI_RTC`, `RPI_SERIAL`, `RPI_SERVO`, `RPI_SHIFTREG`,
+`RPI_STEPPER` — plus the newer devices' gates: **`RPI_A4988`, `RPI_ADXL335`,
+`RPI_GYRO`, `RPI_LCD_I2C`, `RPI_MCP23017`, `RPI_PCA9685`, `RPI_RADAR`,
+`RPI_ST7735S`** (each with per-device pin/addr overrides, e.g. `RPI_RADAR_PIN`,
+`RPI_ST7735S_DC`, `RPI_A4988_STEP`, `RPI_GYRO_ADDR`). The `RPI_BOARD_1..5`
+convenience switches set `RPI_BOARD` plus that board's device gates — except
+`RPI_BOARD_1`, which deliberately does **not** enable `RPI_PCA9685` (not wired to
+board 1 yet, `t/440:7-16`).
 
 All objects share `shm_key => 'rpit'` (`t/02`); the suite is serial-only. The
 `RPI_OBJECT_COUNT`/`RPI_PIN_COUNT` baselines exist because `t/crontab` boots
@@ -772,11 +890,13 @@ objects/pins in the same shm segment.
 - [ ] 40-pin header pass-through; route the BCM pins in §2.
 - [ ] **No** external I2C pull-up pair — the Pi's built-in ~1.8 kΩ on SDA/SCL is
       enough; just check the breakouts' on-board pulls don't parallel too low
-      (§10 item 1). Address straps: ADS1015 0x48, MCP23017 0x20 (t/355) & 0x21 (t/350 stepper). **[T]** addresses.
+      (§10 item 1). Address straps: ADS 0x48, MCP23017 0x20 (t/355) & 0x21 (t/350
+      stepper); board-1 I2C LCD 0x27 (t/335) & PCA9685 0x40 (t/440). **[T]** addresses.
 - [ ] SPI fan-out (9/10/11) → MCP3008 + MCP4922 + MCP4XXXX with **bit-banged CS**
-      26/12/13; hardware CE0/CE1 left free. **[T]**
+      26/12/13; hardware CE0/CE1 left free on the fabbed boards. **[T]**
 - [ ] DAC out A/out B → MCP3008 CH1/CH3; 74HC595 first Q → MCP3008 CH2. **[T]**
-- [ ] dpot wiper → ADS#1 A1. **[T]** (dpot end-terminals to 3V3/GND ref — **[F]**.)
+- [ ] dpot PW0 wiper → ADS#1 A1, PW1 wiper → ADS#1 A2. **[T]** (dpot end-terminals
+      to 3V3/GND ref — **[F]**.)
 - [ ] GPIO18 → ADS#1 A0 only; **no pull, no load** (series R ok). **[T]**
 - [ ] MCP23017 #1 (0x20): GPA(n) ↔ GPB(7-n) straight-across loopback (t/355). **[T]** (RESET→3V3 — **[F]**.)
 - [ ] MCP23017 #2 (0x21): GPA0-3 → ULN2003 → 28BYJ-48 stepper; CW switch → GPIO17,
@@ -787,3 +907,8 @@ objects/pins in the same shm segment.
 - [ ] Provide 3V3 + 5V rails + common ground; I2C level-shifter for the 5V
       Arduino. 3V3: all I2C/SPI ICs + 74HC595. 5V: LCD, stepper(+ULN2003), servo,
       Arduino. **[F]** — verify rails/parts against your hardware (§11).
+- [ ] **Bench devices (not on the fabbed boards, §Scope)** — wire only when needed;
+      they claim header pins the boards leave free: TFT ST7735S on CE0/GPIO8 +
+      DC25/RES24/BLK23 + MOSI10/SCLK11 (t/447); radar OUT on GPIO26 or a free pin via
+      `RPI_RADAR_PIN` (t/361); MPU-6050 @0x68 and ADXL335's ADS @0x48 on I2C (t/358,
+      t/360); A4988 via MCP23017 @0x22 (t/353, zero header GPIO). **[T]**

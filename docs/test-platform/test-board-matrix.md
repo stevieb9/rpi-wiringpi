@@ -27,9 +27,12 @@ Keep this table in sync when tests or device placement change.
 | **3** | I2C expanders + stepper | **finalized & ordered** | 2 |
 | **4** | I2C sensors | **finalized & ordered** | 15 |
 | **5** | 5V logic (LCD / Arduino / UART) | **finalized & ordered** | 3 |
+| **bench** | robot/display devices jumper-wired to the header (no PCB) | not a board | 5 |
 
 **26 hardware tests are covered by the finalized boards (2 + 3 + 4 + 5, all
-ordered); 2 remain on board 1 (the I2C LCD + PCA9685, planned last).**
+ordered); 2 remain on board 1 (the I2C LCD + PCA9685, planned last); and 5 more
+run on bench-wired devices that are not on any board (TFT / radar / gyro / ADXL335
+/ A4988). 33 hardware tests in total.**
 
 ---
 
@@ -105,6 +108,27 @@ Devices: HD44780 LCD on PCF8574 I2C backpack (0x27), PCA9685 (0x40, 16-ch PWM, p
 
 ---
 
+## Bench-wired devices — not on any fabbed board
+
+A newer wave of robot/display devices is jumper-wired straight to the Pi header,
+**not** placed on any test-platform PCB. Verified absent from every fabbed board's
+KiCad project, and each is gated purely by its own env var (not an `RPI_BOARD_N`
+switch), confirming the bench classification. These are the pins the boards leave
+free but a live header does not (see `test-pinout-doc.md` §Scope / §9).
+
+| Test file | Device | Pins / bus |
+|-----------|--------|-----------|
+| `t/447-tft_st7735s.t` | ST7735S 128×128 SPI TFT | HW SPI MOSI10/SCLK11, **CS=hardware CE0/GPIO8**, D/C=25, RES=24, BLK=23 |
+| `t/361-radar.t` | RCWL-0516 motion sensor | **GPIO26** OUT (default; `RPI_RADAR_PIN` overrides) |
+| `t/358-gyro.t` | MPU-6050 IMU | I2C @0x68 (shares the RTC address) |
+| `t/360-adxl335.t` | ADXL335 accelerometer via an ADS ADC | I2C ADS @0x48 ch 0/1/2 (shares the board-2 ADS addr/channels) |
+| `t/353-a4988.t` | A4988 stepper via MCP23017 @0x22 | I2C only — control lines on the expander, **zero header GPIO** |
+
+Their HW-free unit siblings (`t/354, 357, 359, 362, 448`) need no hardware at all —
+see "Excluded" below.
+
+---
+
 ## Borderline / not device-driving
 
 These are gated on a device's env var but don't actually exercise the chip, so
@@ -123,5 +147,6 @@ they're not counted in the per-board totals above:
 For completeness — these `t/*.t` exercise no external device and need no board
 beyond the Pi: module-load / config (`00`–`05`, `100`, `104`–`108`, `110`,
 `111`–`114`), self-triggered GPIO18 interrupt + worker tests (`200`–`213`),
-signal/exit (`150`, `153`, `154`), sysinfo (`300`–`309`), and POD/manifest
-(`899`, `900`, `905`, `910`, `915`).
+signal/exit (`150`, `153`, `154`), sysinfo (`300`–`309`), the HW-free device unit
+tests that mock the bus (`352`, `354`, `356`, `357`, `359`, `362`, `448`, and the
+other `*_unit` files), and POD/manifest (`899`, `900`, `905`, `910`, `915`).
