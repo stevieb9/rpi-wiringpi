@@ -64,9 +64,9 @@ WriteMakefile(
         'RPi::Serial'               => 3.03,
         'RPi::SPI'                  => 3.1802,
         'RPi::StepperMotor'         => 3.1802,
-        'RPi::StepperMotor::A4988'  => 0.01,
+        'RPi::StepperMotor::A4988'  => 3.1801,
         'RPi::SysInfo'              => 1.03,
-        'RPi::TFT::ST7735S'         => 0.01,
+        'RPi::TFT::ST7735S'         => 3.1801,
         'WiringPi::API'             => 3.1804,
     },
 );

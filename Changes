@@ -129,7 +129,7 @@ Revision history for Perl extension RPi::WiringPi.
       RPi::StepperMotor::A4988 driver (bipolar, microstepping), alongside the
       default 'ULN2003' 28BYJ-48 driver. Both run off the Pi's GPIO or an
       MCP23017 expander
-    - Added RPi::StepperMotor::A4988 0.01 to the prerequisites
+    - Added RPi::StepperMotor::A4988 3.1801 to the prerequisites
     - Rewrote t/353-a4988.t to drive the A4988 through a live MCP23017 expander
       via stepper_motor(model => 'A4988'), reading every control line back
       through the expander (gated by RPI_A4988 + RPI_MCP23017)
@@ -159,7 +159,7 @@ Revision history for Perl extension RPi::WiringPi.
     - Added the tft() accessor, returning an RPi::TFT::ST7735S object for a
       1.44" 128x128 RGB TFT LCD driven by the ST7735S controller over SPI
       (pixels, shapes, text and 16-bit colour)
-    - Added RPi::TFT::ST7735S 0.01 to the prerequisites
+    - Added RPi::TFT::ST7735S 3.1801 to the prerequisites
     - Added t/448-tft_st7735s_unit.t, a hardware-free mirror of the dist's
       framing/validation suite driven through a fake SPI seam, and
       t/447-tft_st7735s.t, a live ST7735S test through $pi->tft (gated by
