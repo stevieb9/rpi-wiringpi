@@ -1,7 +1,7 @@
 # Plan: Audit every Pi GPIO pin used across the test suite, bring the pin docs up to date, and produce grounded strategies to free up GPIO pins
 
 > **NEXT ACTION:** ✅ **All plan tasks (V1–V8) complete.** Awaiting user decisions A/B/C on which relief strategies to implement. Implementation is a NEW user-gated phase — each accepted strategy (R1/R2/R3/…) becomes a new V-task; do not implement until the user picks.
-> **LAST SESSION:** 2026-07-12 — full run. **V1–V6 ✅** (audit + docs, baseline committed as 584570c). **V7–V8 ✅** (strategy): scope = board re-wiring allowed. Recommend R1 (radar off GPIO26) + R2 (parallel LCD→I2C, frees 4/5/6/22) + R3 (centre LED→expander) = ~+5 header pins, low risk; R4/R5 optional (~+4 more, coverage trades). Recommendation + decisions in `scratchpad/pin-relief-recommendation.md`; full eval in `scratchpad/pin-relief-strategies.md`. Scratchpad dir: `/tmp/claude-1000/-home-steve-repos-rpi-wiringpi/8cc6203d-c22a-427c-9a7a-ecbcd3880fab/scratchpad/`.
+> **LAST SESSION:** 2026-07-12 — full run. **V1–V6 ✅** (audit + docs, baseline committed as 584570c). **V7–V8 ✅** (strategy): scope = board re-wiring allowed. Recommend R1 (radar off GPIO26) + R2 (parallel LCD→I2C, frees 4/5/6/22) + R3 (centre LED→expander) = ~+5 header pins, low risk; R4/R5 optional (~+4 more, coverage trades). **All analysis now lives in the repo at `docs/test-platform/pin-relief/`** (moved out of session scratchpad at user request): `README.md` (index), `pin-inventory.md` (V1), `gpio-occupancy.md` (V2/V3), `pin-relief-strategies.md` (V7), `pin-relief-recommendation.md` (V8, the options + decisions A/B/C).
 > **ARCHIVE:** See gpio-pin-audit-and-relief-archive.md for completed V1-V8
 
 ## Purpose & governing rule
