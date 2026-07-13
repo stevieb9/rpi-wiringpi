@@ -49,9 +49,22 @@ my %slug_exception = (
 my @family = family_modules($makefile);
 die "Found no family modules in $makefile PREREQ_PM\n" if !@family;
 
-say $dry_run
-    ? "Dry run: would sync ${\ scalar @family} family repos under $root\n"
-    : "Syncing ${\ scalar @family} family repos under $root\n";
+# Refuse to sync while any family repo has uncommitted changes — pulling into a
+# dirty working tree risks conflicts. check-family-repos.pl is the source of
+# truth: it exits non-zero and lists the offenders when anything is dirty.
+my $checker = "$FindBin::Bin/check-family-repos.pl";
+open my $check_fh, '-|', $^X, $checker, '--root', $root
+    or die "Could not run $checker: $!\n";
+my $dirty = do { local $/; <$check_fh> };
+close $check_fh;
+
+if ($?) {
+    print "Refusing to sync — commit or stash these first:\n\n";
+    print $dirty;
+    exit 1;
+}
+
+say "DRY RUN — no repos will be modified.\n" if $dry_run;
 
 my (@cloned, @updated, @failed, @skipped);
 
@@ -59,15 +72,13 @@ for my $mod (@family) {
     my $slug = module_to_slug($mod);
     my $dir  = "$root/$slug";
 
-    if (-e $dir && !-d "$dir/.git") {
-        say "  ~  $slug  (exists but is not a git repo — skipped)";
+    if (-e $dir && ! -d "$dir/.git") {
         push @skipped, $slug;
         next;
     }
 
     if (-d "$dir/.git") {
-        say "  ↻  $slug  (pull)";
-        if (run('git', '-C', $dir, 'pull', '--ff-only')) {
+        if (run('git', '-C', $dir, 'pull', '--ff-only', '--quiet')) {
             push @updated, $slug;
         }
         else {
@@ -75,8 +86,7 @@ for my $mod (@family) {
         }
     }
     else {
-        say "  +  $slug  (clone)";
-        if (run('git', '-C', $root, 'clone', "$github/$slug", $slug)) {
+        if (run('git', '-C', $root, 'clone', '--quiet', "$github/$slug", $slug)) {
             push @cloned, $slug;
         }
         else {
@@ -87,24 +97,25 @@ for my $mod (@family) {
 
 # --- summary ---------------------------------------------------------------
 
-say '';
-say sprintf 'Done: %d cloned, %d updated, %d skipped, %d failed.',
-    scalar @cloned, scalar @updated, scalar @skipped, scalar @failed;
-say "  cloned:  @cloned"   if @cloned;
-say "  updated: @updated"  if @updated;
-say "  skipped: @skipped"  if @skipped;
-say "  failed:  @failed"   if @failed;
+report('Cloned',  @cloned);
+report('Updated', @updated);
+report('Skipped', @skipped);
+report('Failed',  @failed);
 
 exit(@failed ? 1 : 0);
 
 # --- helpers ---------------------------------------------------------------
 
+sub report {
+    my ($heading, @slugs) = @_;
+    return if !@slugs;
+    say "$heading:";
+    say "    - $_" for @slugs;
+}
+
 sub run {
     my (@cmd) = @_;
-    if ($dry_run) {
-        say "     \$ @cmd";
-        return 1;
-    }
+    return 1 if $dry_run;
     return system(@cmd) == 0;
 }
 
@@ -127,6 +138,10 @@ sub family_modules {
             || $mod eq 'GPSD::Parse'
             || $mod eq 'IPC::Shareable';
     }
+
+    # This repo's own dist heads the family but isn't listed in its own
+    # PREREQ_PM — include it so the umbrella is covered too.
+    push @mods, 'RPi::WiringPi';
 
     # Stable, human-friendly order.
     return sort @mods;
