@@ -39,7 +39,7 @@ run on bench-wired devices that are not on any board (TFT / radar / gyro / ADXL3
 ## Built so far
 
 ### Board 2 — SPI analog cluster *(finalized & ordered)*
-Devices: ADS1015 (0x48), MCP3008 ADC, MCP4922 DAC, MCP42010 dpot, 74HC595, servo.
+Devices: ADS1015 (0x48), MCP3008 ADC, MCP4922 DAC, MCP42010 dpot, 74HC595, SG90 servo.
 
 | Test file | Device(s) it drives |
 |-----------|---------------------|
