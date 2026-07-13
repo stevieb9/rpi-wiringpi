@@ -46,7 +46,7 @@ Devices: ADS1015 (0x48), MCP3008 ADC, MCP4922 DAC, MCP42010 dpot, 74HC595, SG90 
 | `t/400-pwm_hw_mods.t` | GPIO18 PWM → ADS1015 A0 |
 | `t/405-pwm_i2c_adc.t` | GPIO18 PWM → ADS1015 A0 |
 | `t/410-dac.t` | MCP4922 DAC → MCP3008 ADC (CH1/CH3) |
-| `t/425-servo.t` | servo on GPIO18 + ADS1015 A0 |
+| `t/425-servo.t` | SG90 servo on GPIO18 + ADS1015 A0 |
 | `t/435-shift_reg_adc.t` | 74HC595 → MCP3008 ADC (CH2) |
 | `t/445-dpot.t` | MCP42010 dpot wiper → ADS1015 A1 |
 
