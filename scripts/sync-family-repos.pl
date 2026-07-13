@@ -68,7 +68,7 @@ if ($?) {
 
 say "DRY RUN — no repos will be modified.\n" if $dry_run;
 
-my (@cloned, @updated, @failed, @skipped);
+my (@cloned, @updated, @current, @failed, @skipped);
 
 for my $slug (@repos) {
     my $dir = "$root/$slug";
@@ -79,8 +79,21 @@ for my $slug (@repos) {
     }
 
     if (-d "$dir/.git") {
+        # A successful `git pull --ff-only` exits 0 whether it fast-forwarded
+        # or the tree was already current, so compare HEAD before/after to tell
+        # a real update from a no-op. In --dry-run nothing is pulled, so we
+        # can't know - list those under Updated as a best-effort preview.
+        my $before = $dry_run ? '' : git_head($dir);
+
         if (run('git', '-C', $dir, 'pull', '--ff-only', '--quiet')) {
-            push @updated, $slug;
+            my $after = $dry_run ? '' : git_head($dir);
+
+            if ($dry_run || $before ne $after) {
+                push @updated, $slug;
+            }
+            else {
+                push @current, $slug;
+            }
         }
         else {
             push @failed, $slug;
@@ -98,10 +111,11 @@ for my $slug (@repos) {
 
 # --- summary ---------------------------------------------------------------
 
-report('Cloned',  @cloned);
-report('Updated', @updated);
-report('Skipped', @skipped);
-report('Failed',  @failed);
+report('Cloned',     @cloned);
+report('Updated',    @updated);
+report('Up to date', @current);
+report('Skipped',    @skipped);
+report('Failed',     @failed);
 
 exit(@failed ? 1 : 0);
 
@@ -118,6 +132,19 @@ sub run {
     my (@cmd) = @_;
     return 1 if $dry_run;
     return system(@cmd) == 0;
+}
+
+sub git_head {
+    my ($dir) = @_;
+
+    open my $fh, '-|', 'git', '-C', $dir, 'rev-parse', 'HEAD'
+        or return '';
+    my $head = do { local $/; <$fh> };
+    close $fh;
+
+    $head //= '';
+    $head =~ s/\s+//g;
+    return $head;
 }
 
 sub family_modules {
