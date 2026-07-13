@@ -46,6 +46,10 @@ use Test::More;
 #     CS  -> GPIO 8 (CE0)   D/C      -> GPIO 25
 #     RES -> GPIO 24        BLK      -> GPIO 23
 #
+#   The module's SDA/SCL silk-screen are this SPI bus's data (MOSI) and clock
+#   (SCLK) pins, wired to GPIO 10/11 as above. Backlight on but nothing drawn
+#   is the classic symptom of the data/clock wires on the wrong header pins.
+#
 # GATE
 #
 #   RPI_ST7735S    - the ST7735S panel is wired to the SPI bus and powered.

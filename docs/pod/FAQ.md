@@ -1379,6 +1379,11 @@ Unlike the I2C OLED, the ST7735S writes straight to the panel over SPI with no
 in-memory framebuffer: every drawing call is pushed to the screen immediately,
 so there's no separate `display()` step. Colours are 16-bit RGB565.
 
+The two signal pins are usually silk-screened `SDA` and `SCL`: on this SPI
+bus `SDA` is the data line, wired to the Pi's MOSI (GPIO 10), and `SCL` is
+the clock, wired to SCLK (GPIO 11). See [RPi::TFT::ST7735S](https://metacpan.org/pod/RPi%3A%3ATFT%3A%3AST7735S) for the full
+pinout.
+
 ## Usage
 
     my $tft = $pi->tft(
