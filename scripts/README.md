@@ -2,6 +2,23 @@
 
 Maintenance and documentation-generation scripts for the RPi::WiringPi family.
 
+## Regenerating all docs
+
+`make regen_docs` is the one-shot entry point — it runs every `gen-*` generator
+below:
+
+```
+make regen_docs
+├── gen-pod-md.pl          # POD → docs/pod/*.md + README.md
+│   ├── gen-faq-test-table.pl   # runs first (FAQ "Test file reference" table)
+│   └── gen-min-version.pl      # then this (wiringPi min-version literal)
+└── gen-test-platform.pl   # test-platform pinout images + schematic
+```
+
+The target lives in `Makefile.PL`'s `MY::postamble` and is a prerequisite of
+`create_distdir`, so `make dist` regenerates the docs automatically. Run
+`perl Makefile.PL` first if the `Makefile` predates the target.
+
 | Script | Purpose |
 | --- | --- |
 | `audit-family-buildcheck.pl` | Audit every family dist's `Makefile.PL` build guard for drift from the canonical wiringPi minimum version (read-only). |

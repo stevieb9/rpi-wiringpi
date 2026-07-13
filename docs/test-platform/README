@@ -43,6 +43,11 @@ intermediates (they feed the PDF) and are not kept. It never writes to the
 repo's t/, nor to kicad/ - the KiCad board projects are scaffolded separately
 (see "KiCad boards" below).
 
+To regenerate *all* derived docs at once - these test-platform artifacts plus
+the POD->markdown replicas and the FAQ test-table - run `make regen_docs`
+instead (see `scripts/README.md`). That target also runs automatically as part
+of `make dist`.
+
 # Drift gate (runs under `make test`)
 
 t/04-test-platform-model.t fails the build when:
