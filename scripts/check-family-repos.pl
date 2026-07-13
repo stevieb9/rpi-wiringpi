@@ -42,11 +42,12 @@ my %slug_exception = (
 my @family = family_modules($makefile);
 die "Found no family modules in $makefile PREREQ_PM\n" if !@family;
 
+my @repos = family_repos(@family);
+
 my @dirty;
 
-for my $mod (@family) {
-    my $slug = module_to_slug($mod);
-    my $dir  = "$root/$slug";
+for my $slug (@repos) {
+    my $dir = "$root/$slug";
 
     next if ! -d "$dir/.git";
 
@@ -88,6 +89,18 @@ sub family_modules {
 
     # Stable, human-friendly order.
     return sort @mods;
+}
+
+sub family_repos {
+    my (@mods) = @_;
+
+    # Sibling repos that travel with the family but aren't RPi::WiringPi CPAN
+    # prereqs, so PREREQ_PM never names them (e.g. the rpi-tracker inventory
+    # web app).
+    my @extra = ('rpi-tracker');
+
+    # Stable, human-friendly order.
+    return sort((map { module_to_slug($_) } @mods), @extra);
 }
 
 sub git_status {
