@@ -56,12 +56,27 @@ my $pca = RPi::PWM::PCA9685->new;
 
 isa_ok $pca, 'RPi::PWM::PCA9685';
 
+# Safety net: guarantee the chip is parked no matter how this file exits. The
+# happy-path teardown below parks it and sets $parked, so this only fires if a
+# croak (eg. a failed I2C write) kills the file first, leaving the outputs
+# still driven. eval swallows the "device has been closed" croak if we somehow
+# reach here after close().
+my $parked = 0;
+END { eval { $pca->off } if $pca && ! $parked }
+
 { # new() leaves the chip awake, with register auto-increment enabled
 
     my $mode1 = $pca->register(MODE1);
 
     ok $mode1 & 0x20, "MODE1 AI bit is set after new()";
     ok ! ($mode1 & 0x10), "MODE1 SLEEP bit is clear after new()";
+}
+
+{ # Read accessors - the configured bus/address, and the live drive type
+
+    is $pca->addr, 0x40, "addr() returns the default I2C address";
+    is $pca->device, '/dev/i2c-1', "device() returns the default I2C device";
+    is $pca->drive, 'totem', "drive() reads totem-pole from MODE2";
 }
 
 { # freq() - prescaler register readback, datasheet math
@@ -145,10 +160,12 @@ isa_ok $pca, 'RPi::PWM::PCA9685';
     $pca->invert;
     my $mode2 = $pca->register(MODE2);
     ok $mode2 & 0x10, "invert() sets MODE2 INVRT";
+    is $pca->inverted, 1, "inverted() reads back the INVRT bit";
 
     $pca->invert(0);
     $mode2 = $pca->register(MODE2);
     ok ! ($mode2 & 0x10), "invert(0) clears MODE2 INVRT";
+    is $pca->inverted, 0, "inverted() reflects invert(0)";
 }
 
 { # sleep()/wake() - MODE1 SLEEP readback
@@ -156,10 +173,27 @@ isa_ok $pca, 'RPi::PWM::PCA9685';
     $pca->sleep;
     my $mode1 = $pca->register(MODE1);
     ok $mode1 & 0x10, "sleep() sets MODE1 SLEEP";
+    is $pca->sleeping, 1, "sleeping() reads back the SLEEP bit";
 
     $pca->wake;
     $mode1 = $pca->register(MODE1);
     ok ! ($mode1 & 0x10), "wake() clears MODE1 SLEEP";
+    is $pca->sleeping, 0, "sleeping() reflects wake()";
+}
+
+{ # status() - a live snapshot hashref, read back over the bus
+
+    my $status = $pca->status;
+
+    is ref $status, 'HASH', "status() returns a hashref";
+    is $status->{addr}, 0x40, "status() reports the addr";
+    is $status->{device}, '/dev/i2c-1', "status() reports the device";
+    is $status->{drive}, 'totem', "status() reports the drive type";
+    is $status->{inverted}, 0, "status() reports normal (non-inverted) logic";
+    is $status->{sleeping}, 0, "status() reports the chip awake";
+    is $status->{ext_clock}, 0, "status() reports the internal clock";
+    is $status->{osc_hz}, 25000000, "status() reports the assumed oscillator";
+    ok $status->{freq} > 0, "status() reports a positive freq";
 }
 
 { # register() - raw byte write/readback on a harmless register (SUBADR1;
@@ -184,12 +218,17 @@ isa_ok $pca, 'RPi::PWM::PCA9685';
     ok $mode1 & 0x20, "...and the chip was re-initialised (AI back on)";
 }
 
-# Leave the chip in the board's rest state: 50 Hz, all channels off
+# Leave the chip in the board's rest state: 50 Hz, every channel off and the
+# oscillator stopped. off() is all_off() plus sleep() - the tidy park-for-exit
+# so the chip isn't left driving its outputs after the test process is gone.
 
 $pca->freq(50);
-$pca->all_off;
+$pca->off;
+$parked = 1;
 
 is $pca->register(PRE_SCALE), 121, "chip left at 50 Hz";
+is_deeply [$pca->pwm_read(6)], [0, FULL], "off() leaves the channels full-off";
+is $pca->sleeping, 1, "off() leaves the chip asleep";
 
 $pca->close;
 
