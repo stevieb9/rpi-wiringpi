@@ -24,6 +24,7 @@ The target lives in `Makefile.PL`'s `MY::postamble` and is a prerequisite of
 | `audit-family-buildcheck.pl` | Audit every family dist's `Makefile.PL` build guard for drift from the canonical wiringPi minimum version (read-only). |
 | `check-family-repos.pl` | Report which family repos have uncommitted changes. |
 | `sync-family-repos.pl` | Clone-or-update every family repo in one pass (refuses to run if any repo is dirty). |
+| `install-family-repos.pl` | Sync, then build-and-install every family repo. Installs the wiringPi C library first via its own `./build`, then each Perl dist via `perl Makefile.PL` + `make install`. |
 | `gen-faq-test-table.pl` | Regenerate the "Test file reference" table in `FAQ.pod` from the test suite. |
 | `gen-min-version.pl` | Sync the wiringPi minimum-version literal in the prose POD to `RPi::Const::WIRINGPI_MIN_VERSION`. |
 | `gen-pod-md.pl` | Regenerate `docs/pod/*.md` markdown replicas from the distribution's POD. |

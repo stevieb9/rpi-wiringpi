@@ -12,11 +12,17 @@ use feature 'say';
 # anything is built. If sync reports a problem the install is aborted rather
 # than run against stale or missing trees.
 #
-# Step B then visits each repo under the repos root and runs `perl Makefile.PL`
-# followed by `make install`. A repo counts as failed if either step exits
-# non-zero; only failures are reported, with the tail of the offending
-# command's output so the cause is visible. Repos that install cleanly produce
-# no report output — a repo the sync left without a clone is listed separately.
+# Step B installs the wiringPi C library first: it is the shared library the
+# whole family links against and is NOT a CPAN dist, so it is built with its
+# own `./build` script (which compiles the library and runs `sudo make
+# install` itself) rather than `perl Makefile.PL` + `make install`.
+#
+# Step C then visits each remaining repo under the repos root and runs
+# `perl Makefile.PL` followed by `make install`. A repo counts as failed if
+# either step exits non-zero; only failures are reported, with the tail of the
+# offending command's output so the cause is visible. Repos that install
+# cleanly produce no report output — a repo the sync left without a clone is
+# listed separately.
 #
 # The family list and repo-slug mapping are derived exactly as in
 # sync-family-repos.pl and check-family-repos.pl: from this repo's Makefile.PL
@@ -55,6 +61,10 @@ die "Found no family modules in $makefile PREREQ_PM\n" if ! @family;
 
 my @repos = family_repos(@family);
 
+# The wiringPi C library repo (irregular mixed-case slug); installed first and
+# via ./build, so it is handled outside the Perl-dist loop below.
+my $wiringpi_c = 'WiringPi';
+
 # --- step A: sync -----------------------------------------------------------
 
 # sync-family-repos.pl clones/updates every repo and refuses (exit non-zero)
@@ -68,12 +78,36 @@ if (system(@sync_cmd) != 0) {
     die "\nSync failed — resolve the problems above before installing.\n";
 }
 
-# --- step B: build and install ---------------------------------------------
-
 my @failed;      # [ slug, step-label, command output ]
 my @missing;     # slugs the sync left without a clone
 
+# --- step B: build and install the wiringPi C library first -----------------
+
+# The whole family links against the wiringPi C library, so it must be built
+# and installed before any Perl dist. Its ./build script compiles the shared
+# library and runs `sudo make install` itself; build_wiringpi() lets it inherit
+# the terminal so that sudo prompt isn't swallowed by a captured pipe.
+{
+    my $dir = "$root/$wiringpi_c";
+
+    if (! -d "$dir/.git") {
+        push @missing, $wiringpi_c;
+    }
+    else {
+        print STDERR "==> Installing $wiringpi_c (C library, ./build)\n";
+
+        my $failure = build_wiringpi($dir);
+        push @failed, [$wiringpi_c, @$failure] if $failure;
+    }
+}
+
+# --- step C: build and install the Perl dists -------------------------------
+
 for my $slug (@repos) {
+    # The C library above is enrolled in the family list too, but it is not a
+    # Perl dist — skip it here so Makefile.PL is never run against it.
+    next if $slug eq $wiringpi_c;
+
     my $dir = "$root/$slug";
 
     if (! -d "$dir/.git") {
@@ -111,6 +145,33 @@ print STDERR "All ${\ scalar @repos} family repos installed.\n"
 exit($problems ? 1 : 0);
 
 # --- helpers ---------------------------------------------------------------
+
+sub build_wiringpi {
+    my ($dir) = @_;
+
+    my $orig = getcwd();
+    if (! chdir $dir) {
+        return ['chdir', "Could not chdir to $dir: $!"];
+    }
+
+    my $failure;
+
+    if ($dry_run) {
+        say "    would run: ./build  (in $dir)";
+    }
+    else {
+        # ./build compiles the library and runs `sudo make install` itself, so
+        # let it inherit the terminal — a captured pipe would deadlock on the
+        # sudo password prompt. Its output is already on screen; on failure we
+        # only need to flag it.
+        if (system('./build') != 0) {
+            $failure = ['./build', './build exited non-zero — see output above'];
+        }
+    }
+
+    chdir $orig;
+    return $failure;
+}
 
 sub install_repo {
     my ($dir) = @_;
@@ -211,9 +272,10 @@ sub family_repos {
     my (@mods) = @_;
 
     # Sibling repos that travel with the family but aren't RPi::WiringPi CPAN
-    # prereqs, so PREREQ_PM never names them (e.g. the rpi-tracker inventory
-    # web app).
-    my @extra = ('rpi-tracker');
+    # prereqs, so PREREQ_PM never names them: the wiringPi C library the whole
+    # family links against (installed via its own ./build, not Makefile.PL) and
+    # the rpi-tracker inventory web app.
+    my @extra = ('WiringPi', 'rpi-tracker');
 
     # Stable, human-friendly order.
     return sort((map { module_to_slug($_) } @mods), @extra);
