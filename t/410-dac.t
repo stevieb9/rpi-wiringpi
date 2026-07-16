@@ -113,6 +113,32 @@ my @output = (
     }
 }
 
+{ # Software shutdown (disable_sw) collapses a DAC's output; set() restores it.
+  # Mirrors the digipot shutdown check in t/445-dpot.t, read back through the ADC.
+  # (disable_hw needs a SHDN pin, which this DAC isn't wired with - see t/411
+  # for its no-SHDN-pin croak.)
+    for my $n (0, 1){
+        my $adc_in = $n == 0 ? $adc_dac0_in : $adc_dac1_in;
+
+        $dac->set($n, 4095);
+        is $adc->percent($adc_in) >= 95, 1,
+            "DAC $n drives ~full-scale before shutdown";
+
+        $dac->disable_sw($n);
+        is $adc->percent($adc_in) <= 2, 1,
+            "disable_sw($n) collapses the output (software shutdown)";
+
+        $dac->enable_sw($n);
+        $dac->set($n, 4095);
+        is $adc->percent($adc_in) >= 95, 1,
+            "enable_sw($n) + set() restores the output";
+    }
+}
+
+# Leave both DACs in software shutdown so neither is left driving at exit
+$dac->disable_sw(0);
+$dac->disable_sw(1);
+
 # Tear the MCP3008 down before cleanup. Its DESTROY forces the bit-banged CS
 # pin (26) to INPUT; left to run at global destruction it would fire *after*
 # the pin-status check below and strand pin 26 at alt 0, failing this and
