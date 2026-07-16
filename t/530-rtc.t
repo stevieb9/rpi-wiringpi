@@ -395,6 +395,27 @@ my $rtc = $pi->rtc;
     $rtc->clock_hours(24);
 }
 
+{ # en_32khz() / osc_on_battery() - the battery/power bits (V9).
+  # Guarded for the install lag: these ship in RPi::RTC::DS3231 >= 0.04.
+    SKIP: {
+        skip "installed RPi::RTC::DS3231 lacks en_32khz()/osc_on_battery()", 6
+            unless $rtc->can('en_32khz') && $rtc->can('osc_on_battery');
+
+        is $rtc->en_32khz(1), 1, "en_32khz(1) enables the 32kHz output";
+        is $rtc->en_32khz(0), 0, "en_32khz(0) disables the 32kHz output";
+
+        # osc_on_battery is the EOSC bit. Test the toggle, then ALWAYS restore
+        # it to 1 (keep timekeeping on battery) so we never leave the RTC
+        # unable to hold time across a power loss.
+        is $rtc->osc_on_battery(0), 0, "osc_on_battery(0) stops the oscillator on battery";
+        is $rtc->osc_on_battery(1), 1, "osc_on_battery(1) restores battery timekeeping";
+        is $rtc->osc_on_battery, 1, "...and it reads back on (safe default restored)";
+
+        # Leave the 32kHz output off as a harmless power save at teardown
+        is $rtc->en_32khz(0), 0, "32kHz output left disabled at teardown";
+    }
+}
+
 $pi->cleanup;
 
 rpi_check_pin_status();

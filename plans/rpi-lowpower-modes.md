@@ -1,8 +1,8 @@
 # Plan: Expose & test low-power / sleep modes across the RPi device family, and park every device in it at test teardown
 
-> **NEXT ACTION:** All V tasks (V1-V8) implemented. Remaining is on-hardware confirmation on the Pi: V5 especially (`prove t/410` on board-2, DAC↔ADC), plus the V6-V8 teardown calls (t/358, t/353, t/445 — board-gated). Report fallout, then the plan fully closes.
-> **LAST SESSION:** 2026-07-16 — V6-V8 done (teardown power-down): t/358 sleeps the MPU-6050, t/353 sleeps the A4988, t/445 shuts down both digipot wipers, each before its cleanup; all compile. MPU-6050 + A4988 SYNOPSISes gained "Powering down" blocks (+ Changes); DigiPot SYNOPSIS already had shutdown. Methods are exercised in each test body, so the teardown calls are low-risk though board-gated.
-> **ARCHIVE:** See rpi-lowpower-modes-archive.md for completed V1-V8
+> **NEXT ACTION:** All V tasks (V1-V9) implemented. Remaining: on-hardware confirmation on the Pi — V5 (t/410 board-2 DAC↔ADC) and the board-gated teardown/coverage in V6-V9 (t/358, t/353, t/445, t/530). Report fallout, then the plan is fully closed.
+> **LAST SESSION:** 2026-07-16 — V9 done: RPi::RTC::DS3231 `en_32khz()` + `osc_on_battery()` (positive-sense EOSC with a loud data-loss warning), pure Perl over the existing en/disableRegisterBit XS — no XS change needed after all — POD + SYNOPSIS + Changes; dist t/80-power.t HW-free assertions (PASS, 8) + guarded t/530-rtc.t hardware block (restores osc_on_battery(1), leaves 32kHz off).
+> **ARCHIVE:** See rpi-lowpower-modes-archive.md for completed V1-V9
 
 ## Execution rules
 
@@ -72,7 +72,7 @@ Audit ledger — every device checked. `(→V#/B#)` points to where a gap is han
 - **F13** ✅ VALIDATED (V4) (→V4): t/421-adc_gain.t / t/405-pwm_i2c_adc.t exercise `mode()` (continuous) without restoring the ADS to its single-shot power-down default at teardown. **No change needed:** t/421's `mode => 0` object only checks `gain` (no read → continuous is never written to the chip), and the real reads use the default single-shot mode, which auto-powers-down. The chip is already left powered down.
 
 **Peripheral — deferred to backlog:**
-- **F6** (→B1): RPi::RTC::DS3231 — EOSC (0x0E bit 7, stop oscillator on VBAT) and EN32kHz (0x0F bit 3, disable 32 kHz output) battery-conservation bits are unexposed and untested. Not a device sleep; battery-life nicety.
+- **F6** ✅ RESOLVED (V9, promoted from B1): RPi::RTC::DS3231 — EOSC (0x0E bit 7, stop oscillator on VBAT) and EN32kHz (0x0F bit 3, disable 32 kHz output) battery-conservation bits are unexposed and untested. Not a device sleep; battery-life nicety.
 - **F7** (→B2): RPi::Gyro::MPU6050 — core `sleep()`/`wake()`/`reset()` are done and tested (t/358-gyro.t), but CYCLE low-power mode and PWR_MGMT_2 per-axis standby are reachable only via `register()`.
 
 **Method + test already covered (but see teardown findings above):**
@@ -93,7 +93,7 @@ Audit ledger — every device checked. `(→V#/B#)` points to where a gap is han
 
 ## Backlog
 
-B1: RPi::RTC::DS3231 — expose EOSC (0x0E bit 7) and EN32kHz (0x0F bit 3) battery-conservation bits with reader/writer methods; add coverage.
+B1: promoted to V9 (2026-07-16). Slot retired.
 
 B2: RPi::Gyro::MPU6050 — wrap CYCLE low-power mode (PWR_MGMT_1 bit 5) and PWR_MGMT_2 per-axis standby, currently reachable only via register().
 
