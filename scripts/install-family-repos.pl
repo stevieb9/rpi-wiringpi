@@ -18,11 +18,12 @@ use feature 'say';
 # install` itself) rather than `perl Makefile.PL` + `make install`.
 #
 # Step C then visits each remaining repo under the repos root and runs
-# `perl Makefile.PL` followed by `make install`. A repo counts as failed if
-# either step exits non-zero; only failures are reported, with the tail of the
-# offending command's output so the cause is visible. Repos that install
-# cleanly produce no report output — a repo the sync left without a clone is
-# listed separately.
+# `perl Makefile.PL` followed by `make install`, skipping repos that are synced
+# but not installable Perl dists (the rpi-tracker web app). A repo counts as
+# failed if either step exits non-zero; only failures are reported, with the
+# tail of the offending command's output so the cause is visible. Repos that
+# install cleanly produce no report output — a repo the sync left without a
+# clone is listed separately.
 #
 # The family list and repo-slug mapping are derived exactly as in
 # sync-family-repos.pl and check-family-repos.pl: from this repo's Makefile.PL
@@ -65,6 +66,15 @@ my @repos = family_repos(@family);
 # via ./build, so it is handled outside the Perl-dist loop below.
 my $wiringpi_c = 'WiringPi';
 
+# Family repos the Perl-dist loop must NOT run Makefile.PL against: the wiringPi
+# C library (built separately via ./build below) and the rpi-tracker web app (a
+# sibling that is only ever synced/dirty-checked, never installed — it ships a
+# cpanfile, not a Makefile.PL).
+my %not_a_perl_dist = (
+    $wiringpi_c   => 1,
+    'rpi-tracker' => 1,
+);
+
 # --- step A: sync -----------------------------------------------------------
 
 # sync-family-repos.pl clones/updates every repo and refuses (exit non-zero)
@@ -104,9 +114,10 @@ my @missing;     # slugs the sync left without a clone
 # --- step C: build and install the Perl dists -------------------------------
 
 for my $slug (@repos) {
-    # The C library above is enrolled in the family list too, but it is not a
-    # Perl dist — skip it here so Makefile.PL is never run against it.
-    next if $slug eq $wiringpi_c;
+    # Some family repos are enrolled for sync/dirty-check but are not
+    # installable Perl dists (the C library, built above via ./build; the
+    # rpi-tracker web app) — never run Makefile.PL against them.
+    next if $not_a_perl_dist{$slug};
 
     my $dir = "$root/$slug";
 
