@@ -83,7 +83,14 @@ my $cleaned = 0;
 my $cleanup = sub {
     return if $cleaned;
     $cleaned = 1;
-    $tft->cleanup if $tft;
+    if ($tft){
+        # Leave the panel in its lowest-power state before releasing the bus:
+        # blank the image (DISPOFF), then sleep the driver/booster (SLPIN).
+        # sleep() is guarded for the RPi::TFT::ST7735S 3.1802 install lag.
+        $tft->off;
+        $tft->sleep if $tft->can('sleep');
+        $tft->cleanup;
+    }
     $pi->cleanup;
 };
 

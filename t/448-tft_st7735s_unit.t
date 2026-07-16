@@ -291,6 +291,24 @@ is_deeply
     'line() draws every point along its length';
 is scalar(@{ sent($seg) }), 6, 'line() flushes its bounding box as a single window';
 
+# --- sleep()/wake(): the SLPIN/SLPOUT deep-power commands ---
+# Needs RPi::TFT::ST7735S >= 3.1802 installed; skipped against older installs.
+SKIP: {
+    skip "installed RPi::TFT::ST7735S lacks sleep() (pre-3.1802)", 4
+        unless RPi::TFT::ST7735S->can('sleep');
+
+    no warnings 'redefine';
+    local *RPi::TFT::ST7735S::_nap = sub { };   # Skip the ~120ms settle in the test
+
+    my $s = make_tft();
+    is $s->sleep, 1, 'sleep() returns 1';
+    is_deeply sent($s), [[0x10]], 'sleep() sends SLPIN (0x10)';
+
+    my $w = make_tft();
+    is $w->wake, 1, 'wake() returns 1';
+    is_deeply sent($w), [[0x11]], 'wake() sends SLPOUT (0x11)';
+}
+
 done_testing();
 
 # Build a bare object configured the way new() leaves it, with a real C
