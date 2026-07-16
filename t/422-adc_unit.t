@@ -61,4 +61,21 @@ for my $bad (0, -1, 'x') {
 is $o->_samples(5), 5, "_samples(5) returns 5";
 is $o->_samples(undef), 1, "_samples(undef) falls back to the default (1)";
 
+# --- mode(): the conversion-mode / power bit (config bit 8, 0x100) ---
+# 1 = single-shot (the analog core powers down between reads, the low-power
+# default), 0 = continuous (the core keeps converting and drawing). A fresh
+# object is used so the default assertion isn't affected by the register()
+# mutations above.
+{
+    my $adc = $mod->new;
+    is $adc->bits & 0x100, 0x100,
+        "new() defaults to single-shot: MODE bit (0x100) set, powers down between reads";
+
+    $adc->mode(0);
+    is $adc->bits & 0x100, 0, "mode(0): continuous, MODE bit clear";
+
+    $adc->mode(1);
+    is $adc->bits & 0x100, 0x100, "mode(1): single-shot, MODE bit set again";
+}
+
 done_testing();

@@ -1,8 +1,8 @@
 # Plan: Expose & test low-power / sleep modes across the RPi device family, and park every device in it at test teardown
 
-> **NEXT ACTION:** V4 — assert ADS single-shot power-down + SYNOPSIS (test-only, no driver change)
-> **LAST SESSION:** 2026-07-16 — V3 done: RPi::TFT::ST7735S `sleep()`/`wake()` (SLPIN/SLPOUT deep power, distinct from off()/on() DISPOFF/DISPON), POD/SYNOPSIS/Changes; dist t/06-draw.t SLPIN/SLPOUT assertions (PASS, 57) + guarded t/448 mirror (PASS, 79, SKIPs pre-install) + t/447 `$cleanup` closure parks panel (off then sleep). 7 pre-existing POD link warnings unchanged (not introduced here).
-> **ARCHIVE:** See rpi-lowpower-modes-archive.md for completed V1-V3
+> **NEXT ACTION:** V5 — assert MCP4922 disable_sw/hw drops Vout + SYNOPSIS + teardown (hw ADC readback)
+> **LAST SESSION:** 2026-07-16 — V4 done: RPi::ADC::ADS SYNOPSIS conversion-mode/power block + Changes; extended existing rpi-wiringpi t/422-adc_unit.t with MODE-bit (0x100) single-shot/power-down assertions (HW-free; PASS 16). Corrected the plan: config readback is cached (not live I2C); teardown F13 already satisfied (single-shot default + auto power-down), no code change.
+> **ARCHIVE:** See rpi-lowpower-modes-archive.md for completed V1-V4
 
 ## Execution rules
 
@@ -45,7 +45,6 @@ Each V task follows the PCA9685 precedent set this session: add the method + its
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V4 | RPi::ADC::ADS: test-only gap. Add an assertion in rpi-wiringpi t/421-adc_gain.t (or a new t/) that the default single-shot mode is the power-down state and that `mode()` toggles the config-register MODE bit (0x100), read back over I2C. No driver change expected, but add a single-shot / `mode()` power-down example to the END of the RPi::ADC::ADS SYNOPSIS. **Teardown:** ensure t/421 (and t/405-pwm_i2c_adc.t) leave the ADS in single-shot (its power-down default), not continuous, before teardown. | `prove -l ~/repos/rpi-wiringpi/t/421-adc_gain.t` (under RPI_ADS / hw) | Test asserts MODE bit = single-shot (power-down) by default and continuous when `mode(0)` set, via config readback; ADS left in single-shot at teardown | ⏳ |
 | V5 | RPi::DAC::MCP4922: test-only gap. Add a rpi-wiringpi hardware test (extend t/410-dac.t) asserting `disable_sw()` and `disable_hw()` collapse Vout toward 0 and `enable_*()` restores it, measured via an ADC readback (mirroring the digipot shutdown test t/445-dpot.t). No driver change expected, but add a `disable_sw()`/`disable_hw()` shut-off example to the END of the RPi::DAC::MCP4922 SYNOPSIS. **Teardown:** t/410 currently leaves the DAC driving its last `set()` value; add `disable_sw()` (or `disable_hw()`) before `$pi->cleanup` so both DACs are shut down at exit. | `prove -l ~/repos/rpi-wiringpi/t/410-dac.t` (under RPI_MCP4922 / hw with ADC wiring) | Measured output near 0 after shutdown, restored after enable; DAC left shut down at teardown | ⏳ |
 | V6 | RPi::Gyro::MPU6050 teardown (method already ships + tested): t/358-gyro.t ends AWAKE because the last power op is `reset()` (re-inits to the awake PLL state) and the `$cleanup` closure only does `$mpu->close`. Add `$mpu->sleep` inside the `$cleanup` closure (before `close`), so the IMU is left asleep (~10 µA vs ~3.9 mA) however the file exits. No driver change, but add a `sleep()`/`wake()` example to the END of the RPi::Gyro::MPU6050 SYNOPSIS if not already present. | `prove -l ~/repos/rpi-wiringpi/t/358-gyro.t` (under RPI_MPU6050 / hw) | Gyro left with PWR_MGMT_1 SLEEP set at teardown; test still passes | ⏳ |
 | V7 | RPi::StepperMotor::A4988 teardown (methods already ship + tested): t/353-a4988.t ends AWAKE+ENABLED after `wake()`/`reset()`; the `$cleanup` closure does `$motor->cleanup` (releases pins, does not guarantee SLEEP low). Add `$motor->sleep` (and/or `$motor->disable`) inside the `$cleanup` closure before `$motor->cleanup`, so the driver is powered down at exit. No driver change, but add a `sleep()`/`disable()` example to the END of the RPi::StepperMotor::A4988 SYNOPSIS if not already present. | `prove -l ~/repos/rpi-wiringpi/t/353-a4988.t` (under RPI_A4988 / hw) | A4988 SLEEP pin driven low at teardown; test still passes | ⏳ |
@@ -65,7 +64,7 @@ Audit ledger — every device checked. `(→V#/B#)` points to where a gap is han
 - **F3** ✅ RESOLVED (V3) (→V3): RPi::TFT::ST7735S — SLPIN (0x10) true sleep is a defined-but-unused constant; only DISPOFF/DISPON (panel blank) are exposed via off()/on(). The deeper low-power command has no method and no test.
 
 **Actionable — add a test (method exists, power state unverified):**
-- **F4** (→V4): RPi::ADC::ADS — `mode()` selects single-shot (delta-sigma powers down between reads), but the one test uses `mode => 0` only to prove non-leak into gain; the power-down/single-shot state is never asserted.
+- **F4** ✅ RESOLVED (V4) (→V4): RPi::ADC::ADS — `mode()` selects single-shot (delta-sigma powers down between reads), but the one test uses `mode => 0` only to prove non-leak into gain; the power-down/single-shot state is never asserted. (Fixed via t/422-adc_unit.t MODE-bit assertions; readback is cached config, HW-free, not live I2C as the plan first said.)
 - **F5** (→V5): RPi::DAC::MCP4922 — `disable_sw`/`enable_sw`/`disable_hw`/`enable_hw` (SHDN bit 12 + SHDN pin) exist but are only hit in error-path unit tests; no test asserts a real output drop.
 
 **Actionable — teardown hygiene (device left drawing current at test end-of-scope):**
@@ -74,7 +73,7 @@ Audit ledger — every device checked. `(→V#/B#)` points to where a gap is han
 - **F10** ✅ RESOLVED (V3) (→V3): t/447-tft_st7735s.t leaves the ST7735S panel ON (last op `on()`); the `$cleanup` closure's `$tft->cleanup` does not blank or sleep the panel.
 - **F11** (→V5): t/410-dac.t leaves the MCP4922 driving its last `set()` output; teardown is `undef $adc; $pi->cleanup` with no DAC shutdown.
 - **F12** (→V8): t/445-dpot.t explicitly brings the pot back OUT of shutdown with `set(0)` after the shutdown assertion, leaving the resistor network powered.
-- **F13** (→V4): t/421-adc_gain.t / t/405-pwm_i2c_adc.t exercise `mode()` (continuous) without restoring the ADS to its single-shot power-down default at teardown.
+- **F13** ✅ VALIDATED (V4) (→V4): t/421-adc_gain.t / t/405-pwm_i2c_adc.t exercise `mode()` (continuous) without restoring the ADS to its single-shot power-down default at teardown. **No change needed:** t/421's `mode => 0` object only checks `gain` (no read → continuous is never written to the chip), and the real reads use the default single-shot mode, which auto-powers-down. The chip is already left powered down.
 
 **Peripheral — deferred to backlog:**
 - **F6** (→B1): RPi::RTC::DS3231 — EOSC (0x0E bit 7, stop oscillator on VBAT) and EN32kHz (0x0F bit 3, disable 32 kHz output) battery-conservation bits are unexposed and untested. Not a device sleep; battery-life nicety.
