@@ -97,6 +97,31 @@ like $@, qr/four elements/, 'new(): pins aref must have exactly four elements';
         'cw full: step index advances by two';
 }
 
+# --- off(): de-energizes all four coil pins, pins stay OUTPUT ---
+# Needs RPi::StepperMotor >= 3.1802 installed; skipped against older installs,
+# mirroring the speed('turbo') install-lag note at the top of this file.
+SKIP: {
+    skip "installed RPi::StepperMotor lacks off() (pre-3.1802)", 3
+        unless $mod->can('off');
+
+    my $sm = motor;
+
+    $sm->cw(6);                            # Energize the coils through a move
+
+    @{ $sm->_expander->{writes} } = ();    # Isolate just off()'s writes/modes
+    @{ $sm->_expander->{modes} }  = ();
+
+    is $sm->off, 0, 'off(): returns 0';
+
+    is_deeply
+        [sort { $a->[0] <=> $b->[0] } @{ $sm->_expander->{writes} }],
+        [[0, LOW], [1, LOW], [2, LOW], [3, LOW]],
+        'off(): drives all four coil pins LOW';
+
+    is_deeply $sm->_expander->{modes}, [],
+        'off(): makes no mode() changes, so the pins stay OUTPUT';
+}
+
 done_testing();
 
 sub steps_raw {

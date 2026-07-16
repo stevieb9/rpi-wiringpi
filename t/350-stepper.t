@@ -207,6 +207,12 @@ else {
 $cw_proc->stop;
 $ccw_proc->stop;
 
+# De-energize the motor before tearing down the bus, so the coils aren't left
+# holding current after the run (the timed passes above may leave a coil driven).
+# Guarded for the install lag: off() needs RPi::StepperMotor >= 3.1802, and the
+# $exp->cleanup below releases the coil pins anyway on older installs.
+$sm->off if $sm->can('off');
+
 $exp->cleanup;
 $pi->cleanup;
 
