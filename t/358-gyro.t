@@ -84,6 +84,9 @@ my $cleaned = 0;
 my $cleanup = sub {
     return if $cleaned;
     $cleaned = 1;
+    # Leave the IMU asleep (~10uA vs ~3.9mA) however this file exits - the
+    # body's reset() leaves it awake otherwise
+    $mpu->sleep if $mpu;
     $mpu->close if $mpu;
     $pi->cleanup;
 };

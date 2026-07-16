@@ -107,6 +107,9 @@ my $cleaned = 0;
 my $cleanup = sub {
     return if $cleaned;
     $cleaned = 1;
+    # Drive SLEEP low to power the driver down before releasing the pins - the
+    # body's wake()/reset() leave it awake and enabled otherwise
+    $motor->sleep if $motor;
     $motor->cleanup if $motor;
     $exp->cleanup;
     $pi->cleanup;

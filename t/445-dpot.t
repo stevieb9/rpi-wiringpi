@@ -89,6 +89,11 @@ for my $wiper ([POT0, ADC_PW0, 'PW0'], [POT1, ADC_PW1, 'PW1']){
 # The shutdown checks above leave both pots parked at tap 0 (the set(0)
 # restore), so MOSI is already idling low for the shared pin-status check.
 
+# Leave both wipers in software shutdown (A terminal open) - the lowest-power
+# state - rather than the set(0) tap the checks above restored them to.
+$pot->shutdown(POT0);
+$pot->shutdown(POT1);
+
 $pi->cleanup;
 
 rpi_check_pin_status();

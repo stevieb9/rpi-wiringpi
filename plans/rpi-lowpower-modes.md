@@ -1,8 +1,8 @@
 # Plan: Expose & test low-power / sleep modes across the RPi device family, and park every device in it at test teardown
 
-> **NEXT ACTION:** V6 — leave the MPU-6050 asleep at t/358-gyro.t teardown (add `$mpu->sleep` to the `$cleanup` closure)
-> **LAST SESSION:** 2026-07-16 — V5 closed (implemented + compiles) at the user's request without a hardware run: rpi-wiringpi t/410-dac.t asserts disable_sw collapses each DAC's output (ADC readback), enable_sw+set restores, both DACs shut down at teardown. NOT executed — hardware-gated (board-2, DAC↔ADC); fallout to be handled when `prove t/410` is run on the Pi. No dist change (SYNOPSIS already documents shutdown); disable_hw not testable (no SHDN pin wired).
-> **ARCHIVE:** See rpi-lowpower-modes-archive.md for completed V1-V5
+> **NEXT ACTION:** All V tasks (V1-V8) implemented. Remaining is on-hardware confirmation on the Pi: V5 especially (`prove t/410` on board-2, DAC↔ADC), plus the V6-V8 teardown calls (t/358, t/353, t/445 — board-gated). Report fallout, then the plan fully closes.
+> **LAST SESSION:** 2026-07-16 — V6-V8 done (teardown power-down): t/358 sleeps the MPU-6050, t/353 sleeps the A4988, t/445 shuts down both digipot wipers, each before its cleanup; all compile. MPU-6050 + A4988 SYNOPSISes gained "Powering down" blocks (+ Changes); DigiPot SYNOPSIS already had shutdown. Methods are exercised in each test body, so the teardown calls are low-risk though board-gated.
+> **ARCHIVE:** See rpi-lowpower-modes-archive.md for completed V1-V8
 
 ## Execution rules
 
@@ -45,9 +45,6 @@ Each V task follows the PCA9685 precedent set this session: add the method + its
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V6 | RPi::Gyro::MPU6050 teardown (method already ships + tested): t/358-gyro.t ends AWAKE because the last power op is `reset()` (re-inits to the awake PLL state) and the `$cleanup` closure only does `$mpu->close`. Add `$mpu->sleep` inside the `$cleanup` closure (before `close`), so the IMU is left asleep (~10 µA vs ~3.9 mA) however the file exits. No driver change, but add a `sleep()`/`wake()` example to the END of the RPi::Gyro::MPU6050 SYNOPSIS if not already present. | `prove -l ~/repos/rpi-wiringpi/t/358-gyro.t` (under RPI_MPU6050 / hw) | Gyro left with PWR_MGMT_1 SLEEP set at teardown; test still passes | ⏳ |
-| V7 | RPi::StepperMotor::A4988 teardown (methods already ship + tested): t/353-a4988.t ends AWAKE+ENABLED after `wake()`/`reset()`; the `$cleanup` closure does `$motor->cleanup` (releases pins, does not guarantee SLEEP low). Add `$motor->sleep` (and/or `$motor->disable`) inside the `$cleanup` closure before `$motor->cleanup`, so the driver is powered down at exit. No driver change, but add a `sleep()`/`disable()` example to the END of the RPi::StepperMotor::A4988 SYNOPSIS if not already present. | `prove -l ~/repos/rpi-wiringpi/t/353-a4988.t` (under RPI_A4988 / hw) | A4988 SLEEP pin driven low at teardown; test still passes | ⏳ |
-| V8 | RPi::DigiPot::MCP4XXXX teardown (method already ships + tested): t/445-dpot.t brings the pot back out of shutdown with `set(0)` after the shutdown assertion, leaving the resistor network drawing current. Add a final `$pot->shutdown($pot_select)` for each pot just before `$pi->cleanup`, so both pots end in their lowest-power (A-terminal-open) state. No driver change, but add a `shutdown()` example to the END of the RPi::DigiPot::MCP4XXXX SYNOPSIS if not already present. | `prove -l ~/repos/rpi-wiringpi/t/445-dpot.t` (under RPI_MCP4XXXX / hw) | Both pots left in shutdown at teardown; test still passes | ⏳ |
 
 ## Discovery Tracking
 
@@ -67,11 +64,11 @@ Audit ledger — every device checked. `(→V#/B#)` points to where a gap is han
 - **F5** ✅ RESOLVED (V5 — UNVERIFIED, awaits board-2 run) (→V5): RPi::DAC::MCP4922 — `disable_sw`/`enable_sw`/`disable_hw`/`enable_hw` (SHDN bit 12 + SHDN pin) exist but are only hit in error-path unit tests; no test asserts a real output drop. Software-shutdown ADC-readback assertion added to t/410-dac.t; closed at the user's request without running it — confirm on board-2.
 
 **Actionable — teardown hygiene (device left drawing current at test end-of-scope):**
-- **F8** (→V6): t/358-gyro.t leaves the MPU-6050 AWAKE — the last power op is `reset()` (re-inits to the awake PLL state) and the `$cleanup` closure only calls `$mpu->close`. ~3.9 mA vs ~10 µA asleep.
-- **F9** (→V7): t/353-a4988.t leaves the A4988 AWAKE+ENABLED (`wake()` then `reset()`); the `$cleanup` closure's `$motor->cleanup` releases pins but does not drive SLEEP low.
+- **F8** ✅ RESOLVED (V6) (→V6): t/358-gyro.t leaves the MPU-6050 AWAKE — the last power op is `reset()` (re-inits to the awake PLL state) and the `$cleanup` closure only calls `$mpu->close`. ~3.9 mA vs ~10 µA asleep.
+- **F9** ✅ RESOLVED (V7) (→V7): t/353-a4988.t leaves the A4988 AWAKE+ENABLED (`wake()` then `reset()`); the `$cleanup` closure's `$motor->cleanup` releases pins but does not drive SLEEP low.
 - **F10** ✅ RESOLVED (V3) (→V3): t/447-tft_st7735s.t leaves the ST7735S panel ON (last op `on()`); the `$cleanup` closure's `$tft->cleanup` does not blank or sleep the panel.
 - **F11** ✅ RESOLVED (V5 — UNVERIFIED, awaits board-2 run) (→V5): t/410-dac.t leaves the MCP4922 driving its last `set()` output; teardown is `undef $adc; $pi->cleanup` with no DAC shutdown. V5 adds `disable_sw(0)`/`disable_sw(1)` before teardown; closed without running — confirm on board-2.
-- **F12** (→V8): t/445-dpot.t explicitly brings the pot back OUT of shutdown with `set(0)` after the shutdown assertion, leaving the resistor network powered.
+- **F12** ✅ RESOLVED (V8) (→V8): t/445-dpot.t explicitly brings the pot back OUT of shutdown with `set(0)` after the shutdown assertion, leaving the resistor network powered.
 - **F13** ✅ VALIDATED (V4) (→V4): t/421-adc_gain.t / t/405-pwm_i2c_adc.t exercise `mode()` (continuous) without restoring the ADS to its single-shot power-down default at teardown. **No change needed:** t/421's `mode => 0` object only checks `gain` (no read → continuous is never written to the chip), and the real reads use the default single-shot mode, which auto-powers-down. The chip is already left powered down.
 
 **Peripheral — deferred to backlog:**
