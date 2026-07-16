@@ -157,6 +157,23 @@ my $ok = eval {
     is $mpu->register(REG_PWR_MGMT_1), PM1_CLKSEL_PLL,
         "reset() re-initialises to the awake PLL-clock state";
 
+    # Low-power cycle mode + per-axis standby. Guarded for the install lag:
+    # cycle()/accel_standby()/gyro_standby() ship in a newer RPi::Gyro::MPU6050.
+    SKIP: {
+        skip "installed RPi::Gyro::MPU6050 lacks cycle()/standby()", 5
+            unless $mpu->can('cycle') && $mpu->can('gyro_standby');
+
+        is $mpu->cycle(5), 5, "cycle(5) enables low-power cycle mode at 5 Hz";
+        ok $mpu->register(REG_PWR_MGMT_1) & 0x20, "...the CYCLE bit is set";
+        $mpu->wake;
+        is $mpu->cycle, 0, "wake() exits cycle mode";
+
+        is_deeply [$mpu->gyro_standby(['x', 'y', 'z'])], ['x', 'y', 'z'],
+            "gyro_standby() puts all three gyro axes in standby";
+        $mpu->wake;
+        is_deeply [$mpu->gyro_standby], [], "wake() clears the standby bits";
+    }
+
     1;
 };
 

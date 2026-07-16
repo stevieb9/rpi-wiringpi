@@ -1,8 +1,8 @@
 # Plan: Expose & test low-power / sleep modes across the RPi device family, and park every device in it at test teardown
 
-> **NEXT ACTION:** All V tasks (V1-V9) implemented. Remaining: on-hardware confirmation on the Pi — V5 (t/410 board-2 DAC↔ADC) and the board-gated teardown/coverage in V6-V9 (t/358, t/353, t/445, t/530). Report fallout, then the plan is fully closed.
-> **LAST SESSION:** 2026-07-16 — V9 done: RPi::RTC::DS3231 `en_32khz()` + `osc_on_battery()` (positive-sense EOSC with a loud data-loss warning), pure Perl over the existing en/disableRegisterBit XS — no XS change needed after all — POD + SYNOPSIS + Changes; dist t/80-power.t HW-free assertions (PASS, 8) + guarded t/530-rtc.t hardware block (restores osc_on_battery(1), leaves 32kHz off).
-> **ARCHIVE:** See rpi-lowpower-modes-archive.md for completed V1-V9
+> **NEXT ACTION:** All V tasks (V1-V10) implemented; backlog empty. Remaining is on-hardware confirmation on the Pi — V5 (t/410 board-2 DAC↔ADC) and the board-gated coverage/teardown in V6-V10 (t/358, t/353, t/445, t/530). Report fallout, then the plan is fully closed.
+> **LAST SESSION:** 2026-07-16 — V10 done (promoted from B2): RPi::Gyro::MPU6050 `cycle($hz)` low-power accel mode + `accel_standby()`/`gyro_standby()` (arrayref, set-exactly), `wake()` extended to fully exit sleep OR cycle (clears CYCLE + zeroes PWR_MGMT_2); POD/SYNOPSIS/Changes; dist t/10-logic.t MockI2C assertions (PASS, 54) + guarded t/358-gyro.t block. Pure Perl, no XS.
+> **ARCHIVE:** See rpi-lowpower-modes-archive.md for completed V1-V10
 
 ## Execution rules
 
@@ -73,7 +73,7 @@ Audit ledger — every device checked. `(→V#/B#)` points to where a gap is han
 
 **Peripheral — deferred to backlog:**
 - **F6** ✅ RESOLVED (V9, promoted from B1): RPi::RTC::DS3231 — EOSC (0x0E bit 7, stop oscillator on VBAT) and EN32kHz (0x0F bit 3, disable 32 kHz output) battery-conservation bits are unexposed and untested. Not a device sleep; battery-life nicety.
-- **F7** (→B2): RPi::Gyro::MPU6050 — core `sleep()`/`wake()`/`reset()` are done and tested (t/358-gyro.t), but CYCLE low-power mode and PWR_MGMT_2 per-axis standby are reachable only via `register()`.
+- **F7** ✅ RESOLVED (V10, promoted from B2): RPi::Gyro::MPU6050 — core `sleep()`/`wake()`/`reset()` are done and tested (t/358-gyro.t), but CYCLE low-power mode and PWR_MGMT_2 per-axis standby are reachable only via `register()`.
 
 **Method + test already covered (but see teardown findings above):**
 - RPi::PWM::PCA9685 — `off()` (all_off + sleep) added this session, tested in t/440-pca9685.t; **teardown already compliant** (t/440 ends in `off()`) — the reference pattern.
@@ -95,7 +95,7 @@ Audit ledger — every device checked. `(→V#/B#)` points to where a gap is han
 
 B1: promoted to V9 (2026-07-16). Slot retired.
 
-B2: RPi::Gyro::MPU6050 — wrap CYCLE low-power mode (PWR_MGMT_1 bit 5) and PWR_MGMT_2 per-axis standby, currently reachable only via register().
+B2: promoted to V10 (2026-07-16). Slot retired.
 
 ## Explicitly NOT doing
 
