@@ -3,6 +3,7 @@
 ## Archived V Tasks
 
 - V1: RPi::StepperMotor `off()` (de-energize all coil pins LOW, pins stay OUTPUT, returns 0) + `cleanup()` refactored to call `off()` (fixes expander-path de-energize gap); POD `=head2 off`, cleanup POD, end-of-SYNOPSIS "Powering off" block, Changes entry; dist t/05-unit.t off()/cleanup() assertions + guarded t/352 mirror + explicit t/350 teardown park — ✅ 2026-07-16 attempt 1: PASS (dist 20 tests, t/352 17 tests with off block SKIPped pre-install)
+- V2: RPi::OLED::SSD1306::128_64 `sleep()` (charge pump off 0x8D 0x10, display off 0xAE) and `wake()` (0x8D 0x14, 0xAF) via the existing `ssd1306_command` XS binding (no XS recompile); SSD1306_* command constants, POD `=head2 sleep`/`=head2 wake`, end-of-SYNOPSIS "Powering down" block, Changes entry; dist t/05-unit.t HW-free command-sequence assertions (stub ssd1306_command) + guarded t/510 mirror + t/520-oled_cleanup.t teardown park — ✅ 2026-07-16 attempt 1: PASS (dist 26 tests, t/510 23 tests with sleep block SKIPped pre-install). Note: plan's V2 verify command named t/510 as the dist test; the dist HW-free test is actually t/05-unit.t (t/510 is the rpi-wiringpi mirror).
 
 ## Archived Fixes
 

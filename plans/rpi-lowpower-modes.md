@@ -1,8 +1,8 @@
 # Plan: Expose & test low-power / sleep modes across the RPi device family, and park every device in it at test teardown
 
-> **NEXT ACTION:** V2 — add display sleep/wake to RPi::OLED::SSD1306::128_64
-> **LAST SESSION:** 2026-07-16 — V1 done: RPi::StepperMotor `off()` + `cleanup()`→`off()` refactor, POD/SYNOPSIS/Changes; dist t/05-unit.t assertions (PASS, 20 tests) + guarded t/352 mirror (PASS, off block SKIPs pre-install) + explicit t/350 teardown park. Discovered t/350 did not de-energize the motor at exit (Fix 1, resolved).
-> **ARCHIVE:** See rpi-lowpower-modes-archive.md for completed V1
+> **NEXT ACTION:** V3 — add sleep()/wake() (SLPIN/SLPOUT) to RPi::TFT::ST7735S
+> **LAST SESSION:** 2026-07-16 — V2 done: RPi::OLED::SSD1306::128_64 `sleep()`/`wake()` (charge pump + display off/on) via the existing `ssd1306_command` XS, POD/SYNOPSIS/Changes; dist t/05-unit.t command-sequence assertions (PASS, 26) + guarded t/510 mirror (PASS, 23, SKIPs pre-install) + t/520 teardown park.
+> **ARCHIVE:** See rpi-lowpower-modes-archive.md for completed V1-V2
 
 ## Execution rules
 
@@ -45,7 +45,6 @@ Each V task follows the PCA9685 precedent set this session: add the method + its
 
 | ID | What | Command | Expected | Actual |
 |----|------|---------|----------|--------|
-| V2 | RPi::OLED::SSD1306::128_64 (repo rpi-oled-ssd1306): add display sleep/wake (e.g. `sleep()`/`wake()` or `display_off()`/`display_on()`) issuing 0xAE / 0xAF plus charge-pump 0x8D via the **already-exposed** `ssd1306_command` XS binding (128_64.xs:35) — no XS recompile needed. POD + Changes + a sleep/wake block at the END of the SYNOPSIS. Assert in t/510-oled_unit.t (method presence + return). **Teardown:** call the new sleep method at the end of the OLED test file(s) (t/50x) before the object drops, so the panel/charge-pump is off at exit. | `cd ~/repos/rpi-oled-ssd1306 && perl Makefile.PL >/dev/null && make >/dev/null 2>&1 && prove -lb t/510-oled_unit.t` | New sleep/wake methods issue the 0xAE/0xAF (+ charge-pump) commands; unit test passes; OLED test parks the display asleep at teardown | ⏳ |
 | V3 | RPi::TFT::ST7735S (repo rpi-tft-st7735s): add `sleep()`/`wake()` via `_command(SLPIN 0x10)` / `_command(SLPOUT 0x11)` with the datasheet ~120 ms settle delays — the deeper power-down distinct from the existing panel-blank `off()`/`on()` (DISPOFF/DISPON). POD + Changes + a sleep/wake block at the END of the SYNOPSIS. Assert in t/447-tft_st7735s.t (return values). **Teardown:** t/447 currently ends with the panel `on()`; change its `$cleanup` closure to `off()` then `sleep()` (SLPIN) so the panel is left in true low power at exit. | `perl -c ~/repos/rpi-tft-st7735s/lib/RPi/TFT/ST7735S.pm && prove -l ~/repos/rpi-wiringpi/t/447-tft_st7735s.t` (hw-gated) | sleep() sends SLPIN, wake() sends SLPOUT with settle delay; test asserts both return true; t/447 leaves the panel asleep at teardown | ⏳ |
 | V4 | RPi::ADC::ADS: test-only gap. Add an assertion in rpi-wiringpi t/421-adc_gain.t (or a new t/) that the default single-shot mode is the power-down state and that `mode()` toggles the config-register MODE bit (0x100), read back over I2C. No driver change expected, but add a single-shot / `mode()` power-down example to the END of the RPi::ADC::ADS SYNOPSIS. **Teardown:** ensure t/421 (and t/405-pwm_i2c_adc.t) leave the ADS in single-shot (its power-down default), not continuous, before teardown. | `prove -l ~/repos/rpi-wiringpi/t/421-adc_gain.t` (under RPI_ADS / hw) | Test asserts MODE bit = single-shot (power-down) by default and continuous when `mode(0)` set, via config readback; ADS left in single-shot at teardown | ⏳ |
 | V5 | RPi::DAC::MCP4922: test-only gap. Add a rpi-wiringpi hardware test (extend t/410-dac.t) asserting `disable_sw()` and `disable_hw()` collapse Vout toward 0 and `enable_*()` restores it, measured via an ADC readback (mirroring the digipot shutdown test t/445-dpot.t). No driver change expected, but add a `disable_sw()`/`disable_hw()` shut-off example to the END of the RPi::DAC::MCP4922 SYNOPSIS. **Teardown:** t/410 currently leaves the DAC driving its last `set()` value; add `disable_sw()` (or `disable_hw()`) before `$pi->cleanup` so both DACs are shut down at exit. | `prove -l ~/repos/rpi-wiringpi/t/410-dac.t` (under RPI_MCP4922 / hw with ADC wiring) | Measured output near 0 after shutdown, restored after enable; DAC left shut down at teardown | ⏳ |
@@ -63,7 +62,7 @@ Audit ledger — every device checked. `(→V#/B#)` points to where a gap is han
 
 **Actionable — add a method (capability exists, unexposed):**
 - **F1** ✅ RESOLVED (V1) (→V1): RPi::StepperMotor — coils stay energized (last phase pins HIGH) after every move; no release/off method to de-energize and cool the coils. `cleanup()` only de-energizes as teardown (also flips pins to INPUT).
-- **F2** (→V2): RPi::OLED::SSD1306::128_64 — SSD1306 display-off 0xAE (+ charge-pump off) is a genuine ~µA sleep; no method issues it. `dim()` only sets contrast. Reusable `ssd1306_command` XS binding already exists.
+- **F2** ✅ RESOLVED (V2) (→V2): RPi::OLED::SSD1306::128_64 — SSD1306 display-off 0xAE (+ charge-pump off) is a genuine ~µA sleep; no method issues it. `dim()` only sets contrast. Reusable `ssd1306_command` XS binding already exists.
 - **F3** (→V3): RPi::TFT::ST7735S — SLPIN (0x10) true sleep is a defined-but-unused constant; only DISPOFF/DISPON (panel blank) are exposed via off()/on(). The deeper low-power command has no method and no test.
 
 **Actionable — add a test (method exists, power state unverified):**

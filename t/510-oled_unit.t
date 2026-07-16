@@ -54,4 +54,28 @@ my $mod = 'RPi::OLED::SSD1306::128_64';
     is $mod->new, $first, 'new(): returns the same singleton instance';
 }
 
+# --- sleep()/wake(): the exact SSD1306 command sequences, captured HW-free ---
+# Needs RPi::OLED::SSD1306::128_64 >= 3.1802 installed; skipped against older
+# installs, mirroring the F16 singleton install-lag note at the top of this file.
+SKIP: {
+    skip "installed RPi::OLED::SSD1306::128_64 lacks sleep() (pre-3.1802)", 4
+        unless $mod->can('sleep');
+
+    my @cmd;
+    no warnings qw(redefine once);
+    local *RPi::OLED::SSD1306::128_64::ssd1306_command = sub { push @cmd, $_[0] };
+
+    my $o = bless {}, $mod;
+
+    @cmd = ();
+    is $o->sleep, 1, 'sleep(): returns 1';
+    is_deeply \@cmd, [0x8D, 0x10, 0xAE],
+        'sleep(): charge pump off (0x8D 0x10) then display off (0xAE)';
+
+    @cmd = ();
+    is $o->wake, 1, 'wake(): returns 1';
+    is_deeply \@cmd, [0x8D, 0x14, 0xAF],
+        'wake(): charge pump on (0x8D 0x14) then display on (0xAF)';
+}
+
 done_testing();
