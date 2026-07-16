@@ -179,9 +179,10 @@ sub family_repos {
     my (@mods) = @_;
 
     # Sibling repos that travel with the family but aren't RPi::WiringPi CPAN
-    # prereqs, so PREREQ_PM never names them (e.g. the rpi-tracker inventory
-    # web app).
-    my @extra = ('rpi-tracker');
+    # prereqs, so PREREQ_PM never names them: the wiringPi C library the whole
+    # family links against (installed via its own ./build, not Makefile.PL) and
+    # the rpi-tracker inventory web app.
+    my @extra = ('WiringPi', 'rpi-tracker');
 
     # Stable, human-friendly order.
     return sort((map { module_to_slug($_) } @mods), @extra);
