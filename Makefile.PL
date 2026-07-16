@@ -59,6 +59,7 @@ WriteMakefile(
         'RPi::LCD'                  => 3.1802,
         'RPi::OLED::SSD1306::128_64'=> 3.1802,
         'RPi::Pin'                  => 3.1803,
+        'RPi::PWM::PCA9685'         => 0.02,
         'RPi::Radar::RCWL0516'      => 0.01,
         'RPi::RTC::DS3231'          => 0.04,
         'RPi::Serial'               => 3.03,

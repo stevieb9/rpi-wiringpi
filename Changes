@@ -178,6 +178,8 @@ Revision history for Perl extension RPi::WiringPi.
     - Clarified in the FAQ and t/447 that the ST7735S module's SDA/SCL
       silk-screen are this SPI bus's data (MOSI/GPIO 10) and clock
       (SCLK/GPIO 11) pins, so they land on the Pi's SPI pins
+    - Added RPi::PWM::PCA9685 (the PCA9685 16-channel PWM driver) to
+      PREREQ_PM, enrolling it in the family sync/check/install scripts
 
 3.1802     2026-06-12
     - bump prereq of RPi::I2C to 2.3608
