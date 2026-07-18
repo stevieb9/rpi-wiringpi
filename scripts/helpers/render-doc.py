@@ -114,7 +114,7 @@ def build_bus_map():
     rows += [(k, v, 'planned') for k, v in facts.PLANNED_DEVICES.items()]
     rows += [(k, v, 'optional') for k, v in facts.OPTIONAL_DEVICES.items()]
 
-    for key, (ref, bus, value, driver, tests), ctx in rows:
+    for key, (ref, bus, value, driver, tests, board), ctx in rows:
         if bus == 'i2c':
             i2c.append({
                 'address': f'0x{value:02x}',
@@ -124,6 +124,7 @@ def build_bus_map():
                 'driver': driver,
                 'bus_side': i2c_side(ref) if ctx == 'onboard' else '3V3',
                 'context': ctx,
+                'board': board,
                 'tests': tests,
             })
         elif bus == 'spi':
@@ -135,6 +136,7 @@ def build_bus_map():
                 'ref': ref,
                 'driver': driver,
                 'context': ctx,
+                'board': board,
                 'tests': tests,
             })
 
@@ -157,25 +159,29 @@ def bus_map_json():
     return json.dumps(data, indent=2) + '\n'
 
 
+def _board(r):
+    return str(r['board']) if r['board'] else '—'
+
+
 def gen_i2c_table():
     rows = build_bus_map()['i2c']
-    lines = ['| Addr | Bus | Device | Ref | Driver | Ctx | Test |',
-             '|------|-----|--------|-----|--------|-----|------|']
+    lines = ['| Addr | Bus | Device | Ref | Driver | Ctx | Board | Test |',
+             '|------|-----|--------|-----|--------|-----|-------|------|']
     for r in rows:
         ref = r['ref'] or '—'
         lines.append(f"| `{r['address']}` | {r['bus_side']} | {r['device']} | "
-                     f"{ref} | `{r['driver']}` | {r['context']} | {r['tests']} |")
+                     f"{ref} | `{r['driver']}` | {r['context']} | {_board(r)} | {r['tests']} |")
     return '\n'.join(lines)
 
 
 def gen_spi_table():
     rows = build_bus_map()['spi']
-    lines = ['| CS | Device | Ref | Driver | Test |',
-             '|----|--------|-----|--------|------|']
+    lines = ['| CS | Device | Ref | Driver | Ctx | Board | Test |',
+             '|----|--------|-----|--------|-----|-------|------|']
     for r in rows:
         ref = r['ref'] or '—'
         lines.append(f"| `{r['cs']}` | {r['device']} | {ref} | "
-                     f"`{r['driver']}` | {r['tests']} |")
+                     f"`{r['driver']}` | {r['context']} | {_board(r)} | {r['tests']} |")
     return '\n'.join(lines)
 
 

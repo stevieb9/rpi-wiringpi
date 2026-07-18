@@ -357,7 +357,7 @@ the I2C LCD and PCA9685 belong to board 1.
 |-----------|--------------------|----------------------|
 | `335-lcd_i2c.t` | HD44780 on PCF8574 backpack | I2C SDA2/SCL3 @**0x27**; RS/E/D4-7 are PCF8574 virtual pins (base 64), **no Pi GPIO** beyond the bus (`t/335:38,62`; `WiringPi.pm:290,300`) — board 1 |
 | `353-a4988.t` | A4988 stepper via MCP23017 | I2C SDA2/SCL3 @**0x22**; STEP/DIR/MS1-3/ENABLE/SLEEP/RESET = expander GPA0-7, **no Pi GPIO** (`t/353:88-97,99,135`; facade skips Pi-pin registration when `expander` passed, `WiringPi.pm:472-488`) — bench |
-| `358-gyro.t` | MPU-6050 IMU | I2C SDA2/SCL3 @**0x68** (`t/358:76`; WHO_AM_I asserted); shares the RTC address (§4, §10) — bench |
+| `358-gyro.t` | MPU-6050 IMU | I2C SDA2/SCL3 @**0x69** (AD0 strapped high; `t/358:76`; WHO_AM_I still reports 0x68) — bench |
 | `360-adxl335.t` | ADXL335 via ADS ADC | I2C SDA2/SCL3; analog X/Y/Z → ADS (model `ADS1115` default) @**0x48** channels **0/1/2** (`t/360:71-76`; `ADS.pm:191`) — no Pi GPIO beyond the bus — bench. Same addr+channels as the board-2 ADS (§10) |
 | `361-radar.t` | RCWL-0516 motion | **GPIO7** OUT (input, CE1) — test default (driver has none; `RCWL0516.pm:27-28`), env `RPI_RADAR_PIN`; the only board-free pin, interim until an expander (§10 item 11) — bench |
 | `440-pca9685.t` | PCA9685 16-ch PWM | I2C SDA2/SCL3 @**0x40** (`PCA9685.pm:47`); register readback only, 16 PWM outs are the chip's own — board 1 (not wired yet) |
@@ -378,17 +378,20 @@ default, with file:line) lives in `scripts/helpers/model-from-tests.py`.
 
 {{i2c_table}}
 
-Devices sharing an address (0x48, 0x68) are never co-resident — see the note
+The one remaining shared address (0x48) is never co-resident — see the note
 below. ‡ `t/600` is the I2C *exception* test: it probes a deliberately-absent address
 `0x99` (t/600:36,44) to verify error handling — it does not talk to a real device.
 
-> **Shared addresses [T] (never co-resident).** Two pairs answer at the same
-> address but are never on the bus together (different context, separate env gates):
-> - **0x68** — DS3231 RTC (board 4) and MPU-6050 gyro (bench, `t/358:76`). If ever
->   co-resident, strap the MPU-6050 AD0 pin high → **0x69** (MPU6050.pm:194-195).
+> **Shared address [T] (never co-resident).** The board-2 ADS and the bench ADS
+> the ADXL335 reads answer at the same address but are never on the bus together
+> (different context, separate env gates):
 > - **0x48** — the board-2 ADS (PWM/servo=A0, dpot PW0=A1, dpot PW1=A2) and the
 >   bench ADS the ADXL335 reads on channels 0/1/2 (`t/360:71-76`). Different physical
 >   chips; a second ADS can strap **0x49–0x4B** (ADS.pm:184-186) to coexist.
+>
+> The MPU-6050 gyro (bench) has its **AD0 pin strapped high**, so it answers at
+> **0x69** (MPU6050.pm:73-77), clear of the DS3231 RTC at 0x68 — they no longer
+> collide.
 
 > **[F]** Notes the tests do **not** establish:
 > - The Arduino's board type. The test only uses I2C address `0x04`; "Metro Mini"
@@ -406,8 +409,8 @@ below. ‡ `t/600` is the I2C *exception* test: it probes a deliberately-absent 
                           MCP#1 MCP#2 MCP#3 ADS  RTC  BMP  EEP  OLED Ardu LCD  PCA
                           (t355)(t350)(t353)(t405)(t530)(t531)(t540)(t500)(t605)(t335)(t440)
 ```
-Bench-only extras on the same bus when wired: MPU-6050 @0x68 (`t/358`), an ADS
-@0x48 for the ADXL335 (`t/360`).
+Bench-only extras on the same bus when wired: MPU-6050 @0x69 (AD0 high; `t/358`),
+an ADS @0x48 for the ADXL335 (`t/360`).
 
 **One board-2 ADS1015 ADC [T].** `0x48` carries the analog read-backs the suite
 needs — PWM/servo on A0 (`t/405,425`) and **both dpot wipers, PW0 on A1 and PW1 on
@@ -698,10 +701,10 @@ gyro and PCA9685 are pure I2C. This is the lever the pin-relief work builds on.
    board-free pin (`t/361:75`; env `RPI_RADAR_PIN`). **Interim:** when the radar is
    permanently placed it will read through an MCP23017 expander input (zero header pin,
    like the steppers), which frees GPIO7 again.
-12. **Shared I2C addresses across contexts [T] (bench).** MPU-6050 gyro and DS3231
-   RTC both answer at **0x68**; the ADXL335's ADS and the board-2 ADS both at
-   **0x48** on the same channels. Board vs bench, never co-resident; escape hatches
-   are MPU-6050 → 0x69 and a second ADS at 0x49–0x4B (§4).
+12. **Shared I2C address across contexts [T] (bench).** The ADXL335's bench ADS and
+   the board-2 ADS both answer at **0x48** on the same channels — board vs bench,
+   never co-resident; a second ADS can strap 0x49–0x4B (§4). The MPU-6050 gyro is
+   strapped to **0x69** (AD0 high), clear of the DS3231 RTC at 0x68.
 
 ---
 
@@ -897,5 +900,5 @@ objects/pins in the same shm segment.
 - [ ] **Bench devices (not on the fabbed boards, §Scope)** — wire only when needed;
       they claim header pins the boards leave free: TFT ST7735S on CE0/GPIO8 +
       DC25/RES24/BLK23 + MOSI10/SCLK11 (t/447); radar OUT on GPIO7/CE1 (default; interim
-      until an expander, `RPI_RADAR_PIN` to move it) (t/361); MPU-6050 @0x68 and ADXL335's ADS @0x48 on I2C (t/358,
+      until an expander, `RPI_RADAR_PIN` to move it) (t/361); MPU-6050 @0x69 and ADXL335's ADS @0x48 on I2C (t/358,
       t/360); A4988 via MCP23017 @0x22 (t/353, zero header GPIO). **[T]**

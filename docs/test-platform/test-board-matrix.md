@@ -120,7 +120,7 @@ free but a live header does not (see `test-pinout-doc.md` §Scope / §9).
 |-----------|--------|-----------|
 | `t/447-tft_st7735s.t` | ST7735S 128×128 SPI TFT | HW SPI MOSI10/SCLK11, **CS=hardware CE0/GPIO8**, D/C=25, RES=24, BLK=23 |
 | `t/361-radar.t` | RCWL-0516 motion sensor | **GPIO7** OUT (CE1; default, interim until an expander; `RPI_RADAR_PIN` overrides) |
-| `t/358-gyro.t` | MPU-6050 IMU | I2C @0x68 (shares the RTC address) |
+| `t/358-gyro.t` | MPU-6050 IMU | I2C @0x69 (AD0 strapped high; clear of the RTC at 0x68) |
 | `t/360-adxl335.t` | ADXL335 accelerometer via an ADS ADC | I2C ADS @0x48 ch 0/1/2 (shares the board-2 ADS addr/channels) |
 | `t/353-a4988.t` | A4988 stepper via MCP23017 @0x22 | I2C only — control lines on the expander, **zero header GPIO** |
 

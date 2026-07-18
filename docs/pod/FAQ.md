@@ -2187,21 +2187,21 @@ hardware test platform. It is generated from the bus map
 model; the parenthetical tags the device context (`onboard`, `planned` for
 board 1, `bench`, or `optional`) and the proving test:
 
-    0x04  Arduino           (onboard, t/605)
-    0x05  ATMega-328P       (optional)
-    0x20  MCP23017#1        (onboard, t/355)
-    0x21  MCP23017#2        (onboard, t/350)
-    0x22  MCP23017#3        (bench, t/353)
-    0x27  PCF8574 LCD       (planned, t/335)
-    0x3c  SSD1306           (onboard, t/500)
-    0x40  PCA9685           (planned, t/440)
-    0x48  ADS1015           (onboard, t/405)
-    0x48  ADS1115(ADXL335)  (bench, t/360)
-    0x50  AT24C256          (onboard, t/544)
-    0x57  AT24C32           (onboard, t/540)
-    0x68  DS3231            (onboard, t/530)
-    0x68  MPU-6050          (bench, t/358)
-    0x77  BMP180            (onboard, t/531)
+    0x04  Arduino            (onboard, t/605)
+    0x05  ATMega-328P        (optional)
+    0x20  MCP23017#1         (onboard, t/355)
+    0x21  MCP23017#2         (onboard, t/350)
+    0x22  MCP23017#3         (bench, t/353)
+    0x27  PCF8574 LCD        (planned, t/335)
+    0x3c  SSD1306            (onboard, t/500)
+    0x40  PCA9685            (planned, t/440)
+    0x48  ADS1015            (onboard, t/405)
+    0x48  ADS1115 (ADXL335)  (bench, t/360)
+    0x50  AT24C256           (onboard, t/544)
+    0x57  AT24C32            (onboard, t/540)
+    0x68  DS3231             (onboard, t/530)
+    0x69  MPU-6050           (bench, t/358)
+    0x77  BMP180             (onboard, t/531)
 
 We also have a standalone ATMega328-P chip in use on the test platform. If in
 I2C mode, it'll show up on the Pi as address `0x05`. If we're using it in

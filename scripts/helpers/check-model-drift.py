@@ -55,7 +55,7 @@ def verify_bus_devices(model):
 
     problems = []
 
-    for key, (ref, bus, value, driver, tests) in model.BUS_DEVICES.items():
+    for key, (ref, bus, value, driver, tests, board) in model.BUS_DEVICES.items():
         if ref not in comps:
             problems.append(f'{key}: ref {ref} is not in COMPONENTS')
             continue

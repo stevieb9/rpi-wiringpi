@@ -41,28 +41,31 @@ POWER = {
 }
 
 # Bench-wired bus devices, not on any fabbed board (so not in the electrical
-# model). key -> (ref, bus, value, driver, tests); ref is None because they have
-# no schematic component. Folded into facts/bus-map.json tagged context 'bench'.
+# model). key -> (ref, bus, value, driver, tests, board); ref is None (no
+# schematic component) and board is None (not on a board). Folded into
+# facts/bus-map.json tagged context 'bench'. NOTE: this bench ADS1115 (t/360,
+# read by the ADXL335) is a DIFFERENT physical chip from the board-2 ADS1015
+# (M1, t/405) - both default to I2C 0x48 but are never on the bus together.
 BENCH_DEVICES = {
- 'MCP23017#3':       (None, 'i2c', 0x22,    'RPi::GPIOExpander::MCP23017', 't/353'),
- 'MPU-6050':         (None, 'i2c', 0x68,    'RPi::Gyro::MPU6050',          't/358'),
- 'ADS1115(ADXL335)': (None, 'i2c', 0x48,    'RPi::ADC::ADS',               't/360'),
- 'ST7735S TFT':      (None, 'spi', 'GPIO8', 'RPi::TFT::ST7735S',           't/447'),
+ 'MCP23017#3':        (None, 'i2c', 0x22,    'RPi::GPIOExpander::MCP23017', 't/353', None),
+ 'MPU-6050':          (None, 'i2c', 0x69,    'RPi::Gyro::MPU6050',          't/358', None),
+ 'ADS1115 (ADXL335)': (None, 'i2c', 0x48,    'RPi::ADC::ADS',               't/360', None),
+ 'ST7735S TFT':       (None, 'spi', 'GPIO8', 'RPi::TFT::ST7735S',           't/447', None),
 }
 
 # Board 1 is planned/not-yet-built, so its I2C devices are not in the electrical
 # model either, but they have passing HW-gated tests and occupy real addresses.
 # Same shape as BENCH_DEVICES; folded into the bus map tagged context 'planned'.
 PLANNED_DEVICES = {
- 'PCF8574 LCD': (None, 'i2c', 0x27, 'RPi::LCD',          't/335'),
- 'PCA9685':     (None, 'i2c', 0x40, 'RPi::PWM::PCA9685', 't/440'),
+ 'PCF8574 LCD': (None, 'i2c', 0x27, 'RPi::LCD',          't/335', 1),
+ 'PCA9685':     (None, 'i2c', 0x40, 'RPi::PWM::PCA9685', 't/440', 1),
 }
 
 # Optional / alternate-mode devices that no test drives but that do occupy an
 # address when present. Same shape; folded in tagged context 'optional', with an
-# empty tests field. Kept so the generated docs don't lose them.
+# empty tests field and no board. Kept so the generated docs don't lose them.
 OPTIONAL_DEVICES = {
- 'ATMega-328P': (None, 'i2c', 0x05, 'standalone ATMega-328P (I2C mode)', ''),
+ 'ATMega-328P': (None, 'i2c', 0x05, 'standalone ATMega-328P (I2C mode)', '', None),
 }
 
 # ------------------------------------------------------------------ ELECTRICAL

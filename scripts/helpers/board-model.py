@@ -64,7 +64,7 @@ COMPONENTS = {
    '1':'CS','2':'SCK','3':'SI','4':'VSS','5':'PB1','6':'PW1','7':'PA1',
    '8':'PA0','9':'PW0','10':'PB0','11':'RS','12':'SHDN','13':'SO','14':'VDD'}),
  # --- sensor / breakout modules ---
- 'M1': ('ADS1115_0x48', 'Module', {'VDD':'VDD','GND':'GND','SCL':'SCL','SDA':'SDA','ADDR':'ADDR','ALRT':'ALRT','A0':'A0','A1':'A1','A2':'A2','A3':'A3'}),  # ALRT = ALERT/RDY (TI SBAS444E pin 2), on the module header between ADDR and A0; unused
+ 'M1': ('ADS1015_0x48', 'Module', {'VDD':'VDD','GND':'GND','SCL':'SCL','SDA':'SDA','ADDR':'ADDR','ALRT':'ALRT','A0':'A0','A1':'A1','A2':'A2','A3':'A3'}),  # ALRT = ALERT/RDY (TI SBAS444E pin 2), on the module header between ADDR and A0; unused
  'M3': ('DS3231_ZS042', 'Module', {'VCC':'VCC','GND':'GND','SCL':'SCL','SDA':'SDA','SQW':'SQW','32K':'32K'}),  # +AT24C32 onboard
  'M4': ('BMP180', 'Module', {'VIN':'VIN','GND':'GND','SCL':'SCL','SDA':'SDA'}),
  'M5': ('SSD1306_OLED', 'Module', {'VCC':'VCC','GND':'GND','SCL':'SCL','SDA':'SDA'}),
@@ -206,20 +206,21 @@ SHEETS = {
 # not on a fabbed board, so they are not modelled here - they live in
 # board-facts.py BENCH_DEVICES and are folded into the bus map as context 'bench'.
 #
-# key -> (ref, bus, value, driver, tests)
+# key -> (ref, bus, value, driver, tests, board)
 #   bus    'i2c' | 'spi'
 #   value  i2c: 7-bit address (int);  spi: chip-select as 'GPIOnn' (str)
+#   board  the fabbed test-platform board it sits on (2-5)
 BUS_DEVICES = {
- 'MCP23017#1':       ('U1', 'i2c', 0x20,     'RPi::GPIOExpander::MCP23017', 't/355'),
- 'MCP23017#2':       ('U6', 'i2c', 0x21,     'RPi::GPIOExpander::MCP23017', 't/350'),
- 'ADS1015':          ('M1', 'i2c', 0x48,     'RPi::ADC::ADS',               't/405'),
- 'DS3231':           ('M3', 'i2c', 0x68,     'RPi::RTC::DS3231',            't/530'),
- 'AT24C32':          ('M3', 'i2c', 0x57,     'RPi::EEPROM::AT24C32',        't/540'),
- 'BMP180':           ('M4', 'i2c', 0x77,     'RPi::BMP180',                 't/531'),
- 'SSD1306':          ('M5', 'i2c', 0x3c,     'RPi::OLED::SSD1306::128_64',  't/500'),
- 'AT24C256':         ('M9', 'i2c', 0x50,     'RPi::EEPROM::AT24C256',       't/544'),
- 'Arduino':          ('A1', 'i2c', 0x04,     'Arduino I2C slave',           't/605'),
- 'MCP3008':          ('U3', 'spi', 'GPIO26', 'RPi::ADC::MCP3008',           't/410'),
- 'MCP4922':          ('U4', 'spi', 'GPIO12', 'RPi::DAC::MCP4922',           't/410'),
- 'MCP4XXXX':         ('U5', 'spi', 'GPIO13', 'RPi::DigiPot::MCP4XXXX',      't/445'),
+ 'MCP23017#1':       ('U1', 'i2c', 0x20,     'RPi::GPIOExpander::MCP23017', 't/355', 3),
+ 'MCP23017#2':       ('U6', 'i2c', 0x21,     'RPi::GPIOExpander::MCP23017', 't/350', 3),
+ 'ADS1015':          ('M1', 'i2c', 0x48,     'RPi::ADC::ADS',               't/405', 2),
+ 'DS3231':           ('M3', 'i2c', 0x68,     'RPi::RTC::DS3231',            't/530', 4),
+ 'AT24C32':          ('M3', 'i2c', 0x57,     'RPi::EEPROM::AT24C32',        't/540', 4),
+ 'BMP180':           ('M4', 'i2c', 0x77,     'RPi::BMP180',                 't/531', 4),
+ 'SSD1306':          ('M5', 'i2c', 0x3c,     'RPi::OLED::SSD1306::128_64',  't/500', 4),
+ 'AT24C256':         ('M9', 'i2c', 0x50,     'RPi::EEPROM::AT24C256',       't/544', 4),
+ 'Arduino':          ('A1', 'i2c', 0x04,     'Arduino I2C slave',           't/605', 5),
+ 'MCP3008':          ('U3', 'spi', 'GPIO26', 'RPi::ADC::MCP3008',           't/410', 2),
+ 'MCP4922':          ('U4', 'spi', 'GPIO12', 'RPi::DAC::MCP4922',           't/410', 2),
+ 'MCP4XXXX':         ('U5', 'spi', 'GPIO13', 'RPi::DigiPot::MCP4XXXX',      't/445', 2),
 }

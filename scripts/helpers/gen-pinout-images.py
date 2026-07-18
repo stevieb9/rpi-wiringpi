@@ -53,7 +53,7 @@ def overview():
     d.line([40, 226, 1740, 226], fill=BUS, width=6)
     d.line([890, 138, 890, 226], fill=BUS, width=4)
     d.text((46, 200), 'I2C BUS   ·   SDA=GPIO2  SCL=GPIO3   ·   3V3 pull-ups', font=F(14, True), fill=BUS)
-    i2c = [('ADS1115 #1', ['0x48', 'PWM/servo+dpot'], V3),
+    i2c = [('ADS1015 #1', ['0x48', 'PWM/servo+dpot'], V3),
            ('MCP23017',   ['0x20/0x21', 'expanders'], V3),
            ('DS3231 RTC', ['0x68'], V3),
            ('AT24C32',    ['0x57', 'EEPROM'], V3),

@@ -42,7 +42,7 @@ _FACTS = _load_facts()
 #   U3 MCP3008   SPI CS=GPIO26 t/410:40-43, t/435:21,35
 #   U4 MCP4922   SPI CS=GPIO12 t/410:34-38
 #   U5 MCP4XXXX  SPI CS=GPIO13 t/445:36   (modelled as the MCP42010 part [F])
-#   M1 ADS1115   I2C 0x48      t/405:42, t/425:77, t/445:35
+#   M1 ADS1015   I2C 0x48      t/405:42, t/425:77, t/445:35
 #   M3 DS3231    I2C 0x68 [L]  t/530 ; carries AT24C32 EEPROM 0x57 [T] t/540-542 [F same board]
 #   M4 BMP180    I2C 0x77 [L]  t/531 (bmp(100) arg is a pin-base, not an address)
 #   M5 SSD1306   I2C 0x3c      t/500:22  oled('128x64',0x3C,0)
@@ -82,7 +82,7 @@ COMPONENTS = {
    '1':'CS','2':'SCK','3':'SI','4':'VSS','5':'PB1','6':'PW1','7':'PA1',
    '8':'PA0','9':'PW0','10':'PB0','11':'RS','12':'SHDN','13':'SO','14':'VDD'}),
  # --- sensor / breakout modules ---
- 'M1': ('ADS1115_0x48', 'Module', {'VDD':'VDD','GND':'GND','SCL':'SCL','SDA':'SDA','ADDR':'ADDR','ALRT':'ALRT','A0':'A0','A1':'A1','A2':'A2','A3':'A3'}),  # ALRT = ALERT/RDY (TI SBAS444E pin 2), on the module header between ADDR and A0; unused
+ 'M1': ('ADS1015_0x48', 'Module', {'VDD':'VDD','GND':'GND','SCL':'SCL','SDA':'SDA','ADDR':'ADDR','ALRT':'ALRT','A0':'A0','A1':'A1','A2':'A2','A3':'A3'}),  # ALRT = ALERT/RDY (TI SBAS444E pin 2), on the module header between ADDR and A0; unused
  'M3': ('DS3231_ZS042', 'Module', {'VCC':'VCC','GND':'GND','SCL':'SCL','SDA':'SDA','SQW':'SQW','32K':'32K'}),  # +AT24C32 0x57 onboard
  'M4': ('BMP180', 'Module', {'VIN':'VIN','GND':'GND','SCL':'SCL','SDA':'SDA'}),
  'M5': ('SSD1306_OLED', 'Module', {'VCC':'VCC','GND':'GND','SCL':'SCL','SDA':'SDA'}),
@@ -214,8 +214,8 @@ SHEETS = {
 # Diffed against board-model.py's BUS_DEVICES by check-model-drift.py. Bench-wired
 # devices are curated separately in board-facts.py BENCH_DEVICES.
 #
-# key -> (ref, bus, value, driver, tests). All [T] (the test passes/asserts the
-# value); driver-module names are [L]/[F] labels.
+# key -> (ref, bus, value, driver, tests, board). All [T] (the test passes/asserts
+# the value); driver-module names are [L]/[F] labels; board is the fabbed board.
 #   MCP23017#1 0x20   t/355:45  expander(0x20)
 #   MCP23017#2 0x21   t/350:138 expander(0x21)
 #   ADS1015    0x48   t/405:56  adc(addr => 0x48)
@@ -229,16 +229,16 @@ SHEETS = {
 #   MCP4922    CS=GPIO12  t/410:35  ($dac_cs_pin = 12)
 #   MCP4XXXX   CS=GPIO13  t/445     bit-banged CS 13
 BUS_DEVICES = {
- 'MCP23017#1':       ('U1', 'i2c', 0x20,     'RPi::GPIOExpander::MCP23017', 't/355'),
- 'MCP23017#2':       ('U6', 'i2c', 0x21,     'RPi::GPIOExpander::MCP23017', 't/350'),
- 'ADS1015':          ('M1', 'i2c', 0x48,     'RPi::ADC::ADS',               't/405'),
- 'DS3231':           ('M3', 'i2c', 0x68,     'RPi::RTC::DS3231',            't/530'),
- 'AT24C32':          ('M3', 'i2c', 0x57,     'RPi::EEPROM::AT24C32',        't/540'),
- 'BMP180':           ('M4', 'i2c', 0x77,     'RPi::BMP180',                 't/531'),
- 'SSD1306':          ('M5', 'i2c', 0x3c,     'RPi::OLED::SSD1306::128_64',  't/500'),
- 'AT24C256':         ('M9', 'i2c', 0x50,     'RPi::EEPROM::AT24C256',       't/544'),
- 'Arduino':          ('A1', 'i2c', 0x04,     'Arduino I2C slave',           't/605'),
- 'MCP3008':          ('U3', 'spi', 'GPIO26', 'RPi::ADC::MCP3008',           't/410'),
- 'MCP4922':          ('U4', 'spi', 'GPIO12', 'RPi::DAC::MCP4922',           't/410'),
- 'MCP4XXXX':         ('U5', 'spi', 'GPIO13', 'RPi::DigiPot::MCP4XXXX',      't/445'),
+ 'MCP23017#1':       ('U1', 'i2c', 0x20,     'RPi::GPIOExpander::MCP23017', 't/355', 3),
+ 'MCP23017#2':       ('U6', 'i2c', 0x21,     'RPi::GPIOExpander::MCP23017', 't/350', 3),
+ 'ADS1015':          ('M1', 'i2c', 0x48,     'RPi::ADC::ADS',               't/405', 2),
+ 'DS3231':           ('M3', 'i2c', 0x68,     'RPi::RTC::DS3231',            't/530', 4),
+ 'AT24C32':          ('M3', 'i2c', 0x57,     'RPi::EEPROM::AT24C32',        't/540', 4),
+ 'BMP180':           ('M4', 'i2c', 0x77,     'RPi::BMP180',                 't/531', 4),
+ 'SSD1306':          ('M5', 'i2c', 0x3c,     'RPi::OLED::SSD1306::128_64',  't/500', 4),
+ 'AT24C256':         ('M9', 'i2c', 0x50,     'RPi::EEPROM::AT24C256',       't/544', 4),
+ 'Arduino':          ('A1', 'i2c', 0x04,     'Arduino I2C slave',           't/605', 5),
+ 'MCP3008':          ('U3', 'spi', 'GPIO26', 'RPi::ADC::MCP3008',           't/410', 2),
+ 'MCP4922':          ('U4', 'spi', 'GPIO12', 'RPi::DAC::MCP4922',           't/410', 2),
+ 'MCP4XXXX':         ('U5', 'spi', 'GPIO13', 'RPi::DigiPot::MCP4XXXX',      't/445', 2),
 }

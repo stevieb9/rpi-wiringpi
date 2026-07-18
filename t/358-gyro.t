@@ -37,7 +37,8 @@ use Test::More;
 # WIRING (bench; NOT tied to a test-platform board)
 #
 #   An MPU-6050 on the I2C bus: VCC (3-5 V), GND, SDA -> GPIO2, SCL -> GPIO3.
-#   AD0 low = address 0x68 (the default); tie it high for 0x69. Leave the
+#   This platform ties AD0 HIGH, so the gyro answers at 0x69 (the default here),
+#   clear of the DS3231 RTC at 0x68; AD0 low would put it back at 0x68. Leave the
 #   sensor STILL for the run - the gyro-at-rest and gravity-vector checks assume
 #   it isn't being moved.
 #
@@ -73,7 +74,7 @@ use constant {
     GYRO_STILL_TOL  => 10,      # deg/s a calibrated, still gyro may still read
 };
 
-my $addr   = $ENV{RPI_GYRO_ADDR}   // 0x68;
+my $addr   = $ENV{RPI_GYRO_ADDR}   // 0x69;
 my $device = $ENV{RPI_GYRO_DEVICE} // '/dev/i2c-1';
 
 my $pi = RPi::WiringPi->new(label => 't/358-gyro.t', shm_key => 'rpit');
