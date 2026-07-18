@@ -52,6 +52,7 @@ WriteMakefile(
         'RPi::DigiPot::MCP4XXXX'    => 3.1802,
         'RPi::DHT11'                => 1.06,
         'RPi::EEPROM::AT24C32'      => '1.00',
+        'RPi::EEPROM::AT24C256'     => 0.01,
         'RPi::GPIOExpander::MCP23017' => 1.04,
         'RPi::Gyro::MPU6050'        => 0.01,
         'RPi::HCSR04'               => 3.1802,

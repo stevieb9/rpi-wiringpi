@@ -180,6 +180,17 @@ Revision history for Perl extension RPi::WiringPi.
       (SCLK/GPIO 11) pins, so they land on the Pi's SPI pins
     - Added RPi::PWM::PCA9685 (the PCA9685 16-channel PWM driver) to
       PREREQ_PM, enrolling it in the family sync/check/install scripts
+    - Extended the eeprom() accessor with a chip => param selecting either
+      RPi::EEPROM::AT24C32 (default, 0-4095, 0x57) or RPi::EEPROM::AT24C256
+      (0-32767, 0x50); each chip keeps its own address/device/delay defaults,
+      all still overridable
+    - Added t/544-547, mirroring the AT24C32 eeprom suite for the AT24C256
+      (args, byte r/w, croak paths, and a hardware-free validation test), and
+      added RPi::EEPROM::AT24C256 to PREREQ_PM
+    - Fixed t/543-eeprom_validation.t, which asserted the old pre-1.00
+      behaviour where AT24C32's new() swallowed an eeprom_init() failure; it
+      now asserts new() croaks on a bad device, matching the shipped module
+      (and the new AT24C256)
 
 3.1802     2026-06-12
     - bump prereq of RPi::I2C to 2.3608

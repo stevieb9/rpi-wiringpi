@@ -89,6 +89,7 @@ Audit ledger — every device checked. `(→V#/B#)` points to where a gap is han
 - RPi::LCD — HD44780 display on/off is a visibility bit, not low power (backlight is a separate GPIO).
 - RPi::GPIOExpander::MCP23017 — ~1 µA standby is a passive spec; no sleep register.
 - RPi::EEPROM::AT24C32 — standby is automatic on bus idle; no command.
+- RPi::EEPROM::AT24C256 — same AT24C family as the AT24C32; standby is automatic on bus idle, no software-invocable power-down command. Newly added to the rpi-wiringpi family (eeprom(chip => 'AT24C256'), t/544-547); nothing low-power to expose or test.
 - RPi::DHT11, RPi::HCSR04, RPi::Radar::RCWL0516 — dumb sensors, no sleep/standby command.
 
 ## Backlog
@@ -103,4 +104,4 @@ B2: promoted to V10 (2026-07-16). Slot retired.
 - Mass-renaming existing APIs for cross-family naming consistency (off / sleep / shutdown / disable all coexist) — each dist keeps its idiomatic verb; renaming would break published interfaces for a cosmetic win.
 - RPi::ADC::MCP3008 low-power method — standby is intrinsic to CS deasserting after each conversion; the chip has no addressable power-down command, so there is nothing to expose.
 - RPi::LCD display() power test — it toggles character visibility, not controller power; out of scope for a low-power audit (its lack of test coverage is a separate, minor matter).
-- ADXL335 / BMP180 / DHT11 / HCSR04 / RCWL0516 / MCP23017 / AT24C32 — no software-invocable hardware low-power mode exists to expose or test.
+- ADXL335 / BMP180 / DHT11 / HCSR04 / RCWL0516 / MCP23017 / AT24C32 / AT24C256 — no software-invocable hardware low-power mode exists to expose or test.

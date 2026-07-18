@@ -557,8 +557,31 @@ the `DS3231` unit.
 
 ## eeprom
 
-Creates and returns a new [RPi::EEPROM::AT24C32](https://metacpan.org/pod/RPi%3A%3AEEPROM%3A%3AAT24C32) object for reading and writing
-to.
+Creates and returns a new EEPROM object for reading and writing to. Defaults to
+an [RPi::EEPROM::AT24C32](https://metacpan.org/pod/RPi%3A%3AEEPROM%3A%3AAT24C32) (4 KB, addresses `0-4095`, default i2c address
+`0x57`); pass `chip => 'AT24C256'` to get an [RPi::EEPROM::AT24C256](https://metacpan.org/pod/RPi%3A%3AEEPROM%3A%3AAT24C256)
+instead (32 KB, addresses `0-32767`, default i2c address `0x50`).
+
+Parameters:
+
+    chip => 'AT24C32'
+
+Optional, String. Which EEPROM device to instantiate; one of `AT24C32`
+(the default) or `AT24C256`.
+
+All remaining parameters are passed through to the selected device's
+constructor. Each chip supplies its own `address`/`device`/`delay` defaults
+(notably the differing default i2c address above), all of which you may
+override:
+
+    # AT24C32 at its default 0x57
+    my $eeprom = $pi->eeprom;
+
+    # AT24C256 at its default 0x50
+    my $eeprom = $pi->eeprom(chip => 'AT24C256');
+
+    # AT24C256 at a strapped address
+    my $eeprom = $pi->eeprom(chip => 'AT24C256', address => 0x51);
 
 See the linked documentation for full documentation on usage, parameters or the
 [RPi::WiringPi::FAQ](https://metacpan.org/pod/RPi%3A%3AWiringPi%3A%3AFAQ) for some usage examples.

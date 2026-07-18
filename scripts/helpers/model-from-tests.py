@@ -46,6 +46,7 @@ _FACTS = _load_facts()
 #   M3 DS3231    I2C 0x68 [L]  t/530 ; carries AT24C32 EEPROM 0x57 [T] t/540-542 [F same board]
 #   M4 BMP180    I2C 0x77 [L]  t/531 (bmp(100) arg is a pin-base, not an address)
 #   M5 SSD1306   I2C 0x3c      t/500:22  oled('128x64',0x3C,0)
+#   M9 AT24C256  I2C 0x50      t/544:32  eeprom(chip=>'AT24C256'); wiring [F]
 #   M6 level-shifter           [F] not test-derivable (5V Arduino on a 3V3 bus)
 #   M7 ULN2003 + 28BYJ-48      t/350:27-32 (driven via U6 Bank A)
 #   M8 HD44780 LCD 20x4 4-bit  t/620:36-50  rs5/E6/D4=4/D5=17/D6=27/D7=22
@@ -89,6 +90,7 @@ COMPONENTS = {
  'M7': ('ULN2003_28BYJ48', 'Module', {'IN1':'IN1','IN2':'IN2','IN3':'IN3','IN4':'IN4','V+':'V+','GND':'GND'}),
  'M8': ('LCD_HD44780', 'Module', {  # 16-pin, 4-bit, 20x4
    '1':'VSS','2':'VDD','3':'V0','4':'RS','5':'RW','6':'E','11':'D4','12':'D5','13':'D6','14':'D7','15':'A','16':'K'}),
+ 'M9': ('AT24C256', 'Module', {'VCC':'VCC','GND':'GND','SCL':'SCL','SDA':'SDA','A0':'A0','A1':'A1','A2':'A2','WP':'WP'}),  # standalone EEPROM 0x50 [T] t/544:32; wiring [F]
  'A1': ('Arduino_MetroMini', 'Module', {'SDA':'SDA','SCL':'SCL','5V':'5V','GND':'GND'}),
  'SV1': ('Servo', 'Conn-3', {'SIG':'SIG','V+':'V+','GND':'GND'}),
  # --- passives ([F] gap-filled; tests prove the analog channels, not the parts) ---
@@ -110,17 +112,18 @@ NETS = [
           ('U3','16'),('U3','15'),('U4','1'),('U4','13'),('U4','11'),('U4','9'),
           ('U5','14'),('U5','11'),('U5','12'),('U5','8'),('M1','VDD'),
           ('U6','9'),('U6','18'),('U6','15'),('SW1','2'),('SW2','2'),
-          ('M3','VCC'),('M4','VIN'),('M5','VCC'),('M6','LV')]),  # [F]
+          ('M3','VCC'),('M4','VIN'),('M5','VCC'),('M6','LV'),('M9','VCC')]),  # [F]
  ('GND',[('J1','6'),('J1','9'),('J1','14'),('J1','20'),('J1','25'),('J1','30'),('J1','34'),('J1','39'),
          ('U1','10'),('U1','15'),('U1','16'),('U1','17'),('U2','8'),('U2','13'),
          ('U3','9'),('U3','14'),('U4','12'),('U4','8'),('U5','4'),('U5','10'),
          ('M1','GND'),('M1','ADDR'),('M3','GND'),('M4','GND'),('M5','GND'),
          ('M6','GND1'),('M6','GND2'),('M7','GND'),('M8','1'),('M8','5'),('M8','16'),
          ('U6','10'),('U6','16'),('U6','17'),('D1','K'),
+         ('M9','GND'),('M9','A0'),('M9','A1'),('M9','A2'),('M9','WP'),
          ('A1','GND'),('SV1','GND'),('RV1','3')]),  # [F]
- # I2C bus (3V3 side) -- [T] addresses t/605,530,355,531,540-542,350,500
- ('I2C_SDA',[('J1','3'),('U1','13'),('U6','13'),('M1','SDA'),('M3','SDA'),('M4','SDA'),('M5','SDA'),('M6','LV1')]),
- ('I2C_SCL',[('J1','5'),('U1','12'),('U6','12'),('M1','SCL'),('M3','SCL'),('M4','SCL'),('M5','SCL'),('M6','LV2')]),
+ # I2C bus (3V3 side) -- [T] addresses t/605,530,355,531,540-542,350,500,544
+ ('I2C_SDA',[('J1','3'),('U1','13'),('U6','13'),('M1','SDA'),('M3','SDA'),('M4','SDA'),('M5','SDA'),('M9','SDA'),('M6','LV1')]),
+ ('I2C_SCL',[('J1','5'),('U1','12'),('U6','12'),('M1','SCL'),('M3','SCL'),('M4','SCL'),('M5','SCL'),('M9','SCL'),('M6','LV2')]),
  # Arduino I2C (5V side of level-shifter) -- [F] shifter; [T] address 0x04 t/605
  ('ARD_SDA',[('M6','HV1'),('A1','SDA')]),
  ('ARD_SCL',[('M6','HV2'),('A1','SCL')]),
@@ -203,4 +206,39 @@ SHEETS = {
              'EXP_LB0','EXP_LB1','EXP_LB2','EXP_LB3','EXP_LB4','EXP_LB5','EXP_LB6','EXP_LB7',
              'LED_CTRL','LED_ANODE','LCD_D5','LCD_D6'},
  'display': {'LCD_RS','LCD_E','LCD_D4','LCD_D5','LCD_D6','LCD_D7','LCD_V0','LCD_BL','PWM18','UART_LOOP'},
+}
+
+# ------------------------------------------------------------------ BUS_DEVICES
+# Re-derived from the tests: each active on-board device's I2C address or SPI
+# chip-select, read straight out of the constructor calls / asserts noted below.
+# Diffed against board-model.py's BUS_DEVICES by check-model-drift.py. Bench-wired
+# devices are curated separately in board-facts.py BENCH_DEVICES.
+#
+# key -> (ref, bus, value, driver, tests). All [T] (the test passes/asserts the
+# value); driver-module names are [L]/[F] labels.
+#   MCP23017#1 0x20   t/355:45  expander(0x20)
+#   MCP23017#2 0x21   t/350:138 expander(0x21)
+#   ADS1015    0x48   t/405:56  adc(addr => 0x48)
+#   DS3231     0x68   t/530     [L] rtc() default 0x68
+#   AT24C32    0x57   t/540:32  eeprom() default; asserts {address} 0x57
+#   BMP180     0x77   t/531,335:46
+#   SSD1306    0x3c   t/500:32  oled('128x64', 0x3C, 0)
+#   AT24C256   0x50   t/544:32  eeprom(chip=>'AT24C256'); asserts {address} 0x50
+#   Arduino    0x04   t/605:21  ARDUINO_ADDR
+#   MCP3008    CS=GPIO26  t/410:35  ($adc_cs_pin = 26)
+#   MCP4922    CS=GPIO12  t/410:35  ($dac_cs_pin = 12)
+#   MCP4XXXX   CS=GPIO13  t/445     bit-banged CS 13
+BUS_DEVICES = {
+ 'MCP23017#1':       ('U1', 'i2c', 0x20,     'RPi::GPIOExpander::MCP23017', 't/355'),
+ 'MCP23017#2':       ('U6', 'i2c', 0x21,     'RPi::GPIOExpander::MCP23017', 't/350'),
+ 'ADS1015':          ('M1', 'i2c', 0x48,     'RPi::ADC::ADS',               't/405'),
+ 'DS3231':           ('M3', 'i2c', 0x68,     'RPi::RTC::DS3231',            't/530'),
+ 'AT24C32':          ('M3', 'i2c', 0x57,     'RPi::EEPROM::AT24C32',        't/540'),
+ 'BMP180':           ('M4', 'i2c', 0x77,     'RPi::BMP180',                 't/531'),
+ 'SSD1306':          ('M5', 'i2c', 0x3c,     'RPi::OLED::SSD1306::128_64',  't/500'),
+ 'AT24C256':         ('M9', 'i2c', 0x50,     'RPi::EEPROM::AT24C256',       't/544'),
+ 'Arduino':          ('A1', 'i2c', 0x04,     'Arduino I2C slave',           't/605'),
+ 'MCP3008':          ('U3', 'spi', 'GPIO26', 'RPi::ADC::MCP3008',           't/410'),
+ 'MCP4922':          ('U4', 'spi', 'GPIO12', 'RPi::DAC::MCP4922',           't/410'),
+ 'MCP4XXXX':         ('U5', 'spi', 'GPIO13', 'RPi::DigiPot::MCP4XXXX',      't/445'),
 }

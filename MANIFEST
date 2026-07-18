@@ -169,6 +169,10 @@ t/540-eeprom_args.t
 t/541-eeprom_read_write_byte_croak.t
 t/542-eeprom_read_write_byte.t
 t/543-eeprom_validation.t
+t/544-eeprom256_args.t
+t/545-eeprom256_read_write_byte_croak.t
+t/546-eeprom256_read_write_byte.t
+t/547-eeprom256_validation.t
 t/600-i2c_exceptions.t
 t/605-i2c.t
 t/610-serial.t

@@ -367,27 +367,35 @@ the I2C LCD and PCA9685 belong to board 1.
 
 ## 4. I2C bus (GPIO2 SDA / GPIO3 SCL)
 
-One shared 2-wire bus; each device by address. Addresses below are **[T]** when
-the test passes them explicitly, **[L]** when the test relies on the submodule
-default.
+One shared 2-wire bus; each device by address. **This table is generated** from
+the bus map (`facts/bus-map.json`), itself derived from `board-model.py`'s
+`BUS_DEVICES` and cross-checked against the netlist on every `make test` — a
+declared address that disagrees with the wiring fails the build, so this list
+cannot drift. `Ctx` is `onboard` (in the electrical model), `planned` (board 1,
+not yet fabbed) or `bench` (bench-wired, env-gated). The `Test` column names a
+proving test; full per-device provenance (`[T]` explicit vs `[L]` submodule
+default, with file:line) lives in `scripts/helpers/model-from-tests.py`.
 
-| Addr | Device | Tests | Board/ctx | Source of address |
-|------|--------|-------|-----------|-------------------|
-| 0x04 | Arduino (I2C slave) | t/605 (‡t/600) | B5 | **[T]** `ARDUINO_ADDR` t/605:21,41 |
-| 0x20 | MCP23017 #1 GPIO expander (loopback) | t/355 | B3 | **[T]** `expander(0x20)` t/355:45 |
-| 0x21 | MCP23017 #2 GPIO expander (28BYJ-48 stepper drive) | t/350 | B3 | **[T]** `expander(0x21)` t/350:138 |
-| **0x22** | **MCP23017 #3 GPIO expander (A4988 stepper drive)** | **t/353** | **bench** | **[T]** `expander($addr)`, `$addr//0x22` t/353:99 |
-| **0x27** | **PCF8574 backpack → HD44780 (I2C LCD)** | **t/335** | **B1** | **[T]** `LCD_ADDR` t/335:38,62 |
-| 0x3c | OLED SSD1306 128×64 | t/500-520 | B4 | **[T]** `oled('128x64',0x3C,0)` t/500:32 |
-| **0x40** | **PCA9685 16-channel PWM** | **t/440** | **B1** | **[L]** `new()` no addr; default 0x40 (PCA9685.pm:47) |
-| 0x48 | ADS1015 ADC #1 (PWM/servo + dpot readback) | t/405,425,445 | B2 | **[T]** `adc(addr=>0x48)` t/405:56, t/425:92, t/445:51 |
-| 0x48 | **ADS ADC for ADXL335** (same addr, bench) | **t/360** | **bench** | **[L]** `adc(model=>'ADS1115')` default addr 0x48 (ADS.pm:191) — see below |
-| 0x57 | AT24C32 EEPROM | t/540-542 | B4 | **[T]** asserted default t/540:32 |
-| 0x68 | DS3231 RTC | t/530 | B4 | **[L]** `rtc()` passes no addr; default 0x68 (DS3231.pm:13) |
-| **0x68** | **MPU-6050 gyro** (same addr, bench) | **t/358** | **bench** | **[T]** `$addr//0x68` t/358:76 — see below |
-| 0x77 | BMP180 pressure/temp | t/531 | B4 | **[L]** `bmp(100)` arg is a pin-base, not an addr; 0x77 from driver/datasheet |
+| Addr | Bus | Device | Ref | Driver | Ctx | Test |
+|------|-----|--------|-----|--------|-----|------|
+| `0x04` | 5V | Arduino | A1 | `Arduino I2C slave` | onboard | t/605 |
+| `0x05` | 3V3 | ATMega-328P | — | `standalone ATMega-328P (I2C mode)` | optional |  |
+| `0x20` | 3V3 | MCP23017#1 | U1 | `RPi::GPIOExpander::MCP23017` | onboard | t/355 |
+| `0x21` | 3V3 | MCP23017#2 | U6 | `RPi::GPIOExpander::MCP23017` | onboard | t/350 |
+| `0x22` | 3V3 | MCP23017#3 | — | `RPi::GPIOExpander::MCP23017` | bench | t/353 |
+| `0x27` | 3V3 | PCF8574 LCD | — | `RPi::LCD` | planned | t/335 |
+| `0x3c` | 3V3 | SSD1306 | M5 | `RPi::OLED::SSD1306::128_64` | onboard | t/500 |
+| `0x40` | 3V3 | PCA9685 | — | `RPi::PWM::PCA9685` | planned | t/440 |
+| `0x48` | 3V3 | ADS1015 | M1 | `RPi::ADC::ADS` | onboard | t/405 |
+| `0x48` | 3V3 | ADS1115(ADXL335) | — | `RPi::ADC::ADS` | bench | t/360 |
+| `0x50` | 3V3 | AT24C256 | M9 | `RPi::EEPROM::AT24C256` | onboard | t/544 |
+| `0x57` | 3V3 | AT24C32 | M3 | `RPi::EEPROM::AT24C32` | onboard | t/540 |
+| `0x68` | 3V3 | DS3231 | M3 | `RPi::RTC::DS3231` | onboard | t/530 |
+| `0x68` | 3V3 | MPU-6050 | — | `RPi::Gyro::MPU6050` | bench | t/358 |
+| `0x77` | 3V3 | BMP180 | M4 | `RPi::BMP180` | onboard | t/531 |
 
-‡ `t/600` is the I2C *exception* test: it probes a deliberately-absent address
+Devices sharing an address (0x48, 0x68) are never co-resident — see the note
+below. ‡ `t/600` is the I2C *exception* test: it probes a deliberately-absent address
 `0x99` (t/600:36,44) to verify error handling — it does not talk to a real device.
 
 > **Shared addresses [T] (never co-resident).** Two pairs answer at the same
@@ -473,6 +481,20 @@ hardware CE0/CE1 (GPIO8/7) free. **The one exception is the bench-wired TFT**
 device in the suite that uses a hardware chip-select — plus its own D/C, RES and
 BLK GPIOs (§Scope). It shares MOSI/SCLK with the board-2 SPI bus (one CS active at
 a time). All four board-2 SPI devices are powered at 3V3 **[F]**; the TFT at 3V3.
+
+**Chip-selects (generated from the bus map).** Each SPI CS below is derived from
+`board-model.py` and cross-checked against its `CS_*` net through `J1FUNC` on
+every `make test`, so the CS GPIO cannot drift from the wiring:
+
+| CS | Device | Ref | Driver | Test |
+|----|--------|-----|--------|------|
+| `GPIO8` | ST7735S TFT | — | `RPi::TFT::ST7735S` | t/447 |
+| `GPIO12` | MCP4922 | U4 | `RPi::DAC::MCP4922` | t/410 |
+| `GPIO13` | MCP4XXXX | U5 | `RPi::DigiPot::MCP4XXXX` | t/445 |
+| `GPIO26` | MCP3008 | U3 | `RPi::ADC::MCP3008` | t/410 |
+
+The wiring/topology view below adds the shared MOSI/SCLK/MISO and analog readback
+paths that the CS map above omits:
 
 | Device | CS | MOSI | SCLK | MISO | Tests | Output read back by |
 |--------|---:|------|------|------|-------|---------------------|

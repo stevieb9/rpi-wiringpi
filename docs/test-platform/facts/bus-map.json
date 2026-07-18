@@ -1,0 +1,193 @@
+{
+  "note": "GENERATED from board-model.py BUS_DEVICES + board-facts.py BENCH_DEVICES / PLANNED_DEVICES by scripts/helpers/render-doc.py. Do not edit by hand; re-run render-doc.py. The drift gate cross-checks the source against the netlist on every `make test`.",
+  "i2c": [
+    {
+      "address": "0x04",
+      "address_int": 4,
+      "device": "Arduino",
+      "ref": "A1",
+      "driver": "Arduino I2C slave",
+      "bus_side": "5V",
+      "context": "onboard",
+      "tests": "t/605"
+    },
+    {
+      "address": "0x05",
+      "address_int": 5,
+      "device": "ATMega-328P",
+      "ref": null,
+      "driver": "standalone ATMega-328P (I2C mode)",
+      "bus_side": "3V3",
+      "context": "optional",
+      "tests": ""
+    },
+    {
+      "address": "0x20",
+      "address_int": 32,
+      "device": "MCP23017#1",
+      "ref": "U1",
+      "driver": "RPi::GPIOExpander::MCP23017",
+      "bus_side": "3V3",
+      "context": "onboard",
+      "tests": "t/355"
+    },
+    {
+      "address": "0x21",
+      "address_int": 33,
+      "device": "MCP23017#2",
+      "ref": "U6",
+      "driver": "RPi::GPIOExpander::MCP23017",
+      "bus_side": "3V3",
+      "context": "onboard",
+      "tests": "t/350"
+    },
+    {
+      "address": "0x22",
+      "address_int": 34,
+      "device": "MCP23017#3",
+      "ref": null,
+      "driver": "RPi::GPIOExpander::MCP23017",
+      "bus_side": "3V3",
+      "context": "bench",
+      "tests": "t/353"
+    },
+    {
+      "address": "0x27",
+      "address_int": 39,
+      "device": "PCF8574 LCD",
+      "ref": null,
+      "driver": "RPi::LCD",
+      "bus_side": "3V3",
+      "context": "planned",
+      "tests": "t/335"
+    },
+    {
+      "address": "0x3c",
+      "address_int": 60,
+      "device": "SSD1306",
+      "ref": "M5",
+      "driver": "RPi::OLED::SSD1306::128_64",
+      "bus_side": "3V3",
+      "context": "onboard",
+      "tests": "t/500"
+    },
+    {
+      "address": "0x40",
+      "address_int": 64,
+      "device": "PCA9685",
+      "ref": null,
+      "driver": "RPi::PWM::PCA9685",
+      "bus_side": "3V3",
+      "context": "planned",
+      "tests": "t/440"
+    },
+    {
+      "address": "0x48",
+      "address_int": 72,
+      "device": "ADS1015",
+      "ref": "M1",
+      "driver": "RPi::ADC::ADS",
+      "bus_side": "3V3",
+      "context": "onboard",
+      "tests": "t/405"
+    },
+    {
+      "address": "0x48",
+      "address_int": 72,
+      "device": "ADS1115(ADXL335)",
+      "ref": null,
+      "driver": "RPi::ADC::ADS",
+      "bus_side": "3V3",
+      "context": "bench",
+      "tests": "t/360"
+    },
+    {
+      "address": "0x50",
+      "address_int": 80,
+      "device": "AT24C256",
+      "ref": "M9",
+      "driver": "RPi::EEPROM::AT24C256",
+      "bus_side": "3V3",
+      "context": "onboard",
+      "tests": "t/544"
+    },
+    {
+      "address": "0x57",
+      "address_int": 87,
+      "device": "AT24C32",
+      "ref": "M3",
+      "driver": "RPi::EEPROM::AT24C32",
+      "bus_side": "3V3",
+      "context": "onboard",
+      "tests": "t/540"
+    },
+    {
+      "address": "0x68",
+      "address_int": 104,
+      "device": "DS3231",
+      "ref": "M3",
+      "driver": "RPi::RTC::DS3231",
+      "bus_side": "3V3",
+      "context": "onboard",
+      "tests": "t/530"
+    },
+    {
+      "address": "0x68",
+      "address_int": 104,
+      "device": "MPU-6050",
+      "ref": null,
+      "driver": "RPi::Gyro::MPU6050",
+      "bus_side": "3V3",
+      "context": "bench",
+      "tests": "t/358"
+    },
+    {
+      "address": "0x77",
+      "address_int": 119,
+      "device": "BMP180",
+      "ref": "M4",
+      "driver": "RPi::BMP180",
+      "bus_side": "3V3",
+      "context": "onboard",
+      "tests": "t/531"
+    }
+  ],
+  "spi": [
+    {
+      "cs": "GPIO8",
+      "cs_gpio": 8,
+      "device": "ST7735S TFT",
+      "ref": null,
+      "driver": "RPi::TFT::ST7735S",
+      "context": "bench",
+      "tests": "t/447"
+    },
+    {
+      "cs": "GPIO12",
+      "cs_gpio": 12,
+      "device": "MCP4922",
+      "ref": "U4",
+      "driver": "RPi::DAC::MCP4922",
+      "context": "onboard",
+      "tests": "t/410"
+    },
+    {
+      "cs": "GPIO13",
+      "cs_gpio": 13,
+      "device": "MCP4XXXX",
+      "ref": "U5",
+      "driver": "RPi::DigiPot::MCP4XXXX",
+      "context": "onboard",
+      "tests": "t/445"
+    },
+    {
+      "cs": "GPIO26",
+      "cs_gpio": 26,
+      "device": "MCP3008",
+      "ref": "U3",
+      "driver": "RPi::ADC::MCP3008",
+      "context": "onboard",
+      "tests": "t/410"
+    }
+  ]
+}

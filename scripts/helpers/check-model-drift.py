@@ -17,6 +17,7 @@ run on every `make test`.
 
 import importlib.util
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -35,13 +36,95 @@ def _canon_nets(nets):
     return {nm: frozenset(nodes) for nm, nodes in nets}
 
 
+def verify_bus_devices(model):
+    """Cross-check BUS_DEVICES against the netlist itself (not the other model).
+
+    Each row's declared address/CS must agree with how the chip is actually wired
+    in NETS: an SPI CS GPIO with its CS_* net through J1FUNC, and an MCP23017
+    address with its A0/A1/A2 strap. Returns a list of human-readable problems.
+    """
+    comps = model.COMPONENTS
+    nets = {nm: set(nodes) for nm, nodes in model.NETS}
+
+    def nets_with(ref, pin):
+        return {nm for nm, nodes in nets.items() if (ref, pin) in nodes}
+
+    def j1_gpio(pin):
+        m = re.search(r'GPIO(\d+)', model.J1FUNC.get(int(pin), ''))
+        return int(m.group(1)) if m else None
+
+    problems = []
+
+    for key, (ref, bus, value, driver, tests) in model.BUS_DEVICES.items():
+        if ref not in comps:
+            problems.append(f'{key}: ref {ref} is not in COMPONENTS')
+            continue
+
+        # First pin carrying each pin-name (SDA/SCL/CS/A0..).
+        name_to_pin = {}
+        for pin, nm in comps[ref][2].items():
+            name_to_pin.setdefault(nm, pin)
+
+        if bus == 'i2c':
+            sda, scl = name_to_pin.get('SDA'), name_to_pin.get('SCL')
+            on_main = bool(sda and scl
+                           and 'I2C_SDA' in nets_with(ref, sda)
+                           and 'I2C_SCL' in nets_with(ref, scl))
+            on_ard = bool(sda and scl
+                          and 'ARD_SDA' in nets_with(ref, sda)
+                          and 'ARD_SCL' in nets_with(ref, scl))
+            if not (on_main or on_ard):
+                problems.append(f'{key} ({ref}): not wired to an I2C SDA/SCL net pair')
+
+            # Strapped-address chips (MCP23017 base 0x20) must match their straps.
+            if 'MCP23017' in comps[ref][0]:
+                strap, ok = 0, True
+                for bit, an in enumerate(('A0', 'A1', 'A2')):
+                    ap = name_to_pin.get(an)
+                    rails = nets_with(ref, ap) if ap else set()
+                    if '+3V3' in rails:
+                        strap |= (1 << bit)
+                    elif 'GND' not in rails:
+                        problems.append(f'{key} ({ref}): {an} not strapped to +3V3/GND')
+                        ok = False
+                        break
+                if ok and value != 0x20 + strap:
+                    problems.append(
+                        f'{key} ({ref}): address 0x{value:02x} '
+                        f'!= strap-derived 0x{0x20 + strap:02x}')
+
+        elif bus == 'spi':
+            m = re.fullmatch(r'GPIO(\d+)', str(value))
+            cs = name_to_pin.get('CS')
+            if not m:
+                problems.append(f'{key} ({ref}): SPI value {value!r} is not a GPIOnn CS')
+            elif cs is None:
+                problems.append(f'{key} ({ref}): component has no CS pin')
+            else:
+                got = None
+                for nm in nets_with(ref, cs):
+                    for (r2, p2) in nets[nm]:
+                        if r2 == 'J1':
+                            got = j1_gpio(p2)
+                if got is None:
+                    problems.append(f'{key} ({ref}): CS net reaches no J1 header pin')
+                elif got != int(m.group(1)):
+                    problems.append(
+                        f'{key} ({ref}): CS GPIO{got} (from net) '
+                        f'!= declared {value}')
+        else:
+            problems.append(f'{key} ({ref}): unknown bus {bus!r}')
+
+    return problems
+
+
 def main():
     canonical = _load('board-model.py')
     rederived = _load('model-from-tests.py')
 
     drift = False
 
-    for attr in ('COMPONENTS', 'J1FUNC', 'DRIVER', 'POWER', 'SHEETS'):
+    for attr in ('COMPONENTS', 'J1FUNC', 'DRIVER', 'POWER', 'SHEETS', 'BUS_DEVICES'):
         a, b = getattr(canonical, attr), getattr(rederived, attr)
         if a == b:
             print(f'  {attr:11} MATCH')
@@ -67,6 +150,18 @@ def main():
         print('\nMODEL DRIFT: board-model.py and model-from-tests.py disagree.\n'
               'One is stale - reconcile them before the docs/schematic can be trusted.')
         return 1
+
+    # BUS_DEVICES cross-check: the declared addresses/CS must agree with the wiring.
+    bus_problems = verify_bus_devices(canonical)
+    if bus_problems:
+        print(f'  {"BUS_DEVICES":11} INCONSISTENT with the netlist')
+        for p in bus_problems:
+            print(f'      {p}')
+        print('\nBUS MAP INCONSISTENT: a declared I2C address or SPI CS in '
+              'BUS_DEVICES\ndoes not match how the chip is wired in NETS.')
+        return 1
+    print(f'  {"BUS_DEVICES":11} MATCH (wiring cross-check: '
+          f'{len(canonical.BUS_DEVICES)} devices)')
 
     print('\nmodel OK: the re-derivation matches the canonical board-model.py.')
     return 0

@@ -184,9 +184,20 @@ sub dpot {
 }
 sub eeprom {
     my ($self, %args) = @_;
-    require RPi::EEPROM::AT24C32;
-    RPi::EEPROM::AT24C32->import;
-    return RPi::EEPROM::AT24C32->new(%args);
+
+    my $chip = delete $args{chip} // 'AT24C32';
+
+    if ($chip ne 'AT24C32' && $chip ne 'AT24C256') {
+        croak "eeprom() chip '$chip' is unrecognized; only 'AT24C32' and " .
+              "'AT24C256' are currently supported\n";
+    }
+
+    my $class = "RPi::EEPROM::$chip";
+    (my $file = "$class.pm") =~ s{::}{/}g;
+    require $file;
+    $class->import;
+
+    return $class->new(%args);
 }
 sub expander {
     my ($self, $addr, $expander) = @_;
@@ -1226,8 +1237,31 @@ the C<DS3231> unit.
 
 =head2 eeprom
 
-Creates and returns a new L<RPi::EEPROM::AT24C32> object for reading and writing
-to.
+Creates and returns a new EEPROM object for reading and writing to. Defaults to
+an L<RPi::EEPROM::AT24C32> (4 KB, addresses C<0-4095>, default i2c address
+C<0x57>); pass C<< chip => 'AT24C256' >> to get an L<RPi::EEPROM::AT24C256>
+instead (32 KB, addresses C<0-32767>, default i2c address C<0x50>).
+
+Parameters:
+
+    chip => 'AT24C32'
+
+Optional, String. Which EEPROM device to instantiate; one of C<AT24C32>
+(the default) or C<AT24C256>.
+
+All remaining parameters are passed through to the selected device's
+constructor. Each chip supplies its own C<address>/C<device>/C<delay> defaults
+(notably the differing default i2c address above), all of which you may
+override:
+
+    # AT24C32 at its default 0x57
+    my $eeprom = $pi->eeprom;
+
+    # AT24C256 at its default 0x50
+    my $eeprom = $pi->eeprom(chip => 'AT24C256');
+
+    # AT24C256 at a strapped address
+    my $eeprom = $pi->eeprom(chip => 'AT24C256', address => 0x51);
 
 See the linked documentation for full documentation on usage, parameters or the
 L<RPi::WiringPi::FAQ> for some usage examples.

@@ -1405,15 +1405,22 @@ pinout.
 # EEPROM
 
 We provide access to the `AT24C32/64` based EEPROM storage Integrated Circuits
-via the [RPi::EEPROM::AT24C32](https://metacpan.org/pod/RPi%3A%3AEEPROM%3A%3AAT24C32) distribution. See there for full usage details.
+via the [RPi::EEPROM::AT24C32](https://metacpan.org/pod/RPi%3A%3AEEPROM%3A%3AAT24C32) distribution (the default), and to the larger
+`AT24C256` via [RPi::EEPROM::AT24C256](https://metacpan.org/pod/RPi%3A%3AEEPROM%3A%3AAT24C256). Select the chip with the `chip`
+parameter to [eeprom()](https://metacpan.org/pod/RPi%3A%3AWiringPi#eeprom). See those distributions for full
+usage details.
 
 ## Usage
 
-    my $eeprom = $pi->eeprom;
+    my $eeprom = $pi->eeprom;             # AT24C32, addresses 0-4095, i2c 0x57
 
     $eeprom->write(500, 20); # Write '20' to EEPROM memory address 500
 
     my $value = $eeprom->read(500);
+
+For the AT24C256 (addresses `0-32767`, default i2c address `0x50`):
+
+    my $eeprom = $pi->eeprom(chip => 'AT24C256');
 
 # GPIO EXPANDERS
 
@@ -1813,6 +1820,10 @@ order.
     541-eeprom_read_write_byte_croak.t          EEPROM byte r/w error handling                            RPI_BOARD_4   RPI_EEPROM
     542-eeprom_read_write_byte.t                EEPROM byte read/write                                    RPI_BOARD_4   RPI_EEPROM
     543-eeprom_validation.t                     EEPROM validation (HW-free)                               -             (none)
+    544-eeprom256_args.t                        EEPROM AT24C256 argument validation                       RPI_BOARD_4   RPI_EEPROM
+    545-eeprom256_read_write_byte_croak.t       EEPROM AT24C256 byte r/w error handling                   RPI_BOARD_4   RPI_EEPROM
+    546-eeprom256_read_write_byte.t             EEPROM AT24C256 byte read/write                           RPI_BOARD_4   RPI_EEPROM
+    547-eeprom256_validation.t                  EEPROM AT24C256 validation (HW-free)                      -             (none)
     600-i2c_exceptions.t                        I2C exception handling                                    RPI_BOARD_5   RPI_ARDUINO
     605-i2c.t                                   I2C read/write (Arduino)                                  RPI_BOARD_5   RPI_ARDUINO
     610-serial.t                                Serial loopback                                           RPI_BOARD_5   RPI_SERIAL
@@ -2171,17 +2182,26 @@ defined?"](#where-is-the-required-wiringpi-version-defined).
 ## I2C Test Platform Connections
 
 The below list shows the I2C addresses in use on the Raspberry Pi in the
-hardware test platform:
+hardware test platform. It is generated from the bus map
+(`docs/test-platform/facts/bus-map.json`), whose source of truth is the board
+model; the parenthetical tags the device context (`onboard`, `planned` for
+board 1, `bench`, or `optional`) and the proving test:
 
-    0x04  Arduino Metro Mini
-    0x05  ATMega-328P IC (not always in I2C mode, so not always available)
-    0x20  GPIO Expander #1 (MCP23017; expander loopback test, t/355)
-    0x21  GPIO Expander #2 (MCP23017; stepper drive, t/350)
-    0x3c  OLED (main case)
-    0x48  ADC ADS 1 (main case)
-    0x57  AT24C32 EEPROM (on same breakout board as RTC)
-    0x68  DS3231 RTC
-    0x77  BMP180 Barometric Pressure Sensor
+    0x04  Arduino           (onboard, t/605)
+    0x05  ATMega-328P       (optional)
+    0x20  MCP23017#1        (onboard, t/355)
+    0x21  MCP23017#2        (onboard, t/350)
+    0x22  MCP23017#3        (bench, t/353)
+    0x27  PCF8574 LCD       (planned, t/335)
+    0x3c  SSD1306           (onboard, t/500)
+    0x40  PCA9685           (planned, t/440)
+    0x48  ADS1015           (onboard, t/405)
+    0x48  ADS1115(ADXL335)  (bench, t/360)
+    0x50  AT24C256          (onboard, t/544)
+    0x57  AT24C32           (onboard, t/540)
+    0x68  DS3231            (onboard, t/530)
+    0x68  MPU-6050          (bench, t/358)
+    0x77  BMP180            (onboard, t/531)
 
 We also have a standalone ATMega328-P chip in use on the test platform. If in
 I2C mode, it'll show up on the Pi as address `0x05`. If we're using it in

@@ -1,9 +1,35 @@
--DONE: ADS1015 ADC (I2C 0x48)
--DONE: MCP23017 GPIO expander #1 (I2C 0x20)
--DONE: MCP23017 GPIO expander #2 (I2C 0x21)
--DONE: MCP3008 ADC (SPI, CS GPIO26)
--DONE: MCP4922 DAC (SPI, CS GPIO12)
--DONE: MCP4XXXX digital potentiometer (SPI, CS GPIO13)
+# Bus devices (I2C address / SPI chip-select) are GENERATED from the bus map
+# (facts/bus-map.json; source of truth: scripts/helpers/board-model.py BUS_DEVICES).
+# Context replaces the old -DONE: flag for bus devices: onboard = on a fabbed
+# board, planned = board 1 (not built), bench = bench-wired, optional = alt mode.
+# GEN:bus-map:begin (generated; do not edit below - re-run scripts/helpers/render-doc.py)
+
+I2C (by address):
+  0x04  Arduino           onboard, t/605
+  0x05  ATMega-328P       optional
+  0x20  MCP23017#1        onboard, t/355
+  0x21  MCP23017#2        onboard, t/350
+  0x22  MCP23017#3        bench, t/353
+  0x27  PCF8574 LCD       planned, t/335
+  0x3c  SSD1306           onboard, t/500
+  0x40  PCA9685           planned, t/440
+  0x48  ADS1015           onboard, t/405
+  0x48  ADS1115(ADXL335)  bench, t/360
+  0x50  AT24C256          onboard, t/544
+  0x57  AT24C32           onboard, t/540
+  0x68  DS3231            onboard, t/530
+  0x68  MPU-6050          bench, t/358
+  0x77  BMP180            onboard, t/531
+
+SPI (by chip-select):
+  GPIO8   ST7735S TFT  bench, t/447
+  GPIO12  MCP4922      onboard, t/410
+  GPIO13  MCP4XXXX     onboard, t/445
+  GPIO26  MCP3008      onboard, t/410
+
+# GEN:bus-map:end
+
+# --- Other platform hardware (hand-tracked; "-DONE:" = built) ---
 -DONE: 74HC595 shift register
 -DONE: Stepper CW magnetic limit switch (GPIO17)
 -DONE: Stepper CCW magnetic limit switch (GPIO27)
@@ -15,13 +41,6 @@
 -DONE: Stepper centre LED (GPIO19)
 -DONE: UART loopback (GPIO14 TXD -> GPIO15 RXD)
 
- DS3231 RTC (I2C 0x68)
- AT24C32 EEPROM (I2C 0x57)
-BMP180 pressure/temperature sensor (I2C 0x77)
-SSD1306 OLED 128x64 (I2C 0x3c)
-# ATMega-328P standalone (I2C 0x05, optional)
 I2C SDA/SCL pull-ups (Pi built-in ~1.8 kohm; no external pair)
-
 3V3<->5V I2C level-shifter (BSS138-type, for 5V Arduino)
-Arduino I2C slave (I2C 0x04)
 Tower Pro SG90 servo
