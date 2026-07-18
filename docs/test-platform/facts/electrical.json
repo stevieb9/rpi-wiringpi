@@ -1,0 +1,253 @@
+{
+  "note": "GENERATED from board-facts.py ELECTRICAL by scripts/helpers/render-doc.py. Do not edit by hand.",
+  "scope": "on-board (fabbed boards 2-5) + planned (board 1) devices only; bench-wired and optional parts excluded.",
+  "disclaimer": "Datasheet-typical estimates, NOT measured.",
+  "units": "mA",
+  "rails": {
+    "+3V3": {
+      "rows": [
+        {
+          "device": "ADS1015 #1",
+          "ref": "M1",
+          "rail": "+3V3",
+          "context": "onboard",
+          "typ_ma": 0.15,
+          "peak_ma": 0.2,
+          "sleep_ma": 0.002,
+          "sleep_note": "single-shot mode powers down between reads (MODE bit)",
+          "note": "continuous-conversion when mode() is held on"
+        },
+        {
+          "device": "MCP23017 #1",
+          "ref": "U1",
+          "rail": "+3V3",
+          "context": "onboard",
+          "typ_ma": 1.0,
+          "peak_ma": 1.0,
+          "sleep_ma": 0.001,
+          "sleep_note": "no sleep register; ~1 uA passive standby",
+          "note": "logic only; loopback drive is high-Z"
+        },
+        {
+          "device": "MCP23017 #2",
+          "ref": "U6",
+          "rail": "+3V3",
+          "context": "onboard",
+          "typ_ma": 1.0,
+          "peak_ma": 1.0,
+          "sleep_ma": 0.001,
+          "sleep_note": "no sleep register; ~1 uA passive standby",
+          "note": "stepper drive (ULN2003 inputs, high-Z)"
+        },
+        {
+          "device": "DS3231 RTC",
+          "ref": "M3",
+          "rail": "+3V3",
+          "context": "onboard",
+          "typ_ma": 0.2,
+          "peak_ma": 0.2,
+          "sleep_ma": 0.11,
+          "sleep_note": "always timekeeping; EOSC/EN32kHz save battery, not Vcc",
+          "note": "+~3 mA if breakout power-LED fitted"
+        },
+        {
+          "device": "AT24C32 EEPROM",
+          "ref": "M3",
+          "rail": "+3V3",
+          "context": "onboard",
+          "typ_ma": 0.5,
+          "peak_ma": 3.0,
+          "sleep_ma": 0.001,
+          "sleep_note": "auto standby on bus idle (no power-down command)",
+          "note": "peak during page write"
+        },
+        {
+          "device": "AT24C256 EEPROM",
+          "ref": "M9",
+          "rail": "+3V3",
+          "context": "onboard",
+          "typ_ma": 0.5,
+          "peak_ma": 3.0,
+          "sleep_ma": 0.001,
+          "sleep_note": "auto standby on bus idle (no power-down command)",
+          "note": "peak during page write"
+        },
+        {
+          "device": "BMP180",
+          "ref": "M4",
+          "rail": "+3V3",
+          "context": "onboard",
+          "typ_ma": 0.01,
+          "peak_ma": 0.65,
+          "sleep_ma": 0.0001,
+          "sleep_note": "on-demand measurement; ~0.1 uA idle",
+          "note": "uA between samples"
+        },
+        {
+          "device": "OLED SSD1306",
+          "ref": "M5",
+          "rail": "+3V3",
+          "context": "onboard",
+          "typ_ma": 15.0,
+          "peak_ma": 30.0,
+          "sleep_ma": 0.01,
+          "sleep_note": "display-off 0xAE + charge-pump off (~uA; not yet a method)",
+          "note": "dominant 3V3 load; scales with lit pixels"
+        },
+        {
+          "device": "MCP3008 ADC",
+          "ref": "U3",
+          "rail": "+3V3",
+          "context": "onboard",
+          "typ_ma": 0.5,
+          "peak_ma": 0.55,
+          "sleep_ma": 1e-05,
+          "sleep_note": "auto standby (~5 nA) when CS deasserts after each frame",
+          "note": ""
+        },
+        {
+          "device": "MCP4922 DAC",
+          "ref": "U4",
+          "rail": "+3V3",
+          "context": "onboard",
+          "typ_ma": 0.7,
+          "peak_ma": 0.9,
+          "sleep_ma": 0.005,
+          "sleep_note": "disable_sw() software shutdown (SHDN bit)",
+          "note": ""
+        },
+        {
+          "device": "MCP4XXXX dpot",
+          "ref": "U5",
+          "rail": "+3V3",
+          "context": "onboard",
+          "typ_ma": 0.5,
+          "peak_ma": 1.0,
+          "sleep_ma": 0.001,
+          "sleep_note": "shutdown() disconnects the wiper and ladder",
+          "note": "+~0.33 mA ladder (10 kOhm, 3V3->GND) when active"
+        },
+        {
+          "device": "74HC595",
+          "ref": "U2",
+          "rail": "+3V3",
+          "context": "onboard",
+          "typ_ma": 0.5,
+          "peak_ma": 2.0,
+          "sleep_ma": 0.001,
+          "sleep_note": "static CMOS quiescent when not clocked",
+          "note": "dynamic/switching"
+        },
+        {
+          "device": "PCA9685",
+          "ref": null,
+          "rail": "+3V3",
+          "context": "planned",
+          "typ_ma": 6.0,
+          "peak_ma": 10.0,
+          "sleep_ma": 0.005,
+          "sleep_note": "off() = sleep bit + all-outputs-off",
+          "note": "board 1 (planned); chip only, PWM loads separate"
+        },
+        {
+          "device": "I2C pull-ups",
+          "ref": null,
+          "rail": "+3V3",
+          "context": "onboard",
+          "typ_ma": 0.0,
+          "peak_ma": 4.0,
+          "sleep_ma": 0.0,
+          "sleep_note": "only sinks while a line is held low",
+          "note": "Pi built-in 1.8 kOhm x2; momentary"
+        }
+      ],
+      "typ_ma": 26.56,
+      "peak_ma": 57.5,
+      "sleep_ma": 0.13811
+    },
+    "+5V": {
+      "rows": [
+        {
+          "device": "HD44780 logic",
+          "ref": "M8",
+          "rail": "+5V",
+          "context": "onboard",
+          "typ_ma": 1.5,
+          "peak_ma": 2.0,
+          "sleep_ma": 1.0,
+          "sleep_note": "display-off saves little; no true sleep",
+          "note": "board 5, 4-bit parallel"
+        },
+        {
+          "device": "HD44780 backlight",
+          "ref": "M8",
+          "rail": "+5V",
+          "context": "onboard",
+          "typ_ma": 25.0,
+          "peak_ma": 120.0,
+          "sleep_ma": 0.0,
+          "sleep_note": "backlight can be switched off",
+          "note": "depends on series R / jumper"
+        },
+        {
+          "device": "28BYJ-48 stepper",
+          "ref": "M7",
+          "rail": "+5V",
+          "context": "onboard",
+          "typ_ma": 160.0,
+          "peak_ma": 240.0,
+          "sleep_ma": 0.0,
+          "sleep_note": "coils de-energized at idle (ULN2003 inputs low)",
+          "note": "2-phase -> all-coil energized (via ULN2003)"
+        },
+        {
+          "device": "ULN2003",
+          "ref": "M7",
+          "rail": "+5V",
+          "context": "onboard",
+          "typ_ma": 0.5,
+          "peak_ma": 1.0,
+          "sleep_ma": 0.0005,
+          "sleep_note": "own quiescent when inputs low",
+          "note": "own draw; motor current counted above"
+        },
+        {
+          "device": "Servo SG90",
+          "ref": "SV1",
+          "rail": "+5V",
+          "context": "onboard",
+          "typ_ma": 10.0,
+          "peak_ma": 700.0,
+          "sleep_ma": 0.0,
+          "sleep_note": "no PWM signal -> ~0 (holds no torque)",
+          "note": "10 idle / 250 run; stall is the 700 mA spike"
+        },
+        {
+          "device": "Arduino",
+          "ref": "A1",
+          "rail": "+5V",
+          "context": "onboard",
+          "typ_ma": 25.0,
+          "peak_ma": 40.0,
+          "sleep_ma": 25.0,
+          "sleep_note": "no low-power state used in the test flow",
+          "note": "regulator + power LED"
+        },
+        {
+          "device": "I2C LCD (PCF8574+HD44780)",
+          "ref": null,
+          "rail": "+5V",
+          "context": "planned",
+          "typ_ma": 27.0,
+          "peak_ma": 122.0,
+          "sleep_ma": 1.0,
+          "sleep_note": "display + backlight off; PCF8574 ~uA",
+          "note": "board 1 (planned) I2C LCD; logic + backlight + expander"
+        }
+      ],
+      "typ_ma": 249.0,
+      "peak_ma": 1225.0,
+      "sleep_ma": 27.0005
+    }
+  }
+}

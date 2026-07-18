@@ -794,50 +794,59 @@ Other 5V connections:
 > "naive all-on" column is therefore conservative and is the number to size a
 > supply against, while real per-test peaks are lower. Servo figures are for the
 > **Tower Pro SG90** micro servo.
+>
+> **These tables are generated** from the electrical model
+> (`facts/electrical.json`, source `board-facts.py` `ELECTRICAL`) and re-checked
+> on every `make test`. Scope is **on-board (boards 2–5) + planned (board 1)**
+> devices only — bench-wired and optional parts are excluded. The
+> **Sleep/dormant** column is each part's lowest documented power state
+> (sleep/standby/shutdown), from `plans/rpi-lowpower-modes.md` + datasheets.
 
 **+3V3 bus** — all I2C/SPI ICs + the 74HC595:
 
-| Device | Ref | Typ (mA) | Peak (mA) | Note |
-|--------|-----|---------:|----------:|------|
-| ADS1015 #1 | 0x48 | 0.15 | 0.20 | continuous-conversion |
-| MCP23017 #1 | 0x20 | 1.0 | 1.0 | logic only; loopback drive is high-Z |
-| MCP23017 #2 | 0x21 | 1.0 | 1.0 | stepper drive (ULN2003 inputs, high-Z) |
-| DS3231 RTC | 0x68 | 0.2 | 0.2 | **+~3 mA if breakout power-LED fitted** |
-| AT24C32 EEPROM | 0x57 | 0.5 | 3.0 | peak during page write |
-| BMP180 | 0x77 | 0.01 | 0.65 | µA between samples |
-| OLED SSD1306 | 0x3c | 15 | 30 | **dominant 3V3 load**; scales with lit pixels |
-| MCP3008 | CS26 | 0.5 | 0.55 | |
-| MCP4922 DAC | CS12 | 0.7 | 0.9 | |
-| MCP4XXXX dpot | CS13 | 0.5 | 1.0 | +~0.33 mA ladder (10 kΩ, 3V3→GND) |
-| 74HC595 | bit-bang | 0.5 | 2.0 | dynamic/switching |
-| I2C pull-ups (Pi 1.8 kΩ ×2) | — | ~0 | ~4 | momentary, only while a line is held low |
-| dpot ladder | — | ~0.33 | ~0.5 | into ADS#1 A1 (high-Z) |
-| **+3V3 subtotal** | | **~20** | **~45** | OLED is ~75%; +~3 mA w/ RTC LED |
+| Device | Ref | Ctx | Active typ | Active peak | Sleep/dormant | Sleep state / note |
+|--------|-----|-----|-----------:|------------:|--------------:|--------------------|
+| ADS1015 #1 | M1 | onboard | 150 uA | 200 uA | 2 uA | single-shot mode powers down between reads (MODE bit) — continuous-conversion when mode() is held on |
+| MCP23017 #1 | U1 | onboard | 1 mA | 1 mA | 1 uA | no sleep register; ~1 uA passive standby — logic only; loopback drive is high-Z |
+| MCP23017 #2 | U6 | onboard | 1 mA | 1 mA | 1 uA | no sleep register; ~1 uA passive standby — stepper drive (ULN2003 inputs, high-Z) |
+| DS3231 RTC | M3 | onboard | 200 uA | 200 uA | 110 uA | always timekeeping; EOSC/EN32kHz save battery, not Vcc — +~3 mA if breakout power-LED fitted |
+| AT24C32 EEPROM | M3 | onboard | 500 uA | 3 mA | 1 uA | auto standby on bus idle (no power-down command) — peak during page write |
+| AT24C256 EEPROM | M9 | onboard | 500 uA | 3 mA | 1 uA | auto standby on bus idle (no power-down command) — peak during page write |
+| BMP180 | M4 | onboard | 10 uA | 650 uA | 100 nA | on-demand measurement; ~0.1 uA idle — uA between samples |
+| OLED SSD1306 | M5 | onboard | 15 mA | 30 mA | 10 uA | display-off 0xAE + charge-pump off (~uA; not yet a method) — dominant 3V3 load; scales with lit pixels |
+| MCP3008 ADC | U3 | onboard | 500 uA | 550 uA | 10 nA | auto standby (~5 nA) when CS deasserts after each frame |
+| MCP4922 DAC | U4 | onboard | 700 uA | 900 uA | 5 uA | disable_sw() software shutdown (SHDN bit) |
+| MCP4XXXX dpot | U5 | onboard | 500 uA | 1 mA | 1 uA | shutdown() disconnects the wiper and ladder — +~0.33 mA ladder (10 kOhm, 3V3->GND) when active |
+| 74HC595 | U2 | onboard | 500 uA | 2 mA | 1 uA | static CMOS quiescent when not clocked — dynamic/switching |
+| PCA9685 | — | planned | 6 mA | 10 mA | 5 uA | off() = sleep bit + all-outputs-off — board 1 (planned); chip only, PWM loads separate |
+| I2C pull-ups | — | onboard | 0 | 4 mA | 0 | only sinks while a line is held low — Pi built-in 1.8 kOhm x2; momentary |
+| **+3V3 subtotal** | | | **26.56 mA** | **57.5 mA** | **138.1 uA** | naive all-on sum |
 
 **+5V bus** — LCD, stepper, servo, Arduino:
 
-| Device | Ref | Typ (mA) | Peak/stall (mA) | Note |
-|--------|-----|---------:|----------------:|------|
-| HD44780 logic | t/620 | 1.5 | 2 | |
-| HD44780 backlight | t/620 | 25 | 120 | depends on series R / jumper |
-| 28BYJ-48 stepper (via ULN2003) | t/350 | 160 | 240 | 2-phase → all-coil energized |
-| ULN2003 | — | 0.5 | 1 | own draw; motor current counted above |
-| Servo SG90 | t/425 | 10 idle / 250 run | 700 | stall is the big spike |
-| Arduino | 0x04 | 25 | 40 | regulator + power LED |
-| ATMega-328P standalone | 0x05 | 12 | 20 | **optional** — often absent |
-| **+5V naive all-on** | | | **~1120** | sizing figure (see note) |
+| Device | Ref | Ctx | Active typ | Active peak | Sleep/dormant | Sleep state / note |
+|--------|-----|-----|-----------:|------------:|--------------:|--------------------|
+| HD44780 logic | M8 | onboard | 1.5 mA | 2 mA | 1 mA | display-off saves little; no true sleep — board 5, 4-bit parallel |
+| HD44780 backlight | M8 | onboard | 25 mA | 120 mA | 0 | backlight can be switched off — depends on series R / jumper |
+| 28BYJ-48 stepper | M7 | onboard | 160 mA | 240 mA | 0 | coils de-energized at idle (ULN2003 inputs low) — 2-phase -> all-coil energized (via ULN2003) |
+| ULN2003 | M7 | onboard | 500 uA | 1 mA | 500 nA | own quiescent when inputs low — own draw; motor current counted above |
+| Servo SG90 | SV1 | onboard | 10 mA | 700 mA | 0 | no PWM signal -> ~0 (holds no torque) — 10 idle / 250 run; stall is the 700 mA spike |
+| Arduino | A1 | onboard | 25 mA | 40 mA | 25 mA | no low-power state used in the test flow — regulator + power LED |
+| I2C LCD (PCF8574+HD44780) | — | planned | 27 mA | 122 mA | 1 mA | display + backlight off; PCF8574 ~uA — board 1 (planned) I2C LCD; logic + backlight + expander |
+| **+5V subtotal** | | | **249 mA** | **1225 mA** | **27 mA** | naive all-on sum |
 
 Realistic per-test 5V peaks (sequential): **servo test ≈ 770 mA** (SG90 stall +
 backlight + Arduino + idle rest), **stepper test ≈ 300 mA**, everything else far
 lower.
 
-**Totals (both rails off the Pi header):**
+**Totals (both rails off the Pi header)** — the "All sleeping" column is the
+platform's dormant floor with every device parked in its lowest-power state:
 
-| Rail | Typical (active) | Peak (sizing) |
-|------|-----------------:|--------------:|
-| +3V3 | ~20 mA | ~45–48 mA |
-| +5V | ~0.3–0.8 A | ~1.12 A |
-| **Overall** | **~0.35–0.85 A** | **~1.15 A** |
+| Rail | Active typ | Active peak (sizing) | All sleeping |
+|------|-----------:|---------------------:|-------------:|
+| +3V3 | 26.56 mA | 57.5 mA | 138.1 uA |
+| +5V | 249 mA | 1225 mA | 27 mA |
+| **Overall** | **275.56 mA** | **1282.5 mA** | **27.14 mA** |
 
 **Supply notes:**
 

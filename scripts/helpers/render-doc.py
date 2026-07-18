@@ -31,6 +31,7 @@ ROOT = os.path.normpath(os.path.join(HERE, '..', '..'))
 TEMPLATE = os.path.join(ROOT, 'docs', 'test-platform', 'test-pinout-doc.tmpl.md')
 OUTPUT = os.path.join(ROOT, 'docs', 'test-platform', 'test-pinout-doc.md')
 BUSMAP = os.path.join(ROOT, 'docs', 'test-platform', 'facts', 'bus-map.json')
+ELECMAP = os.path.join(ROOT, 'docs', 'test-platform', 'facts', 'electrical.json')
 FAQ_POD = os.path.join(ROOT, 'lib', 'RPi', 'WiringPi', 'FAQ.pod')
 ADDED_HW = os.path.join(ROOT, 'docs', 'test-platform', 'added-hardware.txt')
 RPITEST = os.path.join(ROOT, 't', 'RPiTest.pm')
@@ -178,10 +179,104 @@ def gen_spi_table():
     return '\n'.join(lines)
 
 
+def build_electrical():
+    """Per-rail current budget from board-facts.py ELECTRICAL. Single source of
+    truth behind facts/electrical.json and the pin doc's current-budget tables.
+    Scope is enforced upstream (ELECTRICAL only holds onboard + planned parts).
+    Returns {'rails': {rail: {'rows': [...], 'typ_ma','peak_ma','sleep_ma'}}}."""
+    facts = _load('board-facts.py')
+    rails = {}
+    for device, e in facts.ELECTRICAL.items():
+        rails.setdefault(e['rail'], []).append({'device': device, **e})
+    out = {}
+    for rail, rows in rails.items():
+        out[rail] = {
+            'rows': rows,
+            'typ_ma': round(sum(r['typ_ma'] for r in rows), 3),
+            'peak_ma': round(sum(r['peak_ma'] for r in rows), 3),
+            'sleep_ma': round(sum(r['sleep_ma'] or 0 for r in rows), 5),
+        }
+    return {'rails': out}
+
+
+def _ma(v):
+    """Human current with a natural unit: 0.15 mA -> '150 uA', 0 -> '0'."""
+    if v is None:
+        return '—'
+    if v == 0:
+        return '0'
+    if v >= 1:
+        return f'{round(v, 2):g} mA'
+    ua = v * 1000
+    if ua >= 1:
+        return f'{round(ua, 1):g} uA'
+    return f'{round(ua * 1000, 1):g} nA'
+
+
+def electrical_json():
+    """Canonical JSON for facts/electrical.json."""
+    data = build_electrical()
+    out = {
+        'note': ('GENERATED from board-facts.py ELECTRICAL by '
+                 'scripts/helpers/render-doc.py. Do not edit by hand.'),
+        'scope': ('on-board (fabbed boards 2-5) + planned (board 1) devices only; '
+                  'bench-wired and optional parts excluded.'),
+        'disclaimer': 'Datasheet-typical estimates, NOT measured.',
+        'units': 'mA',
+        'rails': data['rails'],
+    }
+    return json.dumps(out, indent=2) + '\n'
+
+
+def _gen_electrical_rail(rail):
+    data = build_electrical()['rails'].get(rail)
+    if not data:
+        raise SystemExit(f'render-doc: no ELECTRICAL rows for rail {rail!r}')
+    lines = ['| Device | Ref | Ctx | Active typ | Active peak | Sleep/dormant | Sleep state / note |',
+             '|--------|-----|-----|-----------:|------------:|--------------:|--------------------|']
+    for r in data['rows']:
+        note = r['sleep_note']
+        if r['note']:
+            note += f" — {r['note']}"
+        lines.append(f"| {r['device']} | {r['ref'] or '—'} | {r['context']} | "
+                     f"{_ma(r['typ_ma'])} | {_ma(r['peak_ma'])} | {_ma(r['sleep_ma'])} | {note} |")
+    lines.append(f"| **{rail} subtotal** | | | **{_ma(data['typ_ma'])}** | "
+                 f"**{_ma(data['peak_ma'])}** | **{_ma(data['sleep_ma'])}** | naive all-on sum |")
+    return '\n'.join(lines)
+
+
+def gen_electrical_3v3():
+    return _gen_electrical_rail('+3V3')
+
+
+def gen_electrical_5v():
+    return _gen_electrical_rail('+5V')
+
+
+def gen_electrical_totals():
+    rails = build_electrical()['rails']
+    lines = ['| Rail | Active typ | Active peak (sizing) | All sleeping |',
+             '|------|-----------:|---------------------:|-------------:|']
+    tot = {'typ_ma': 0, 'peak_ma': 0, 'sleep_ma': 0}
+    for rail in ('+3V3', '+5V'):
+        d = rails.get(rail)
+        if not d:
+            continue
+        for k in tot:
+            tot[k] += d[k]
+        lines.append(f"| {rail} | {_ma(d['typ_ma'])} | {_ma(d['peak_ma'])} | {_ma(d['sleep_ma'])} |")
+    lines.append(f"| **Overall** | **{_ma(tot['typ_ma'])}** | "
+                 f"**{_ma(tot['peak_ma'])}** | **{_ma(tot['sleep_ma'])}** |")
+    return '\n'.join(lines)
+
+
 PLACEHOLDERS = {
     'default_states_pi5': gen_default_states_pi5,
     'i2c_table': gen_i2c_table,
     'spi_table': gen_spi_table,
+    'electrical_3v3': gen_electrical_3v3,
+    'electrical_5v': gen_electrical_5v,
+    'electrical_totals': gen_electrical_totals,
 }
 
 
@@ -264,7 +359,8 @@ def render():
 
 def main():
     # (path, desired-content) for every artifact rendered from a single source.
-    artifacts = [(OUTPUT, render()), (BUSMAP, bus_map_json())]
+    artifacts = [(OUTPUT, render()), (BUSMAP, bus_map_json()),
+                 (ELECMAP, electrical_json())]
     for path, begin, end, body in MARKED_FILES:
         artifacts.append((path, splice_marked(path, begin, end, body())))
 
@@ -274,8 +370,8 @@ def main():
         stale = [os.path.relpath(p, ROOT) for p, want in artifacts
                  if (open(p).read() if os.path.exists(p) else None) != want]
         if not stale:
-            print('pin doc, bus-map.json, FAQ + added-hardware bus lists are up '
-                  'to date with their sources.')
+            print('pin doc, bus-map.json, electrical.json, FAQ + added-hardware '
+                  'lists are up to date with their sources.')
             return 0
         print('STALE (re-run scripts/helpers/render-doc.py): ' + ', '.join(stale))
         return 1

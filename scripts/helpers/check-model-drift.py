@@ -118,9 +118,32 @@ def verify_bus_devices(model):
     return problems
 
 
+def verify_electrical(model, facts):
+    """Sanity-check board-facts.py ELECTRICAL: valid rail/context, refs that
+    exist, numeric currents, and the deliberate scope (onboard + planned only -
+    a bench or optional part must never leak into the power budget)."""
+    comps = model.COMPONENTS
+    problems = []
+    for name, e in facts.ELECTRICAL.items():
+        if e['rail'] not in ('+3V3', '+5V'):
+            problems.append(f'{name}: bad rail {e["rail"]!r}')
+        if e['context'] not in ('onboard', 'planned'):
+            problems.append(f'{name}: context {e["context"]!r} out of scope '
+                            f'(only onboard/planned belong in the budget)')
+        if e['ref'] is not None and e['ref'] not in comps:
+            problems.append(f'{name}: ref {e["ref"]} not in COMPONENTS')
+        for k in ('typ_ma', 'peak_ma'):
+            if not isinstance(e[k], (int, float)):
+                problems.append(f'{name}: {k} is not numeric')
+        if e['sleep_ma'] is not None and not isinstance(e['sleep_ma'], (int, float)):
+            problems.append(f'{name}: sleep_ma is neither a number nor None')
+    return problems
+
+
 def main():
     canonical = _load('board-model.py')
     rederived = _load('model-from-tests.py')
+    facts = _load('board-facts.py')
 
     drift = False
 
@@ -162,6 +185,18 @@ def main():
         return 1
     print(f'  {"BUS_DEVICES":11} MATCH (wiring cross-check: '
           f'{len(canonical.BUS_DEVICES)} devices)')
+
+    # ELECTRICAL sanity + scope check.
+    elec_problems = verify_electrical(canonical, facts)
+    if elec_problems:
+        print(f'  {"ELECTRICAL":11} INVALID')
+        for p in elec_problems:
+            print(f'      {p}')
+        print('\nELECTRICAL INVALID: board-facts.py ELECTRICAL has a bad or '
+              'out-of-scope row.')
+        return 1
+    print(f'  {"ELECTRICAL":11} OK ({len(facts.ELECTRICAL)} devices, '
+          f'onboard + planned)')
 
     print('\nmodel OK: the re-derivation matches the canonical board-model.py.')
     return 0

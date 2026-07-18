@@ -773,50 +773,30 @@ Other 5V connections:
 > "naive all-on" column is therefore conservative and is the number to size a
 > supply against, while real per-test peaks are lower. Servo figures are for the
 > **Tower Pro SG90** micro servo.
+>
+> **These tables are generated** from the electrical model
+> (`facts/electrical.json`, source `board-facts.py` `ELECTRICAL`) and re-checked
+> on every `make test`. Scope is **on-board (boards 2–5) + planned (board 1)**
+> devices only — bench-wired and optional parts are excluded. The
+> **Sleep/dormant** column is each part's lowest documented power state
+> (sleep/standby/shutdown), from `plans/rpi-lowpower-modes.md` + datasheets.
 
 **+3V3 bus** — all I2C/SPI ICs + the 74HC595:
 
-| Device | Ref | Typ (mA) | Peak (mA) | Note |
-|--------|-----|---------:|----------:|------|
-| ADS1015 #1 | 0x48 | 0.15 | 0.20 | continuous-conversion |
-| MCP23017 #1 | 0x20 | 1.0 | 1.0 | logic only; loopback drive is high-Z |
-| MCP23017 #2 | 0x21 | 1.0 | 1.0 | stepper drive (ULN2003 inputs, high-Z) |
-| DS3231 RTC | 0x68 | 0.2 | 0.2 | **+~3 mA if breakout power-LED fitted** |
-| AT24C32 EEPROM | 0x57 | 0.5 | 3.0 | peak during page write |
-| BMP180 | 0x77 | 0.01 | 0.65 | µA between samples |
-| OLED SSD1306 | 0x3c | 15 | 30 | **dominant 3V3 load**; scales with lit pixels |
-| MCP3008 | CS26 | 0.5 | 0.55 | |
-| MCP4922 DAC | CS12 | 0.7 | 0.9 | |
-| MCP4XXXX dpot | CS13 | 0.5 | 1.0 | +~0.33 mA ladder (10 kΩ, 3V3→GND) |
-| 74HC595 | bit-bang | 0.5 | 2.0 | dynamic/switching |
-| I2C pull-ups (Pi 1.8 kΩ ×2) | — | ~0 | ~4 | momentary, only while a line is held low |
-| dpot ladder | — | ~0.33 | ~0.5 | into ADS#1 A1 (high-Z) |
-| **+3V3 subtotal** | | **~20** | **~45** | OLED is ~75%; +~3 mA w/ RTC LED |
+{{electrical_3v3}}
 
 **+5V bus** — LCD, stepper, servo, Arduino:
 
-| Device | Ref | Typ (mA) | Peak/stall (mA) | Note |
-|--------|-----|---------:|----------------:|------|
-| HD44780 logic | t/620 | 1.5 | 2 | |
-| HD44780 backlight | t/620 | 25 | 120 | depends on series R / jumper |
-| 28BYJ-48 stepper (via ULN2003) | t/350 | 160 | 240 | 2-phase → all-coil energized |
-| ULN2003 | — | 0.5 | 1 | own draw; motor current counted above |
-| Servo SG90 | t/425 | 10 idle / 250 run | 700 | stall is the big spike |
-| Arduino | 0x04 | 25 | 40 | regulator + power LED |
-| ATMega-328P standalone | 0x05 | 12 | 20 | **optional** — often absent |
-| **+5V naive all-on** | | | **~1120** | sizing figure (see note) |
+{{electrical_5v}}
 
 Realistic per-test 5V peaks (sequential): **servo test ≈ 770 mA** (SG90 stall +
 backlight + Arduino + idle rest), **stepper test ≈ 300 mA**, everything else far
 lower.
 
-**Totals (both rails off the Pi header):**
+**Totals (both rails off the Pi header)** — the "All sleeping" column is the
+platform's dormant floor with every device parked in its lowest-power state:
 
-| Rail | Typical (active) | Peak (sizing) |
-|------|-----------------:|--------------:|
-| +3V3 | ~20 mA | ~45–48 mA |
-| +5V | ~0.3–0.8 A | ~1.12 A |
-| **Overall** | **~0.35–0.85 A** | **~1.15 A** |
+{{electrical_totals}}
 
 **Supply notes:**
 
