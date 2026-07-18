@@ -388,7 +388,7 @@ default, with file:line) lives in `scripts/helpers/model-from-tests.py`.
 | `0x40` | 3V3 | PCA9685 | — | `RPi::PWM::PCA9685` | planned | 1 | t/440 |
 | `0x48` | 3V3 | ADS1015 | M1 | `RPi::ADC::ADS` | onboard | 2 | t/405 |
 | `0x48` | 3V3 | ADS1115 (ADXL335) | — | `RPi::ADC::ADS` | bench | — | t/360 |
-| `0x50` | 3V3 | AT24C256 | M9 | `RPi::EEPROM::AT24C256` | onboard | 4 | t/544 |
+| `0x50` | 3V3 | AT24C256 | — | `RPi::EEPROM::AT24C256` | bench | — | t/544 |
 | `0x57` | 3V3 | AT24C32 | M3 | `RPi::EEPROM::AT24C32` | onboard | 4 | t/540 |
 | `0x68` | 3V3 | DS3231 | M3 | `RPi::RTC::DS3231` | onboard | 4 | t/530 |
 | `0x69` | 3V3 | MPU-6050 | — | `RPi::Gyro::MPU6050` | bench | — | t/358 |
@@ -814,7 +814,6 @@ Other 5V connections:
 | MCP23017 #2 | U6 | onboard | 1 mA | 1 mA | 1 uA | no sleep register; ~1 uA passive standby — stepper drive (ULN2003 inputs, high-Z) |
 | DS3231 RTC | M3 | onboard | 200 uA | 200 uA | 110 uA | always timekeeping; EOSC/EN32kHz save battery, not Vcc — +~3 mA if breakout power-LED fitted |
 | AT24C32 EEPROM | M3 | onboard | 500 uA | 3 mA | 1 uA | auto standby on bus idle (no power-down command) — peak during page write |
-| AT24C256 EEPROM | M9 | onboard | 500 uA | 3 mA | 1 uA | auto standby on bus idle (no power-down command) — peak during page write |
 | BMP180 | M4 | onboard | 10 uA | 650 uA | 100 nA | on-demand measurement; ~0.1 uA idle — uA between samples |
 | OLED SSD1306 | M5 | onboard | 15 mA | 30 mA | 10 uA | display-off 0xAE + charge-pump off (~uA; not yet a method) — dominant 3V3 load; scales with lit pixels |
 | MCP3008 ADC | U3 | onboard | 500 uA | 550 uA | 10 nA | auto standby (~5 nA) when CS deasserts after each frame |
@@ -823,7 +822,7 @@ Other 5V connections:
 | 74HC595 | U2 | onboard | 500 uA | 2 mA | 1 uA | static CMOS quiescent when not clocked — dynamic/switching |
 | PCA9685 | — | planned | 6 mA | 10 mA | 5 uA | off() = sleep bit + all-outputs-off — board 1 (planned); chip only, PWM loads separate |
 | I2C pull-ups | — | onboard | 0 | 4 mA | 0 | only sinks while a line is held low — Pi built-in 1.8 kOhm x2; momentary |
-| **+3V3 subtotal** | | | **26.56 mA** | **57.5 mA** | **138.1 uA** | naive all-on sum |
+| **+3V3 subtotal** | | | **26.06 mA** | **54.5 mA** | **137.1 uA** | naive all-on sum |
 
 **+5V bus** — LCD, stepper, servo, Arduino:
 
@@ -847,9 +846,9 @@ platform's dormant floor with every device parked in its lowest-power state:
 
 | Rail | Active typ | Active peak (sizing) | All sleeping |
 |------|-----------:|---------------------:|-------------:|
-| +3V3 | 26.56 mA | 57.5 mA | 138.1 uA |
+| +3V3 | 26.06 mA | 54.5 mA | 137.1 uA |
 | +5V | 249 mA | 1225 mA | 27 mA |
-| **Overall** | **275.56 mA** | **1282.5 mA** | **27.14 mA** |
+| **Overall** | **275.06 mA** | **1279.5 mA** | **27.14 mA** |
 
 **Supply notes:**
 

@@ -1820,9 +1820,9 @@ order.
     541-eeprom_read_write_byte_croak.t          EEPROM byte r/w error handling                            RPI_BOARD_4   RPI_EEPROM
     542-eeprom_read_write_byte.t                EEPROM byte read/write                                    RPI_BOARD_4   RPI_EEPROM
     543-eeprom_validation.t                     EEPROM validation (HW-free)                               -             (none)
-    544-eeprom256_args.t                        EEPROM AT24C256 argument validation                       RPI_BOARD_4   RPI_EEPROM
-    545-eeprom256_read_write_byte_croak.t       EEPROM AT24C256 byte r/w error handling                   RPI_BOARD_4   RPI_EEPROM
-    546-eeprom256_read_write_byte.t             EEPROM AT24C256 byte read/write                           RPI_BOARD_4   RPI_EEPROM
+    544-eeprom256_args.t                        EEPROM AT24C256 argument validation                       -             RPI_EEPROM256
+    545-eeprom256_read_write_byte_croak.t       EEPROM AT24C256 byte r/w error handling                   -             RPI_EEPROM256
+    546-eeprom256_read_write_byte.t             EEPROM AT24C256 byte read/write                           -             RPI_EEPROM256
     547-eeprom256_validation.t                  EEPROM AT24C256 validation (HW-free)                      -             (none)
     600-i2c_exceptions.t                        I2C exception handling                                    RPI_BOARD_5   RPI_ARDUINO
     605-i2c.t                                   I2C read/write (Arduino)                                  RPI_BOARD_5   RPI_ARDUINO
@@ -2197,7 +2197,7 @@ board 1, `bench`, or `optional`) and the proving test:
     0x40  PCA9685            (planned, t/440)
     0x48  ADS1015            (onboard, t/405)
     0x48  ADS1115 (ADXL335)  (bench, t/360)
-    0x50  AT24C256           (onboard, t/544)
+    0x50  AT24C256           (bench, t/544)
     0x57  AT24C32            (onboard, t/540)
     0x68  DS3231             (onboard, t/530)
     0x69  MPU-6050           (bench, t/358)

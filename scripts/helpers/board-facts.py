@@ -35,7 +35,6 @@ POWER = {
  'M4':[('VIN','+3V3'),('GND','GND')], 'M5':[('VCC','+3V3'),('GND','GND')],
  'M6':[('LV','+3V3'),('HV','+5V'),('GND1','GND')], 'M7':[('V+','+5V'),('GND','GND')],
  'M8':[('2','+5V'),('1','GND')],  'A1':[('5V','+5V'),('GND','GND')],
- 'M9':[('VCC','+3V3'),('GND','GND')],
  'SV1':[('V+','+5V'),('GND','GND')], 'RV1':[('1','+5V'),('3','GND')], 'R7':[('1','+5V')],
  'SW1':[('2','+3V3')],'SW2':[('2','+3V3')],'D1':[('K','GND')],
 }
@@ -51,6 +50,7 @@ BENCH_DEVICES = {
  'MPU-6050':          (None, 'i2c', 0x69,    'RPi::Gyro::MPU6050',          't/358', None),
  'ADS1115 (ADXL335)': (None, 'i2c', 0x48,    'RPi::ADC::ADS',               't/360', None),
  'ST7735S TFT':       (None, 'spi', 'GPIO8', 'RPi::TFT::ST7735S',           't/447', None),
+ 'AT24C256':          (None, 'i2c', 0x50,    'RPi::EEPROM::AT24C256',       't/544', None),
 }
 
 # Board 1 is planned/not-yet-built, so its I2C devices are not in the electrical
@@ -110,10 +110,6 @@ ELECTRICAL = {
                      'sleep_note':'always timekeeping; EOSC/EN32kHz save battery, not Vcc',
                      'note':'+~3 mA if breakout power-LED fitted'},
  'AT24C32 EEPROM':  {'ref':'M3', 'rail':'+3V3', 'context':'onboard',
-                     'typ_ma':0.5, 'peak_ma':3.0, 'sleep_ma':0.001,
-                     'sleep_note':'auto standby on bus idle (no power-down command)',
-                     'note':'peak during page write'},
- 'AT24C256 EEPROM': {'ref':'M9', 'rail':'+3V3', 'context':'onboard',
                      'typ_ma':0.5, 'peak_ma':3.0, 'sleep_ma':0.001,
                      'sleep_note':'auto standby on bus idle (no power-down command)',
                      'note':'peak during page write'},

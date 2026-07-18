@@ -15,7 +15,7 @@ I2C (by address):
   0x40  PCA9685            planned, t/440
   0x48  ADS1015            onboard, t/405
   0x48  ADS1115 (ADXL335)  bench, t/360
-  0x50  AT24C256           onboard, t/544
+  0x50  AT24C256           bench, t/544
   0x57  AT24C32            onboard, t/540
   0x68  DS3231             onboard, t/530
   0x69  MPU-6050           bench, t/358

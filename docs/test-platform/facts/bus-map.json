@@ -115,11 +115,11 @@
       "address": "0x50",
       "address_int": 80,
       "device": "AT24C256",
-      "ref": "M9",
+      "ref": null,
       "driver": "RPi::EEPROM::AT24C256",
       "bus_side": "3V3",
-      "context": "onboard",
-      "board": 4,
+      "context": "bench",
+      "board": null,
       "tests": "t/544"
     },
     {

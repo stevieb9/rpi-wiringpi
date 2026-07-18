@@ -2,12 +2,13 @@
 use strict;
 use warnings;
 
-# Board-4 convenience: set RPI_BOARD_4=1 and every env gate the board-4 suite
-# needs is enabled automatically, instead of exporting each one by hand. Runs in
-# BEGIN so it lands before RPiTest's compile-time RPI_BOARD skip_all gate.
+# Standalone AT24C256 (bench-wired, not on any board): RPI_EEPROM256=1 arms this
+# test and sets RPI_BOARD so it clears RPiTest's compile-time RPI_BOARD skip_all
+# gate. Runs in BEGIN so it lands before that gate. It is NOT part of the board-4
+# suite - it shares no board with the RTC/BMP/OLED/AT24C32.
 BEGIN {
-    if ($ENV{RPI_BOARD_4}) {
-        $ENV{$_} = 1 for qw(RPI_BOARD RPI_RTC RPI_BMP RPI_EEPROM RPI_OLED);
+    if ($ENV{RPI_EEPROM256}) {
+        $ENV{RPI_BOARD} = 1;
     }
 }
 
@@ -18,8 +19,8 @@ use RPi::WiringPi;
 use Test::More;
 
 BEGIN {
-    if (! $ENV{RPI_EEPROM}){
-        plan skip_all => "RPI_EEPROM environment variable not set\n";
+    if (! $ENV{RPI_EEPROM256}){
+        plan skip_all => "RPI_EEPROM256 environment variable not set\n";
     }
 
     $SIG{__DIE__} = sub { die shift; }; # bypass RPi::WiringPi's grab on die()

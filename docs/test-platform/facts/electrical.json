@@ -62,17 +62,6 @@
           "note": "peak during page write"
         },
         {
-          "device": "AT24C256 EEPROM",
-          "ref": "M9",
-          "rail": "+3V3",
-          "context": "onboard",
-          "typ_ma": 0.5,
-          "peak_ma": 3.0,
-          "sleep_ma": 0.001,
-          "sleep_note": "auto standby on bus idle (no power-down command)",
-          "note": "peak during page write"
-        },
-        {
           "device": "BMP180",
           "ref": "M4",
           "rail": "+3V3",
@@ -161,9 +150,9 @@
           "note": "Pi built-in 1.8 kOhm x2; momentary"
         }
       ],
-      "typ_ma": 26.56,
-      "peak_ma": 57.5,
-      "sleep_ma": 0.13811
+      "typ_ma": 26.06,
+      "peak_ma": 54.5,
+      "sleep_ma": 0.13711
     },
     "+5V": {
       "rows": [
