@@ -7574,7 +7574,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "3c31390e-ec97-4a0c-8a86-04a2312b0400")
-		(property "Reference" "R8"
+		(property "Reference" "R6"
 			(at 114.3 30.48 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7636,7 +7636,7 @@
 		(instances
 			(project "rpi-wiringpi-unit-test-platform-board-3"
 				(path "/d32517a0-ba1d-5be2-8d0f-f7fb5839afe5"
-					(reference "R8")
+					(reference "R6")
 					(unit 1)
 				)
 			)
@@ -9860,7 +9860,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "e7008972-6fe5-4130-99cf-6b235fb6d888")
-		(property "Reference" "R7"
+		(property "Reference" "R5"
 			(at 114.3 21.59 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9922,7 +9922,7 @@
 		(instances
 			(project "rpi-wiringpi-unit-test-platform-board-3"
 				(path "/d32517a0-ba1d-5be2-8d0f-f7fb5839afe5"
-					(reference "R7")
+					(reference "R5")
 					(unit 1)
 				)
 			)
