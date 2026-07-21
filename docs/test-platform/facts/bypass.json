@@ -38,7 +38,7 @@
       "note": "the one datasheet with an explicit distance (4 mm) and a two-cap ceramic+bulk strategy; no VREF-pin cap."
     },
     {
-      "device": "MCP4XXXX dpot",
+      "device": "MCP42010 dpot",
       "verdict": "conflict",
       "issue": "datasheet recommends 0.1 uF (as close as possible to the device pin); schematic has 1 uF",
       "ref": "U5",
@@ -192,7 +192,7 @@
       "note": "GY-68 breakout self-decouples."
     },
     {
-      "device": "OLED SSD1306",
+      "device": "SSD1306 OLED",
       "verdict": "module",
       "issue": null,
       "ref": "M5",

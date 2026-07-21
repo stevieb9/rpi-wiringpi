@@ -225,7 +225,7 @@ BYPASS = {
                    'as_drawn':'1 uF', 'drawn_uf':[1.0],
                    'note':'the one datasheet with an explicit distance (4 mm) and '
                           'a two-cap ceramic+bulk strategy; no VREF-pin cap.'},
- 'MCP4XXXX dpot': {'ref':'U5', 'board':2, 'kind':'ic',
+ 'MCP42010 dpot': {'ref':'U5', 'board':2, 'kind':'ic',
                    'required':'0.1 uF', 'required_uf':[0.1],
                    'pin':'VDD (14) -> VSS (4)',
                    'placement':'as close as possible to the device pin',
@@ -278,7 +278,7 @@ BYPASS = {
                    'required':'onboard', 'required_uf':[], 'pin':None, 'placement':None,
                    'datasheet':'Bosch BST-BMP180-DS000', 'as_drawn':'none', 'drawn_uf':[],
                    'note':'GY-68 breakout self-decouples.'},
- 'OLED SSD1306':  {'ref':'M5', 'board':4, 'kind':'module',
+ 'SSD1306 OLED':  {'ref':'M5', 'board':4, 'kind':'module',
                    'required':'onboard', 'required_uf':[], 'pin':None, 'placement':None,
                    'datasheet':'Solomon Systech SSD1306', 'as_drawn':'none', 'drawn_uf':[],
                    'note':'breakout self-decouples (incl. charge-pump caps).'},
