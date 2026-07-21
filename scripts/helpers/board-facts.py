@@ -287,6 +287,16 @@ BYPASS = {
                    'datasheet':'Hitachi HD44780U', 'as_drawn':'none', 'drawn_uf':[],
                    'note':'character-LCD module; controller + decoupling live on '
                           'the LCD PCB.'},
+ 'ULN2003':       {'ref':'M7', 'board':3, 'kind':'module',
+                   'required':'onboard', 'required_uf':[], 'pin':None, 'placement':None,
+                   'datasheet':'TI ULN2003A', 'as_drawn':'none', 'drawn_uf':[],
+                   'note':'external stepper-driver board via connector J5 - not on '
+                          'the platform PCB; self-contained.'},
+ 'Arduino':       {'ref':'A1', 'board':5, 'kind':'module',
+                   'required':'onboard', 'required_uf':[], 'pin':None, 'placement':None,
+                   'datasheet':'-', 'as_drawn':'none', 'drawn_uf':[],
+                   'note':'self-contained Arduino (Metro Mini) board with its own '
+                          'regulator + decoupling; I2C slave via the level shifter.'},
  # --- level shifter: no supply pin to bypass -----------------------------------
  'BSS138 level-shifter': {'ref':'M6', 'board':5, 'kind':'na',
                    'required':'n/a', 'required_uf':[], 'pin':None, 'placement':None,

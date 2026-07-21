@@ -26,6 +26,7 @@ my $render  = File::Spec->catfile($helpers, 'render-doc.py');
 my $locks   = File::Spec->catfile($helpers, 'check-board-locks.py');
 my $nets    = File::Spec->catfile($helpers, 'check-board-nets.py');
 my $sheets  = File::Spec->catfile($helpers, 'check-datasheets.py');
+my $bypass  = File::Spec->catfile($helpers, 'check-bypass-coverage.py');
 
 my $python = which('python3');
 
@@ -145,6 +146,19 @@ SKIP: {
     my $sheet_out = qx("$python" "$sheets" 2>&1);
     is $? >> 8, 0, 'board models match the IC datasheets (datasheet-pinouts.json)'
         or diag $sheet_out;
+}
+
+# 7. Bypass coverage: every IC/module in the board model must carry a
+#    board-facts.py BYPASS entry, so a newly-added chip cannot enter the design
+#    without a datasheet decoupling decision. Anchored on COMPONENTS and fails
+#    closed on any footprint it cannot classify.
+SKIP: {
+    skip 'check-bypass-coverage.py not present', 1
+        if ! -f $bypass;
+
+    my $bypass_out = qx("$python" "$bypass" 2>&1);
+    is $? >> 8, 0, 'every modelled IC/module has a bypass-capacitor audit entry'
+        or diag $bypass_out;
 }
 
 done_testing();

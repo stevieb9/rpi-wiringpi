@@ -136,6 +136,20 @@
       "note": "breakout has onboard decoupling; the discrete 1 uF drawn on board 2 is redundant. The board-2 schematic symbol reads ADS1115 - the fitted part is an ADS1015 (fix the symbol/value in KiCad)."
     },
     {
+      "device": "ULN2003",
+      "verdict": "module",
+      "issue": null,
+      "ref": "M7",
+      "board": 3,
+      "kind": "module",
+      "required": "onboard",
+      "pin": null,
+      "placement": null,
+      "datasheet": "TI ULN2003A",
+      "as_drawn": "none",
+      "note": "external stepper-driver board via connector J5 - not on the platform PCB; self-contained."
+    },
+    {
       "device": "AT24C32 EEPROM",
       "verdict": "module",
       "issue": null,
@@ -190,6 +204,20 @@
       "datasheet": "Solomon Systech SSD1306",
       "as_drawn": "none",
       "note": "breakout self-decouples (incl. charge-pump caps)."
+    },
+    {
+      "device": "Arduino",
+      "verdict": "module",
+      "issue": null,
+      "ref": "A1",
+      "board": 5,
+      "kind": "module",
+      "required": "onboard",
+      "pin": null,
+      "placement": null,
+      "datasheet": "-",
+      "as_drawn": "none",
+      "note": "self-contained Arduino (Metro Mini) board with its own regulator + decoupling; I2C slave via the level shifter."
     },
     {
       "device": "HD44780 logic",
