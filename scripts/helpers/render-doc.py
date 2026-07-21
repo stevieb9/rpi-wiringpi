@@ -32,6 +32,8 @@ TEMPLATE = os.path.join(ROOT, 'docs', 'test-platform', 'test-pinout-doc.tmpl.md'
 OUTPUT = os.path.join(ROOT, 'docs', 'test-platform', 'test-pinout-doc.md')
 BUSMAP = os.path.join(ROOT, 'docs', 'test-platform', 'facts', 'bus-map.json')
 ELECMAP = os.path.join(ROOT, 'docs', 'test-platform', 'facts', 'electrical.json')
+BYPASSMAP = os.path.join(ROOT, 'docs', 'test-platform', 'facts', 'bypass.json')
+CONFLICTMAP = os.path.join(ROOT, 'docs', 'test-platform', 'facts', 'conflicts.json')
 FAQ_POD = os.path.join(ROOT, 'lib', 'RPi', 'WiringPi', 'FAQ.pod')
 ADDED_HW = os.path.join(ROOT, 'docs', 'test-platform', 'added-hardware.txt')
 RPITEST = os.path.join(ROOT, 't', 'RPiTest.pm')
@@ -276,6 +278,79 @@ def gen_electrical_totals():
     return '\n'.join(lines)
 
 
+def _cap_present(need, drawn, tol=0.2):
+    """True if required cap `need` (uF) appears in the `drawn` list (uF) within
+    +/- tol fractional tolerance (cap values are well separated: 0.1/1/10)."""
+    return any(abs(d - need) <= tol * need for d in drawn)
+
+
+def build_bypass():
+    """Per-IC decoupling audit from board-facts.py BYPASS: the single source of
+    truth behind facts/bypass.json (the per-IC reference) and facts/conflicts.json
+    (datasheet vs as-drawn). The verdict is DERIVED from required_uf vs drawn_uf,
+    so editing a drawn cap in the source clears/creates a conflict with no second
+    edit. Returns {'devices': [ {device, verdict, issue, ...}, ... ]}."""
+    facts = _load('board-facts.py')
+    rows = []
+    for device, b in facts.BYPASS.items():
+        req, drawn = b.get('required_uf') or [], b.get('drawn_uf') or []
+        if b['kind'] == 'module':
+            verdict = 'module'
+        elif b['kind'] == 'na':
+            verdict = 'na'
+        elif not req:
+            verdict = 'unspecified'            # datasheet gives no guidance
+        elif all(_cap_present(r, drawn) for r in req):
+            verdict = 'match'
+        else:
+            verdict = 'conflict'
+        issue = None
+        if verdict == 'conflict':
+            issue = (f"datasheet recommends {b['required']} "
+                     f"({b['placement']}); schematic has {b['as_drawn']}")
+        rows.append({'device': device, 'verdict': verdict, 'issue': issue,
+                     **{k: v for k, v in b.items()
+                        if k not in ('required_uf', 'drawn_uf')}})
+    rank = {'conflict': 0, 'unspecified': 1, 'match': 2, 'module': 3, 'na': 4}
+    rows.sort(key=lambda r: (rank.get(r['verdict'], 9), r['board'] or 9,
+                             r['ref'] or 'zz', r['device']))
+    return {'devices': rows}
+
+
+def bypass_json():
+    """Canonical JSON for facts/bypass.json (the full per-IC bypass reference)."""
+    out = {
+        'note': ('GENERATED from board-facts.py BYPASS by '
+                 'scripts/helpers/render-doc.py. Do not edit by hand.'),
+        'scope': ('discrete per-IC decoupling on the bare soldered chips '
+                  '(boards 2-3); modules self-decouple (verdict "module"); '
+                  'electrolytic rail/bulk caps are out of scope.'),
+        'legend': {
+            'match': 'as-drawn satisfies the datasheet',
+            'conflict': 'as-drawn does not satisfy the datasheet',
+            'unspecified': 'datasheet gives no decoupling guidance',
+            'module': 'breakout self-decouples; no discrete cap required',
+            'na': 'no supply pin to decouple',
+        },
+        'devices': build_bypass()['devices'],
+    }
+    return json.dumps(out, indent=2) + '\n'
+
+
+def conflicts_json():
+    """Canonical JSON for facts/conflicts.json: only the ICs whose as-drawn
+    decoupling fails its datasheet (verdict 'conflict'), derived from BYPASS."""
+    conflicts = [r for r in build_bypass()['devices'] if r['verdict'] == 'conflict']
+    out = {
+        'note': ('GENERATED from board-facts.py BYPASS by '
+                 'scripts/helpers/render-doc.py. Do not edit by hand. Fix the '
+                 'schematic in KiCad, update BYPASS drawn_uf, and re-run to clear.'),
+        'count': len(conflicts),
+        'conflicts': conflicts,
+    }
+    return json.dumps(out, indent=2) + '\n'
+
+
 PLACEHOLDERS = {
     'default_states_pi5': gen_default_states_pi5,
     'i2c_table': gen_i2c_table,
@@ -366,7 +441,8 @@ def render():
 def main():
     # (path, desired-content) for every artifact rendered from a single source.
     artifacts = [(OUTPUT, render()), (BUSMAP, bus_map_json()),
-                 (ELECMAP, electrical_json())]
+                 (ELECMAP, electrical_json()),
+                 (BYPASSMAP, bypass_json()), (CONFLICTMAP, conflicts_json())]
     for path, begin, end, body in MARKED_FILES:
         artifacts.append((path, splice_marked(path, begin, end, body())))
 
@@ -376,8 +452,9 @@ def main():
         stale = [os.path.relpath(p, ROOT) for p, want in artifacts
                  if (open(p).read() if os.path.exists(p) else None) != want]
         if not stale:
-            print('pin doc, bus-map.json, electrical.json, FAQ + added-hardware '
-                  'lists are up to date with their sources.')
+            print('pin doc, bus-map.json, electrical.json, bypass.json, '
+                  'conflicts.json, FAQ + added-hardware lists are up to date '
+                  'with their sources.')
             return 0
         print('STALE (re-run scripts/helpers/render-doc.py): ' + ', '.join(stale))
         return 1
