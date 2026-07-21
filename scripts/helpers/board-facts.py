@@ -316,3 +316,14 @@ BYPASS = {
                    'datasheet':'TI PCF8574', 'as_drawn':'n/a (planned)', 'drawn_uf':[],
                    'note':'board 1 planned; I2C-LCD backpack self-decouples.'},
 }
+
+# Board-level RAIL decoupling ceramics that are NOT tied to a specific IC - they
+# decouple a shared rail rather than one chip's pin, so they have no BYPASS entry
+# but are still physically on the board. check-bypass-drawn.py adds these to a
+# board's expected decoupler multiset so every ceramic on the board is accounted
+# for. board -> [value_uF, ...].
+#   board 5: one 0.1 uF on +3V3 and one on +5V, decoupling the rails feeding the
+#            HD44780 LCD (module) and the BSS138 level-shifter (no supply pin).
+RAIL_DECOUPLE = {
+ 5: [0.1, 0.1],
+}
