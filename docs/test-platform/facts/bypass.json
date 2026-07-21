@@ -26,11 +26,12 @@
     {
       "device": "MCP4922 DAC",
       "verdict": "conflict",
-      "issue": "datasheet recommends 0.1 uF ceramic + 10 uF tantalum (within 4 mm of the VDD pin); schematic has 1 uF",
+      "issue": "datasheet recommends 0.1 uF ceramic + 10 uF tantalum in parallel (within 4 mm of the VDD pin); schematic has 1 uF",
       "ref": "U4",
       "board": 2,
       "kind": "ic",
       "required": "0.1 uF ceramic + 10 uF tantalum",
+      "topology": "parallel",
       "pin": "VDD (1) -> VSS (12)",
       "placement": "within 4 mm of the VDD pin",
       "datasheet": "Microchip DS22250A, sec 3.1/6.2",

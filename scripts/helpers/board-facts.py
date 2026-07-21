@@ -196,6 +196,8 @@ ELECTRICAL = {
 #   required     datasheet recommendation, human string (display)
 #   required_uf  cap value(s) in uF the datasheet MANDATES - drives the verdict;
 #                [] when the datasheet is silent / module / na
+#   topology     'parallel'/'series' for a multi-cap (>1) requirement, woven into
+#                the conflict issue so the Conflicts page states it; omit if 1 cap
 #   pin          target power pin -> ground pin (display)
 #   placement    datasheet placement wording (a distance in mm if it gives one)
 #   datasheet    datasheet doc + section actually read
@@ -219,6 +221,7 @@ BYPASS = {
                           'requirement - as-drawn matches.'},
  'MCP4922 DAC':   {'ref':'U4', 'board':2, 'kind':'ic',
                    'required':'0.1 uF ceramic + 10 uF tantalum', 'required_uf':[0.1, 10.0],
+                   'topology':'parallel',
                    'pin':'VDD (1) -> VSS (12)',
                    'placement':'within 4 mm of the VDD pin',
                    'datasheet':'Microchip DS22250A, sec 3.1/6.2',

@@ -306,7 +306,11 @@ def build_bypass():
             verdict = 'conflict'
         issue = None
         if verdict == 'conflict':
-            issue = (f"datasheet recommends {b['required']} "
+            req = b['required']
+            topo = b.get('topology')
+            if topo and len(b.get('required_uf') or []) > 1:
+                req = f"{req} in {topo}"          # multi-cap: state parallel/series
+            issue = (f"datasheet recommends {req} "
                      f"({b['placement']}); schematic has {b['as_drawn']}")
         rows.append({'device': device, 'verdict': verdict, 'issue': issue,
                      **{k: v for k, v in b.items()
