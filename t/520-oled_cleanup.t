@@ -29,7 +29,7 @@ rpi_running_test(__FILE__);
 # suite, so the board isn't left driving the display. Guarded for the install
 # lag: sleep() needs RPi::OLED::SSD1306::128_64 >= 3.1802.
 if (RPi::OLED::SSD1306::128_64->can('sleep')){
-    is RPi::OLED::SSD1306::128_64->new->sleep, 1, "panel left asleep (low power)";
+    is(RPi::OLED::SSD1306::128_64->new->sleep, 1, "panel left asleep (low power)");
 }
 
 is rpi_oled_available(), 0, "oled still unavailable for use";

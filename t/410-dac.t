@@ -125,6 +125,10 @@ my @output = (
             "DAC $n drives ~full-scale before shutdown";
 
         $dac->disable_sw($n);
+        # In shutdown the DAC's Vout presents ~500k to ground (not a hard tie
+        # like the digipot's wiper-to-B), so the output cap discharges over a
+        # few ms - settle before reading or it reads mid-collapse (~8%).
+        select(undef, undef, undef, 0.05);
         is $adc->percent($adc_in) <= 2, 1,
             "disable_sw($n) collapses the output (software shutdown)";
 
