@@ -36,8 +36,9 @@ USAGE
                                        (machine-readable; the single source the
                                        test suite and gen-kicad.py consult)
 
-  BOARD may be a directory name, a path, or just its number (e.g. "2" ->
-  rpi-wiringpi-unit-test-platform-board-2).
+  BOARD may be a directory name, a path, or any short form carrying the
+  number - "2", "b2", "board2", "board-2" - all resolving to
+  rpi-wiringpi-unit-test-platform-board-N.
 
 Pure stdlib - no KiCad, no deps - so it runs anywhere, including the Pi CI host.
 Exits 0 when every locked board matches; non-zero on any drift.
@@ -47,6 +48,7 @@ import glob
 import hashlib
 import json
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -60,12 +62,16 @@ FOOTPRINT_GLOB = os.path.join('*.pretty', '*.kicad_mod')
 
 
 def board_dir(board):
-    """Resolve a board argument (number, name, or path) to its directory."""
+    """Resolve a board argument to its directory. Accepts a path, the full
+    directory name, or any short form carrying the number - "2", "b2",
+    "board2", "board-2", "board_2" (case-insensitive) - all of which expand
+    to rpi-wiringpi-unit-test-platform-board-N."""
     if os.path.isdir(board):
         return os.path.normpath(board)
     name = board
-    if board.isdigit():
-        name = f'rpi-wiringpi-unit-test-platform-board-{board}'
+    m = re.fullmatch(r'(?:b|board)?[-_ ]?(\d+)', board.strip(), re.IGNORECASE)
+    if m:
+        name = f'rpi-wiringpi-unit-test-platform-board-{m.group(1)}'
     cand = os.path.join(KICAD_DIR, name)
     return os.path.normpath(cand) if os.path.isdir(cand) else None
 
