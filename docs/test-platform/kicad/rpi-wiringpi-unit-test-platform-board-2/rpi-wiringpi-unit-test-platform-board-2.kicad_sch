@@ -11346,7 +11346,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.50mm"
+		(property "Footprint" "Capacitor_THT:CP_Radial_Tantal_D5.0mm_P2.50mm"
 			(at 106.3752 135.89 0)
 			(hide yes)
 			(show_name no)
