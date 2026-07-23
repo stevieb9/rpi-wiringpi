@@ -278,65 +278,150 @@ def gen_electrical_totals():
     return '\n'.join(lines)
 
 
-def _cap_present(need, drawn, tol=0.2):
-    """True if required cap `need` (uF) appears in the `drawn` list (uF) within
-    +/- tol fractional tolerance (cap values are well separated: 0.1/1/10)."""
-    return any(abs(d - need) <= tol * need for d in drawn)
+def _fmt_uf(v):
+    """Human uF: 0.1 -> '0.1 uF', 10.0 -> '10 uF'."""
+    return f'{v:g} uF'
+
+
+def _fmt_pool(vals):
+    """Multiset -> '0.1 uF x3, 10 uF, 470 uF' (empty -> 'none')."""
+    if not vals:
+        return 'none'
+    return ', '.join(
+        _fmt_uf(v) + (f' x{vals.count(v)}' if vals.count(v) > 1 else '')
+        for v in sorted(set(vals)))
 
 
 def build_bypass():
-    """Per-IC decoupling audit from board-facts.py BYPASS: the single source of
-    truth behind facts/bypass.json (the per-IC reference) and facts/conflicts.json
-    (datasheet vs as-drawn). The verdict is DERIVED from required_uf vs drawn_uf,
-    so editing a drawn cap in the source clears/creates a conflict with no second
-    edit. Returns {'devices': [ {device, verdict, issue, ...}, ... ]}."""
+    """Per-IC decoupling audit: datasheet requirements (board-facts.py BYPASS -
+    the only curated side) vs the caps ACTUALLY on each board, machine-extracted
+    from its .kicad_pcb by kicad-caps.py. Coverage model: every required value
+    must be available in the board's cap pool (+/-20% - values are decades
+    apart), one physical cap satisfies one requirement, and RAIL_DECOUPLE
+    intent consumes from the same pool. Cap->IC binding is placement-only and
+    not machine-derivable (see kicad-caps.py), so the audit answers "does the
+    board carry the required caps", not "which cap serves which chip"; when a
+    shared value runs short the deficit lands on the highest ref in (ref, value)
+    order. Changing a cap in KiCad and re-rendering clears/creates conflicts
+    with no second edit anywhere. Returns {'devices': [...], 'boards': {...}}."""
     facts = _load('board-facts.py')
+    kcaps = _load('kicad-caps.py')
+
+    extracted = kcaps.board_caps()
+    bad = [(n, c['ref'], c['value'])
+           for n, caps in extracted.items() for c in caps if c['uf'] is None]
+    if bad:
+        raise SystemExit(f'render-doc: unparsable cap value(s) on boards: {bad}')
+
+    # Deterministic assignment per board: IC requirement slots in (ref, value)
+    # order (ICs sort before the 'rail' intent rows), each taking the smallest
+    # in-tolerance pool cap; what cannot be taken is that device's deficit.
+    board_nums = sorted(set(
+        list(extracted)
+        + [b['board'] for b in facts.BYPASS.values()
+           if b['kind'] == 'ic' and b.get('board')]
+        + list(facts.RAIL_DECOUPLE)))
+    filled, deficit, boards = {}, {}, {}
+    for n in board_nums:
+        reqs = []
+        for device, b in facts.BYPASS.items():
+            if b.get('board') == n and b['kind'] == 'ic':
+                reqs += [(b['ref'] or 'zz', device, v)
+                         for v in (b.get('required_uf') or [])]
+        reqs += [('rail', f'rail intent (board {n})', v)
+                 for v in facts.RAIL_DECOUPLE.get(n, [])]
+        pool = [c['uf'] for c in extracted.get(n, [])]
+        for ref, device, need in sorted(reqs):
+            got = next((p for p in sorted(pool)
+                        if abs(p - need) <= 0.2 * need), None)
+            if got is None:
+                deficit.setdefault(device, []).append(need)
+            else:
+                pool.remove(got)
+                filled.setdefault(device, []).append(got)
+        boards[n] = {
+            'caps': [{k: c[k] for k in ('ref', 'value', 'uf', 'polarized')}
+                     for c in extracted.get(n, [])],
+            'surplus_uf': sorted(pool),
+        }
+
     rows = []
     for device, b in facts.BYPASS.items():
-        req, drawn = b.get('required_uf') or [], b.get('drawn_uf') or []
+        req = b.get('required_uf') or []
         if b['kind'] == 'module':
             verdict = 'module'
         elif b['kind'] == 'na':
             verdict = 'na'
         elif not req:
             verdict = 'unspecified'            # datasheet gives no guidance
-        elif all(_cap_present(r, drawn) for r in req):
-            verdict = 'match'
-        else:
+        elif device in deficit:
             verdict = 'conflict'
+        else:
+            verdict = 'match'
+        have, miss = filled.get(device, []), sorted(deficit.get(device, []))
+        if b['kind'] != 'ic':
+            as_drawn = '-'
+        elif miss:
+            as_drawn = ('missing ' + ', '.join(_fmt_uf(v) for v in miss)
+                        + (f' (has {_fmt_pool(have)})' if have else ''))
+        else:
+            as_drawn = _fmt_pool(have) if req else '-'
         issue = None
         if verdict == 'conflict':
-            req = b['required']
+            reqh = b['required']
             topo = b.get('topology')
-            if topo and len(b.get('required_uf') or []) > 1:
-                req = f"{req} in {topo}"          # multi-cap: state parallel/series
-            issue = (f"datasheet recommends {req} "
-                     f"({b['placement']}); schematic has {b['as_drawn']}")
-        rows.append({'device': device, 'verdict': verdict, 'issue': issue,
-                     **{k: v for k, v in b.items()
-                        if k not in ('required_uf', 'drawn_uf')}})
+            if topo and len(req) > 1:
+                reqh = f"{reqh} in {topo}"        # multi-cap: state parallel/series
+            n = b['board']
+            issue = (f"datasheet recommends {reqh} ({b['placement']}); "
+                     f"board {n} caps cannot cover "
+                     f"{', '.join(_fmt_uf(v) for v in miss)} for it (board pool: "
+                     f"{_fmt_pool([c['uf'] for c in boards[n]['caps']])})")
+        rows.append({'device': device,
+                     **{k: v for k, v in b.items() if k != 'required_uf'},
+                     'verdict': verdict, 'issue': issue, 'as_drawn': as_drawn})
+
+    # Unmet RAIL_DECOUPLE intent is drift too: a declared rail cap missing from
+    # the board reports as a conflict row of kind 'rail'
+    for device, miss in deficit.items():
+        if not device.startswith('rail intent'):
+            continue
+        n = int(re.search(r'board (\d+)', device).group(1))
+        rows.append({'device': device, 'ref': None, 'board': n, 'kind': 'rail',
+                     'required': _fmt_pool(sorted(miss)), 'pin': None,
+                     'placement': None, 'datasheet': None, 'note': None,
+                     'verdict': 'conflict', 'as_drawn': 'missing',
+                     'issue': (f"RAIL_DECOUPLE declares {_fmt_pool(sorted(miss))} "
+                               f"on board {n} but the board does not carry it")})
+
     rank = {'conflict': 0, 'unspecified': 1, 'match': 2, 'module': 3, 'na': 4}
     rows.sort(key=lambda r: (rank.get(r['verdict'], 9), r['board'] or 9,
                              r['ref'] or 'zz', r['device']))
-    return {'devices': rows}
+    return {'devices': rows, 'boards': boards}
 
 
 def bypass_json():
     """Canonical JSON for facts/bypass.json (the full per-IC bypass reference)."""
+    data = build_bypass()
     out = {
-        'note': ('GENERATED from board-facts.py BYPASS by '
-                 'scripts/helpers/render-doc.py. Do not edit by hand.'),
-        'scope': ('discrete per-IC decoupling on the bare soldered chips '
-                  '(boards 2-3); modules self-decouple (verdict "module"); '
-                  'electrolytic rail/bulk caps are out of scope.'),
+        'note': ('GENERATED from board-facts.py BYPASS (datasheet requirements) '
+                 'vs the caps extracted from each board .kicad_pcb by '
+                 'scripts/helpers/kicad-caps.py, via scripts/helpers/render-doc.py. '
+                 'Do not edit by hand.'),
+        'scope': ('per-IC datasheet requirements on the bare soldered chips vs '
+                  'each board\'s machine-extracted supply-to-GND cap pool '
+                  '(polarized bulk included - a tantalum requirement is met by '
+                  'a polarized cap); binding is per-board, placement-only (see '
+                  'kicad-caps.py); modules self-decouple (verdict "module").'),
         'legend': {
-            'match': 'as-drawn satisfies the datasheet',
-            'conflict': 'as-drawn does not satisfy the datasheet',
+            'match': 'the board pool covers every required cap',
+            'conflict': 'the board pool cannot cover the datasheet requirement',
             'unspecified': 'datasheet gives no decoupling guidance',
             'module': 'breakout self-decouples; no discrete cap required',
             'na': 'no supply pin to decouple',
         },
-        'devices': build_bypass()['devices'],
+        'devices': data['devices'],
+        'boards': {str(n): v for n, v in sorted(data['boards'].items())},
     }
     return json.dumps(out, indent=2) + '\n'
 
@@ -346,9 +431,13 @@ def conflicts_json():
     decoupling fails its datasheet (verdict 'conflict'), derived from BYPASS."""
     conflicts = [r for r in build_bypass()['devices'] if r['verdict'] == 'conflict']
     out = {
-        'note': ('GENERATED from board-facts.py BYPASS by '
-                 'scripts/helpers/render-doc.py. Do not edit by hand. Fix the '
-                 'schematic in KiCad, update BYPASS drawn_uf, and re-run to clear.'),
+        'note': ('GENERATED from board-facts.py BYPASS (datasheet requirements) '
+                 'vs the caps extracted from each board .kicad_pcb by '
+                 'scripts/helpers/kicad-caps.py, via scripts/helpers/render-doc.py. '
+                 'Do not edit by hand. The as-drawn side is machine-read from '
+                 'the boards: fix the schematic/PCB in KiCad and re-run '
+                 'render-doc.py (the pre-commit hook does this on commit) to '
+                 'clear.'),
         'count': len(conflicts),
         'conflicts': conflicts,
     }

@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+#
+# pre-commit - keep the generated test-platform artifacts in lockstep with the
+# KiCad boards and the curated model, so editing a schematic/PCB is the ONLY
+# manual step: everything downstream regenerates and rides the same commit.
+#
+# When a staged change touches a board file, the model/facts sources, or a
+# generated artifact, this hook:
+#   1. re-runs scripts/helpers/render-doc.py (pin doc, facts/*.json incl. the
+#      bypass audit machine-read from the .kicad_pcb files, FAQ + added-hw
+#      lists) and stages the regenerated artifacts into this commit,
+#   2. runs the fast structural gates - bypass coverage, model drift,
+#      datasheet consistency, board locks. A failing gate blocks the commit
+#      (board locks in particular: an edit to a blessed board needs an
+#      explicit `check-board-locks.py --bless <board>` re-bless first),
+#   3. warns (non-blocking) when a board file changed but its title-block
+#      rev did not - the tracker displays that rev, so bump it in KiCad.
+#
+# Install (one-time): git config core.hooksPath scripts/hooks
+# Escape hatch: git commit --no-verify skips all of this.
+
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+[ -n "$staged" ] || exit 0
+
+trigger='^(docs/test-platform/kicad/.*\.kicad_(sch|pcb|pro)|scripts/helpers/(board-facts|board-model|kicad-caps|render-doc)\.py|t/RPiTest\.pm|docs/test-platform/(test-pinout-doc\.md|added-hardware\.txt|facts/.*\.json)|lib/RPi/WiringPi/FAQ\.pod)$'
+echo "$staged" | grep -qE "$trigger" || exit 0
+
+if ! command -v python3 >/dev/null; then
+    echo "pre-commit: python3 not found - cannot regenerate artifacts" >&2
+    exit 1
+fi
+
+echo "pre-commit: regenerating test-platform artifacts..."
+python3 scripts/helpers/render-doc.py
+git add docs/test-platform/test-pinout-doc.md \
+        docs/test-platform/facts/*.json \
+        docs/test-platform/added-hardware.txt \
+        lib/RPi/WiringPi/FAQ.pod
+
+for gate in check-bypass-coverage check-model-drift check-datasheets check-board-locks; do
+    if ! python3 "scripts/helpers/$gate.py"; then
+        echo "pre-commit: $gate failed - commit blocked (fix, or --no-verify)" >&2
+        exit 1
+    fi
+done
+
+# Rev-bump reminder: a changed board file whose title-block rev is unchanged.
+# Non-blocking - the rev is a design decision - but the tracker shows it, so
+# forgetting it means the change is invisible on /pcbs.
+warn=''
+while IFS= read -r f; do
+    [ -n "$f" ] || continue
+    old=$(git show "HEAD:$f" 2>/dev/null | grep -m1 -o '(rev "[^"]*")' || true)
+    [ -n "$old" ] || continue
+    new=$(git show ":$f" | grep -m1 -o '(rev "[^"]*")' || true)
+    [ "$old" = "$new" ] && warn="$warn
+  $f  (still $old)"
+done <<< "$(echo "$staged" | grep -E '\.kicad_(sch|pcb)$' || true)"
+
+if [ -n "$warn" ]; then
+    echo "pre-commit: WARNING - board content changed but the title-block rev did not:$warn"
+    echo "pre-commit: bump it in KiCad (File > Page Settings) when the change warrants a new rev."
+fi
+
+exit 0

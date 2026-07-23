@@ -27,7 +27,6 @@ my $locks   = File::Spec->catfile($helpers, 'check-board-locks.py');
 my $nets    = File::Spec->catfile($helpers, 'check-board-nets.py');
 my $sheets  = File::Spec->catfile($helpers, 'check-datasheets.py');
 my $bypass  = File::Spec->catfile($helpers, 'check-bypass-coverage.py');
-my $drawn   = File::Spec->catfile($helpers, 'check-bypass-drawn.py');
 
 my $python = which('python3');
 
@@ -162,17 +161,10 @@ SKIP: {
         or diag $bypass_out;
 }
 
-# 8. Bypass drawn-values: each board's real decoupling caps (read from its
-#    .kicad_pcb, pure-stdlib) must match the audit's as-drawn values, so a cap
-#    changed in KiCad but not reflected in the audit (or vice-versa) fails here.
-SKIP: {
-    skip 'check-bypass-drawn.py not present', 1
-        if ! -f $drawn;
-
-    my $drawn_out = qx("$python" "$drawn" 2>&1);
-    is $? >> 8, 0, 'board decoupling caps match the bypass audit (drawn values)'
-        or diag $drawn_out;
-}
+# (The old section 8, check-bypass-drawn.py, is retired: the as-drawn side is
+# no longer curated - render-doc.py extracts each board's real caps from its
+# .kicad_pcb via kicad-caps.py, so audit-vs-board drift is impossible by
+# construction. Section 3's render-doc --check still gates stale artifacts.)
 
 done_testing();
 

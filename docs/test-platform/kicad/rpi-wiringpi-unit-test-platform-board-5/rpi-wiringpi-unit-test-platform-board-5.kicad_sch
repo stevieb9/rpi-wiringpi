@@ -4,6 +4,10 @@
 	(generator_version "10.0")
 	(uuid "e004c7c1-bd45-5273-8695-af3f087c91dc")
 	(paper "USLetter" portrait)
+	(title_block
+		(date "2026-07-23")
+		(rev "2")
+	)
 	(lib_symbols
 		(symbol "Connector:Conn_01x04_Pin"
 			(pin_names

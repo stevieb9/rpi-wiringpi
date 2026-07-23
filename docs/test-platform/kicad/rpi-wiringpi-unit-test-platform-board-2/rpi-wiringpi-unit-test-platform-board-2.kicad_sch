@@ -6,7 +6,7 @@
 	(paper "User" 240.0000026 372.2399972)
 	(title_block
 		(date "2026-07-22")
-		(rev "4")
+		(rev "5")
 	)
 	(lib_symbols
 		(symbol "74xx:74HC595"
@@ -8690,6 +8690,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "connector/JST"
+			(at 198.12 128.27 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "6"
 			(uuid "6a02562c-ccce-4511-8259-00f55dcca243")
 		)
@@ -8940,6 +8951,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "capacitor/THT/other"
+			(at 217.17 45.72 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "19cbb20a-ab6a-4c71-b9a6-7ced7602172d")
 		)
@@ -9022,6 +9044,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "capacitor/THT/other"
+			(at 30.48 142.24 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "d1d11cf8-3f2b-4a4c-887b-7dd270afe8f8")
 		)
@@ -9092,6 +9125,17 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x06, script generated"
+			(at 198.12 96.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "KiLib_Generator" "connector/JST"
 			(at 198.12 96.52 0)
 			(hide yes)
 			(show_name no)
@@ -9274,6 +9318,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "resistor/THT"
+			(at 168.91 46.99 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "8a186625-b391-46e6-bd51-208959054b89")
 		)
@@ -9346,6 +9401,17 @@
 			)
 		)
 		(property "Description" "2-Channel 12-Bit D/A Converters with SPI Interface"
+			(at 134.62 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "KiLib_Generator" "package/DIP/legacy"
 			(at 134.62 149.86 0)
 			(hide yes)
 			(show_name no)
@@ -9474,6 +9540,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "package/DIP/legacy"
+			(at 134.62 95.25 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "45dd1d96-8a7a-497e-8216-fd33413251cc")
 		)
@@ -9588,6 +9665,17 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 111.76 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "KiLib_Generator" "capacitor/THT/other"
 			(at 111.76 132.08 0)
 			(hide yes)
 			(show_name no)
@@ -9755,6 +9843,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "connector/JST"
+			(at 96.52 110.49 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "3e09baf1-bc26-4898-a4ef-444afade63f6")
 		)
@@ -9828,6 +9927,17 @@
 			)
 		)
 		(property "Description" "1x DIP Switch, Single Pole Single Throw (SPST) switch, small symbol"
+			(at 199.39 34.29 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "KiLib_Generator" "button_switch/DIP"
 			(at 199.39 34.29 0)
 			(hide yes)
 			(show_name no)
@@ -9919,6 +10029,17 @@
 			)
 		)
 		(property "Sim.Pins" "1=K 2=A"
+			(at 171.45 34.29 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "KiLib_Generator" "LED/THT"
 			(at 171.45 34.29 0)
 			(hide yes)
 			(show_name no)
@@ -10034,7 +10155,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "6d1469b9-5d78-4e58-a55e-7afecb1e3e6f")
-		(property "Reference" "C1"
+		(property "Reference" "C5"
 			(at 165.1 73.6599 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10045,7 +10166,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "0.1µf"
+		(property "Value" "1µf"
 			(at 165.1 76.1999 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10089,6 +10210,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "capacitor/THT/other"
+			(at 161.29 74.93 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "58b3b99a-6d49-412f-805a-6b6dd20b66bd")
 		)
@@ -10098,7 +10230,7 @@
 		(instances
 			(project "rpi-wiringpi-unit-test-platform-board-2"
 				(path "/7946ceed-5e50-51f0-9396-19e4533fa9f5"
-					(reference "C1")
+					(reference "C5")
 					(unit 1)
 				)
 			)
@@ -10194,7 +10326,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "7066a94f-7c79-4696-bb2a-4ee6931932de")
-		(property "Reference" "C5"
+		(property "Reference" "C1"
 			(at 66.04 191.7699 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10249,6 +10381,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "capacitor/THT/other"
+			(at 62.23 193.04 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "15bd237e-590c-425c-a564-5fd03dd8e6c4")
 		)
@@ -10258,7 +10401,7 @@
 		(instances
 			(project "rpi-wiringpi-unit-test-platform-board-2"
 				(path "/7946ceed-5e50-51f0-9396-19e4533fa9f5"
-					(reference "C5")
+					(reference "C1")
 					(unit 1)
 				)
 			)
@@ -10475,6 +10618,17 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x04, script generated"
+			(at 201.93 64.77 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "KiLib_Generator" "connector/JST"
 			(at 201.93 64.77 0)
 			(hide yes)
 			(show_name no)
@@ -10728,6 +10882,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "capacitor/THT/other"
+			(at 220.98 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "59671014-fd3c-41c3-a8f6-2d0072136f55")
 		)
@@ -10878,6 +11043,17 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 22.86 91.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "KiLib_Generator" "capacitor/THT/other"
 			(at 22.86 91.44 0)
 			(hide yes)
 			(show_name no)
@@ -11203,6 +11379,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "capacitor/THT/other"
+			(at 105.41 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "c0743865-60b7-4cfa-8f3b-33c50b224222")
 		)
@@ -11351,6 +11538,17 @@
 			)
 		)
 		(property "Description" "8-bit serial in/out Shift Register 3-State Outputs"
+			(at 96.52 195.58 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "KiLib_Generator" "package/DIP/legacy"
 			(at 96.52 195.58 0)
 			(hide yes)
 			(show_name no)
@@ -11562,6 +11760,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "capacitor/THT/other"
+			(at 212.09 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "7a8c23fb-1501-44d9-964e-15e82dc667f6")
 		)
@@ -11633,6 +11842,17 @@
 			)
 		)
 		(property "Description" "Dual Digital Potentiometer, SPI interface, 256 taps, 10 kohm"
+			(at 58.42 95.25 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "KiLib_Generator" "package/DIP/legacy"
 			(at 58.42 95.25 0)
 			(hide yes)
 			(show_name no)
@@ -11854,6 +12074,17 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x03, script generated"
+			(at 201.93 157.48 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "KiLib_Generator" "connector/JST"
 			(at 201.93 157.48 0)
 			(hide yes)
 			(show_name no)

@@ -1,18 +1,44 @@
 {
-  "note": "GENERATED from board-facts.py BYPASS by scripts/helpers/render-doc.py. Do not edit by hand.",
-  "scope": "discrete per-IC decoupling on the bare soldered chips (boards 2-3); modules self-decouple (verdict \"module\"); electrolytic rail/bulk caps are out of scope.",
+  "note": "GENERATED from board-facts.py BYPASS (datasheet requirements) vs the caps extracted from each board .kicad_pcb by scripts/helpers/kicad-caps.py, via scripts/helpers/render-doc.py. Do not edit by hand.",
+  "scope": "per-IC datasheet requirements on the bare soldered chips vs each board's machine-extracted supply-to-GND cap pool (polarized bulk included - a tantalum requirement is met by a polarized cap); binding is per-board, placement-only (see kicad-caps.py); modules self-decouple (verdict \"module\").",
   "legend": {
-    "match": "as-drawn satisfies the datasheet",
-    "conflict": "as-drawn does not satisfy the datasheet",
+    "match": "the board pool covers every required cap",
+    "conflict": "the board pool cannot cover the datasheet requirement",
     "unspecified": "datasheet gives no decoupling guidance",
     "module": "breakout self-decouples; no discrete cap required",
     "na": "no supply pin to decouple"
   },
   "devices": [
     {
+      "device": "MCP23017 #1",
+      "ref": "U1",
+      "board": 3,
+      "kind": "ic",
+      "required": "not specified",
+      "pin": "VDD (9) -> VSS (10)",
+      "placement": "not specified",
+      "datasheet": "Microchip DS20001952D (no decoupling guidance)",
+      "note": "datasheet has no application/layout section; 0.1 uF is general good practice, not datasheet-mandated.",
+      "verdict": "unspecified",
+      "issue": null,
+      "as_drawn": "-"
+    },
+    {
+      "device": "MCP23017 #2",
+      "ref": "U6",
+      "board": 3,
+      "kind": "ic",
+      "required": "not specified",
+      "pin": "VDD (9) -> VSS (10)",
+      "placement": "not specified",
+      "datasheet": "Microchip DS20001952D (no decoupling guidance)",
+      "note": "see MCP23017 #1.",
+      "verdict": "unspecified",
+      "issue": null,
+      "as_drawn": "-"
+    },
+    {
       "device": "74HC595",
-      "verdict": "conflict",
-      "issue": "datasheet recommends 0.1 uF (as close as possible to the power pin); schematic has 1 uF",
       "ref": "U2",
       "board": 2,
       "kind": "ic",
@@ -20,13 +46,27 @@
       "pin": "VCC (16) -> GND (8)",
       "placement": "as close as possible to the power pin",
       "datasheet": "TI SCLS041J, sec 10",
-      "as_drawn": "1 uF",
-      "note": "single-VCC part -> 0.1 uF; datasheet notes 0.1 uF + 1 uF in parallel as common (optional) practice."
+      "note": "single-VCC part -> 0.1 uF; datasheet notes 0.1 uF + 1 uF in parallel as common (optional) practice.",
+      "verdict": "match",
+      "issue": null,
+      "as_drawn": "0.1 uF"
+    },
+    {
+      "device": "MCP3008 ADC",
+      "ref": "U3",
+      "board": 2,
+      "kind": "ic",
+      "required": "1 uF",
+      "pin": "VDD (16) -> GND (9/14)",
+      "placement": "as close as possible to the VDD pin",
+      "datasheet": "Microchip DS20001295E, sec 6.4",
+      "note": "sec 6.4 prose recommends 1 uF; figures 6-3/6-5 also show 0.1 uF and 10 uF, but only 1 uF is a stated requirement.",
+      "verdict": "match",
+      "issue": null,
+      "as_drawn": "1 uF"
     },
     {
       "device": "MCP4922 DAC",
-      "verdict": "conflict",
-      "issue": "datasheet recommends 0.1 uF ceramic + 10 uF tantalum in parallel (within 4 mm of the VDD pin); schematic has 1 uF",
       "ref": "U4",
       "board": 2,
       "kind": "ic",
@@ -35,13 +75,13 @@
       "pin": "VDD (1) -> VSS (12)",
       "placement": "within 4 mm of the VDD pin",
       "datasheet": "Microchip DS22250A, sec 3.1/6.2",
-      "as_drawn": "1 uF",
-      "note": "the one datasheet with an explicit distance (4 mm) and a two-cap ceramic+bulk strategy; no VREF-pin cap."
+      "note": "the one datasheet with an explicit distance (4 mm) and a two-cap ceramic+bulk strategy; no VREF-pin cap.",
+      "verdict": "match",
+      "issue": null,
+      "as_drawn": "0.1 uF, 10 uF"
     },
     {
       "device": "MCP42010 dpot",
-      "verdict": "conflict",
-      "issue": "datasheet recommends 0.1 uF (as close as possible to the device pin); schematic has 1 uF",
       "ref": "U5",
       "board": 2,
       "kind": "ic",
@@ -49,55 +89,13 @@
       "pin": "VDD (14) -> VSS (4)",
       "placement": "as close as possible to the device pin",
       "datasheet": "Microchip DS11195C, sec 4.0 (p.13)",
-      "as_drawn": "1 uF",
-      "note": "MCP42010; no bulk cap recommended."
-    },
-    {
-      "device": "MCP23017 #1",
-      "verdict": "unspecified",
-      "issue": null,
-      "ref": "U1",
-      "board": 3,
-      "kind": "ic",
-      "required": "not specified",
-      "pin": "VDD (9) -> VSS (10)",
-      "placement": "not specified",
-      "datasheet": "Microchip DS20001952D (no decoupling guidance)",
-      "as_drawn": "0.1 uF",
-      "note": "datasheet has no application/layout section; 0.1 uF is general good practice, not datasheet-mandated."
-    },
-    {
-      "device": "MCP23017 #2",
-      "verdict": "unspecified",
-      "issue": null,
-      "ref": "U6",
-      "board": 3,
-      "kind": "ic",
-      "required": "not specified",
-      "pin": "VDD (9) -> VSS (10)",
-      "placement": "not specified",
-      "datasheet": "Microchip DS20001952D (no decoupling guidance)",
-      "as_drawn": "0.1 uF",
-      "note": "see MCP23017 #1."
-    },
-    {
-      "device": "MCP3008 ADC",
+      "note": "MCP42010; no bulk cap recommended.",
       "verdict": "match",
       "issue": null,
-      "ref": "U3",
-      "board": 2,
-      "kind": "ic",
-      "required": "1 uF",
-      "pin": "VDD (16) -> GND (9/14)",
-      "placement": "as close as possible to the VDD pin",
-      "datasheet": "Microchip DS20001295E, sec 6.4",
-      "as_drawn": "1 uF",
-      "note": "sec 6.4 prose recommends 1 uF; figures 6-3/6-5 also show 0.1 uF and 10 uF, but only 1 uF is a stated requirement - as-drawn matches."
+      "as_drawn": "0.1 uF"
     },
     {
       "device": "PCA9685",
-      "verdict": "module",
-      "issue": null,
       "ref": null,
       "board": 1,
       "kind": "module",
@@ -105,13 +103,13 @@
       "pin": null,
       "placement": null,
       "datasheet": "NXP PCA9685",
-      "as_drawn": "n/a (planned)",
-      "note": "board 1 planned; breakout self-decouples."
+      "note": "board 1 planned; breakout self-decouples.",
+      "verdict": "module",
+      "issue": null,
+      "as_drawn": "-"
     },
     {
       "device": "PCF8574 LCD",
-      "verdict": "module",
-      "issue": null,
       "ref": null,
       "board": 1,
       "kind": "module",
@@ -119,13 +117,13 @@
       "pin": null,
       "placement": null,
       "datasheet": "TI PCF8574",
-      "as_drawn": "n/a (planned)",
-      "note": "board 1 planned; I2C-LCD backpack self-decouples."
+      "note": "board 1 planned; I2C-LCD backpack self-decouples.",
+      "verdict": "module",
+      "issue": null,
+      "as_drawn": "-"
     },
     {
       "device": "ADS1015 #1",
-      "verdict": "module",
-      "issue": null,
       "ref": "M1",
       "board": 2,
       "kind": "module",
@@ -133,13 +131,13 @@
       "pin": null,
       "placement": null,
       "datasheet": "TI ADS1015 (SBAS473)",
-      "as_drawn": "1 uF",
-      "note": "breakout has onboard decoupling; the discrete 1 uF drawn on board 2 is redundant. The board-2 schematic symbol reads ADS1115 - the fitted part is an ADS1015 (fix the symbol/value in KiCad)."
+      "note": "breakout has onboard decoupling. The board-2 schematic symbol reads ADS1115 - the fitted part is an ADS1015 (fix the symbol/value in KiCad).",
+      "verdict": "module",
+      "issue": null,
+      "as_drawn": "-"
     },
     {
       "device": "ULN2003",
-      "verdict": "module",
-      "issue": null,
       "ref": "M7",
       "board": 3,
       "kind": "module",
@@ -147,13 +145,13 @@
       "pin": null,
       "placement": null,
       "datasheet": "TI ULN2003A",
-      "as_drawn": "none",
-      "note": "external stepper-driver board via connector J5 - not on the platform PCB; self-contained."
+      "note": "external stepper-driver board via connector J5 - not on the platform PCB; self-contained.",
+      "verdict": "module",
+      "issue": null,
+      "as_drawn": "-"
     },
     {
       "device": "AT24C32 EEPROM",
-      "verdict": "module",
-      "issue": null,
       "ref": "M3",
       "board": 4,
       "kind": "module",
@@ -161,13 +159,13 @@
       "pin": null,
       "placement": null,
       "datasheet": "Microchip AT24C32D",
-      "as_drawn": "none",
-      "note": "same ZS042 breakout as the DS3231."
+      "note": "same ZS042 breakout as the DS3231.",
+      "verdict": "module",
+      "issue": null,
+      "as_drawn": "-"
     },
     {
       "device": "DS3231 RTC",
-      "verdict": "module",
-      "issue": null,
       "ref": "M3",
       "board": 4,
       "kind": "module",
@@ -175,13 +173,13 @@
       "pin": null,
       "placement": null,
       "datasheet": "Maxim DS3231",
-      "as_drawn": "none",
-      "note": "ZS042 breakout self-decouples."
+      "note": "ZS042 breakout self-decouples.",
+      "verdict": "module",
+      "issue": null,
+      "as_drawn": "-"
     },
     {
       "device": "BMP180",
-      "verdict": "module",
-      "issue": null,
       "ref": "M4",
       "board": 4,
       "kind": "module",
@@ -189,13 +187,13 @@
       "pin": null,
       "placement": null,
       "datasheet": "Bosch BST-BMP180-DS000",
-      "as_drawn": "none",
-      "note": "GY-68 breakout self-decouples."
+      "note": "GY-68 breakout self-decouples.",
+      "verdict": "module",
+      "issue": null,
+      "as_drawn": "-"
     },
     {
       "device": "SSD1306 OLED",
-      "verdict": "module",
-      "issue": null,
       "ref": "M5",
       "board": 4,
       "kind": "module",
@@ -203,13 +201,13 @@
       "pin": null,
       "placement": null,
       "datasheet": "Solomon Systech SSD1306",
-      "as_drawn": "none",
-      "note": "breakout self-decouples (incl. charge-pump caps)."
+      "note": "breakout self-decouples (incl. charge-pump caps).",
+      "verdict": "module",
+      "issue": null,
+      "as_drawn": "-"
     },
     {
       "device": "Arduino",
-      "verdict": "module",
-      "issue": null,
       "ref": "A1",
       "board": 5,
       "kind": "module",
@@ -217,13 +215,13 @@
       "pin": null,
       "placement": null,
       "datasheet": "-",
-      "as_drawn": "none",
-      "note": "self-contained Arduino (Metro Mini) board with its own regulator + decoupling; I2C slave via the level shifter."
+      "note": "self-contained Arduino (Metro Mini) board with its own regulator + decoupling; I2C slave via the level shifter.",
+      "verdict": "module",
+      "issue": null,
+      "as_drawn": "-"
     },
     {
       "device": "HD44780 logic",
-      "verdict": "module",
-      "issue": null,
       "ref": "M8",
       "board": 5,
       "kind": "module",
@@ -231,13 +229,13 @@
       "pin": null,
       "placement": null,
       "datasheet": "Hitachi HD44780U",
-      "as_drawn": "none",
-      "note": "character-LCD module; controller + decoupling live on the LCD PCB."
+      "note": "character-LCD module; controller + decoupling live on the LCD PCB.",
+      "verdict": "module",
+      "issue": null,
+      "as_drawn": "-"
     },
     {
       "device": "BSS138 level-shifter",
-      "verdict": "na",
-      "issue": null,
       "ref": "M6",
       "board": 5,
       "kind": "na",
@@ -245,8 +243,148 @@
       "pin": null,
       "placement": null,
       "datasheet": "-",
-      "as_drawn": "none",
-      "note": "MOSFET + pull-up shifter referenced to the LV/HV rails; no VDD supply pin to decouple."
+      "note": "MOSFET + pull-up shifter referenced to the LV/HV rails; no VDD supply pin to decouple.",
+      "verdict": "na",
+      "issue": null,
+      "as_drawn": "-"
     }
-  ]
+  ],
+  "boards": {
+    "2": {
+      "caps": [
+        {
+          "ref": "C1",
+          "value": "0.1\u00b5F",
+          "uf": 0.1,
+          "polarized": false
+        },
+        {
+          "ref": "C2",
+          "value": "0.1\u00b5F",
+          "uf": 0.1,
+          "polarized": false
+        },
+        {
+          "ref": "C3",
+          "value": "0.1\u00b5F",
+          "uf": 0.1,
+          "polarized": false
+        },
+        {
+          "ref": "C4",
+          "value": "0.1\u00b5F",
+          "uf": 0.1,
+          "polarized": false
+        },
+        {
+          "ref": "C5",
+          "value": "1\u00b5f",
+          "uf": 1.0,
+          "polarized": false
+        },
+        {
+          "ref": "C6",
+          "value": "10\u00b5F",
+          "uf": 10.0,
+          "polarized": true
+        },
+        {
+          "ref": "C7",
+          "value": "470\u00b5F",
+          "uf": 470.0,
+          "polarized": true
+        },
+        {
+          "ref": "C8",
+          "value": "10\u00b5f",
+          "uf": 10.0,
+          "polarized": true
+        },
+        {
+          "ref": "C9",
+          "value": "0.1\u00b5f",
+          "uf": 0.1,
+          "polarized": false
+        }
+      ],
+      "surplus_uf": [
+        0.1,
+        0.1,
+        10.0,
+        470.0
+      ]
+    },
+    "3": {
+      "caps": [
+        {
+          "ref": "C1",
+          "value": "0.1 \u00b5F",
+          "uf": 0.1,
+          "polarized": false
+        },
+        {
+          "ref": "C2",
+          "value": "0.1 \u00b5F",
+          "uf": 0.1,
+          "polarized": false
+        },
+        {
+          "ref": "C3",
+          "value": "10 \u00b5F",
+          "uf": 10.0,
+          "polarized": true
+        }
+      ],
+      "surplus_uf": [
+        0.1,
+        0.1,
+        10.0
+      ]
+    },
+    "4": {
+      "caps": [
+        {
+          "ref": "C1",
+          "value": "10\u00b5f",
+          "uf": 10.0,
+          "polarized": true
+        }
+      ],
+      "surplus_uf": [
+        10.0
+      ]
+    },
+    "5": {
+      "caps": [
+        {
+          "ref": "C1",
+          "value": "0.1 \u00b5F",
+          "uf": 0.1,
+          "polarized": false
+        },
+        {
+          "ref": "C2",
+          "value": "0.1 \u00b5F",
+          "uf": 0.1,
+          "polarized": false
+        },
+        {
+          "ref": "C3",
+          "value": "10 \u00b5F",
+          "uf": 10.0,
+          "polarized": true
+        },
+        {
+          "ref": "C4",
+          "value": "10 \u00b5F",
+          "uf": 10.0,
+          "polarized": true
+        }
+      ],
+      "surplus_uf": [
+        10.0,
+        10.0
+      ]
+    }
+  }
 }

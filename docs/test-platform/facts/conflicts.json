@@ -1,49 +1,5 @@
 {
-  "note": "GENERATED from board-facts.py BYPASS by scripts/helpers/render-doc.py. Do not edit by hand. Fix the schematic in KiCad, update BYPASS drawn_uf, and re-run to clear.",
-  "count": 3,
-  "conflicts": [
-    {
-      "device": "74HC595",
-      "verdict": "conflict",
-      "issue": "datasheet recommends 0.1 uF (as close as possible to the power pin); schematic has 1 uF",
-      "ref": "U2",
-      "board": 2,
-      "kind": "ic",
-      "required": "0.1 uF",
-      "pin": "VCC (16) -> GND (8)",
-      "placement": "as close as possible to the power pin",
-      "datasheet": "TI SCLS041J, sec 10",
-      "as_drawn": "1 uF",
-      "note": "single-VCC part -> 0.1 uF; datasheet notes 0.1 uF + 1 uF in parallel as common (optional) practice."
-    },
-    {
-      "device": "MCP4922 DAC",
-      "verdict": "conflict",
-      "issue": "datasheet recommends 0.1 uF ceramic + 10 uF tantalum in parallel (within 4 mm of the VDD pin); schematic has 1 uF",
-      "ref": "U4",
-      "board": 2,
-      "kind": "ic",
-      "required": "0.1 uF ceramic + 10 uF tantalum",
-      "topology": "parallel",
-      "pin": "VDD (1) -> VSS (12)",
-      "placement": "within 4 mm of the VDD pin",
-      "datasheet": "Microchip DS22250A, sec 3.1/6.2",
-      "as_drawn": "1 uF",
-      "note": "the one datasheet with an explicit distance (4 mm) and a two-cap ceramic+bulk strategy; no VREF-pin cap."
-    },
-    {
-      "device": "MCP42010 dpot",
-      "verdict": "conflict",
-      "issue": "datasheet recommends 0.1 uF (as close as possible to the device pin); schematic has 1 uF",
-      "ref": "U5",
-      "board": 2,
-      "kind": "ic",
-      "required": "0.1 uF",
-      "pin": "VDD (14) -> VSS (4)",
-      "placement": "as close as possible to the device pin",
-      "datasheet": "Microchip DS11195C, sec 4.0 (p.13)",
-      "as_drawn": "1 uF",
-      "note": "MCP42010; no bulk cap recommended."
-    }
-  ]
+  "note": "GENERATED from board-facts.py BYPASS (datasheet requirements) vs the caps extracted from each board .kicad_pcb by scripts/helpers/kicad-caps.py, via scripts/helpers/render-doc.py. Do not edit by hand. The as-drawn side is machine-read from the boards: fix the schematic/PCB in KiCad and re-run render-doc.py (the pre-commit hook does this on commit) to clear.",
+  "count": 0,
+  "conflicts": []
 }
