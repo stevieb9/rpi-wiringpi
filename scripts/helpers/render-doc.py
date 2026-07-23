@@ -377,8 +377,12 @@ def build_bypass():
                      f"board {n} caps cannot cover "
                      f"{', '.join(_fmt_uf(v) for v in miss)} for it (board pool: "
                      f"{_fmt_pool([c['uf'] for c in boards[n]['caps']])})")
+        # Display the fab silkscreen ref (pcb_ref) where the part is placed on
+        # a board; the platform-unique model ref rides along as model_ref
         rows.append({'device': device,
                      **{k: v for k, v in b.items() if k != 'required_uf'},
+                     'model_ref': b['ref'],
+                     'ref': b.get('pcb_ref') or b['ref'],
                      'verdict': verdict, 'issue': issue, 'as_drawn': as_drawn})
 
     # Unmet RAIL_DECOUPLE intent is drift too: a declared rail cap missing from

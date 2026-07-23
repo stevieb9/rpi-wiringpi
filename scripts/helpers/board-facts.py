@@ -191,6 +191,11 @@ ELECTRICAL = {
 # key -> dict, keyed by device (aligned with ELECTRICAL / *_DEVICES keys so a
 # consumer can join the two):
 #   ref          schematic model ref (matches POWER / ELECTRICAL 'ref')
+#   pcb_ref      the refdes printed on the fabbed board's silkscreen (per-
+#                board namespace - the model 'ref' must stay platform-unique,
+#                so the two can differ); None = not a placed footprint on any
+#                PCB (external via connector, or planned). The coverage gate
+#                cross-checks every pcb_ref against the .kicad_pcb, both ways.
 #   board        fabbed board number (2-5), or 1 for planned
 #   kind         'ic' (bare chip, audited) | 'module' (self-decoupled) | 'na'
 #   required     datasheet recommendation, human string (display)
@@ -211,7 +216,7 @@ ELECTRICAL = {
 # no edit here at all.
 BYPASS = {
  # --- board 2 bare chips: all drawn 1 uF, but only the ADC actually wants 1 uF -
- 'MCP3008 ADC':   {'ref':'U3', 'board':2, 'kind':'ic',
+ 'MCP3008 ADC':   {'ref':'U3', 'pcb_ref':'U1', 'board':2, 'kind':'ic',
                    'required':'1 uF', 'required_uf':[1.0],
                    'pin':'VDD (16) -> GND (9/14)',
                    'placement':'as close as possible to the VDD pin',
@@ -219,7 +224,7 @@ BYPASS = {
                    'note':'sec 6.4 prose recommends 1 uF; figures 6-3/6-5 also '
                           'show 0.1 uF and 10 uF, but only 1 uF is a stated '
                           'requirement.'},
- 'MCP4922 DAC':   {'ref':'U4', 'board':2, 'kind':'ic',
+ 'MCP4922 DAC':   {'ref':'U4', 'pcb_ref':'U2', 'board':2, 'kind':'ic',
                    'required':'0.1 uF ceramic + 10 uF tantalum', 'required_uf':[0.1, 10.0],
                    'topology':'parallel',
                    'pin':'VDD (1) -> VSS (12)',
@@ -227,13 +232,13 @@ BYPASS = {
                    'datasheet':'Microchip DS22250A, sec 3.1/6.2',
                    'note':'the one datasheet with an explicit distance (4 mm) and '
                           'a two-cap ceramic+bulk strategy; no VREF-pin cap.'},
- 'MCP42010 dpot': {'ref':'U5', 'board':2, 'kind':'ic',
+ 'MCP42010 dpot': {'ref':'U5', 'pcb_ref':'U3', 'board':2, 'kind':'ic',
                    'required':'0.1 uF', 'required_uf':[0.1],
                    'pin':'VDD (14) -> VSS (4)',
                    'placement':'as close as possible to the device pin',
                    'datasheet':'Microchip DS11195C, sec 4.0 (p.13)',
                    'note':'MCP42010; no bulk cap recommended.'},
- '74HC595':       {'ref':'U2', 'board':2, 'kind':'ic',
+ '74HC595':       {'ref':'U2', 'pcb_ref':'U5', 'board':2, 'kind':'ic',
                    'required':'0.1 uF', 'required_uf':[0.1],
                    'pin':'VCC (16) -> GND (8)',
                    'placement':'as close as possible to the power pin',
@@ -241,70 +246,70 @@ BYPASS = {
                    'note':'single-VCC part -> 0.1 uF; datasheet notes 0.1 uF + '
                           '1 uF in parallel as common (optional) practice.'},
  # --- board 3 bare chips: datasheet is silent, so 0.1 uF is practice not spec --
- 'MCP23017 #1':   {'ref':'U1', 'board':3, 'kind':'ic',
+ 'MCP23017 #1':   {'ref':'U1', 'pcb_ref':'U1', 'board':3, 'kind':'ic',
                    'required':'not specified', 'required_uf':[],
                    'pin':'VDD (9) -> VSS (10)',
                    'placement':'not specified',
                    'datasheet':'Microchip DS20001952D (no decoupling guidance)',
                    'note':'datasheet has no application/layout section; 0.1 uF is '
                           'general good practice, not datasheet-mandated.'},
- 'MCP23017 #2':   {'ref':'U6', 'board':3, 'kind':'ic',
+ 'MCP23017 #2':   {'ref':'U6', 'pcb_ref':'U2', 'board':3, 'kind':'ic',
                    'required':'not specified', 'required_uf':[],
                    'pin':'VDD (9) -> VSS (10)',
                    'placement':'not specified',
                    'datasheet':'Microchip DS20001952D (no decoupling guidance)',
                    'note':'see MCP23017 #1.'},
  # --- modules: breakout self-decouples, no discrete bypass required ------------
- 'ADS1015 #1':    {'ref':'M1', 'board':2, 'kind':'module',
+ 'ADS1015 #1':    {'ref':'M1', 'pcb_ref':'U4', 'board':2, 'kind':'module',
                    'required':'onboard', 'required_uf':[],
                    'pin':None, 'placement':None,
                    'datasheet':'TI ADS1015 (SBAS473)',
                    'note':'breakout has onboard decoupling. The board-2 schematic '
                           'symbol reads ADS1115 - the fitted part is an ADS1015 '
                           '(fix the symbol/value in KiCad).'},
- 'DS3231 RTC':    {'ref':'M3', 'board':4, 'kind':'module',
+ 'DS3231 RTC':    {'ref':'M3', 'pcb_ref':'M1', 'board':4, 'kind':'module',
                    'required':'onboard', 'required_uf':[], 'pin':None, 'placement':None,
                    'datasheet':'Maxim DS3231',
                    'note':'ZS042 breakout self-decouples.'},
- 'AT24C32 EEPROM':{'ref':'M3', 'board':4, 'kind':'module',
+ 'AT24C32 EEPROM':{'ref':'M3', 'pcb_ref':'M1', 'board':4, 'kind':'module',
                    'required':'onboard', 'required_uf':[], 'pin':None, 'placement':None,
                    'datasheet':'Microchip AT24C32D',
                    'note':'same ZS042 breakout as the DS3231.'},
- 'BMP180':        {'ref':'M4', 'board':4, 'kind':'module',
+ 'BMP180':        {'ref':'M4', 'pcb_ref':'M2', 'board':4, 'kind':'module',
                    'required':'onboard', 'required_uf':[], 'pin':None, 'placement':None,
                    'datasheet':'Bosch BST-BMP180-DS000',
                    'note':'GY-68 breakout self-decouples.'},
- 'SSD1306 OLED':  {'ref':'M5', 'board':4, 'kind':'module',
+ 'SSD1306 OLED':  {'ref':'M5', 'pcb_ref':'OLED1', 'board':4, 'kind':'module',
                    'required':'onboard', 'required_uf':[], 'pin':None, 'placement':None,
                    'datasheet':'Solomon Systech SSD1306',
                    'note':'breakout self-decouples (incl. charge-pump caps).'},
- 'HD44780 logic': {'ref':'M8', 'board':5, 'kind':'module',
+ 'HD44780 logic': {'ref':'M8', 'pcb_ref':'U1', 'board':5, 'kind':'module',
                    'required':'onboard', 'required_uf':[], 'pin':None, 'placement':None,
                    'datasheet':'Hitachi HD44780U',
                    'note':'character-LCD module; controller + decoupling live on '
                           'the LCD PCB.'},
- 'ULN2003':       {'ref':'M7', 'board':3, 'kind':'module',
+ 'ULN2003':       {'ref':'M7', 'pcb_ref':None, 'board':3, 'kind':'module',
                    'required':'onboard', 'required_uf':[], 'pin':None, 'placement':None,
                    'datasheet':'TI ULN2003A',
                    'note':'external stepper-driver board via connector J5 - not on '
                           'the platform PCB; self-contained.'},
- 'Arduino':       {'ref':'A1', 'board':5, 'kind':'module',
+ 'Arduino':       {'ref':'A1', 'pcb_ref':None, 'board':5, 'kind':'module',
                    'required':'onboard', 'required_uf':[], 'pin':None, 'placement':None,
                    'datasheet':'-',
                    'note':'self-contained Arduino (Metro Mini) board with its own '
                           'regulator + decoupling; I2C slave via the level shifter.'},
  # --- level shifter: no supply pin to bypass -----------------------------------
- 'BSS138 level-shifter': {'ref':'M6', 'board':5, 'kind':'na',
+ 'BSS138 level-shifter': {'ref':'M6', 'pcb_ref':'M1', 'board':5, 'kind':'na',
                    'required':'n/a', 'required_uf':[], 'pin':None, 'placement':None,
                    'datasheet':'-',
                    'note':'MOSFET + pull-up shifter referenced to the LV/HV rails; '
                           'no VDD supply pin to decouple.'},
  # --- board 1 (planned): breakout modules, no schematic yet --------------------
- 'PCA9685':       {'ref':None, 'board':1, 'kind':'module',
+ 'PCA9685':       {'ref':None, 'pcb_ref':None, 'board':1, 'kind':'module',
                    'required':'onboard', 'required_uf':[], 'pin':None, 'placement':None,
                    'datasheet':'NXP PCA9685',
                    'note':'board 1 planned; breakout self-decouples.'},
- 'PCF8574 LCD':   {'ref':None, 'board':1, 'kind':'module',
+ 'PCF8574 LCD':   {'ref':None, 'pcb_ref':None, 'board':1, 'kind':'module',
                    'required':'onboard', 'required_uf':[], 'pin':None, 'placement':None,
                    'datasheet':'TI PCF8574',
                    'note':'board 1 planned; I2C-LCD backpack self-decouples.'},
