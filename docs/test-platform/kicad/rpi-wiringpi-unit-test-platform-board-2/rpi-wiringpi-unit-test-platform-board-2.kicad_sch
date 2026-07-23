@@ -4597,12 +4597,6 @@
 		(uuid "9a05f526-d1f4-451a-945d-34ca4bc27e20")
 	)
 	(junction
-		(at 212.09 157.48)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "9ef628a3-e83b-4845-9b85-b2b74b7795c4")
-	)
-	(junction
 		(at 49.53 158.75)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4637,6 +4631,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "b9674c00-6a6d-4eec-bf80-53fa832f4628")
+	)
+	(junction
+		(at 212.09 146.05)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "bf4b7cdf-8e5a-43d2-b42e-58aa98f4f53d")
 	)
 	(junction
 		(at 196.85 157.48)
@@ -4691,6 +4691,18 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "ee792920-2409-4d45-86f3-2f405704d6e2")
+	)
+	(junction
+		(at 217.17 157.48)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "ef6ec0b0-d3bf-4b2b-ada1-1744b377e528")
+	)
+	(junction
+		(at 212.09 157.48)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "f210fb26-49ea-4495-b7a0-73e6a9435d67")
 	)
 	(junction
 		(at 191.77 58.42)
@@ -4969,6 +4981,16 @@
 			(type default)
 		)
 		(uuid "148a25f0-c90a-4967-8484-ad86e80d0a38")
+	)
+	(wire
+		(pts
+			(xy 212.09 153.67) (xy 212.09 157.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "15b4988e-3aff-4d43-9f55-a58e5777d6c9")
 	)
 	(wire
 		(pts
@@ -5422,16 +5444,6 @@
 	)
 	(wire
 		(pts
-			(xy 212.09 157.48) (xy 217.17 157.48)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "457b56cc-a27f-4244-9b6a-a52ea15434bf")
-	)
-	(wire
-		(pts
 			(xy 58.42 138.43) (xy 81.28 138.43)
 		)
 		(stroke
@@ -5772,6 +5784,16 @@
 	)
 	(wire
 		(pts
+			(xy 212.09 157.48) (xy 217.17 157.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "68f5da3c-e5e8-442f-a029-d9ceb952d27e")
+	)
+	(wire
+		(pts
 			(xy 110.49 157.48) (xy 121.92 157.48)
 		)
 		(stroke
@@ -5859,6 +5881,16 @@
 			(type default)
 		)
 		(uuid "710b7b56-e1cb-401a-8925-dd6e47bdc995")
+	)
+	(wire
+		(pts
+			(xy 220.98 157.48) (xy 217.17 157.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "710dc90f-3506-4670-b873-98c18feb7176")
 	)
 	(wire
 		(pts
@@ -6512,6 +6544,16 @@
 	)
 	(wire
 		(pts
+			(xy 217.17 160.02) (xy 217.17 157.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9d7631f2-ad34-4841-b2ef-a08223c93a30")
+	)
+	(wire
+		(pts
 			(xy 69.85 151.13) (xy 69.85 166.37)
 		)
 		(stroke
@@ -6589,6 +6631,16 @@
 			(type default)
 		)
 		(uuid "a712bcf2-bf46-4944-b588-080653d0f5a9")
+	)
+	(wire
+		(pts
+			(xy 212.09 146.05) (xy 220.98 146.05)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a832c719-3aed-4a3f-87a8-f5a09c1fd0ad")
 	)
 	(wire
 		(pts
@@ -7562,7 +7614,7 @@
 	)
 	(wire
 		(pts
-			(xy 212.09 153.67) (xy 212.09 157.48)
+			(xy 220.98 153.67) (xy 220.98 157.48)
 		)
 		(stroke
 			(width 0)
@@ -10612,7 +10664,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 212.09 149.86 0)
+		(at 220.98 149.86 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -10620,10 +10672,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "911074af-5071-42f7-b407-796037d27802")
 		(property "Reference" "C7"
-			(at 215.9 148.5899 0)
+			(at 217.932 142.24 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -10634,7 +10685,7 @@
 			)
 		)
 		(property "Value" "470µF"
-			(at 215.9 151.1299 0)
+			(at 217.932 144.78 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -10645,7 +10696,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_THT:CP_Radial_D6.3mm_P2.50mm"
-			(at 213.36 153.67 0)
+			(at 222.25 153.67 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10656,7 +10707,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 212.09 149.86 0)
+			(at 220.98 149.86 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10667,7 +10718,7 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
-			(at 212.09 149.86 0)
+			(at 220.98 149.86 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10854,7 +10905,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 217.17 157.48 0)
+		(at 217.17 160.02 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -10865,7 +10916,7 @@
 		(fields_autoplaced yes)
 		(uuid "9d563373-633d-43c3-9959-4e8ec10a1895")
 		(property "Reference" "#PWR016"
-			(at 217.17 163.83 0)
+			(at 217.17 166.37 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10876,7 +10927,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 217.17 162.56 0)
+			(at 217.17 165.1 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -10886,7 +10937,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 217.17 157.48 0)
+			(at 217.17 160.02 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10897,7 +10948,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 217.17 157.48 0)
+			(at 217.17 160.02 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10908,7 +10959,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 217.17 157.48 0)
+			(at 217.17 160.02 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11440,6 +11491,87 @@
 			(project "rpi-wiringpi-unit-test-platform-board-2"
 				(path "/7946ceed-5e50-51f0-9396-19e4533fa9f5"
 					(reference "#PWR011")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 212.09 149.86 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "d66d452c-cf37-41d5-9faf-811b81d4b1db")
+		(property "Reference" "C9"
+			(at 210.566 141.986 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "0.1µf"
+			(at 210.566 144.526 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_THT:C_Disc_D3.0mm_W2.0mm_P2.50mm"
+			(at 213.36 153.67 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 212.09 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 212.09 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "7a8c23fb-1501-44d9-964e-15e82dc667f6")
+		)
+		(pin "2"
+			(uuid "7676b396-af87-4ab5-affa-52b04c0fb9d2")
+		)
+		(instances
+			(project "rpi-wiringpi-unit-test-platform-board-2"
+				(path "/7946ceed-5e50-51f0-9396-19e4533fa9f5"
+					(reference "C9")
 					(unit 1)
 				)
 			)
