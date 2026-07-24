@@ -4429,12 +4429,6 @@
 		(uuid "2d42e9c2-7cee-4038-9df7-59186f340879")
 	)
 	(junction
-		(at 187.96 64.77)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "2d5be23f-7ace-4d00-b681-d958ef9f7fa2")
-	)
-	(junction
 		(at 134.62 137.16)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4481,12 +4475,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "5687fc53-263a-4414-b6cf-af5da6444540")
-	)
-	(junction
-		(at 207.01 69.85)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "5d12b3af-086a-4c73-aed3-5d0f6500ec6e")
 	)
 	(junction
 		(at 207.01 67.31)
@@ -4603,6 +4591,12 @@
 		(uuid "a31c7b2e-185c-4d03-9cd2-4e475ebbc184")
 	)
 	(junction
+		(at 207.01 69.85)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "a50e02c6-00d8-4b98-8312-4c7c43ac6007")
+	)
+	(junction
 		(at 203.2 135.89)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4661,12 +4655,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "c6405eb4-ebc1-4331-bafa-1e42c056e032")
-	)
-	(junction
-		(at 198.12 64.77)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "cb61811e-c077-4203-8666-a63df44d82d0")
 	)
 	(junction
 		(at 203.2 128.27)
@@ -5094,7 +5082,7 @@
 	)
 	(wire
 		(pts
-			(xy 208.28 34.29) (xy 208.28 49.53)
+			(xy 208.28 34.29) (xy 208.28 45.72)
 		)
 		(stroke
 			(width 0)
@@ -5404,7 +5392,7 @@
 	)
 	(wire
 		(pts
-			(xy 208.28 49.53) (xy 180.34 49.53)
+			(xy 208.28 45.72) (xy 180.34 45.72)
 		)
 		(stroke
 			(width 0)
@@ -5494,7 +5482,7 @@
 	)
 	(wire
 		(pts
-			(xy 168.91 34.29) (xy 168.91 43.18)
+			(xy 168.91 34.29) (xy 168.91 38.1)
 		)
 		(stroke
 			(width 0)
@@ -5664,16 +5652,6 @@
 	)
 	(wire
 		(pts
-			(xy 187.96 64.77) (xy 198.12 64.77)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6031ed89-f2d0-4d16-b80a-2554f4347784")
-	)
-	(wire
-		(pts
 			(xy 162.56 179.07) (xy 162.56 147.32)
 		)
 		(stroke
@@ -5731,16 +5709,6 @@
 			(type default)
 		)
 		(uuid "65db473d-09d9-49a2-b01b-0b460d2cae7c")
-	)
-	(wire
-		(pts
-			(xy 198.12 64.77) (xy 207.01 64.77)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "65efe4d5-3390-4500-9279-8c665283f033")
 	)
 	(wire
 		(pts
@@ -5891,16 +5859,6 @@
 			(type default)
 		)
 		(uuid "710dc90f-3506-4670-b873-98c18feb7176")
-	)
-	(wire
-		(pts
-			(xy 198.12 69.85) (xy 207.01 69.85)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "718fdce9-cc2d-4ee1-bc6b-835c03bd40a5")
 	)
 	(wire
 		(pts
@@ -6324,16 +6282,6 @@
 	)
 	(wire
 		(pts
-			(xy 198.12 64.77) (xy 198.12 69.85)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8cbdebce-3d64-4d4b-8138-251d805b01ec")
-	)
-	(wire
-		(pts
 			(xy 161.29 78.74) (xy 161.29 87.63)
 		)
 		(stroke
@@ -6694,6 +6642,16 @@
 	)
 	(wire
 		(pts
+			(xy 168.91 45.72) (xy 168.91 48.26)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "acf74f3d-cb3c-4a03-bfce-eb486884433e")
+	)
+	(wire
+		(pts
 			(xy 184.15 95.25) (xy 184.15 96.52)
 		)
 		(stroke
@@ -6721,6 +6679,16 @@
 			(type default)
 		)
 		(uuid "b22a5450-1eb1-4eae-acca-c02e99ebdbdf")
+	)
+	(wire
+		(pts
+			(xy 186.69 64.77) (xy 207.01 64.77)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b4a86426-6234-4334-a2ac-50fe4de66c28")
 	)
 	(wire
 		(pts
@@ -7014,7 +6982,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 69.85) (xy 187.96 69.85)
+			(xy 180.34 69.85) (xy 207.01 69.85)
 		)
 		(stroke
 			(width 0)
@@ -7064,16 +7032,6 @@
 	)
 	(wire
 		(pts
-			(xy 186.69 64.77) (xy 187.96 64.77)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cc3cd07f-4b5e-47b7-826b-00ec733b57c7")
-	)
-	(wire
-		(pts
 			(xy 111.76 105.41) (xy 119.38 105.41)
 		)
 		(stroke
@@ -7104,7 +7062,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 49.53) (xy 180.34 69.85)
+			(xy 180.34 45.72) (xy 180.34 69.85)
 		)
 		(stroke
 			(width 0)
@@ -7264,16 +7222,6 @@
 	)
 	(wire
 		(pts
-			(xy 187.96 64.77) (xy 187.96 69.85)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d928ece3-ea4c-4c80-8c98-94f02a6f8de0")
-	)
-	(wire
-		(pts
 			(xy 208.28 152.4) (xy 208.28 146.05)
 		)
 		(stroke
@@ -7301,16 +7249,6 @@
 			(type default)
 		)
 		(uuid "dc2b46b0-eeb3-4f29-8a50-9161806e6d89")
-	)
-	(wire
-		(pts
-			(xy 168.91 50.8) (xy 168.91 54.61)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "dc820ad7-3bf1-4896-b8ab-212ddb016891")
 	)
 	(wire
 		(pts
@@ -8032,7 +7970,7 @@
 		)
 		(uuid "58be4912-7124-4d21-88e2-212d56922670")
 	)
-	(label "+3V3"
+	(label "CONN_SIG"
 		(at 213.36 69.85 180)
 		(effects
 			(font
@@ -8082,16 +8020,6 @@
 		)
 		(uuid "68f91d74-66e7-400d-b021-464d2efbe810")
 	)
-	(label "+3V3"
-		(at 208.28 34.29 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "6a083398-6610-43ed-8ef5-8af2dcd0e0e0")
-	)
 	(label "I2C_SDA"
 		(at 205.74 91.44 0)
 		(effects
@@ -8101,16 +8029,6 @@
 			(justify left bottom)
 		)
 		(uuid "75c00266-1731-4a7c-a39e-bd42cb60139b")
-	)
-	(label "GND"
-		(at 168.91 54.61 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "7ba75336-30f7-4edc-b9e9-28e1916378de")
 	)
 	(label "DAC_A_CH1"
 		(at 105.41 90.17 0)
@@ -9253,7 +9171,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 168.91 46.99 0)
+		(at 168.91 41.91 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -9264,7 +9182,7 @@
 		(fields_autoplaced yes)
 		(uuid "2df42f5c-ceb3-450e-b5de-5c45d61c2d8d")
 		(property "Reference" "R1"
-			(at 171.45 45.72 0)
+			(at 171.45 40.64 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -9275,7 +9193,7 @@
 			)
 		)
 		(property "Value" "330"
-			(at 171.45 48.26 0)
+			(at 171.45 43.18 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -9286,7 +9204,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
-			(at 167.64 46.99 90)
+			(at 167.64 41.91 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9297,7 +9215,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 168.91 46.99 0)
+			(at 168.91 41.91 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9308,7 +9226,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 168.91 46.99 0)
+			(at 168.91 41.91 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9319,7 +9237,7 @@
 			)
 		)
 		(property "KiLib_Generator" "resistor/THT"
-			(at 168.91 46.99 0)
+			(at 168.91 41.91 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9894,7 +9812,7 @@
 				)
 			)
 		)
-		(property "Value" "SW_BOARD_CONN_LED"
+		(property "Value" "SW_BRD_CONN_SIG"
 			(at 199.39 29.21 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9976,7 +9894,7 @@
 		(fields_autoplaced yes)
 		(uuid "68852de6-fd86-4550-9c60-c767e9806606")
 		(property "Reference" "D1"
-			(at 171.45 27.94 0)
+			(at 171.5135 27.94 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -9985,8 +9903,8 @@
 				)
 			)
 		)
-		(property "Value" "LED_BOARD_CONN"
-			(at 171.45 30.48 0)
+		(property "Value" "LED_BRD_CONN_SIG"
+			(at 171.5135 30.48 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -10402,6 +10320,84 @@
 			(project "rpi-wiringpi-unit-test-platform-board-2"
 				(path "/7946ceed-5e50-51f0-9396-19e4533fa9f5"
 					(reference "C1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 168.91 48.26 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "793eb81e-4d52-41b5-97fb-427f8982614f")
+		(property "Reference" "#PWR019"
+			(at 168.91 54.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 168.91 53.34 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 168.91 48.26 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 168.91 48.26 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 168.91 48.26 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "9cbe37f3-c2c3-4cf7-98d6-bf2b92fb522e")
+		)
+		(instances
+			(project "rpi-wiringpi-unit-test-platform-board-2"
+				(path "/7946ceed-5e50-51f0-9396-19e4533fa9f5"
+					(reference "#PWR019")
 					(unit 1)
 				)
 			)
