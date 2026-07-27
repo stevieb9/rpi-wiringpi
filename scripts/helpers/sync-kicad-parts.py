@@ -4,7 +4,8 @@ sync-kicad-parts.py - push this checkout's KiCad parts catalog to rpi-tracker.
 
 Machine-reads every placed symbol in the test platform board schematics
 (docs/test-platform/kicad/*/*.kicad_sch) of THIS checkout plus the personal
-board projects under ~/repos/kicad/boards - the Mac working copies are the
+board projects under ~/repos/kicad/boards and any KiCad projects living
+inside ~/repos/scripts/arduino/<project>/ - the Mac working copies are the
 source of truth; naranja's clones can lag - and replaces the source='kicad'
 rows of the kicad_parts table in naranja's rpi-tracker db with the distinct
 (symbol lib_id, footprint) pairs found, each with its placed reference count
@@ -38,6 +39,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 KICAD = os.path.normpath(os.path.join(HERE, '..', '..', 'docs', 'test-platform', 'kicad'))
 BOARDS = os.path.expanduser('~/repos/kicad/boards')
+SCRIPTS = os.path.expanduser('~/repos/scripts/arduino')
 
 HOST = 'naranja'
 DB = '~/repos/rpi-tracker/db/rpi-tracker.db'
@@ -167,6 +169,13 @@ def _sch_files():
     for sch in sorted(glob.glob(os.path.join(BOARDS, '*', '**', '*.kicad_sch'),
                                 recursive=True)):
         rel = os.path.relpath(sch, BOARDS).split(os.sep)
+        if any(p.startswith(('_restore_backup', '_autosave')) for p in rel):
+            continue
+        yield rel[0], sch
+
+    for sch in sorted(glob.glob(os.path.join(SCRIPTS, '*', '**', '*.kicad_sch'),
+                                recursive=True)):
+        rel = os.path.relpath(sch, SCRIPTS).split(os.sep)
         if any(p.startswith(('_restore_backup', '_autosave')) for p in rel):
             continue
         yield rel[0], sch
