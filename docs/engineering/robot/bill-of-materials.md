@@ -14,6 +14,9 @@ still has to be **procured**. Pinout is a starting proposal to finalise at V7.
 | A4988 Stepper Driver Carrier | **10** | Allegro A4988, up to ~2 A/coil w/ cooling, MS1–3 microstep select, VREF current limit; 8–35 V VMOT, 3–5.5 V logic | 2 used — one driver per wheel |
 | MPU-6050 | (drives `RPi::Gyro::MPU6050`) | 6-axis accel+gyro, I2C 0x68/0x69 | the balance sensor |
 | Raspberry Pi | this host family | — | the brain — **off-robot**, drives the chassis over the tether |
+| ADXL335 breakout | (drives `RPi::Accelerometer::ADXL335`) | analog 3-axis accel, 3V3; Cx/Cy/Cz filter caps on breakout | board-6 redundant tilt cross-check (B1) |
+| ADS1015 breakout | (the bench ADS unit — re-homes to board 6) | 12-bit I2C ADC; **re-strap ADDR→VDD = 0x49** (0x48 = board-2 ADS1015); t/360 gains an address param | reads the ADXL335 X/Y/Z on board 6 |
+| 2× lever microswitches | (purchased) | ~38 mm lever; **NC contact** used, common → GND | fore/aft park sensors → MCP23017 GPB6/7 ([control-theory.md](control-theory.md) §6) |
 
 > The inventory lists **6 motors and 10 drivers** — plenty of spares for bench
 > work, and headroom to break one without stalling the project.
@@ -24,11 +27,12 @@ still has to be **procured**. Pinout is a starting proposal to finalise at V7.
 |--------|-----|------------------|------------|
 | `RPi::Gyro::MPU6050` | 0.01 | **No** — connect here | tilt + angular rate |
 | `RPi::StepperMotor::A4988` | 0.01 | **No** — connect + extend (V3) | wheel drivers |
-| `RPi::Accelerometer::ADXL335` | 0.01 | **No** | optional redundant tilt (backlog B1) |
+| `RPi::Accelerometer::ADXL335` | 0.01 | **No** — connect here | redundant tilt cross-check on board 6, read via the ADS1015 @ 0x49 (B1) |
 | `RPi::WiringPi` | 3.1803 | yes | board/GPIO umbrella (provides `pin()` for A4988) |
 | `RPi::Pin` | 3.1803 | yes | per-pin objects |
 | `RPi::I2C` | 3.1803 | yes | I2C bus (MPU) |
 | `RPi::Const` | 1.07 | yes | HIGH/LOW/mode constants |
+| `RPi::ADC::ADS` | — | yes | the board-6 ADS1015 @ 0x49 (ADXL335 axes); battery-telemetry role stays dropped |
 
 The three "No" rows are the distributions that were built but never connected — the
 robot is what connects them. (They're absent from the `rpi-tracker` `dists`
@@ -39,18 +43,23 @@ showing up.)
 
 | Part | Why | Notes |
 |------|-----|-------|
-| **Chassis** — 2× 3/8″ plywood tiers + 4× 3/16″ threaded rod + standoffs/nuts | frame for the inverted pendulum | build to the CoM/ballast spec in [control-theory.md](control-theory.md) §4 (~25 cm rod; rods in a wide rectangle for mast rigidity) |
-| **~300 g ballast** — steel plate or stacked washers/nuts on the rod studs | raise CoM to ≈10 cm — **mandatory** (nothing heavy up top without a battery) | tunable during V8: add/remove washers; leave ~3–4 cm spare stud |
+| **Chassis** — 2× **1/4″** plywood tiers + 4× 3/16″ threaded rod + standoffs/nuts | frame for the inverted pendulum | build to the CoM/ballast spec in [control-theory.md](control-theory.md) §4 (~25 cm rod; rods in a wide rectangle for mast rigidity). 1/4″ ply is **through-bolted only** — no wood screws; fender washers under every rod nut |
+| **~380 g ballast** — steel plate or stacked washers/nuts on the rod studs | raise CoM to ≈10 cm — **mandatory** (nothing heavy up top without a battery) | tunable during V8: add/remove washers; leave ~3–4 cm spare stud. (~260 g suffices if the rod goes to 30 cm — [control-theory.md](control-theory.md) §4) |
 | **2× wheels + motor hubs** (5 mm bore for NEMA17 shaft) | the actual wheels | rubber-tyred for traction; **pick + record the diameter here before V1** (80–100 mm typical) — it sets the steps/s ↔ m/s mapping V1's step-rate thresholds derive from |
-| **L-brackets / NEMA17 mounts (×2)** | fix motors low on the frame | |
+| **L-brackets / NEMA17 mounts (×2)** | fix motors low on the frame | 3D-printed: [3d/bracket.py](3d/bracket.py) → robot-motor-bracket.stl (print 2, same STL both sides; **PETG preferred** — steppers run warm and PLA creeps near 60 °C); shaft center 26.5 mm above deck; M4 base **slots** give ±5 mm fore-aft travel to make the two axles collinear |
 | **Front + back extender poles** (~2″ outriggers), mounted **LOW** | self-park + auto-erect: park the robot at a small lean *inside the capture envelope*, and act as bi-directional fall-stops | mount near ground & reach out so the rest lean is ~10° (not ~40° at axle height); see [control-theory.md](control-theory.md) §6; set geometry against the V8-measured envelope |
 | **Umbilical/tether cable + strain relief** | carries VMOT + logic 3V3 + I2C + STEP/DIR/EN/MS from the off-robot Pi & bench supply | gauge the motor pair for stepper current; keep it separated from the I2C/STEP lines; keep short (≤ ~50 cm) for signal integrity |
 | **Bench DC supply (~12 V)** for VMOT | motor rail over the tether | replaces the on-robot LiPo; regulated + current-limited |
 | **Dot/proto PCB + headers** | solder the two A4988s + MPU breakout onto the frame (reference dropped breadboards — vibration) | |
-| **MCP23017 I2C expander** (robot's — strap A0/A1 for **0x23**) + 2× RESET-SLEEP pull-down resistors | hosts all 12 static driver lines (DIR/EN/RESET-SLEEP/MS) off-header, pull-downs keep the chassis inert-by-default; optionally also hosts the platform's two displaced CS lines (F5) | **not in inventory** (tracker-verified 2026-07-29); 0x20/21/22/27 taken on the shared bus |
+| **MCP23017 I2C expander** (robot's — strap A0/A1 for **0x23**) + 2× RESET-SLEEP pull-down resistors | hosts all 12 static driver lines (DIR/EN/RESET-SLEEP/MS) + the 2 park-switch inputs (GPB6/7) off-header — 14 of 16 pins; pull-downs keep the chassis inert-by-default; optionally also hosts the platform's two displaced CS lines (F5) | **not in inventory** (tracker-verified 2026-07-29); 0x20/21/22/27 taken on the shared bus |
+| **J1 JST-PH 2-pos + J2 screw-terminal 2-pos** | board-6 power entry: 3V3 on J1, 12 V on J2 — both fed from board 1, **grounds commoned on board 1** | see [robot-board-power.jpg](robot-board-power.jpg) |
+| **Bypass caps: 6× 0.1 µF ceramic + 1× 10 µF bulk** | per-IC bypass (MPU, MCP23017, ADS1015, ADXL335, 2× A4988 VDD) + 3V3-entry bulk | 0.1 µF values are datasheet-standard placeholders — confirm each at board-6 layout; the 2× 100 µF VMOT electrolytics are listed above and are mandatory |
 | **2× ~100 µF caps across VMOT** | protect each A4988 from LC voltage spikes | **required by the A4988** — never hot-plug VMOT without it |
 | Heatsinks for the A4988s | thermal headroom at balancing currents | |
-| Jumper wire, screws (#4-40 per reference), zip ties | assembly | |
+| **Fasteners — M3** | 4× M3×8 SHCS wheel→hub flange (2 per wheel, opposite pair); 8× M3×8 motor→L-bracket (NEMA17 face pattern); M3 screws + standoffs board 6→deck | the whole build is metric — NEMA17, A4988 carriers, breakouts and the flange couplers are all M3. (#4-40 is 2.85 mm: it starts in an M3 hole and strips it — do not mix) |
+| **Fasteners — M4** | 8× M4×20 through-bolts + fender washers (both faces) + nyloc nuts: L-bracket→deck | 1/4″ ply gets through-bolts, never wood screws |
+| **Fasteners — misc** | M2.5 or M3 for the two microswitch mounts; nuts + fender washers for the 3/16″ threaded rod (deck clamping + ballast stack) | switch mounts **slotted** so the park angle is tunable ([control-theory.md](control-theory.md) §6); the rod is the one imperial family and is self-contained |
+| Jumper wire, zip ties, threadlocker | assembly; threadlocker on the hub set screws | |
 
 ## Wiring — exact connections (verified for THIS Pi 5 / RP1)
 
@@ -63,8 +72,11 @@ showing up.)
 > **STEP rows below stand** (the robot keeps GPIO12/13; the platform vacates them
 > by moving both CS lines to expander-hosted pins), while **every other control
 > row is superseded** — DIR/EN/RESET-SLEEP/MS move to the robot's MCP23017 @ I2C
-> 0x23. Redraw the tables when F5 closes. BCM (GPIO) numbering throughout;
-> physical header pin in parens.
+> 0x23. The board-6 successor wiring is now drawn in
+> [robot-board-schematic.jpg](robot-board-schematic.jpg) +
+> [robot-board-power.jpg](robot-board-power.jpg); redraw these tables from those
+> sheets when F5 closes. BCM (GPIO) numbering throughout; physical header pin
+> in parens.
 
 ### The one rule that must not be broken
 
@@ -166,6 +178,15 @@ electrical plan is complete.)*
 > board-2's circuits) first.
 
 ## Power topology (tethered — no on-robot battery)
+
+> **Board-6 power entry (2026-07-30):** 3V3 arrives on **J1 (JST-PH pair)** and 12 V
+> on **J2 (screw-terminal pair)**, both **from board 1**, with **all grounds
+> commoned on board 1**. On-board rails, per-IC bypasses, and the two mandatory
+> 100 µF VMOT electrolytics are drawn in
+> [robot-board-power.jpg](robot-board-power.jpg) and the merged
+> [robot-board-full.jpg](robot-board-full.jpg) (generator:
+> [schematic.py](schematic.py)). The ASCII below remains the tether-level view;
+> the 12 V source upstream of board 1 is out of scope.
 
 ```
   Bench DC supply (~12 V) --+--> VMOT, LEFT A4988   (+ its own 100 µF cap)   [over tether]

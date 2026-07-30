@@ -167,23 +167,25 @@ CoM down**. With the battery and Pi gone, there is nothing heavy up top — **th
 shelf exists purely as a ballast platform, and ballast is now mandatory, not
 optional.** (No ballast → even a 30 cm mast only reaches ~5 cm CoM.)
 
-Lumping on-robot mass — low (at axle, L≈0): 2× NEMA17 480 g + bottom shelf 85 g +
-control board 50 g ≈ 615 g; rods ~85 g at H/2; top shelf 85 g + ballast W at height H:
+Lumping on-robot mass — low (at axle, L≈0): 2× NEMA17 480 g + bottom shelf 57 g +
+board 6 ~50 g + wheels & hubs ~90 g ≈ 677 g; rods ~85 g at H/2; top shelf 57 g +
+ballast W at height H:
 
 ```
-L = H · (127 + W) / (785 + W)      H in cm, W = top ballast in grams, L in cm
+L = H · (100 + W) / (819 + W)      H in cm, W = top ballast in grams, L in cm
 ```
 
-Ballast needed to hit a target CoM (3/8″ ply shelves, 3/16″ threaded-rod standoffs):
+Ballast needed to hit a target CoM (**1/4″ ply shelves**, 3/16″ threaded-rod
+standoffs):
 
 | Rod height H (axle→top shelf) | Ballast for CoM 8 cm | for 9 cm | for 10 cm |
 |---|---|---|---|
-| 20 cm (8″)  | ~310 g | ~410 g | ~530 g |
-| **25 cm (10″)** | ~185 g | ~245 g | **~310 g** |
-| 30 cm (12″) | ~110 g | ~155 g | ~200 g |
+| 20 cm (8″)  | ~380 g | ~490 g | ~620 g |
+| **25 cm (10″)** | ~240 g | ~305 g | **~380 g** |
+| 30 cm (12″) | ~160 g | ~210 g | ~260 g |
 
-**Recommended: 25 cm rod + ~300 g ballast → CoM ≈ 10 cm, τ ≈ 100 ms**, total robot
-~1.1 kg. On torque, stay honest (F4): 33 N·cm is *holding* torque — usable torque at
+**Recommended: 25 cm rod + ~380 g ballast → CoM ≈ 10 cm, τ ≈ 100 ms**, total robot
+~1.2 kg (30 cm rod + ~260 g reaches the same CoM for less ballast). On torque, stay honest (F4): 33 N·cm is *holding* torque — usable torque at
 recovery speeds is roughly ⅓–½ of that and falls further with speed at 12 V, so
 expect a **modest capture envelope** (measured, not assumed, in V8), plan to derate
 the A4988s to ~0.8–0.9 A/phase thermally even with heatsinks, and treat B3 (DRV8825)
@@ -207,8 +209,13 @@ nothing (no battery to keep low) and roughly halves the ballast vs. a 20 cm mast
   ≤ ~50 cm is safe, longer needs an I2C buffer / dropping to 100 kHz. Keep motor-power
   conductors separated from / twisted away from the I2C + STEP signal lines to avoid
   coupling motor-current spikes into them. See [bill-of-materials.md](bill-of-materials.md).
-- Mass assumptions (NEMA17 ~240 g ea, ply shelf ~85 g) are estimates — weigh actuals;
-  because ballast is tunable the design is robust to these being off.
+- Mass assumptions (NEMA17 ~240 g ea, 1/4″ ply shelf ~57 g, printed wheel ~24 g +
+  hub ~10 g + tread) are estimates — weigh actuals; because ballast is tunable the
+  design is robust to these being off.
+- **1/4″ ply is through-bolted, never wood-screwed**: M4×20 + fender washers both
+  faces + nyloc for the motor brackets, and a fender washer under every rod nut so
+  the clamp doesn't crush the thinner ply. Ballast stacks on the rod studs, so its
+  load path is the rods — top-deck thickness is structurally near-irrelevant.
 
 ## 5. Tuning procedure (V8)
 
@@ -261,3 +268,30 @@ only if `|angle|` is within `[envelope_min … expected_rest + margin]`. If it r
 ~0° it's already upright (just balance); if it's too large the pole failed / it fell
 flat — **stay disabled and flag it** rather than attempt the impossible from-flat
 recovery. This makes power-cycling safe for an unattended test-platform tenant.
+
+### Park switches — electrical confirmation (board 6)
+
+The park stops are instrumented: a **lever microswitch** at each stop (fore/aft),
+wired **NC, common → GND**, into the board-6 MCP23017's GPB6/GPB7 with the
+internal pull-ups enabled. NC is deliberate — a broken or unplugged switch reads
+as a deterministic fault, not a silent "not pressed". **The lever is the sensor
+only**: a hard stop (the rest mechanics) carries the park load and impact; the
+lever just gets pressed at rest. Slotted switch mounts make the rest angle
+tunable against the V8-measured envelope. Polling is per control tick (or every
+few) over the I2C already in the loop; debounce = 2–3 agreeing reads.
+
+The startup gate becomes a two-source cross-check:
+
+| Fore | Aft | Accel reads | Action |
+|------|-----|-------------|--------|
+| pressed | open | ≈ +rest° | Erect off the front stop |
+| open | pressed | ≈ −rest° | Erect off the back stop |
+| open | open | ≈ 0° | Already upright — balance |
+| open | open | large lean | Fell flat / off the bench — stay disabled, flag |
+| pressed | pressed | anything | Wiring/mechanical fault — stay disabled |
+| any switch/accel disagreement | | | Stay disabled, flag (sensor-disagreement safety, same philosophy as B1) |
+
+Two bonuses: the switch *opening* during erection is a clean lift-off event for
+tuning, and after a tilt-cutoff kill the expected sequence is "a switch closes
+within ~a second" = parked safe — if neither closes, the robot went somewhere it
+shouldn't have.

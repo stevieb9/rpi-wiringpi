@@ -46,10 +46,16 @@ to one place: step-pulse generation.
                                  \__________ VMOT (bench supply) ___________/
 ```
 
-The MPU's I2C, both A4988s' STEP/DIR/EN/MS, and the 3V3 logic + VMOT rails **all
-cross the tether** — the entire chassis is passive silicon; the brain and the power
-are off-board. Keep the umbilical short (I2C/STEP integrity) and slack (no
-disturbance force); see [control-theory.md](control-theory.md) §4 and
+Post-F5 (board 6), only **four signals cross the tether** — I2C SDA/SCL and the
+two hardware-PWM STEP clocks — plus the two power pairs (3V3 via JST, 12 V via
+screw terminal, grounds commoned on board 1). The drivers' static lines
+(DIR/EN/RESET-SLEEP/MS) never leave the board: they ride the on-board MCP23017
+@ 0x23, which also reads the park switches; the ADS1015 @ 0x49 reads the
+ADXL335. Board-level detail supersedes the sketch above — see
+[robot-board-schematic.jpg](robot-board-schematic.jpg) and
+[robot-board-power.jpg](robot-board-power.jpg). Keep the umbilical short
+(I2C/STEP integrity) and slack (no disturbance force); see
+[control-theory.md](control-theory.md) §4 and
 [bill-of-materials.md](bill-of-materials.md).
 
 Software layering (each layer only knows the one below it):
