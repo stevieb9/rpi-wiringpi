@@ -41,23 +41,30 @@ showing up.)
 |------|-----|-------|
 | **Chassis** — 2× 3/8″ plywood tiers + 4× 3/16″ threaded rod + standoffs/nuts | frame for the inverted pendulum | build to the CoM/ballast spec in [control-theory.md](control-theory.md) §4 (~25 cm rod; rods in a wide rectangle for mast rigidity) |
 | **~300 g ballast** — steel plate or stacked washers/nuts on the rod studs | raise CoM to ≈10 cm — **mandatory** (nothing heavy up top without a battery) | tunable during V8: add/remove washers; leave ~3–4 cm spare stud |
-| **2× wheels + motor hubs** (5 mm bore for NEMA17 shaft) | the actual wheels | rubber-tyred for traction |
+| **2× wheels + motor hubs** (5 mm bore for NEMA17 shaft) | the actual wheels | rubber-tyred for traction; **pick + record the diameter here before V1** (80–100 mm typical) — it sets the steps/s ↔ m/s mapping V1's step-rate thresholds derive from |
 | **L-brackets / NEMA17 mounts (×2)** | fix motors low on the frame | |
 | **Front + back extender poles** (~2″ outriggers), mounted **LOW** | self-park + auto-erect: park the robot at a small lean *inside the capture envelope*, and act as bi-directional fall-stops | mount near ground & reach out so the rest lean is ~10° (not ~40° at axle height); see [control-theory.md](control-theory.md) §6; set geometry against the V8-measured envelope |
 | **Umbilical/tether cable + strain relief** | carries VMOT + logic 3V3 + I2C + STEP/DIR/EN/MS from the off-robot Pi & bench supply | gauge the motor pair for stepper current; keep it separated from the I2C/STEP lines; keep short (≤ ~50 cm) for signal integrity |
 | **Bench DC supply (~12 V)** for VMOT | motor rail over the tether | replaces the on-robot LiPo; regulated + current-limited |
 | **Dot/proto PCB + headers** | solder the two A4988s + MPU breakout onto the frame (reference dropped breadboards — vibration) | |
+| **MCP23017 I2C expander** (robot's — strap A0/A1 for **0x23**) + 2× RESET-SLEEP pull-down resistors | hosts all 12 static driver lines (DIR/EN/RESET-SLEEP/MS) off-header, pull-downs keep the chassis inert-by-default; optionally also hosts the platform's two displaced CS lines (F5) | **not in inventory** (tracker-verified 2026-07-29); 0x20/21/22/27 taken on the shared bus |
 | **2× ~100 µF caps across VMOT** | protect each A4988 from LC voltage spikes | **required by the A4988** — never hot-plug VMOT without it |
 | Heatsinks for the A4988s | thermal headroom at balancing currents | |
 | Jumper wire, screws (#4-40 per reference), zip ties | assembly | |
 
 ## Wiring — exact connections (verified for THIS Pi 5 / RP1)
 
-> **This is the solder-once map.** Pin assignments below were verified against the
-> live board (`pinctrl`, `dtoverlay -h pwm`, `config.txt`) on 2026-07-10 — every
-> control pin listed reads free, and the two STEP lines land on the **only** header
-> pins the RP1 can drive as hardware PWM. Solder to *these* and Architecture B works
-> without rework. BCM (GPIO) numbering throughout; physical header pin in parens.
+> ⛔ **MAP SUPERSEDED — robot.md F5 rev 2 (2026-07-29). Do NOT solder yet.**
+> The 2026-07-10 check only proved the pins *read* free with `pinctrl` at idle —
+> bit-banged CS and LCD nets idle as inputs, so they read `none` while claimed:
+> GPIO12/13/26 carry the DAC/dpot/ADC chip-selects (t/410, t/445) and
+> GPIO5/6/17/22/27 the board-5 LCD (t/620) — though the routing lives in bench
+> jumpers + the unbuilt board 1, never in satellite copper. Per F5 rev 2 the
+> **STEP rows below stand** (the robot keeps GPIO12/13; the platform vacates them
+> by moving both CS lines to expander-hosted pins), while **every other control
+> row is superseded** — DIR/EN/RESET-SLEEP/MS move to the robot's MCP23017 @ I2C
+> 0x23. Redraw the tables when F5 closes. BCM (GPIO) numbering throughout;
+> physical header pin in parens.
 
 ### The one rule that must not be broken
 
@@ -67,9 +74,14 @@ Pi 5 the RP1 exposes PWM on the 40-pin header at **only**:
 - **PWM0 → GPIO12** (phys 32) — `Alt0` / `func=4`
 - **PWM1 → GPIO13** (phys 33) — `Alt0` / `func=4`
 
-(GPIO18/19 are the other option but are `Alt5`, shared with the onboard audio/I2S —
-avoid.) **Left STEP → GPIO12, Right STEP → GPIO13. No substitutions.** Everything
-else (DIR/EN/MS/RESET/SLEEP) is ordinary GPIO and can move; STEP cannot.
+(GPIO18/19 carry the RP1's other PWM channel pair, but the platform needs them:
+18 is the t/400 hardware-PWM sweep → ADS#1 A0 plus the servo pin, and 19 the
+stepper rig's centre LED.) **Left STEP → GPIO12, Right STEP → GPIO13 —
+reaffirmed by F5 rev 2:** they're the only PWM pair the platform can vacate, and
+it vacates them by moving the DAC/dpot CS lines to expander-hosted pins (bench
+jumpers + board-1 routing — no fabbed-board changes). Everything else
+(DIR/EN/MS/RESET/SLEEP) leaves the header entirely for the robot's MCP23017 @
+I2C 0x23; STEP can only live on the header's PWM-capable pins.
 
 ### Reserved pins we route around (already claimed on this Pi)
 
@@ -84,7 +96,7 @@ The map below avoids all of them.
 | SCL1 | GPIO3 (phys 5) | MPU-6050 SCL |
 | 3V3 | phys 1 | MPU Vcc (3.3 V logic) |
 | GND | phys 9 | MPU GND |
-| MPU `AD0` | → GND | selects address **0x68** |
+| MPU `AD0` | → 3V3 | selects address **0x69** — 0x68 is the board-4 DS3231's fixed address, and the platform's MPU already runs at 0x69 (t/358); see F5 |
 
 *(The ADS1015 @ 0x48 is a board-2 device already on this shared bus, not part of the
 robot — the robot no longer uses it. See robot.md "Explicitly NOT doing".)*
@@ -145,6 +157,13 @@ electrical plan is complete.)*
 > `t/108` assert as the Pi-5 default, so those tests fail on 12/13 until `t/RPiTest.pm`
 > is made overlay-aware. Robot and test platform share THIS Pi, so this fires the
 > moment you reboot for V1.
+>
+> ⛔ **F5: never apply this overlay while the DAC/dpot CS jumpers sit on 12/13.**
+> The PWM's duty-0 idle drives both **active-low** CS lines LOW = both chips
+> permanently selected, clocking garbage from any unrelated SPI0 traffic. Per F5
+> rev 2 the overlay **stays on 12/13** (STEP reaffirmed there); the precondition
+> is moving the bench CS jumpers to their expander-hosted homes (or detaching
+> board-2's circuits) first.
 
 ## Power topology (tethered — no on-robot battery)
 
@@ -182,7 +201,7 @@ electrical plan is complete.)*
    trust a number. Turn the pot, measure VREF pad to GND, dial it in, *then* power
    off and connect the motors.
 6. Only after 1–5: bring up VMOT, confirm the off-robot Pi enumerates the MPU
-   (0x68) on `i2cdetect -y 1` over the tether, and you're ready for the V1 bench.
+   (0x69) on `i2cdetect -y 1` over the tether, and you're ready for the V1 bench.
 
 - Keep the ~12 V motor rail and the logic 3V3 physically separate in the tether
   (only grounds common). Stepper-current spikes must not couple into the I2C/STEP

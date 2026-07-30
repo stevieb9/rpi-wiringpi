@@ -29,7 +29,7 @@ to one place: step-pulse generation.
                 +---------------- off-robot Raspberry Pi (Perl) --------------+
                 |                                                             |
    MPU-6050 --- I2C ---> RPi::Gyro::MPU6050 --> angle estimator (comp. filter)|
-   (0x68)       |                                        |                    |
+   (0x69)       |                                        |                    |
                 |                                         v                    |
                 |                                  PID controller             |
                 |                                  (setpoint = upright)        |
@@ -111,7 +111,9 @@ comes from a hardware timing peripheral, it is not.
 - **Hardware PWM present:** `pwmchip0`, **4 channels** — enough to clock *both*
   wheel STEP lines with zero CPU involvement. Changing wheel speed = writing a
   frequency register; changing direction = the DIR GPIO. This is the jitter-free
-  path. (Channel→GPIO mapping needs a `pwm` device-tree overlay; confirm the two
+  path for pulse *emission*; its **low-frequency reach and live-retarget
+  semantics** are the open questions V1 answers (see the decision rule below).
+  (Channel→GPIO mapping needs a `pwm` device-tree overlay; confirm the two
   channels land on pins next to the A4988 STEP inputs — a V1/V7 wiring detail.)
 - **GPIO libraries:** `lgpio` + `libgpiod v3` are installed. **`pigpio` is not** —
   and its classic DMA-waveform trick does **not** work on the Pi 5's RP1 anyway,
@@ -136,17 +138,40 @@ The family already ships XS (`WiringPi::API` wraps the wiringPi C lib; `RPi::ADC
 is XS), so this is in-idiom, not a new toolchain.
 
 **Decision rule:** V1 benches A, A′, and B — sustained control-loop rate,
-per-iteration jitter (max + p95), and max clean step rate per approach. Prefer the
-**lowest rung that clears ~100 Hz control with bounded jitter and enough step rate
-for the wheel geometry**. Expectation: **B (hardware PWM)** is the target; A″ is the
-fallback if the PWM channel→GPIO routing proves awkward. **Record the actual numbers
-and the chosen rung back in this table** when V1 completes — left blank until then:
+per-iteration jitter (max + p95), and max clean step rate per approach — with the
+control loop under `SCHED_FIFO` + CPU affinity in every rung (bench what we'd
+actually run; cheap insurance even for rung B). Prefer the **lowest rung that
+clears ~100 Hz control with bounded jitter and enough step rate for the wheel
+geometry**. Expectation: **B (hardware PWM)** is the target; A″ is the fallback if
+the PWM routing or low-end behavior proves awkward.
+
+**The low end is pass/fail too (F1).** At balance the commanded wheel speed hovers
+near zero and crosses through it every few ticks, so for rung B three low-end
+behaviors gate alongside raw rate:
+
+1. **Minimum step frequency + resolution near zero** — verify the RP1 PWM's
+   range/divider actually reaches arbitrarily low step rates (read the RP1
+   datasheet and the `pwm-rp1` driver; do not assume register width).
+2. **Glitch-free retargeting on a live channel** — a period write must latch at
+   the next period boundary, not via disable/re-enable. A runt STEP pulse shorter
+   than the A4988's minimum STEP width (datasheet ~1 µs — re-verify at the bench)
+   is a missed step; a spurious edge is a ghost step.
+3. **Zero-speed discipline** — stop = **duty 0 % with the channel left enabled**
+   (constant-low line, no enable churn); a DIR flip async to the free-running
+   clock costs at most one microstep — negligible, but decided here, not
+   discovered later.
+
+**Record the actual numbers and the chosen rung back in this table** when V1
+completes — left blank until then:
 
 | Metric (from V1) | A (Perl) | A′ (C bit-bang) | B (HW PWM) |
 |------------------|----------|-----------------|------------|
 | Sustained control-loop rate | _TBD_ | _TBD_ | _TBD_ |
 | Loop jitter (max / p95) | _TBD_ | _TBD_ | _TBD_ |
 | Max clean step rate | _TBD_ | _TBD_ | _TBD_ |
+| Min clean step rate / resolution near 0 | n/a (CPU-timed) | n/a (CPU-timed) | _TBD_ |
+| Live retarget (boundary-latch vs runt pulses) | n/a | n/a | _TBD_ |
+| Zero-speed (duty-0) + DIR-flip handling | n/a | n/a | _TBD_ |
 
 **Chosen rung:** _TBD (record the winner + reason here when V1 completes)._
 

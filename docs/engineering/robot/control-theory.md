@@ -62,37 +62,52 @@ error = angle - balance_setpoint - drive_setpoint
 - `drive_setpoint` — a deliberate lean injected to make the robot travel (0 while
   just balancing; non-zero when driving — backlog B2).
 
-Standard PID:
+Standard PID, **dt-normalized** — a deliberate departure from the reference (F2,
+explained below):
 
 ```perl
 my $error = $angle - $balance_setpoint - $drive_setpoint;
 
-$integral += $error;
-$integral  = clamp($integral, -400, 400);   # anti-windup
+# integral: accumulate the TERM (gain folded in), normalized by measured dt
+$i_term += $Ki * $error * $dt;
+$i_term  = clamp($i_term, -400, 400);        # anti-windup — clamp the term itself
 
-my $output = $Kp * $error
-           + $Ki * $integral
-           + $Kd * ($error - $prev_error);
+# derivative: normalized by dt (low-pass it if noisy; don't shrink Kd instead)
+my $d_term = $Kd * ($error - $prev_error) / $dt;
 
+my $output = $Kp * $error + $i_term + $d_term;
 $output    = clamp($output, -400, 400);      # actuator limit
 $prev_error = $error;
 
 # dead-band: don't fight tiny errors (kills buzz/oscillation at balance)
 $output = 0 if abs($output) < $deadband;
 
-# $output -> wheel velocity command (sign = lean-into-fall direction)
+# $output -> wheel velocity command (sign = lean-into-fall direction);
+# §3's slew clamp then bounds how fast the commanded step rate may change
 $drive->balance_command($output);
 ```
 
-**Starting constants** (reference values — a *starting point*, retune in V8):
+**Why dt-normalized (F2).** The reference runs its PID inside a fixed 4 ms ISR, so
+it can fold dt into the gains (`integral += error`, `Kd·(error − prev_error)`). Our
+loop period wobbles (userspace Linux), and `Kd` is the dominant gain — in the
+un-normalized form every scheduling wobble directly modulates the D term, and the
+I term accumulates per-*iteration* rather than per-*second*. Normalizing by the
+measured `$dt` makes the gains time-true at any loop rate. Two fidelity notes: the
+reference clamps the accumulated integral **term** (its `pid_i_mem` already
+contains the gain), which the code above preserves — clamping a raw Σerror at ±400
+instead would let the I contribution reach ±400·Ki; and if the derivative is noisy,
+filter it (e.g. a 1-pole low-pass on `$d_term`) rather than shrinking `Kd`.
 
-| Term | Symbol | Start | Meaning |
-|------|--------|-------|---------|
-| Proportional | `Kp` | 15 | stiffness — how hard it resists tilt |
-| Integral | `Ki` | 1.5 | removes steady-state lean; windup-prone |
-| Derivative | `Kd` | 30 | damping — anticipates, kills oscillation |
-| Output clamp | | ±400 | matches the reference's motor command range |
-| Dead-band | | tune | suppress buzz when essentially balanced |
+**Starting constants** (the reference's values **converted to dt-normalized form**
+at its 4 ms tick — a *starting point*, retune in V8):
+
+| Term | Symbol | Start | Conversion | Meaning |
+|------|--------|-------|------------|---------|
+| Proportional | `Kp` | 15 | unchanged | stiffness — how hard it resists tilt |
+| Integral | `Ki` | 375 /s | 1.5 ÷ 0.004 s | removes steady-state lean; windup-prone |
+| Derivative | `Kd` | 0.12 s | 30 × 0.004 s | damping — anticipates, kills oscillation |
+| Output clamp | | ±400 | — | matches the reference's motor command range |
+| Dead-band | | tune | — | suppress buzz when essentially balanced |
 
 ## 3. From PID output to step rate
 
@@ -106,6 +121,18 @@ is calibrated on the bench in V3/V4 and is where microstep resolution and the
 achievable pulse rate (V1) actually bite — the reference applies a *nonlinear*
 compensation here because step torque falls off with speed. Expect to shape this
 curve during tuning, not to get it right first try.
+
+**Acceleration (slew) limiting — mandatory, not a tuning discovery (F3).** A
+stepper is synchronous: the commanded rate *is* the rotor speed, and the hardware
+PWM will happily jump 200 Hz → 8 kHz in a single register write. Available torque ×
+(rotor + wheel) inertia bounds the acceleration the motor can actually track;
+command a bigger per-tick jump and it desyncs — torque collapses, the robot falls,
+and it presents as inexplicable bad tuning. So the controller clamps the per-tick
+change of each wheel's commanded step rate: `|Δf| ≤ f_accel_max · dt`, where
+`f_accel_max` (steps/s²) is measured on the bench in V3 (steepest clean spin-up
+ramp, wheels fitted if possible since their inertia counts, then take margin). At
+100 Hz ticks a controller-side clamp yields 10 ms-granularity ramps — sufficient;
+the V3 velocity driver needs no internal ramping.
 
 ## 4. Physical design — CoM height sets the difficulty
 
@@ -156,7 +183,11 @@ Ballast needed to hit a target CoM (3/8″ ply shelves, 3/16″ threaded-rod sta
 | 30 cm (12″) | ~110 g | ~155 g | ~200 g |
 
 **Recommended: 25 cm rod + ~300 g ballast → CoM ≈ 10 cm, τ ≈ 100 ms**, total robot
-~1.1 kg (well inside the 2× 33 N·cm motors' torque headroom). A taller mast now costs
+~1.1 kg. On torque, stay honest (F4): 33 N·cm is *holding* torque — usable torque at
+recovery speeds is roughly ⅓–½ of that and falls further with speed at 12 V, so
+expect a **modest capture envelope** (measured, not assumed, in V8), plan to derate
+the A4988s to ~0.8–0.9 A/phase thermally even with heatsinks, and treat B3 (DRV8825)
+as the escape hatch if the envelope proves too tight. A taller mast now costs
 nothing (no battery to keep low) and roughly halves the ballast vs. a 20 cm mast.
 
 ### Practical build notes
