@@ -1,8 +1,8 @@
 # Robot — control theory (complementary filter + PID)
 
 Companion to [robot.md](robot.md). The control math is platform-independent, so
-we port it faithfully from the [reference design](https://smnbajwa.github.io/selfbalancingrobot/)
-and retune the constants on our hardware. Implemented in Perl in V2 (angle) and
+it is ported faithfully from the [reference design](https://smnbajwa.github.io/selfbalancingrobot/)
+with the constants retuned on this hardware. Implemented in Perl in V2 (angle) and
 V5 (PID).
 
 ## 1. Angle estimation — complementary filter
@@ -43,7 +43,7 @@ Notes:
 - `dt` must be the *measured* elapsed time per loop, not a constant — Perl loop
   timing varies (see the real-time discussion). Feeding a real `dt` keeps the
   integration honest even when the loop rate wobbles.
-- The `0.9996/0.0004` split is tuned for the reference's loop rate; if our loop
+- The `0.9996/0.0004` split is tuned for the reference's loop rate; if this loop
   runs slower, the effective time constant shifts — treat these two as tunables,
   not sacred constants.
 
@@ -88,8 +88,8 @@ $drive->balance_command($output);
 ```
 
 **Why dt-normalized (F2).** The reference runs its PID inside a fixed 4 ms ISR, so
-it can fold dt into the gains (`integral += error`, `Kd·(error − prev_error)`). Our
-loop period wobbles (userspace Linux), and `Kd` is the dominant gain — in the
+it can fold dt into the gains (`integral += error`, `Kd·(error − prev_error)`). Here
+the loop period wobbles (userspace Linux), and `Kd` is the dominant gain — in the
 un-normalized form every scheduling wobble directly modulates the D term, and the
 I term accumulates per-*iteration* rather than per-*second*. Normalizing by the
 measured `$dt` makes the gains time-true at any loop rate. Two fidelity notes: the
@@ -156,8 +156,8 @@ demands a faster, lower-jitter loop and quicker motor response.
 | 12 cm | 111 ms | ~11 samples/τ | very forgiving |
 | 15 cm+ | 124 ms+ | — | tippy; needs heavy ballast + more motor torque |
 
-**Aim for CoM ≈ 9–11 cm** for first balance; trim toward 8 cm later if you want it
-snappier.
+**Aim for CoM ≈ 9–11 cm** for first balance; trim toward 8 cm later for a snappier
+response.
 
 ### Mass model (this build: NO battery, Pi is off-robot)
 
@@ -194,8 +194,8 @@ nothing (no battery to keep low) and roughly halves the ballast vs. a 20 cm mast
 
 - **Tunable ballast = the CoM tuning knob.** Since the top shelf is held by 3/16″
   threaded rod, stack steel nuts/washers (or a bolt-on plate) on the studs above the
-  shelf, and leave ~3–4 cm of extra stud. During V8 you add/remove washers to move
-  the CoM empirically — start heavy/high (easy), lighten as confidence grows. No rebuild.
+  shelf, and leave ~3–4 cm of extra stud. During V8, washers are added/removed to
+  move the CoM empirically — start heavy/high (easy), lighten as confidence grows. No rebuild.
 - **Spread the 4 rods in a wide rectangle**, not clustered — a floppy mast adds a
   flexible resonant mode the balancer will fight, and makes the IMU read mast wobble
   instead of true body tilt.

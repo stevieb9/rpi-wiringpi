@@ -2,23 +2,23 @@
 
 Companion to [robot.md](robot.md). This is the engineering "why". The reference
 design is the [smnbajwa self-balancing robot](https://smnbajwa.github.io/selfbalancingrobot/);
-this document adapts it to a Raspberry Pi driven entirely by Perl and by our own
-`RPi::` distributions.
+this document adapts it to a Raspberry Pi driven entirely by Perl and by the
+in-house `RPi::` distributions.
 
-## Reference vs. our build
+## Reference vs. this build
 
-| Concern | Reference (smnbajwa) | Our build |
+| Concern | Reference (smnbajwa) | This build |
 |---------|----------------------|-----------|
 | Brain | Arduino Nano (AVR, bare-metal, Timer2 ISR @ 50 kHz) | Raspberry Pi, **Perl** on Linux |
 | IMU | MPU-6050 (I2C) | MPU-6050 via **`RPi::Gyro::MPU6050`** (I2C) |
 | Drive | 2 motors + 2× A4988 | 2× **NEMA17** + 2× **A4988** via **`RPi::StepperMotor::A4988`** |
 | Angle | complementary filter (`0.9996`/`0.0004`) | complementary filter, ported — see [control-theory.md](control-theory.md) |
-| Control | PID P=15 I=1.5 D=30, clamp ±400 | same coefficients as a **starting point**, retuned on our platform |
+| Control | PID P=15 I=1.5 D=30, clamp ±400 | same coefficients as a **starting point**, retuned on this platform |
 | Step timing | hardware timer ISR | **RP1 hardware PWM** as the step clock, driven from an XS layer (Pi 5; see the ladder below) |
 | Power/compute | onboard, battery | **off-robot & tethered** — Pi + bench supply reach the chassis over an umbilical; no battery (see [robot.md](robot.md)) |
 
-We keep the reference's control *math* (it's platform-independent) and its *sensor
-and driver ICs* (which we happen to own). What fundamentally differs is the
+The reference's control *math* is kept (it's platform-independent), as are its
+*sensor and driver ICs* (already in inventory). What fundamentally differs is the
 execution substrate: a hard-real-time AVR ISR vs. a Perl process on a
 time-shared Linux kernel. That difference is the whole risk, and it is confined
 to one place: step-pulse generation.
@@ -73,14 +73,14 @@ milliseconds. To hold it up the loop must **sense → decide → actuate** fast 
 *regularly*. Two distinct timing demands:
 
 1. **Control-loop rate** — read IMU, run the filter + PID, update motor targets.
-   The reference does this at ~250 Hz (4 ms). Realistically we need on the order
-   of **100 Hz with bounded jitter**. This part is *plausibly* fine in Perl: an
+   The reference does this at ~250 Hz (4 ms). Realistically the loop needs on the
+   order of **100 Hz with bounded jitter**. This part is *plausibly* fine in Perl: an
    I2C burst read of the MPU plus float math is sub-millisecond of real work; the
    question is scheduler jitter, not throughput.
 
 2. **Step-pulse generation** — a stepper turns by receiving discrete STEP pulses;
    wheel *speed* is the pulse *rate*. Balancing continuously varies each wheel's
-   speed (including sign) every control tick. So we need a **smooth, high-rate,
+   speed (including sign) every control tick. So the drive needs a **smooth, high-rate,
    continuously-retargetable pulse train per wheel**. On the AVR this is a timer
    ISR. On the Pi in Perl it is the hard problem, because:
    - the current `RPi::StepperMotor::A4988->step($count)` **blocks** — it busy-loops
@@ -120,7 +120,7 @@ comes from a hardware timing peripheral, it is not.
   so the "pigpio waves" idea from the first draft is **off the table on Pi 5**.
   The RP1 hardware PWM replaces it.
 
-### The stepping-architecture ladder (V1 measures where we land)
+### The stepping-architecture ladder (V1 measures where it lands)
 
 Every rung stays "code in Perl" — the XS/C, where used, only implements the
 non-blocking step generator that Perl commands; the PID/filter stay Perl.
@@ -139,7 +139,7 @@ is XS), so this is in-idiom, not a new toolchain.
 
 **Decision rule:** V1 benches A, A′, and B — sustained control-loop rate,
 per-iteration jitter (max + p95), and max clean step rate per approach — with the
-control loop under `SCHED_FIFO` + CPU affinity in every rung (bench what we'd
+control loop under `SCHED_FIFO` + CPU affinity in every rung (bench what would
 actually run; cheap insurance even for rung B). Prefer the **lowest rung that
 clears ~100 Hz control with bounded jitter and enough step rate for the wheel
 geometry**. Expectation: **B (hardware PWM)** is the target; A″ is the fallback if

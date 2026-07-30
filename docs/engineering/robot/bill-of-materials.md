@@ -1,10 +1,10 @@
 # Robot — bill of materials, inventory mapping & wiring
 
-Companion to [robot.md](robot.md). Maps every part to what you **already own**
-(per the naranja `rpi-tracker` inventory + the `RPi::` distributions) and what
+Companion to [robot.md](robot.md). Maps every part to what is **already in
+inventory** (per the naranja `rpi-tracker` + the `RPi::` distributions) and what
 still has to be **procured**. Pinout is a starting proposal to finalise at V7.
 
-## What you already own (no purchase)
+## Already in inventory (no purchase)
 
 ### From the naranja inventory table
 
@@ -30,7 +30,7 @@ still has to be **procured**. Pinout is a starting proposal to finalise at V7.
 | `RPi::I2C` | 3.1803 | yes | I2C bus (MPU) |
 | `RPi::Const` | 1.07 | yes | HIGH/LOW/mode constants |
 
-The three "No" rows are the distributions we built but never connected — the
+The three "No" rows are the distributions that were built but never connected — the
 robot is what connects them. (They're absent from the `rpi-tracker` `dists`
 table today; V10 makes them first-class prereqs of the robot app, so they start
 showing up.)
@@ -83,7 +83,7 @@ jumpers + board-1 routing — no fabbed-board changes). Everything else
 (DIR/EN/MS/RESET/SLEEP) leaves the header entirely for the robot's MCP23017 @
 I2C 0x23; STEP can only live on the header's PWM-capable pins.
 
-### Reserved pins we route around (already claimed on this Pi)
+### Reserved pins routed around (already claimed on this Pi)
 
 I2C1 `GPIO2/3` · SPI0 `GPIO7–11` · UART0 `GPIO14/15` · 1-Wire `GPIO4` (w1-gpio).
 The map below avoids all of them.
@@ -156,7 +156,7 @@ electrical plan is complete.)*
 > Discovery Tracking **Fix 1**. It re-muxes GPIO12/13 off alt 31, which `t/107` and
 > `t/108` assert as the Pi-5 default, so those tests fail on 12/13 until `t/RPiTest.pm`
 > is made overlay-aware. Robot and test platform share THIS Pi, so this fires the
-> moment you reboot for V1.
+> moment of the V1 reboot.
 >
 > ⛔ **F5: never apply this overlay while the DAC/dpot CS jumpers sit on 12/13.**
 > The PWM's duty-0 idle drives both **active-low** CS lines LOW = both chips
@@ -197,11 +197,11 @@ electrical plan is complete.)*
 5. **Set VREF (current limit) with the motors DISCONNECTED and VMOT powered.**
    Target ≤ **1.0 A/phase** (the NEMA17 rating). Limit = `VREF / (8 × Rcs)` →
    `VREF = I × 8 × Rcs`. **Rcs varies wildly between A4988 clones** (0.05 / 0.068 /
-   0.1 Ω) — read *your* carrier's sense-resistor value off the board before you
-   trust a number. Turn the pot, measure VREF pad to GND, dial it in, *then* power
+   0.1 Ω) — read the actual carrier's sense-resistor value off the board before
+   trusting a number. Turn the pot, measure VREF pad to GND, dial it in, *then* power
    off and connect the motors.
 6. Only after 1–5: bring up VMOT, confirm the off-robot Pi enumerates the MPU
-   (0x69) on `i2cdetect -y 1` over the tether, and you're ready for the V1 bench.
+   (0x69) on `i2cdetect -y 1` over the tether — ready for the V1 bench.
 
 - Keep the ~12 V motor rail and the logic 3V3 physically separate in the tether
   (only grounds common). Stepper-current spikes must not couple into the I2C/STEP
@@ -209,9 +209,9 @@ electrical plan is complete.)*
 
 ## Microstepping — MS pins are GPIO-wired on purpose
 
-We route MS1/2/3 to GPIO (not fixed jumpers) so the microstep mode is
+MS1/2/3 are routed to GPIO (not fixed jumpers) so the microstep mode is
 software-selectable during V3/tuning without desoldering — higher microstepping is
-smoother but needs a higher step rate (harder on timing), so we want to sweep it,
-not commit now. If you'd rather save six wires, tie each MS triple to fixed levels
+smoother but needs a higher step rate (harder on timing), so it should be swept,
+not committed now. To save six wires instead, tie each MS triple to fixed levels
 per the A4988 truth table and pass the matching `mode` to `RPi::StepperMotor::A4988`
 so the degree math stays correct — but then the mode is frozen in copper.
