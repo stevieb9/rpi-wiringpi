@@ -2,7 +2,14 @@
 
 Each part is a parametric generator (`.py`, the source of truth) plus its
 committed STL (a regenerable derivative, kept so the parts are printable
-without running anything). Dimensions all in mm. Authoritative specs live in
+without running anything). Dimensions all in mm.
+
+**Bed adhesion: skirt only — no brim, no raft, no ironing.** Both parts have
+large flat first layers that need no help, and the wheel's bottom face is the
+flange-seat surface: it must print directly on the glass (a raft ruins the
+seat finish and the recess edges). Rafts + ironing also interact badly in
+Cura (the raft top gets ironed smooth and the part welds to it — especially
+in PETG). Authoritative specs live in
 [bill-of-materials.md](../bill-of-materials.md) (fastener schedule, hub
 listing), [control-theory.md](../control-theory.md) §4/§6, and
 [robot-mechanical.jpg](../robot-mechanical.jpg) (assembly + balloon callouts).
@@ -24,10 +31,18 @@ listing), [control-theory.md](../control-theory.md) §4/§6, and
   ceiling (makes the seat bridge fully anchored). Drill it Ø8 only if the
   shaft pokes past the flange at assembly.
 - Print: recess face down, 3–4 perimeters, 20–30 % infill, PLA or PETG.
+  The STL imports print-ready — do NOT rotate or Lay Flat. Orientation
+  check: spoke windows + big pocket against the plate, counterbore rings
+  facing up. A slicer showing a TALL support gap under the hub means the
+  model is upside-down (the real pocket is a 2.8 mm dish on the glass).
   No supports required by design — the one downward span is the
-  fully-anchored Ø22.6 ceiling bridge. If adding supports anyway, set
-  Support Placement = Touching Buildplate so they generate only inside the
-  pocket (scar hides under the flange).
+  fully-anchored Ø22.6 ceiling bridge (max chord 22.6 mm). Enable Bridge
+  Settings + bridge fan 100 %; prefer PLA for wheels (bridges better; the
+  PETG advice is bracket-specific). The bridge prints at z ≈ 2.8 — watch it
+  land in the first ~20 min; mild sag is fine (seat contact is at the outer
+  edge). If adding supports anyway, set Support Placement = Touching
+  Buildplate so they generate only inside the pocket (scar hides under the
+  flange).
 - Slicer checks: layer 1 shows the full footprint (rim ring, spokes, boss
   ring) on the plate; the bridge layer at z ≈ 2.8 shows parallel chords
   anchored wall-to-wall; no red on the chamfered top lip.
