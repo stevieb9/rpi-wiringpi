@@ -782,7 +782,7 @@ Other 5V connections:
 > on every `make test`. Scope is **on-board (boards 2–5) + planned (board 1)**
 > devices only — bench-wired and optional parts are excluded. The
 > **Sleep/dormant** column is each part's lowest documented power state
-> (sleep/standby/shutdown), from `plans/rpi-lowpower-modes.md` + datasheets.
+> (sleep/standby/shutdown), from `projects/rpi-wiringpi/plans/rpi-lowpower-modes.md` + datasheets.
 
 **+3V3 bus** — all I2C/SPI ICs + the 74HC595:
 

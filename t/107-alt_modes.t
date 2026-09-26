@@ -30,7 +30,7 @@ my $pi = $mod->new(label => 't/107-alt_modes.t', shm_key => 'rpit');
         # wiringPi's RP1 funcsel numbering doesn't match the classic ALT0-5
         # scheme: mode_alt(1)/(2) don't take, and an arbitrary alt on an
         # unconnected pin maps to nothing meaningful, so this round-trip isn't
-        # valid on the Pi 5 (see B6/B9 in plans/shareable-refactor.md).
+        # valid on the Pi 5 (see B6/B9 in projects/rpi-wiringpi/plans/done/shareable-refactor.md).
         skip "alt-mode round-trip is not supported on the Pi 5 / RP1", 24
             if rpi_board_tag() eq 'pi5';
 

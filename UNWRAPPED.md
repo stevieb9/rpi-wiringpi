@@ -98,7 +98,7 @@ in `rpi-wiringpi` (not in shipped code, tests, docs, plans, or the changelog).
 
 ## 2. Referenced only in dev artifacts — 9 capabilities
 
-These appear *only* in the changelog (`Changes`), design notes (`plans/`),
+These appear *only* in the changelog (`Changes`), design notes (`projects/rpi-wiringpi/plans/`),
 or ad-hoc scripts under `build_testing/` — never in the shipped `lib/` code,
 test suite (`t/`), or user-facing POD/Markdown docs. Effectively unwrapped
 from a published-API standpoint, but listed separately since a reference exists.

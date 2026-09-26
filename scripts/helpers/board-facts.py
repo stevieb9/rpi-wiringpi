@@ -74,7 +74,7 @@ OPTIONAL_DEVICES = {
 # TYPICAL ESTIMATES, NOT MEASURED - confirm against your parts before sizing a
 # supply. Active figures are carried over from the curated sec 11.3 table; the
 # sleep column is the lowest documented power state (sleep/standby/shutdown),
-# sourced from plans/rpi-lowpower-modes.md + the part datasheets.
+# sourced from projects/rpi-wiringpi/plans/rpi-lowpower-modes.md + the part datasheets.
 #
 # SCOPE (deliberate): only devices that are on a fabbed board (context
 # 'onboard', boards 2-5) or planned for one (context 'planned', board 1).

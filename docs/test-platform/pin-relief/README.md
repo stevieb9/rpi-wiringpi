@@ -1,7 +1,7 @@
 # GPIO pin audit & relief — analysis
 
 The test-grounded working analysis behind the plan
-`plans/gpio-pin-audit-and-relief.md`. Every fact is tagged **[T]** (proven in a
+`projects/rpi-wiringpi/plans/gpio-pin-audit-and-relief.md`. Every fact is tagged **[T]** (proven in a
 test, `file:line`), **[L]** (submodule/facade default), or **[F]** (non-test /
 hardware convention); unknowns are flagged, never guessed. The narrative results
 are folded into `../test-pinout-doc.md` and `../test-board-matrix.md` — these files
